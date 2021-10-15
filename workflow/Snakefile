@@ -1,61 +1,135 @@
-import os
-import sys
-import math
+import pandas as pd
 from snakemake.utils import min_version
+from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
+from os.path import join
+
+include: "rules/common.smk"
+
+## File download
+FTP = FTPRemoteProvider()
 
 min_version("6.0")
 
-SDIR = os.path.realpath(os.path.dirname(srcdir("Snakefile")))
-shell.prefix(f"set -eo pipefail;")
-
-
-report: "report/workflow.rst"
-
-
 configfile: "config/config.yaml"
 
+## Read table of samples and set wildcard prefix and constraints
+asm = pd.read_table(config["assemblies"]).set_index(["prefix"], drop = False)
+ASM_prefix = list(set(asm["prefix"]))
 
-TEMP_DIR = config.pop("tempdir", "temp")
-if TEMP_DIR != "temp":
-    if os.path.exists("temp"):
-        if os.path.islink("temp") and os.path.realpath("temp") == os.path.realpath(
-            TEMP_DIR
-        ):
-            print("The temp dir has already been linked.")
-        else:
-            sys.exit("temp/ already in use, please move it before running.")
-    else:
-        shell("ln -s {TEMP_DIR} temp")
+wildcard_constraints:
+    prefix="|".join(ASM_prefix)
 
+## Set reference to be used. Pipeline only uses GRCh38 or GRCh37.
+ref_id = config["reference"]
+
+ref_dependent_data = config["tool_data"][config["reference"]]
+
+ref_url = ref_dependent_data["ref_url"]
+par_ref = join(config["par_bed_root"], ref_dependent_data["par_bed"])
+# strat_url = ref_dependent_data["strat_url"]
+# strat_tsv = ref_dependent_data["strat_tsv"]
+# strat_id = ref_dependent_data["strat_id"]
+
+## Define basename for benchmark files
+# base = os.path.basename(config["benchmark_vcfgz"])
+# benchmark_name = base.split(".vcf.gz")[0]
 
 rule all:
     input:
-        [],
+        "resources/references/{}.fa".format(ref_id),
+        "resources/references/{}.fa.fai".format(ref_id),
+        # "resources/benchmark/{}.vcf.gz".format(benchmark_name),
+        # "resources/benchmark/{}.vcf.gz.tbi".format(benchmark_name),
+        # "resources/benchmark/{}.bed".format(benchmark_name),
+        expand("results/dipcall/{prefix}.mak", prefix = ASM_prefix),
+        expand("results/dipcall/{prefix}.dip.vcf.gz", prefix = ASM_prefix),
+        expand("results/dipcall/{prefix}.dip.bed", prefix = ASM_prefix),
+        expand("results/dipcall/{prefix}.hap1.bam", prefix = ASM_prefix),
+        expand("results/dipcall/{prefix}.hap2.bam", prefix = ASM_prefix),
+        # expand("results/dipcall/{prefix}.dip.vcf.gz.tbi", prefix = ASM_prefix),
+        # expand("results/dipcall/{prefix}.hap1.bam.bai", prefix = ASM_prefix),
+        # expand("results/dipcall/{prefix}.hap2.bam.bai", prefix = ASM_prefix),
+        expand("results/dipcall/{prefix}.dip.gap2homvarbutfiltered.vcf.gz", prefix = ASM_prefix),
+        # "resources/stratifications/",
+        # "resources/stratifications/{}/{}".format(config["reference"], strat_tsv),
+        # expand("results/happy/nontargeted/{prefix}_benchmark-v" + config["benchmark_version"] + ".extended.csv", prefix = ASM_prefix),
+        # expand("results/happy/targeted/{prefix}_benchmark-v" + config["benchmark_version"] + ".extended.csv", prefix = ASM_prefix)
 
+################################################################################
+## Get and prepare reference
+################################################################################
 
-rule RepeatMasker:
+## TODO these FTP calls sometimes cause timeout errors depending on how long we
+## wait between rule calls
+rule get_ref:
+    input: FTP.remote(ref_url)
+    output: "resources/references/{}.fa".format(ref_id)
+    shell: "gunzip -c {input} > {output}"
+
+rule index_ref:
+    input: "resources/references/{}.fa".format(ref_id)
+    output: "resources/references/{}.fa.fai".format(ref_id)
+    wrapper: "0.61.0/bio/samtools/faidx"
+
+################################################################################
+## Run Dipcall
+################################################################################
+
+rule dipcall_makefile:
     input:
-        fasta="a.fasta",
+        h1=get_hap1,
+        h2=get_hap2,
+        ref= rules.get_ref.output,
+        ref_idx= rules.index_ref.output,
     output:
-        out="a.out",
-    resources:
-        mem=config.get("mem", 8),
-    threads: config.get("threads", 8)
+        "results/dipcall/{prefix}.mak"
     conda:
-        "envs/env.yml"
-    log:
-        "rm.out.log",
+        "envs/dipcall.yml"
     params:
-        opts=config.get("RepeatMaskerOptions", "-s -xsamll -e ncbi"),
-        species=config.get("RepeatMaskerSpecies", "human"),
-    shell:
-        """
-        RepeatMasker \
-            -s \
-            -xsmall \
-            -e ncbi \
-            -species {params.species} \
-            -dir $(dirname {input.fasta}) \
-            -pa {threads} \
-            {input.fasta}  2> {log}
-        """
+        prefix = "results/dipcall/{prefix}",
+        male_bed = "-x " + par_ref if config["male"] else ""
+    shell: """
+    run-dipcall \
+    {params.male_bed} \
+    {params.prefix} \
+    {input.ref} \
+    {input.h1} \
+    {input.h2} \
+    > {output}
+    """
+
+## conda env not needed here since the .mak file uses absolute paths to the
+## executables
+rule run_dipcall:
+    input:
+        h1=get_hap1,
+        h2=get_hap2,
+        make= "results/dipcall/{prefix}.mak"
+    output:
+        vcf="results/dipcall/{prefix}.dip.vcf.gz",
+        bed="results/dipcall/{prefix}.dip.bed",
+        bam1="results/dipcall/{prefix}.hap1.bam",
+        bam2="results/dipcall/{prefix}.hap2.bam"
+    params:
+        ts = config["dipcall_threads"]
+    log:
+        "results/dipcall/{prefix}_dipcall.log"
+    threads:
+        config["dipcall_threads"]
+    shell: """
+    date
+    make -j{params.ts} -f {input.make}
+    date
+    """
+
+rule dip_gap2homvarbutfiltered:
+    input:
+        vcf="results/dipcall/{prefix}.dip.vcf.gz"
+    output:
+        "results/dipcall/{prefix}.dip.gap2homvarbutfiltered.vcf.gz"
+    shell: """
+    gunzip -c {input.vcf} |\
+    sed 's/1|\./1|1/' |\
+    grep -v 'HET\|GAP1\|DIP' |\
+    bgzip -c > {output}
+    """

@@ -4,3 +4,6 @@ results/**
 logs/**
 .snakemake/**
 **.code-workspace
+
+resources/*
+data/asm17ab21
