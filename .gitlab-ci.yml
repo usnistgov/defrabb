@@ -3,4 +3,6 @@ image: snakemake/snakemake:v6.9.1
 test1:
   stage: test
   script:
+    - 'pwd'
     - 'snakemake --help'
+    - 'snakemake --lint'
