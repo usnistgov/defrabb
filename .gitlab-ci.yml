@@ -2,4 +2,5 @@ image: snakemake/snakemake:v6.9.1
 
 test1:
   stage: test
-  script: 'snakemake --lint --cores 1 --configfile .test/config.yaml'
+  script:
+    - 'snakemake --lint --cores 1 --configfile .test/config.yaml'
