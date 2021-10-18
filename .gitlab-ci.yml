@@ -1,6 +1,11 @@
-image: snakemake/snakemake:v6.9.1
-
-test1:
-  stage: test
+lint:
+  image: snakemake/snakemake:v6.9.1
   script:
-    - snakemake --lint
+    - 'snakemake --lint'
+
+black:
+  image: python:3.9.7
+  efore_script:
+    - apt-get install black
+  script:
+    - 'black . --check'
