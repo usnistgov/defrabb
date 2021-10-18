@@ -1,8 +1,9 @@
 image: snakemake/snakemake:v6.9.1
 
+before_script:
+  - 'snakemake --version'
+
 test1:
   stage: test
   script:
-    - 'pwd'
-    - 'snakemake --version'
     - 'snakemake --lint'
