@@ -4,7 +4,7 @@ image: mambaorg/micromamba:0.17.0
 before_script:
   - echo "Installing pipeline dependencies"
   - conda --version
-  - micromamba install -c bioconda -c conda-forge snakemake==6.9
+  - /bin/micromamba install -c bioconda -c conda-forge snakemake==6.9
   - snakemake --version
 
 test1:
