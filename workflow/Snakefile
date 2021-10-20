@@ -1,7 +1,7 @@
-import pandas as pd
+# import pandas as pd
 from snakemake.utils import min_version
 from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
-from os.path import join
+from os.path import join, basename
 
 include: "rules/common.smk"
 
@@ -13,8 +13,9 @@ min_version("6.0")
 configfile: "config/config.yaml"
 
 ## Read table of samples and set wildcard prefix and constraints
-asm = pd.read_table(config["assemblies"]).set_index(["prefix"], drop = False)
-ASM_prefix = list(set(asm["prefix"]))
+# asm = pd.read_table(config["assemblies"]).set_index(["prefix"], drop = False)
+# ASM_prefix = list(set(asm["prefix"]))
+ASM_prefix = config["ASM_prefix"]
 
 wildcard_constraints:
     prefix="|".join(ASM_prefix)
@@ -50,10 +51,23 @@ rule all:
         # expand("results/dipcall/{prefix}.hap1.bam.bai", prefix = ASM_prefix),
         # expand("results/dipcall/{prefix}.hap2.bam.bai", prefix = ASM_prefix),
         expand("results/dipcall/{prefix}.dip.gap2homvarbutfiltered.vcf.gz", prefix = ASM_prefix),
+        expand("resources/assemblies/{hap}.fa", hap = ["maternal", "paternal"])
         # "resources/stratifications/",
         # "resources/stratifications/{}/{}".format(config["reference"], strat_tsv),
         # expand("results/happy/nontargeted/{prefix}_benchmark-v" + config["benchmark_version"] + ".extended.csv", prefix = ASM_prefix),
         # expand("results/happy/targeted/{prefix}_benchmark-v" + config["benchmark_version"] + ".extended.csv", prefix = ASM_prefix)
+
+################################################################################
+## Get and prepare assemblies
+################################################################################
+
+rule get_assemblies:
+    output:
+        "resources/assemblies/{haplotype}.fa"
+    params:
+        url = lambda wildcards: config["assemblies"][wildcards["haplotype"]]
+    shell:
+        "curl -L {params.url} | gunzip -c > {output}"
 
 ################################################################################
 ## Get and prepare reference
@@ -77,8 +91,8 @@ rule index_ref:
 
 rule dipcall_makefile:
     input:
-        h1=get_hap1,
-        h2=get_hap2,
+        h1="resources/assemblies/paternal.fa",
+        h2="resources/assemblies/maternal.fa",
         ref= rules.get_ref.output,
         ref_idx= rules.index_ref.output,
     output:
@@ -102,8 +116,10 @@ rule dipcall_makefile:
 ## executables
 rule run_dipcall:
     input:
-        h1=get_hap1,
-        h2=get_hap2,
+        h1="resources/assemblies/paternal.fa",
+        h2="resources/assemblies/maternal.fa",
+        # h1=get_hap1,
+        # h2=get_hap2,
         make= "results/dipcall/{prefix}.mak"
     output:
         vcf="results/dipcall/{prefix}.dip.vcf.gz",

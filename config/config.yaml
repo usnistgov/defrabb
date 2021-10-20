@@ -5,9 +5,15 @@
 ##############################################
 
 ############# Assembly Paths ################
-# tsv file that defines assembly name and paths to maternal and paternal haplotypes
-# If haploid assembly, enter haploid assembly path in both maternal and paternal fields.
-assemblies: "config/samples.tsv"
+# URL to the maternal/paternal assemblies
+assemblies:
+  maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/6AA58BE2-3710-4B27-AB6A-BEC23DBA14A2--RU-HG002-cleaned/HG002/assemblies/bakeoff/ru_scaffolded/HG002.mat.gap_filled_scaff.cleaned.fa.gz
+  paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/6AA58BE2-3710-4B27-AB6A-BEC23DBA14A2--RU-HG002-cleaned/HG002/assemblies/bakeoff/ru_scaffolded/HG002.pat.gap_filled_scaff.cleaned.fa.gz
+
+# TODO this is a hack so I don't need to rewrite all the prefix logic now,
+# change this to make more sense eventually (it supposed to be a list)
+ASM_prefix:
+  - whole-assembly
 
 ############# Gender #######################
 # if sample for Dipcall is male
