@@ -116,8 +116,6 @@ rule dipcall_makefile:
     > {output}
     """
 
-## conda env not needed here since the .mak file uses absolute paths to the
-## executables
 rule run_dipcall:
     input:
         h1="resources/assemblies/paternal.fa",
@@ -130,6 +128,8 @@ rule run_dipcall:
         bed="results/dipcall/{prefix}.dip.bed",
         bam1="results/dipcall/{prefix}.hap1.bam",
         bam2="results/dipcall/{prefix}.hap2.bam"
+    conda:
+        "envs/make.yml"
     params:
         ts = config["dipcall_threads"]
     log:
