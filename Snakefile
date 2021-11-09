@@ -35,6 +35,8 @@ par_ref = join(config["par_bed_root"], ref_dependent_data["par_bed"])
 # base = os.path.basename(config["benchmark_vcfgz"])
 # benchmark_name = base.split(".vcf.gz")[0]
 
+## Rules to run locally
+localrules: get_ref
 
 rule all:
     input:
@@ -90,53 +92,40 @@ rule index_ref:
 ## Run Dipcall
 ################################################################################
 
-rule dipcall_makefile:
-    input:
-        h1="resources/assemblies/paternal.fa",
-        h2="resources/assemblies/maternal.fa",
-        ref= rules.get_ref.output,
-        ref_idx= rules.index_ref.output,
-    output:
-        "results/dipcall/{prefix}.mak"
-    conda:
-        "envs/dipcall.yml"
-    params:
-        prefix = "results/dipcall/{prefix}",
-        male_bed = "-x " + par_ref if config["male"] else ""
-    shell: """
-    run-dipcall \
-    {params.male_bed} \
-    {params.prefix} \
-    {input.ref} \
-    {input.h1} \
-    {input.h2} \
-    > {output}
-    """
-
-## conda env not needed here since the .mak file uses absolute paths to the
-## executables
 rule run_dipcall:
     input:
         h1="resources/assemblies/paternal.fa",
         h2="resources/assemblies/maternal.fa",
-        # h1=get_hap1,
-        # h2=get_hap2,
-        make= "results/dipcall/{prefix}.mak"
+        ref="resources/references/{}.fa".format(ref_id),
+        ref_idx= "resources/references/{}.fa.fai".format(ref_id),
     output:
+        make="results/dipcall/{prefix}.mak",
         vcf="results/dipcall/{prefix}.dip.vcf.gz",
         bed="results/dipcall/{prefix}.dip.bed",
         bam1="results/dipcall/{prefix}.hap1.bam",
         bam2="results/dipcall/{prefix}.hap2.bam"
+    conda:
+        "envs/dipcall.yml"
     params:
+        prefix = "results/dipcall/{prefix}",
+        male_bed = "-x " + par_ref if config["male"] else "",
         ts = config["dipcall_threads"]
     log:
         "results/dipcall/{prefix}_dipcall.log"
-    threads:
-        config["dipcall_threads"]
+    resources: mem_mb=config["dipcall_threads"] * 2 * 4000 ## GB per thread
+    threads: config["dipcall_threads"] * 2 ## For diploid
     shell: """
-    date
-    make -j{params.ts} -f {input.make}
-    date
+        echo "Writing Makefile defining dipcall pipeline"
+        run-dipcall \
+            {params.male_bed} \
+            {params.prefix} \
+            {input.ref} \
+            {input.h1} \
+            {input.h2} \
+            > {output.make}
+        
+        echo "Running dipcall pipeline"
+        make -j{params.ts} -f {output.make}
     """
 
 rule dip_gap2homvarbutfiltered:
