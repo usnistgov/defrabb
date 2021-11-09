@@ -79,9 +79,17 @@ rule get_assemblies:
 ## TODO these FTP calls sometimes cause timeout errors depending on how long we
 ## wait between rule calls
 rule get_ref:
+<<<<<<< HEAD
     input: FTP.remote(ref_url, keep_local=True)
+=======
+    # input: FTP.remote(ref_url)
+>>>>>>> 7e5700698f52f4b7ee8afed2b1ad8bf5dc4ce75a
     output: "resources/references/{}.fa".format(ref_id)
-    shell: "gunzip -c {input} > {output}"
+    # shell: "gunzip -c {input} > {output}"
+    params:
+        url = "http://{}".format(ref_dependent_data["ref_url"])
+    shell:
+        "curl --connect-timeout 120 -L {params.url} | gunzip -c > {output}"
 
 rule index_ref:
     input: "resources/references/{}.fa".format(ref_id)
