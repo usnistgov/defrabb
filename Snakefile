@@ -35,6 +35,7 @@ par_ref = join(config["par_bed_root"], ref_dependent_data["par_bed"])
 # base = os.path.basename(config["benchmark_vcfgz"])
 # benchmark_name = base.split(".vcf.gz")[0]
 
+
 rule all:
     input:
         "resources/references/{}.fa".format(ref_id),
@@ -76,7 +77,7 @@ rule get_assemblies:
 ## TODO these FTP calls sometimes cause timeout errors depending on how long we
 ## wait between rule calls
 rule get_ref:
-    input: FTP.remote(ref_url)
+    input: FTP.remote(ref_url, keep_local=True)
     output: "resources/references/{}.fa".format(ref_id)
     shell: "gunzip -c {input} > {output}"
 
