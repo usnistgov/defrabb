@@ -5,7 +5,7 @@ lint:
 
 black:
   image: python:3.9.7
-  efore_script:
+  before_script:
     - apt-get install black
   script:
     - 'black . --check'
