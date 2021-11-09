@@ -79,11 +79,7 @@ rule get_assemblies:
 ## TODO these FTP calls sometimes cause timeout errors depending on how long we
 ## wait between rule calls
 rule get_ref:
-<<<<<<< HEAD
-    input: FTP.remote(ref_url, keep_local=True)
-=======
     # input: FTP.remote(ref_url)
->>>>>>> 7e5700698f52f4b7ee8afed2b1ad8bf5dc4ce75a
     output: "resources/references/{}.fa".format(ref_id)
     # shell: "gunzip -c {input} > {output}"
     params:
@@ -112,14 +108,12 @@ rule run_dipcall:
         bed="results/dipcall/{prefix}.dip.bed",
         bam1="results/dipcall/{prefix}.hap1.bam",
         bam2="results/dipcall/{prefix}.hap2.bam"
-    conda:
-        "envs/dipcall.yml"
+    conda: "envs/dipcall.yml"
     params:
         prefix = "results/dipcall/{prefix}",
         male_bed = "-x " + par_ref if config["male"] else "",
         ts = config["dipcall_threads"]
-    log:
-        "results/dipcall/{prefix}_dipcall.log"
+    log: "results/dipcall/{prefix}_dipcall.log"
     resources: mem_mb=config["dipcall_threads"] * 2 * 4000 ## GB per thread
     threads: config["dipcall_threads"] * 2 ## For diploid
     shell: """
