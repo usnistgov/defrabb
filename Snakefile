@@ -133,6 +133,7 @@ rule dip_gap2homvarbutfiltered:
         vcf="results/dipcall/{prefix}.dip.vcf.gz"
     output:
         "results/dipcall/{prefix}.dip.gap2homvarbutfiltered.vcf.gz"
+    conda: "envs/bgzip.yml"
     shell: """
     gunzip -c {input.vcf} |\
     sed 's/1|\./1|1/' |\
