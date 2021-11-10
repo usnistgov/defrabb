@@ -135,7 +135,8 @@ rule dip_gap2homvarbutfiltered:
         vcf="results/dipcall/{prefix}.dip.vcf.gz"
     output:
         "results/dipcall/{prefix}.dip.gap2homvarbutfiltered.vcf.gz"
-    conda: "envs/bgzip.yml"
+    # bgzip is part of samtools, which is part of the diptcall env
+    conda: "envs/dipcall.yml"
     shell: """
     gunzip -c {input.vcf} |\
     sed 's/1|\./1|1/' |\
