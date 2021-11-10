@@ -114,7 +114,7 @@ rule run_dipcall:
         male_bed = "-x " + par_ref if config["male"] else "",
         ts = config["dipcall_threads"]
     log: "results/dipcall/{prefix}_dipcall.log"
-    resources: mem_mb=config["dipcall_threads"] * 2 * 4000 ## GB per thread
+    resources: mem_mb=config["dipcall_threads"] * 2 * 32000 ## GB per thread
     threads: config["dipcall_threads"] * 2 ## For diploid
     shell: """
         echo "Writing Makefile defining dipcall pipeline"
