@@ -36,7 +36,7 @@ par_ref = join(config["par_bed_root"], ref_dependent_data["par_bed"])
 # benchmark_name = base.split(".vcf.gz")[0]
 
 ## Rules to run locally
-localrules: get_ref
+# localrules: get_ref
 
 rule all:
     input:
