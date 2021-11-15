@@ -22,7 +22,7 @@ male: true
 
 ############# Dipcall Threads #######################
 # number of threads for Dipcall (integer)
-dipcall_threads: 1
+dipcall_threads: 4
 
 ############# Reference  ###################
 # Reference to use for variant calling with

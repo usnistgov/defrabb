@@ -1,4 +1,4 @@
 channels:
   - bioconda
 dependencies:
-  - bgzip
+  - htslib

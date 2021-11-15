@@ -36,7 +36,7 @@ par_ref = join(config["par_bed_root"], ref_dependent_data["par_bed"])
 # benchmark_name = base.split(".vcf.gz")[0]
 
 ## Rules to run locally
-localrules: get_ref
+localrules: get_ref, get_assemblies
 
 rule all:
     input:
@@ -88,9 +88,9 @@ rule get_ref:
         "curl --connect-timeout 120 -L {params.url} | gunzip -c > {output}"
 
 rule index_ref:
-    input: "resources/references/{}.fa".format(ref_id)
-    output: "resources/references/{}.fa.fai".format(ref_id)
-    wrapper: "0.61.0/bio/samtools/faidx"
+    input: "resources/references/{ref}.fa"
+    output: "resources/references/{ref}.fa.fai"
+    wrapper: "0.79.0/bio/samtools/faidx"
 
 ################################################################################
 ## Run Dipcall
@@ -101,7 +101,7 @@ rule run_dipcall:
         h1="resources/assemblies/paternal.fa",
         h2="resources/assemblies/maternal.fa",
         ref="resources/references/{}.fa".format(ref_id),
-        ref_idx= "resources/references/{}.fa.fai".format(ref_id),
+        ref_idx= "resources/references/{}.fa.fai".format(ref_id)
     output:
         make="results/dipcall/{prefix}.mak",
         vcf="results/dipcall/{prefix}.dip.vcf.gz",
@@ -114,7 +114,7 @@ rule run_dipcall:
         male_bed = "-x " + par_ref if config["male"] else "",
         ts = config["dipcall_threads"]
     log: "results/dipcall/{prefix}_dipcall.log"
-    resources: mem_mb=config["dipcall_threads"] * 2 * 4000 ## GB per thread
+    resources: mem_mb=config["dipcall_threads"] * 2 * 16000 ## GB per thread
     threads: config["dipcall_threads"] * 2 ## For diploid
     shell: """
         echo "Writing Makefile defining dipcall pipeline"
