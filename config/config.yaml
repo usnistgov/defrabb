@@ -33,16 +33,17 @@ reference: "GRCh38"
 # ############# Benchmark  ###################
 # # version number of benchmark being used, this will be used in hap.py output filename prefix
 # # e.g., v4.1
-# benchmark_version: "4.2.1"
+benchmark_version: "4.2.1"
 
+# TODO use a base FTP directory and add things onto it depending on which benchmark files we want
 # # enter ftp path to benchmark vcf.gz to be used, e.g.,
-# benchmark_vcfgz: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz"
+benchmark_vcfgz: "ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz"
 
 # # enter ftp path to corresponding vcf.gz index file, e.g.,
-# benchmark_vcfgz_tbi: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz.tbi"
+benchmark_vcfgz_tbi: "ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz.tbi"
 
 # # enter ftp path to benchmark bed to be used, e.g.,
-# benchmark_bed: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed"
+benchmark_bed: "ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed"
 
 ##############################################
 
@@ -58,12 +59,12 @@ tool_data:
   GRCh37:
     ref_url: "ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz"
     par_bed: "hs37d5.PAR.bed"
-    # strat_id: "GRCh37-stratifications-v2.0"
-    # strat_url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh37/"
-    # strat_tsv: "v2.0-GRCh37-stratifications.tsv"
+    strat_id: "GRCh37-stratifications-v2.0"
+    strat_url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh37/"
+    strat_tsv: "v2.0-GRCh37-stratifications.tsv"
   GRCh38:
     ref_url: "ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz"
     par_bed: "hs38.PAR.bed"
-    # strat_id: "GRCh38-stratifications-v2.0"
-    # strat_url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/"
-    # strat_tsv: "v2.0-GRCh38-stratifications.tsv"
+    strat_id: "GRCh38-stratifications-v2.0"
+    strat_url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/"
+    strat_tsv: "v2.0-GRCh38-stratifications.tsv"
