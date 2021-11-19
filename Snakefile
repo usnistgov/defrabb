@@ -27,13 +27,13 @@ ref_dependent_data = config["tool_data"][config["reference"]]
 
 ref_url = ref_dependent_data["ref_url"]
 par_ref = join(config["par_bed_root"], ref_dependent_data["par_bed"])
-# strat_url = ref_dependent_data["strat_url"]
-# strat_tsv = ref_dependent_data["strat_tsv"]
-# strat_id = ref_dependent_data["strat_id"]
+strat_url = ref_dependent_data["strat_url"]
+strat_tsv = ref_dependent_data["strat_tsv"]
+strat_id = ref_dependent_data["strat_id"]
 
 ## Define basename for benchmark files
-# base = os.path.basename(config["benchmark_vcfgz"])
-# benchmark_name = base.split(".vcf.gz")[0]
+base = os.path.basename(config["benchmark_vcfgz"])
+benchmark_name = base.split(".vcf.gz")[0]
 
 ## Rules to run locally
 # localrules: get_ref
@@ -42,22 +42,22 @@ rule all:
     input:
         "resources/references/{}.fa".format(ref_id),
         "resources/references/{}.fa.fai".format(ref_id),
-        # "resources/benchmark/{}.vcf.gz".format(benchmark_name),
-        # "resources/benchmark/{}.vcf.gz.tbi".format(benchmark_name),
-        # "resources/benchmark/{}.bed".format(benchmark_name),
+        "resources/benchmark/{}.vcf.gz".format(benchmark_name),
+        "resources/benchmark/{}.vcf.gz.tbi".format(benchmark_name),
+        "resources/benchmark/{}.bed".format(benchmark_name),
         expand("results/dipcall/{prefix}.mak", prefix = ASM_prefix),
         expand("results/dipcall/{prefix}.dip.vcf.gz", prefix = ASM_prefix),
         expand("results/dipcall/{prefix}.dip.bed", prefix = ASM_prefix),
         expand("results/dipcall/{prefix}.hap1.bam", prefix = ASM_prefix),
         expand("results/dipcall/{prefix}.hap2.bam", prefix = ASM_prefix),
-        # expand("results/dipcall/{prefix}.dip.vcf.gz.tbi", prefix = ASM_prefix),
+        # expand("results/dipcell/{prefix}.dip.vcf.gz.tbi", prefix = ASM_prefix),
         # expand("results/dipcall/{prefix}.hap1.bam.bai", prefix = ASM_prefix),
         # expand("results/dipcall/{prefix}.hap2.bam.bai", prefix = ASM_prefix),
         expand("results/dipcall/{prefix}.dip.gap2homvarbutfiltered.vcf.gz", prefix = ASM_prefix),
-        expand("resources/assemblies/{hap}.fa", hap = ["maternal", "paternal"])
-        # "resources/stratifications/",
-        # "resources/stratifications/{}/{}".format(config["reference"], strat_tsv),
-        # expand("results/happy/nontargeted/{prefix}_benchmark-v" + config["benchmark_version"] + ".extended.csv", prefix = ASM_prefix),
+        expand("resources/assemblies/{hap}.fa", hap = ["maternal", "paternal"]),
+        "resources/stratifications/",
+        "resources/stratifications/{}/{}".format(config["reference"], strat_tsv),
+        expand("results/happy/{prefix}_benchmark-v" + config["benchmark_version"] + ".extended.csv", prefix = ASM_prefix),
         # expand("results/happy/targeted/{prefix}_benchmark-v" + config["benchmark_version"] + ".extended.csv", prefix = ASM_prefix)
 
 ################################################################################
@@ -91,6 +91,38 @@ rule index_ref:
     input: "resources/references/{}.fa".format(ref_id)
     output: "resources/references/{}.fa.fai".format(ref_id)
     wrapper: "0.61.0/bio/samtools/faidx"
+
+################################################################################
+## Get benchmark vcf.gz and .bed
+################################################################################
+
+rule get_benchmark_vcf:
+    output: "resources/benchmark/{}.vcf.gz".format(benchmark_name)
+    params:
+        url = config["benchmark_vcfgz"]
+    shell: "curl -L -o {output} https://{params.url}"
+
+rule get_benchmark_vcf_index:
+    output: "resources/benchmark/{}.vcf.gz.tbi".format(benchmark_name)
+    params:
+        url = config["benchmark_vcfgz_tbi"]
+    shell: "curl -L -o {output} https://{params.url}"
+
+rule get_benchmark_bed:
+    output: "resources/benchmark/{}.bed".format(benchmark_name)
+    params:
+        url = config["benchmark_bed"]
+    shell: "curl -L -o {output} https://{params.url}"
+
+################################################################################
+## Get v2.0 stratifications
+################################################################################
+
+rule get_strats:
+    output: dir = directory("resources/stratifications/"),
+            tsv = "resources/stratifications/" + ref_id + "/" + strat_tsv
+    params: strats = {strat_url}
+    shell: "wget -r {params.strats} -nH --cut-dirs=5 -P {output.dir}"
 
 ################################################################################
 ## Run Dipcall
@@ -143,3 +175,23 @@ rule dip_gap2homvarbutfiltered:
     grep -v 'HET\|GAP1\|DIP' |\
     bgzip -c > {output}
     """
+
+rule run_happy:
+    input:
+        query="results/dipcall/{prefix}.dip.gap2homvarbutfiltered.vcf.gz",
+        truth = rules.get_benchmark_vcf.output,
+        truth_regions = rules.get_benchmark_bed.output,
+        strats = "resources/stratifications/{}/{}".format(config["reference"], strat_tsv),
+        genome=rules.get_ref.output
+    output:
+        "results/happy/{{prefix}}_benchmark-v{}.extended.csv".format(config["benchmark_version"])
+    priority: 1
+    params:
+        prefix = lambda wildcards, output: output [0][:-13],
+        threads = 6,
+        engine="vcfeval"
+        # TODO make this intelligently figure out if we want to use targeted or not
+        # extra = "--target-regions results/dipcall/{prefix}.dip.bed"
+    # log: "results/happy/nontargeted/{prefix}_happy_v312_nontargeted.log"
+    log: "results/happy/{prefix}_happy.log"
+    wrapper: "0.78.0/bio/hap.py/hap.py"
