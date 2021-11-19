@@ -144,13 +144,15 @@ rule run_dipcall:
     params:
         prefix = "results/dipcall/{prefix}",
         male_bed = "-x " + par_ref if config["male"] else "",
-        ts = config["dipcall_threads"]
+        ts = config["dipcall_threads"],
+        zdrop = "-z " + config["dipcall_zdrop"] if config["dipcall_zdrop"] else ""
     log: "results/dipcall/{prefix}_dipcall.log"
     resources: mem_mb=config["dipcall_threads"] * 2 * 32000 ## GB per thread
     threads: config["dipcall_threads"] * 2 ## For diploid
     shell: """
         echo "Writing Makefile defining dipcall pipeline"
         run-dipcall \
+            {params.zdrop} \
             {params.male_bed} \
             {params.prefix} \
             {input.ref} \

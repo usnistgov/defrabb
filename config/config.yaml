@@ -20,9 +20,12 @@ ASM_prefix:
 # Enter "true" or "false"
 male: true
 
-############# Dipcall Threads #######################
+############# Dipcall Config #######################
 # number of threads for Dipcall (integer)
 dipcall_threads: 1
+
+# zdrop param for minimap2 in dipcall
+dipcall_zdrop: "20000,10000"
 
 ############# Reference  ###################
 # Reference to use for variant calling with
