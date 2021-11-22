@@ -1,4 +1,4 @@
-# import pandas as pd
+import pandas as pd
 from snakemake.utils import min_version
 from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
 from os.path import join, basename
@@ -13,7 +13,8 @@ min_version("6.0")
 configfile: "config/config.yaml"
 
 ## Read table of samples and set wildcard prefix and constraints
-# asm = pd.read_table(config["assemblies"]).set_index(["prefix"], drop = False)
+benchmark_params = pd.read_table(config["benchmark_params"]).set_index(["prefix"], drop = False)
+benchmark_prefix = list(set(benchmark_params["prefix"]))
 # ASM_prefix = list(set(asm["prefix"]))
 ASM_prefix = config["ASM_prefix"]
 
@@ -31,34 +32,33 @@ strat_url = ref_dependent_data["strat_url"]
 strat_tsv = ref_dependent_data["strat_tsv"]
 strat_id = ref_dependent_data["strat_id"]
 
-## Define basename for benchmark files
-base = os.path.basename(config["benchmark_vcfgz"])
-benchmark_name = base.split(".vcf.gz")[0]
-
-## Rules to run locally
-# localrules: get_ref
-
 rule all:
     input:
-        "resources/references/{}.fa".format(ref_id),
-        "resources/references/{}.fa.fai".format(ref_id),
-        "resources/benchmark/{}.vcf.gz".format(benchmark_name),
-        "resources/benchmark/{}.vcf.gz.tbi".format(benchmark_name),
-        "resources/benchmark/{}.bed".format(benchmark_name),
-        expand("results/dipcall/{prefix}.mak", prefix = ASM_prefix),
-        expand("results/dipcall/{prefix}.dip.vcf.gz", prefix = ASM_prefix),
-        expand("results/dipcall/{prefix}.dip.bed", prefix = ASM_prefix),
-        expand("results/dipcall/{prefix}.hap1.bam", prefix = ASM_prefix),
-        expand("results/dipcall/{prefix}.hap2.bam", prefix = ASM_prefix),
-        # expand("results/dipcell/{prefix}.dip.vcf.gz.tbi", prefix = ASM_prefix),
-        # expand("results/dipcall/{prefix}.hap1.bam.bai", prefix = ASM_prefix),
-        # expand("results/dipcall/{prefix}.hap2.bam.bai", prefix = ASM_prefix),
-        expand("results/dipcall/{prefix}.dip.gap2homvarbutfiltered.vcf.gz", prefix = ASM_prefix),
-        expand("resources/assemblies/{hap}.fa", hap = ["maternal", "paternal"]),
+        # stratifications
         "resources/stratifications/",
         "resources/stratifications/{}/{}".format(config["reference"], strat_tsv),
-        expand("results/happy/{prefix}_benchmark-v" + config["benchmark_version"] + ".extended.csv", prefix = ASM_prefix),
-        # expand("results/happy/targeted/{prefix}_benchmark-v" + config["benchmark_version"] + ".extended.csv", prefix = ASM_prefix)
+
+        # reference
+        "resources/references/{}.fa".format(ref_id),
+        "resources/references/{}.fa.fai".format(ref_id),
+
+        # assemblies
+        expand("resources/assemblies/{hap}.fa", hap = ["maternal", "paternal"]),
+
+        # dipcall
+        expand("results/dipcall/{v}.mak", v = ASM_prefix),
+        expand("results/dipcall/{v}.dip.vcf.gz", v = ASM_prefix),
+        expand("results/dipcall/{v}.dip.bed", v = ASM_prefix),
+        expand("results/dipcall/{v}.hap1.bam", v = ASM_prefix),
+        expand("results/dipcall/{v}.hap2.bam", v = ASM_prefix),
+        expand("results/dipcall/{v}.dip.gap2homvarbutfiltered.vcf.gz", v = ASM_prefix),
+
+        # benchmark truthsets
+        expand("resources/benchmark/{b}.vcf.gz", b = benchmark_prefix),
+        expand("resources/benchmark/{b}.bed", b = benchmark_prefix),
+
+        # benchmark output
+        expand("results/happy/{v}/{b}/happy_out.extended.csv", v = ASM_prefix, b = benchmark_prefix),
 
 ################################################################################
 ## Get and prepare assemblies
@@ -79,9 +79,7 @@ rule get_assemblies:
 ## TODO these FTP calls sometimes cause timeout errors depending on how long we
 ## wait between rule calls
 rule get_ref:
-    # input: FTP.remote(ref_url)
     output: "resources/references/{}.fa".format(ref_id)
-    # shell: "gunzip -c {input} > {output}"
     params:
         url = "http://{}".format(ref_dependent_data["ref_url"])
     shell:
@@ -96,31 +94,30 @@ rule index_ref:
 ## Get benchmark vcf.gz and .bed
 ################################################################################
 
+# TODO wet code
 rule get_benchmark_vcf:
-    output: "resources/benchmark/{}.vcf.gz".format(benchmark_name)
+    output: "resources/benchmark/{bm_prefix}.vcf.gz"
     params:
-        url = config["benchmark_vcfgz"]
-    shell: "curl -L -o {output} https://{params.url}"
-
-rule get_benchmark_vcf_index:
-    output: "resources/benchmark/{}.vcf.gz.tbi".format(benchmark_name)
-    params:
-        url = config["benchmark_vcfgz_tbi"]
-    shell: "curl -L -o {output} https://{params.url}"
+        url = lambda wildcards: benchmark_params.loc[wildcards.bm_prefix, "truth_vcf_url"]
+    shell: "curl -L -o {output} {params.url}"
 
 rule get_benchmark_bed:
-    output: "resources/benchmark/{}.bed".format(benchmark_name)
+    output: "resources/benchmark/{bm_prefix}.bed"
     params:
-        url = config["benchmark_bed"]
-    shell: "curl -L -o {output} https://{params.url}"
+        url = lambda wildcards: benchmark_params.loc[wildcards.bm_prefix, "truth_bed_url"]
+    shell: "curl -L -o {output} {params.url}"
+
+# TODO add rule to get the tbi file as well when we need it
+# (analogous to these rules)
 
 ################################################################################
 ## Get v2.0 stratifications
 ################################################################################
 
 rule get_strats:
-    output: dir = directory("resources/stratifications/"),
-            tsv = "resources/stratifications/" + ref_id + "/" + strat_tsv
+    output:
+        dir = directory("resources/stratifications/"),
+        tsv = "resources/stratifications/{}/{}".format(ref_id, strat_tsv)
     params: strats = {strat_url}
     shell: "wget -r {params.strats} -nH --cut-dirs=5 -P {output.dir}"
 
@@ -130,24 +127,24 @@ rule get_strats:
 
 rule run_dipcall:
     input:
-        h1="resources/assemblies/paternal.fa",
-        h2="resources/assemblies/maternal.fa",
-        ref="resources/references/{}.fa".format(ref_id),
-        ref_idx= "resources/references/{}.fa.fai".format(ref_id),
+        h1 = "resources/assemblies/paternal.fa",
+        h2 = "resources/assemblies/maternal.fa",
+        ref = rules.get_ref.output,
+        ref_idx = rules.index_ref.output
     output:
-        make="results/dipcall/{prefix}.mak",
-        vcf="results/dipcall/{prefix}.dip.vcf.gz",
-        bed="results/dipcall/{prefix}.dip.bed",
-        bam1="results/dipcall/{prefix}.hap1.bam",
-        bam2="results/dipcall/{prefix}.hap2.bam"
+        make = "results/dipcall/{vc_prefix}.mak",
+        vcf = "results/dipcall/{vc_prefix}.dip.vcf.gz",
+        bed = "results/dipcall/{vc_prefix}.dip.bed",
+        bam1 = "results/dipcall/{vc_prefix}.hap1.bam",
+        bam2 = "results/dipcall/{vc_prefix}.hap2.bam"
     conda: "envs/dipcall.yml"
     params:
-        prefix = "results/dipcall/{prefix}",
+        prefix = "results/dipcall/{vc_prefix}",
         male_bed = "-x " + par_ref if config["male"] else "",
         ts = config["dipcall_threads"],
         zdrop = "-z " + config["dipcall_zdrop"] if config["dipcall_zdrop"] else ""
-    log: "results/dipcall/{prefix}_dipcall.log"
-    resources: mem_mb=config["dipcall_threads"] * 2 * 32000 ## GB per thread
+    log: "results/dipcall/{vc_prefix}_dipcall.log"
+    resources: mem_mb = config["dipcall_threads"] * 2 * 32000 ## GB per thread
     threads: config["dipcall_threads"] * 2 ## For diploid
     shell: """
         echo "Writing Makefile defining dipcall pipeline"
@@ -165,35 +162,32 @@ rule run_dipcall:
     """
 
 rule dip_gap2homvarbutfiltered:
-    input:
-        vcf="results/dipcall/{prefix}.dip.vcf.gz"
-    output:
-        "results/dipcall/{prefix}.dip.gap2homvarbutfiltered.vcf.gz"
+    input: rules.run_dipcall.output.vcf
+    output: "results/dipcall/{vc_prefix}.dip.gap2homvarbutfiltered.vcf.gz"
     # bgzip is part of samtools, which is part of the diptcall env
     conda: "envs/dipcall.yml"
     shell: """
-    gunzip -c {input.vcf} |\
-    sed 's/1|\./1|1/' |\
-    grep -v 'HET\|GAP1\|DIP' |\
-    bgzip -c > {output}
+        gunzip -c {input} |\
+        sed 's/1|\./1|1/' |\
+        grep -v 'HET\|GAP1\|DIP' |\
+        bgzip -c > {output}
     """
 
 rule run_happy:
     input:
-        query="results/dipcall/{prefix}.dip.gap2homvarbutfiltered.vcf.gz",
+        query = rules.dip_gap2homvarbutfiltered.output,
         truth = rules.get_benchmark_vcf.output,
         truth_regions = rules.get_benchmark_bed.output,
-        strats = "resources/stratifications/{}/{}".format(config["reference"], strat_tsv),
-        genome=rules.get_ref.output
-    output:
-        "results/happy/{{prefix}}_benchmark-v{}.extended.csv".format(config["benchmark_version"])
+        strats = rules.get_strats.output.tsv,
+        genome = rules.get_ref.output
+    # NOTE many files will be produced as output but this will be used to
+    # signify completion
+    output: "results/happy/{vc_prefix}/{bm_prefix}/happy_out.extended.csv",
     priority: 1
     params:
-        prefix = lambda wildcards, output: output [0][:-13],
+        prefix = lambda _, output: output [0][:-13],
         threads = 6,
-        engine="vcfeval",
-        # TODO make this intelligently figure out if we want to use targeted or not
-        extra = "--target-regions results/dipcall/{prefix}.dip.bed" if config["targeted"] else ""
-    # log: "results/happy/nontargeted/{prefix}_happy_v312_nontargeted.log"
-    log: "results/happy/{prefix}_happy.log"
+        engine = "vcfeval",
+        extra = "--target-regions " + rules.run_dipcall.output.bed if (lambda wildcards: benchmark_params.loc[wildcards.bm_prefix, "targeted"]) else ""
+    log: "results/happy/{vc_prefix}/{bm_prefix}/happy.log"
     wrapper: "0.78.0/bio/hap.py/hap.py"
