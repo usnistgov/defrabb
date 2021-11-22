@@ -34,22 +34,8 @@ dipcall_zdrop: "20000,10000"
 reference: "GRCh38"
 
 # ############# Benchmark  ###################
-# # version number of benchmark being used, this will be used in hap.py output filename prefix
-# # e.g., v4.1
-benchmark_version: "4.2.1"
-
-# TODO use a base FTP directory and add things onto it depending on which benchmark files we want
-# # enter ftp path to benchmark vcf.gz to be used, e.g.,
-benchmark_vcfgz: "ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz"
-
-# # enter ftp path to corresponding vcf.gz index file, e.g.,
-benchmark_vcfgz_tbi: "ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz.tbi"
-
-# # enter ftp path to benchmark bed to be used, e.g.,
-benchmark_bed: "ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed"
-
-# run targeted
-targeted: true
+# path to the parameters table for benchmark runs
+benchmark_params: "config/benchmark_params.tsv"
 
 ##############################################
 
