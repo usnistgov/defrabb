@@ -48,6 +48,9 @@ benchmark_vcfgz_tbi: "ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/A
 # # enter ftp path to benchmark bed to be used, e.g.,
 benchmark_bed: "ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed"
 
+# run targeted
+targeted: true
+
 ##############################################
 
 ##############################################
