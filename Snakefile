@@ -191,9 +191,9 @@ rule run_happy:
     params:
         prefix = lambda wildcards, output: output [0][:-13],
         threads = 6,
-        engine="vcfeval"
+        engine="vcfeval",
         # TODO make this intelligently figure out if we want to use targeted or not
-        # extra = "--target-regions results/dipcall/{prefix}.dip.bed"
+        extra = "--target-regions results/dipcall/{prefix}.dip.bed" if config["targeted"] else ""
     # log: "results/happy/nontargeted/{prefix}_happy_v312_nontargeted.log"
     log: "results/happy/{prefix}_happy.log"
     wrapper: "0.78.0/bio/hap.py/hap.py"
