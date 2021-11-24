@@ -1,4 +1,6 @@
 import pandas as pd
+from itertools import product
+from more_itertools import unzip, flatten
 from snakemake.utils import min_version
 from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
 from os.path import join, basename
@@ -10,67 +12,94 @@ FTP = FTPRemoteProvider()
 
 min_version("6.0")
 
-configfile: "config/config.yaml"
+configfile: "config/static.yml"
+configfile: "config/dynamic.yml"
 
-## Read table of samples and set wildcard prefix and constraints
-benchmark_params = pd.read_table(config["benchmark_params"]).set_index(["prefix"], drop = False)
-benchmark_prefix = list(set(benchmark_params["prefix"]))
-# ASM_prefix = list(set(asm["prefix"]))
-ASM_prefix = config["ASM_prefix"]
+# TODO add validations
+
+asm_config = config["assemblies"]
+bmk_config = config["benchmarks"]
+str_config = config["stratifications"]
+vcr_config = config["variant_caller_runs"]
+hpy_config = config["happy_runs"]
+ref_config = config["_references"]
+
+hpy_combinations = unzip(
+    (hkey, vkey, bkey, s["bed"], s["tsv"])
+    for k, v in hpy_config.items()
+    for hkey, vkey, bkey, s in product(
+            [k],
+            v["variant_caller_runs"],
+            v["benchmarks"],
+            v["strats"]
+    )
+)
+hpy_keys, vcr_keys, bmk_keys, bed_keys, tsv_keys = tuple(
+    map(list, hpy_combinations)
+)
+
+ref_keys = list(set([v["reference"] for v in str_config.values()]))
 
 wildcard_constraints:
-    prefix="|".join(ASM_prefix)
+    asm_prefix="|".join(list(asm_config)),
+    bmk_prefix="|".join(bmk_keys),
+    bed_prefix="|".join(bed_keys),
+    tsv_prefix="|".join(tsv_keys),
+    vcr_prefix="|".join(vcr_keys),
+    hpy_prefix="|".join(hpy_keys),
+    ref_prefix="|".join(ref_keys)
 
-## Set reference to be used. Pipeline only uses GRCh38 or GRCh37.
-ref_id = config["reference"]
+# path initialization
 
-ref_dependent_data = config["tool_data"][config["reference"]]
+resource_dir = "resources"
+output_dir = "results"
 
-ref_url = ref_dependent_data["ref_url"]
-par_ref = join(config["par_bed_root"], ref_dependent_data["par_bed"])
-strat_url = ref_dependent_data["strat_url"]
-strat_tsv = ref_dependent_data["strat_tsv"]
-strat_id = ref_dependent_data["strat_id"]
+asm_full_path = join(resource_dir, "assemblies", "{asm_prefix}")
+ref_full_prefix = join(resource_dir, "references", "{ref_prefix}")
+benchmark_full_prefix = join(resource_dir, "benchmarks", "{bmk_prefix}")
+strats_full_path = join(resource_dir, "stratifications", "{bed_prefix}")
+tsv_full_path = join(strats_full_path, "{tsv_prefix}.tsv")
+
+vcr_full_prefix = join(
+    output_dir,
+    "dipcall",
+    "{ref_prefix}",
+    "{asm_prefix}",
+    "{vcr_prefix}",
+    "dipcall"
+)
+
+hpy_full_path = join(
+    output_dir,
+    "happy",
+    "{vcr_prefix}",
+    "{bmk_prefix}",
+    "{bed_prefix}-{tsv_prefix}",
+    "{hpy_prefix}",
+)
 
 rule all:
     input:
-        # stratifications
-        "resources/stratifications/",
-        "resources/stratifications/{}/{}".format(config["reference"], strat_tsv),
-
-        # reference
-        "resources/references/{}.fa".format(ref_id),
-        "resources/references/{}.fa.fai".format(ref_id),
-
-        # assemblies
-        expand("resources/assemblies/{hap}.fa", hap = ["maternal", "paternal"]),
-
-        # dipcall
-        expand("results/dipcall/{v}.mak", v = ASM_prefix),
-        expand("results/dipcall/{v}.dip.vcf.gz", v = ASM_prefix),
-        expand("results/dipcall/{v}.dip.bed", v = ASM_prefix),
-        expand("results/dipcall/{v}.hap1.bam", v = ASM_prefix),
-        expand("results/dipcall/{v}.hap2.bam", v = ASM_prefix),
-        expand("results/dipcall/{v}.dip.gap2homvarbutfiltered.vcf.gz", v = ASM_prefix),
-
-        # benchmark truthsets
-        expand("resources/benchmark/{b}.vcf.gz", b = benchmark_prefix),
-        expand("resources/benchmark/{b}.bed", b = benchmark_prefix),
-
-        # benchmark output
-        expand("results/happy/{v}/{b}/happy_out.extended.csv", v = ASM_prefix, b = benchmark_prefix),
+        expand(
+            join(hpy_full_path, "happy_out.extended.csv"),
+            zip,
+            hpy_prefix = hpy_keys,
+            vcr_prefix = vcr_keys,
+            bmk_prefix = bmk_keys,
+            bed_prefix = bed_keys,
+            tsv_prefix = tsv_keys,
+        )
 
 ################################################################################
 ## Get and prepare assemblies
 ################################################################################
 
 rule get_assemblies:
-    output:
-        "resources/assemblies/{haplotype}.fa"
+    output: join(asm_full_path, "{haplotype}.fa")
     params:
-        url = lambda wildcards: config["assemblies"][wildcards["haplotype"]]
+        url = lambda wildcards: asm_config[wildcards.asm_prefix][wildcards.haplotype]
     shell:
-        "curl -L {params.url} | gunzip -c > {output}"
+        "curl -f -L {params.url} | gunzip -c > {output}"
 
 ################################################################################
 ## Get and prepare reference
@@ -79,15 +108,16 @@ rule get_assemblies:
 ## TODO these FTP calls sometimes cause timeout errors depending on how long we
 ## wait between rule calls
 rule get_ref:
-    output: "resources/references/{}.fa".format(ref_id)
+    output: "{}.fa".format(ref_full_prefix)
     params:
-        url = "http://{}".format(ref_dependent_data["ref_url"])
+        # TODO not sure if this underscore thing is necessary here
+        url = lambda wildcards: ref_config[wildcards.ref_prefix]["_ref_url"]
     shell:
-        "curl --connect-timeout 120 -L {params.url} | gunzip -c > {output}"
+        "curl -f --connect-timeout 120 -L {params.url} | gunzip -c > {output}"
 
 rule index_ref:
-    input: "resources/references/{}.fa".format(ref_id)
-    output: "resources/references/{}.fa.fai".format(ref_id)
+    input: rules.get_ref.output
+    output: "{}.fai".format(ref_full_prefix)
     wrapper: "0.61.0/bio/samtools/faidx"
 
 ################################################################################
@@ -96,16 +126,16 @@ rule index_ref:
 
 # TODO wet code
 rule get_benchmark_vcf:
-    output: "resources/benchmark/{bm_prefix}.vcf.gz"
+    output: "{}.vcf.gz".format(benchmark_full_prefix)
     params:
-        url = lambda wildcards: benchmark_params.loc[wildcards.bm_prefix, "truth_vcf_url"]
-    shell: "curl -L -o {output} {params.url}"
+        url = lambda wildcards: bmk_config[wildcards["bmk_prefix"]]["vcf_url"]
+    shell: "curl -f -L -o {output} {params.url}"
 
 rule get_benchmark_bed:
-    output: "resources/benchmark/{bm_prefix}.bed"
+    output: "{}.bed".format(benchmark_full_prefix)
     params:
-        url = lambda wildcards: benchmark_params.loc[wildcards.bm_prefix, "truth_bed_url"]
-    shell: "curl -L -o {output} {params.url}"
+        url = lambda wildcards: bmk_config[wildcards["bmk_prefix"]]["bed_url"]
+    shell: "curl -f -L -o {output} {params.url}"
 
 # TODO add rule to get the tbi file as well when we need it
 # (analogous to these rules)
@@ -114,38 +144,68 @@ rule get_benchmark_bed:
 ## Get v2.0 stratifications
 ################################################################################
 
-rule get_strats:
-    output:
-        dir = directory("resources/stratifications/"),
-        tsv = "resources/stratifications/{}/{}".format(ref_id, strat_tsv)
-    params: strats = {strat_url}
-    shell: "wget -r {params.strats} -nH --cut-dirs=5 -P {output.dir}"
+def read_tsv_bed_files (wildcards):
+    b = wildcards.bed_prefix
+    t = wildcards.tsv_prefix
+    o = checkpoints.get_strat_tsv.get(bed_prefix=b, tsv_prefix=t).output[0]
+    with o.open() as f:
+        beds = pd.read_table(f, header=None)[1].tolist()
+        return [join(strats_full_path, b) for b in beds]
+
+checkpoint get_strat_tsv:
+    output: tsv_full_path
+    params:
+        root = lambda wildcards: str_config[wildcards.bed_prefix]["root"],
+        tsv = lambda wildcards: str_config[wildcards.bed_prefix]["tsv"][wildcards.tsv_prefix],
+    shell: "curl -f -L -o {output} {params.root}/{params.tsv}"
+
+rule get_strat_beds:
+    output: join(strats_full_path, "{bed}")
+    wildcard_constraints:
+        # NOTE: not all files in the tsv are "*.bed.gz"; a few just have "*.gz"
+        bed = ".*\.gz"
+    params:
+        root = lambda wildcards: str_config[wildcards["bed_prefix"]]["root"],
+    shell: "curl -f -L -o {output} {params.root}/{wildcards.bed}"
 
 ################################################################################
 ## Run Dipcall
 ################################################################################
 
+# TODO this seems brittle
+def get_zdrop(wildcards):
+    v = wildcards["vcr_prefix"]
+    z = vcr_config[v]["zdrop"]
+    return "-z {},{}".format(z[0], z[1]) if z else ""
+
+def get_male_bed(wildcards):
+    is_male = asm_config[wildcards.asm_prefix]["is_male"]
+    root = config["_par_bed_root"]
+    par_path = join(root, ref_config[wildcards.ref_prefix]["_par_bed"])
+    return "-x " + par_path if is_male else ""
+
 rule run_dipcall:
     input:
-        h1 = "resources/assemblies/paternal.fa",
-        h2 = "resources/assemblies/maternal.fa",
+        h1 = join(asm_full_path, "paternal.fa"),
+        h2 = join(asm_full_path, "maternal.fa"),
         ref = rules.get_ref.output,
         ref_idx = rules.index_ref.output
     output:
-        make = "results/dipcall/{vc_prefix}.mak",
-        vcf = "results/dipcall/{vc_prefix}.dip.vcf.gz",
-        bed = "results/dipcall/{vc_prefix}.dip.bed",
-        bam1 = "results/dipcall/{vc_prefix}.hap1.bam",
-        bam2 = "results/dipcall/{vc_prefix}.hap2.bam"
+        make = "{}.mak".format(vcr_full_prefix),
+        vcf = "{}.dip.vcf.gz".format(vcr_full_prefix),
+        bed = "{}.dip.bed".format(vcr_full_prefix),
+        bam1 = "{}.hap1.bam".format(vcr_full_prefix),
+        bam2 = "{}.hap2.bam".format(vcr_full_prefix)
     conda: "envs/dipcall.yml"
     params:
-        prefix = "results/dipcall/{vc_prefix}",
-        male_bed = "-x " + par_ref if config["male"] else "",
-        ts = config["dipcall_threads"],
-        zdrop = "-z " + config["dipcall_zdrop"] if config["dipcall_zdrop"] else ""
-    log: "results/dipcall/{vc_prefix}_dipcall.log"
-    resources: mem_mb = config["dipcall_threads"] * 2 * 32000 ## GB per thread
-    threads: config["dipcall_threads"] * 2 ## For diploid
+        prefix = vcr_full_prefix,
+        male_bed = get_male_bed,
+        ts = config["_dipcall_threads"],
+        zdrop = get_zdrop
+    log: "{}.log".format(vcr_full_prefix)
+    resources:
+        mem_mb = config["_dipcall_threads"] * 2 * 32000 ## GB per thread
+    threads: config["_dipcall_threads"] * 2 ## For diploid
     shell: """
         echo "Writing Makefile defining dipcall pipeline"
         run-dipcall \
@@ -163,7 +223,7 @@ rule run_dipcall:
 
 rule dip_gap2homvarbutfiltered:
     input: rules.run_dipcall.output.vcf
-    output: "results/dipcall/{vc_prefix}.dip.gap2homvarbutfiltered.vcf.gz"
+    output: "{}.dip.gap2homvarbutfiltered.vcf.gz".format(vcr_full_prefix)
     # bgzip is part of samtools, which is part of the diptcall env
     conda: "envs/dipcall.yml"
     shell: """
@@ -173,21 +233,42 @@ rule dip_gap2homvarbutfiltered:
         bgzip -c > {output}
     """
 
+def get_targeted (wildcards):
+    bed = "--target-regions " + rules.run_dipcall.output.bed
+    ws = {
+        "ref_prefix": str_config[wildcards.bed_prefix]["reference"],
+        "asm_prefix": vcr_config[wildcards.vcr_prefix]["assemblies"],
+        "vcr_prefix": wildcards.vcr_prefix
+        }
+    # TODO this is ridiculous
+    return expand(bed, **ws, )[0] if hpy_config[wildcards.hpy_prefix]["use_targeted"] else ""
+
 rule run_happy:
     input:
-        query = rules.dip_gap2homvarbutfiltered.output,
+        query = lambda wildcards: expand(
+            rules.dip_gap2homvarbutfiltered.output,
+            ref_prefix = str_config[wildcards.bed_prefix]["reference"],
+            asm_prefix = vcr_config[wildcards.vcr_prefix]["assemblies"],
+            allow_missing = True,
+        ),
         truth = rules.get_benchmark_vcf.output,
         truth_regions = rules.get_benchmark_bed.output,
-        strats = rules.get_strats.output.tsv,
-        genome = rules.get_ref.output
+        strats = rules.get_strat_tsv.output,
+        genome = lambda wildcards: expand(
+            rules.get_ref.output,
+            ref_prefix = str_config[wildcards.bed_prefix]["reference"],
+        ),
+        # NOTE this isn't actually required by the wrapper, but hap.py itself
+        # will be quite sad without them
+        strat_beds = read_tsv_bed_files
     # NOTE many files will be produced as output but this will be used to
     # signify completion
-    output: "results/happy/{vc_prefix}/{bm_prefix}/happy_out.extended.csv",
+    output: join(hpy_full_path, "happy_out.extended.csv")
     priority: 1
     params:
         prefix = lambda _, output: output [0][:-13],
         threads = 6,
         engine = "vcfeval",
-        extra = "--target-regions " + rules.run_dipcall.output.bed if (lambda wildcards: benchmark_params.loc[wildcards.bm_prefix, "targeted"]) else ""
-    log: "results/happy/{vc_prefix}/{bm_prefix}/happy.log"
+        extra = get_targeted
+    log: join(hpy_full_path, "happy.log")
     wrapper: "0.78.0/bio/hap.py/hap.py"
