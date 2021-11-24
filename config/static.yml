@@ -1,0 +1,20 @@
+############# Dipcall Config #######################
+# number of threads for Dipcall (integer)
+_dipcall_threads: 1
+
+_par_bed_root: "data/par_bed"
+
+# TODO not sure if the strats should go here or not
+_references:
+  GRCh37:
+    _ref_url: "ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz"
+    _par_bed: "hs37d5.PAR.bed"
+    # _strat_id: "GRCh37-stratifications-v2.0"
+    # _strat_url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh37/"
+    # _strat_tsv: "v2.0-GRCh37-stratifications.tsv"
+  GRCh38:
+    _ref_url: "ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz"
+    _par_bed: "hs38.PAR.bed"
+    # _strat_id: "GRCh38-stratifications-v2.0"
+    # _strat_url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/"
+    # _strat_tsv: "v2.0-GRCh38-stratifications.tsv"
