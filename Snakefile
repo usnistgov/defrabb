@@ -1,7 +1,7 @@
 import pandas as pd
 from itertools import product
 from more_itertools import unzip, flatten
-from snakemake.utils import min_version
+from snakemake.utils import min_version, validate
 from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
 from os.path import join, basename
 
@@ -14,6 +14,7 @@ min_version("6.0")
 
 configfile: "config/static.yml"
 configfile: "config/dynamic.yml"
+validate(config, "config/schema.yml")
 
 # TODO add validations
 
@@ -237,6 +238,7 @@ def get_targeted (wildcards):
     bed = "--target-regions " + rules.run_dipcall.output.bed
     ws = {
         "ref_prefix": str_config[wildcards.bed_prefix]["reference"],
+        # TODO this is a list and this will make the expand return not a singleton list below
         "asm_prefix": vcr_config[wildcards.vcr_prefix]["assemblies"],
         "vcr_prefix": wildcards.vcr_prefix
         }
