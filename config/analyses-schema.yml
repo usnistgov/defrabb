@@ -1,0 +1,88 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+description: whole genome assembly benchmark pipeline
+required:
+  - asm_id
+  - ref
+  - varcaller
+  # - vc_params
+  # - vcf_postprocessing
+  # - bed_postprocessing
+  - truth_var_id
+  # - truth_regions
+  - query_var_id
+  - target_regions
+  # - hpy_params
+  - strat_version
+  - strat_list
+  - happy_id
+additionalProperties: false
+properties:
+  asm_id:
+    description: the identifier of the assembly to use in resources.yml
+    type: string
+
+  ref:
+    description: the identifier of the reference to use in resources.yml
+    type: string
+    pattern: ^GRCh3[7,8]$
+
+  varcaller:
+    description: the variant caller to use
+    type: string
+    # TODO for now only dipcall supported
+    # pattern: ^dipcall|PAV$
+    pattern: ^dipcall$
+
+  vc_params:
+    description: additional params to be passed to the varcaller
+    type: string
+
+  # TODO this is currently unused; what gets preprocessed when running this?
+  vcf_postprocessing:
+    description: steps to do prior to running the variant caller
+    type: 'null'
+
+  # TODO this is currently unused; what gets postprocessed when running this?
+  bed_postprocessing:
+    description: steps to do after running the variant caller
+    type: 'null'
+
+  truth_var_id:
+    description: the id of the truth vcf file to use from resources.yml
+    type: string
+
+  truth_regions:
+    description: the id of the truth bed file to use from resources.yml
+    type: string
+
+  # TODO this doesn't seem necessary if each row = 1 combination
+  query_var_id:
+    description: a unique id given to the variant caller run
+    type: string
+
+  # TODO what if a wildcard is not included? where does snakemake know where to
+  # find the file
+  target_regions:
+    description: the target regions file to use for hap.py (can include a wildcard)
+    anyOf:
+      - type: boolean
+      - type: string
+
+  hpy_params:
+    description: |
+      additional params to pass to hap.py (see target_regions above for how to
+      control --target-regions)
+    type: string
+
+  strat_version:
+    description: the versions of stratifications to use
+    type: string
+
+  strat_list:
+    description: the .tsv within the stratification tarball/download list to use
+    type: string
+
+  happy_id:
+    description: a unique ID given to this hap.py run
+    type: string
+
