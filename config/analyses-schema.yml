@@ -51,19 +51,21 @@ properties:
     description: the id of the truth vcf file to use from resources.yml
     type: string
 
-  truth_regions:
-    description: the id of the truth bed file to use from resources.yml
-    type: string
+  # truth_regions:
+  #   description: the id of the truth bed file to use from resources.yml
+  #   type: string
 
   # TODO this doesn't seem necessary if each row = 1 combination
   query_var_id:
     description: a unique id given to the variant caller run
     type: string
 
-  # TODO what if a wildcard is not included? where does snakemake know where to
-  # find the file
   target_regions:
-    description: the target regions file to use for hap.py (can include a wildcard)
+    description: |
+      The target regions to input to happy. If 'true,' will be tell happy to use
+      the bed file output by the variant caller. If a string, will be
+      interpreted as a path to the bed file to use (relative to
+      ./manual/target_regions). If 'false,' happy will run in untargetted mode.
     anyOf:
       - type: boolean
       - type: string

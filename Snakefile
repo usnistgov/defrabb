@@ -4,6 +4,7 @@ from more_itertools import unzip, flatten
 from snakemake.utils import min_version, validate
 from snakemake.io import apply_wildcards
 from os.path import join, basename, splitext
+from functools import partial
 
 include: "rules/common.smk"
 
@@ -23,26 +24,22 @@ ref_config = config["references"]
 # init analyses
 
 ANALYSES_TSV = "config/analyses.tsv"
-analyses = pd.read_table(ANALYSES_TSV)
-validate(analyses, "config/analyses-schema.yml")
+_analyses = pd.read_table(ANALYSES_TSV)
+validate(_analyses, "config/analyses-schema.yml")
 
-# JSON schemas allow for enforcing unique values but only in array types (which
-# this isn't because dataframes are special). Therefore check manually.
-def check_for_duplicates (df):
-    dups = df.duplicated()
-    dup_rows = df[dups].to_dict("records")
-    for r in dup_rows:
-        print("ERROR: duplicate row in {}: {}".format(ANALYSES_TSV, r))
-    if len(dup_rows) > 0:
-        exit(1)
-
-check_for_duplicates(analyses)
+try:
+    analyses = _analyses.set_index("happy_id", verify_integrity=True)
+except ValueError:
+    print("All keys in column 'happy_id' must by unique")
 
 ################################################################################
 # init paths
 
 resource_dir = "resources"
 output_dir = "results"
+manual_dir = "manual"
+
+manual_target_regions_path = join(manual_dir, "target_regions")
 
 asm_full_path = join(resource_dir, "assemblies", "{asm_prefix}")
 ref_full_prefix = join(resource_dir, "references", "{ref_prefix}")
@@ -67,15 +64,7 @@ vcr_full_prefix = join(
     "dipcall"
 )
 
-hpy_full_path = join(
-    output_dir,
-    "happy",
-    "{asm_prefix}",
-    "{vcr_cmd}_{vcr_params}",
-    "{bmk_prefix}",
-    "{str_ver}_{ref_prefix}_{str_tsv}",
-    "{hpy_prefix}",
-)
+hpy_full_path = join(output_dir, "happy", "{hpy_prefix}")
 
 ################################################################################
 # init wildcard constraints
@@ -97,21 +86,11 @@ wildcard_constraints:
 # Define what files we want hap.py to make, and these paths will contain the
 # definitions for the assemblies, variant caller, etc to use in upstream rules.
 
-ad = analyses.to_dict("list")
-
 rule all:
     input:
         expand(
             join(hpy_full_path, "happy_out.extended.csv"),
-            zip,
-            hpy_prefix = ad["happy_id"],
-            asm_prefix = ad["asm_id"],
-            vcr_cmd = ad["varcaller"],
-            vcr_params = ad["vc_params"],
-            bmk_prefix = ad["truth_var_id"],
-            ref_prefix = ad["ref"],
-            str_ver = ad["strat_version"],
-            str_tsv = ad["strat_list"],
+            hpy_prefix = analyses.index.tolist()
         )
 
 ################################################################################
@@ -266,28 +245,76 @@ rule run_dipcall:
 #         bgzip -c > {output}
 #     """
 
-# def get_targeted (wildcards):
-#     bed = "--target-regions " + rules.run_dipcall.output.bed
-#     ws = {
-#         "ref_prefix": str_config[wildcards.bed_prefix]["reference"],
-#         "asm_prefix": wildcards.asm_prefix,
-#         "vcr_prefix": wildcards.vcr_prefix
-#         }
-#     return apply_wildcards(bed, ws)[0] if hpy_config[wildcards.hpy_prefix]["use_targeted"] else ""
+def apply_analyses_wildcards(s, keyvals, wildcards):
+    print(type(keyvals))
+    ws = {k: analyses.loc[(wildcards.hpy_prefix, v)] for k, v in keyvals.items()}
+    return expand(s, **ws)
+
+def get_targeted(wildcards):
+    # ASSUME: target_regions is either True, False, or a string
+    h = wildcards.hpy_prefix
+    trs = analyses.loc[(h, "target_regions")]
+    if trs == False:
+        return ""
+    else:
+        if trs == True:
+            # TODO not dry
+            bed = apply_wildcards(
+                rules.run_dipcall.output.bed,
+                {
+                    "ref_prefix": analyses.loc[(h, "ref")],
+                    "asm_prefix": analyses.loc[(h, "asm_id")],
+                    "vcr_cmd": analyses.loc[(h, "varcaller")],
+                    "vcr_params": analyses.loc[(h, "vc_params")]
+                }
+            )
+        else:
+            bed = join(manual_target_regions_path, trs)
+        return "--target-regions {}".format(bed)
 
 rule run_happy:
     input:
-        query = rules.run_dipcall.output.vcf,
-        truth = rules.get_benchmark_vcf.output,
-        truth_regions = rules.get_benchmark_bed.output,
-        strats = rules.get_strats.output,
-        genome = rules.get_ref.output,
+        query = partial(
+            apply_analyses_wildcards,
+            rules.run_dipcall.output.vcf,
+            {
+                "ref_prefix": "ref",
+                "asm_prefix": "asm_id",
+                "vcr_cmd": "varcaller",
+                "vcr_params": "vc_params",
+            }
+        ),
+        # TODO not dry
+        truth = partial(
+            apply_analyses_wildcards,
+            rules.get_benchmark_vcf.output,
+            {"bmk_prefix": "truth_var_id"}
+        ),
+        truth_regions = partial(
+            apply_analyses_wildcards,
+            rules.get_benchmark_bed.output,
+            {"bmk_prefix": "truth_var_id"}
+        ),
+        strats = partial(
+            apply_analyses_wildcards,
+            rules.get_strats.output,
+            {
+                "str_ver": "strat_version",
+                "str_tsv": "strat_list",
+                "ref_prefix": "ref",
+            }
+        ),
+        genome = partial(
+            apply_analyses_wildcards,
+            rules.get_ref.output,
+            {"ref_prefix": "ref"}
+        )
     output: join(hpy_full_path, "happy_out.extended.csv")
     priority: 1
     params:
         prefix = lambda _, output: output [0][:-13],
         threads = 6,
-        engine = "vcfeval"
-        # extra = get_targeted
+        engine = "vcfeval",
+        extra = get_targeted
     log: join(hpy_full_path, "happy.log")
     wrapper: "0.78.0/bio/hap.py/hap.py"
