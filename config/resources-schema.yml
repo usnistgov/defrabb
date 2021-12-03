@@ -45,7 +45,7 @@ properties:
     unique: true
     patternProperties:
 
-      ^asm-\w*$:
+      ^\w*$:
         type: object
         additionalProperties: false
         description: metadata for each assembly
@@ -71,11 +71,11 @@ properties:
     additionalProperties: false
     patternProperties:
 
-      ^bmk-\w*$:
+      ^\w*$:
         type: object
         additionalProperties: false
         description: metadata for each benchmark
-        required: [vcf_url, bed_url]
+        required: [vcf_url, bed_url, tbi_url]
         properties:
 
           vcf_url:
