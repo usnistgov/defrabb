@@ -86,6 +86,10 @@ properties:
             format: uri
             description: the url to the benchmark bed file
 
+          tbi_url:
+            format: uri
+            description: the url to the benchmark tbi file
+
   # stratifications:
   #   description: |
   #     The stratifications to be used in the pipeline; each key is an identifier

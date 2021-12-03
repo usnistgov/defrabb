@@ -1,6 +1,9 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 description: whole genome assembly benchmark pipeline
 required:
+  - bench_id
+  - bench_cmd
+  # - bench_params
   - asm_id
   - ref
   - varcaller
@@ -14,9 +17,26 @@ required:
   # - hpy_params
   - strat_version
   - strat_list
-  - happy_id
 additionalProperties: false
 properties:
+  bench_id:
+    description: |
+      The ID for this analysis run. Every value in this column should be unique.
+    type: string
+
+  bench_cmd:
+    description: |
+      The benchmarking command to run. Must be either 'happy' or 'truvari'.
+    type: string
+    pattern: ^happy|truvari$
+
+  bench_params:
+    description: |
+      Additional params to pass to the benchmarking command. See
+      'target_regions' for how to control '--target-regions' (hap.py) and
+      '--includebed' (truvari).
+    type: string
+
   asm_id:
     description: the identifier of the assembly to use in resources.yml
     type: string
@@ -70,12 +90,6 @@ properties:
       - type: boolean
       - type: string
 
-  hpy_params:
-    description: |
-      additional params to pass to hap.py (see target_regions above for how to
-      control --target-regions)
-    type: string
-
   strat_version:
     description: the versions of stratifications to use
     type: string
@@ -83,8 +97,5 @@ properties:
   strat_list:
     description: the .tsv within the stratification tarball/download list to use
     type: string
-
-  happy_id:
-    description: a unique ID given to this hap.py run
-    type: string
+    
 
