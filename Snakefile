@@ -4,6 +4,7 @@ from more_itertools import unzip, flatten
 from snakemake.utils import min_version, validate
 from snakemake.io import apply_wildcards
 from os.path import join, basename, splitext
+from functools import partial
 
 include: "rules/common.smk"
 
@@ -23,26 +24,22 @@ ref_config = config["references"]
 # init analyses
 
 ANALYSES_TSV = "config/analyses.tsv"
-analyses = pd.read_table(ANALYSES_TSV)
-validate(analyses, "config/analyses-schema.yml")
+_analyses = pd.read_table(ANALYSES_TSV)
+validate(_analyses, "config/analyses-schema.yml")
 
-# JSON schemas allow for enforcing unique values but only in array types (which
-# this isn't because dataframes are special). Therefore check manually.
-def check_for_duplicates (df):
-    dups = df.duplicated()
-    dup_rows = df[dups].to_dict("records")
-    for r in dup_rows:
-        print("ERROR: duplicate row in {}: {}".format(ANALYSES_TSV, r))
-    if len(dup_rows) > 0:
-        exit(1)
-
-check_for_duplicates(analyses)
+try:
+    analyses = _analyses.set_index("bench_id", verify_integrity=True)
+except ValueError:
+    print("All keys in column 'bench_id' must by unique")
 
 ################################################################################
 # init paths
 
 resource_dir = "resources"
 output_dir = "results"
+manual_dir = "manual"
+
+manual_target_regions_path = join(manual_dir, "target_regions")
 
 asm_full_path = join(resource_dir, "assemblies", "{asm_prefix}")
 ref_full_prefix = join(resource_dir, "references", "{ref_prefix}")
@@ -67,15 +64,11 @@ vcr_full_prefix = join(
     "dipcall"
 )
 
-hpy_full_path = join(
-    output_dir,
-    "happy",
-    "{asm_prefix}",
-    "{vcr_cmd}_{vcr_params}",
-    "{bmk_prefix}",
-    "{str_ver}_{ref_prefix}_{str_tsv}",
-    "{hpy_prefix}",
-)
+bench_full_path = join(output_dir, "bench", "{bench_prefix}")
+
+hpy_full_path = join(bench_full_path, "happy")
+
+tvi_full_path = join(bench_full_path, "truvari")
 
 ################################################################################
 # init wildcard constraints
@@ -97,26 +90,17 @@ wildcard_constraints:
 # Define what files we want hap.py to make, and these paths will contain the
 # definitions for the assemblies, variant caller, etc to use in upstream rules.
 
-ad = analyses.to_dict("list")
+def expand_bench_output(path, cmd):
+    bps = analyses[analyses["bench_cmd"]==cmd].index.tolist()
+    return expand(path, bench_prefix = bps)
 
 rule all:
     input:
-        expand(
-            join(hpy_full_path, "happy_out.extended.csv"),
-            zip,
-            hpy_prefix = ad["happy_id"],
-            asm_prefix = ad["asm_id"],
-            vcr_cmd = ad["varcaller"],
-            vcr_params = ad["vc_params"],
-            bmk_prefix = ad["truth_var_id"],
-            ref_prefix = ad["ref"],
-            str_ver = ad["strat_version"],
-            str_tsv = ad["strat_list"],
-        )
+        expand_bench_output(join(hpy_full_path, "happy_out.extended.csv"), "happy"),
+        expand_bench_output(join(tvi_full_path, "out", "summary.txt"), "truvari")
 
 ################################################################################
-## Get and prepare assemblies
-################################################################################
+# Get and prepare assemblies
 
 rule get_assemblies:
     output: join(asm_full_path, "{haplotype}.fa")
@@ -126,8 +110,7 @@ rule get_assemblies:
         "curl -f -L {params.url} | gunzip -c > {output}"
 
 ################################################################################
-## Get and prepare reference
-################################################################################
+# Get and prepare reference
 
 rule get_ref:
     output: "{}.fa".format(ref_full_prefix)
@@ -142,8 +125,7 @@ rule index_ref:
     wrapper: "0.61.0/bio/samtools/faidx"
 
 ################################################################################
-## Get benchmark vcf.gz and .bed
-################################################################################
+# Get benchmark vcf.gz and .bed
 
 # TODO wet code
 rule get_benchmark_vcf:
@@ -158,12 +140,14 @@ rule get_benchmark_bed:
         url = lambda wildcards: bmk_config[wildcards["bmk_prefix"]]["bed_url"]
     shell: "curl -f -L -o {output} {params.url}"
 
-# TODO add rule to get the tbi file as well when we need it
-# (analogous to these rules)
+rule get_benchmark_tbi:
+    output: "{}.vcf.gz.tbi".format(benchmark_full_prefix)
+    params:
+        url = lambda wildcards: bmk_config[wildcards["bmk_prefix"]]["tbi_url"]
+    shell: "curl -f -L -o {output} {params.url}"
 
 ################################################################################
-## Get v2.0 stratifications
-################################################################################
+# Get stratifications
 
 # def read_tsv_bed_files (wildcards):
 #     b = wildcards.bed_prefix
@@ -201,9 +185,7 @@ rule get_strats:
     """
 
 ################################################################################
-## Run Dipcall
-################################################################################
-
+# Run Dipcall
 
 def get_male_bed(wildcards):
     is_male = asm_config[wildcards.asm_prefix]["is_male"]
@@ -212,7 +194,6 @@ def get_male_bed(wildcards):
     return "-x " + par_path if is_male else ""
 
 def get_extra (wildcards):
-    print(wildcards.vcr_params)
     # TODO this seems brittle
     return "" if "nan" == wildcards.vcr_params else wildcards.vcr_params
 
@@ -254,6 +235,9 @@ rule run_dipcall:
         make -j{params.ts} -f {output.make}
     """
 
+################################################################################
+# Postprocess variant caller output
+
 # rule dip_gap2homvarbutfiltered:
 #     input: rules.run_dipcall.output.vcf
 #     output: "{}.dip.gap2homvarbutfiltered.vcf.gz".format(vcr_full_prefix)
@@ -266,28 +250,142 @@ rule run_dipcall:
 #         bgzip -c > {output}
 #     """
 
-# def get_targeted (wildcards):
-#     bed = "--target-regions " + rules.run_dipcall.output.bed
-#     ws = {
-#         "ref_prefix": str_config[wildcards.bed_prefix]["reference"],
-#         "asm_prefix": wildcards.asm_prefix,
-#         "vcr_prefix": wildcards.vcr_prefix
-#         }
-#     return apply_wildcards(bed, ws)[0] if hpy_config[wildcards.hpy_prefix]["use_targeted"] else ""
+rule split_multiallelic_sites:
+    input: rules.run_dipcall.output.vcf
+    output:
+        vcf = "{}.dip.split_multi.vcf.gz".format(vcr_full_prefix),
+        vcf_tbi = "{}.dip.split_multi.vcf.gz.tbi".format(vcr_full_prefix)
+    conda: "envs/bcftools.yml"
+    shell: """
+    bcftools norm -m - {input} -Oz -o {output.vcf}
+    tabix -p vcf {output.vcf}
+    """
+
+################################################################################
+## Run happy
+
+def apply_analyses_wildcards(s, keyvals, wildcards):
+    ws = {k: analyses.loc[(wildcards.bench_prefix, v)] for k, v in keyvals.items()}
+    return expand(s, **ws)
+
+def get_targeted(wildcards):
+    # ASSUME: target_regions is either True, False, or a string
+    h = wildcards.bench_prefix
+    trs = analyses.loc[(h, "target_regions")]
+    if trs == False:
+        return ""
+    else:
+        if trs == True:
+            # TODO not dry
+            bed = apply_wildcards(
+                rules.run_dipcall.output.bed,
+                {
+                    "ref_prefix": analyses.loc[(h, "ref")],
+                    "asm_prefix": analyses.loc[(h, "asm_id")],
+                    "vcr_cmd": analyses.loc[(h, "varcaller")],
+                    "vcr_params": analyses.loc[(h, "vc_params")]
+                }
+            )
+        else:
+            bed = join(manual_target_regions_path, trs)
+        return "--target-regions {}".format(bed)
 
 rule run_happy:
     input:
-        query = rules.run_dipcall.output.vcf,
-        truth = rules.get_benchmark_vcf.output,
-        truth_regions = rules.get_benchmark_bed.output,
-        strats = rules.get_strats.output,
-        genome = rules.get_ref.output,
+        query = partial(
+            apply_analyses_wildcards,
+            rules.run_dipcall.output.vcf,
+            {
+                "ref_prefix": "ref",
+                "asm_prefix": "asm_id",
+                "vcr_cmd": "varcaller",
+                "vcr_params": "vc_params",
+            }
+        ),
+        # TODO not dry
+        truth = partial(
+            apply_analyses_wildcards,
+            rules.get_benchmark_vcf.output,
+            {"bmk_prefix": "truth_var_id"}
+        ),
+        truth_regions = partial(
+            apply_analyses_wildcards,
+            rules.get_benchmark_bed.output,
+            {"bmk_prefix": "truth_var_id"}
+        ),
+        strats = partial(
+            apply_analyses_wildcards,
+            rules.get_strats.output,
+            {
+                "str_ver": "strat_version",
+                "str_tsv": "strat_list",
+                "ref_prefix": "ref",
+            }
+        ),
+        genome = partial(
+            apply_analyses_wildcards,
+            rules.get_ref.output,
+            {"ref_prefix": "ref"}
+        )
     output: join(hpy_full_path, "happy_out.extended.csv")
     priority: 1
     params:
         prefix = lambda _, output: output [0][:-13],
         threads = 6,
-        engine = "vcfeval"
-        # extra = get_targeted
+        engine = "vcfeval",
+        extra = get_targeted
     log: join(hpy_full_path, "happy.log")
     wrapper: "0.78.0/bio/hap.py/hap.py"
+
+################################################################################
+## Run Truvari
+
+rule run_truvari:
+    input:
+        query = partial(
+            apply_analyses_wildcards,
+            rules.split_multiallelic_sites.output.vcf,
+            {
+                "ref_prefix": "ref",
+                "asm_prefix": "asm_id",
+                "vcr_cmd": "varcaller",
+                "vcr_params": "vc_params",
+            }
+        ),
+        # TODO not dry
+        truth = partial(
+            apply_analyses_wildcards,
+            rules.get_benchmark_vcf.output,
+            {"bmk_prefix": "truth_var_id"}
+        ),
+        truth_regions = partial(
+            apply_analyses_wildcards,
+            rules.get_benchmark_bed.output,
+            {"bmk_prefix": "truth_var_id"}
+        ),
+        # NOTE this isn't actually fed to the command but is still necessary
+        truth_tbi = partial(
+            apply_analyses_wildcards,
+            rules.get_benchmark_tbi.output,
+            {"bmk_prefix": "truth_var_id"}
+        ),
+        genome = partial(
+            apply_analyses_wildcards,
+            rules.get_ref.output,
+            {"ref_prefix": "ref"}
+        )
+    output: join(tvi_full_path, "out", "summary.txt")
+    log: join(tvi_full_path, "truvari.log")
+    params:
+        extra = lambda wildcards: analyses.loc[(wildcards.bench_prefix, "bench_params")],
+        prefix = join(tvi_full_path, "out")
+    conda: "envs/truvari.yml"
+    shell: """
+    truvari bench \
+        -b {input.truth} \
+        -c {input.query} \
+        -o {params.prefix} \
+        -f {input.genome} \
+        --includebed {input.truth_regions} \
+        {params.extra}
+    """

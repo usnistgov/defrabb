@@ -1,3 +1,5 @@
-asm_id	ref	varcaller	vc_params	vcf_postprocessing	bed_postprocessing	truth_var_id	truth_regions	query_var_id	target_regions	hpy_params	strat_version	strat_list	happy_id
-asm-foo	GRCh38	dipcall	NA			bmk-foo		*	FALSE		v3.0	v3.0-GRCh38-CMRG-stratifications.tsv	foo
-asm-foo	GRCh38	dipcall	-z20000,10000			bmk-foo		*	FALSE		v3.0	v3.0-GRCh38-CMRG-stratifications.tsv	bar
+bench_id	bench_cmd	bench_params	asm_id	ref	varcaller	vc_params	vcf_postprocessing	bed_postprocessing	truth_var_id	truth_regions	query_var_id	target_regions	strat_version	strat_list
+foo	happy		asm-foo	GRCh38	dipcall	NA			bmk-foo		*	FALSE	v3.0	v3.0-GRCh38-CMRG-stratifications.tsv
+bar	happy		asm-foo	GRCh38	dipcall	-z20000,10000			bmk-foo		*	FALSE	v3.0	v3.0-GRCh38-CMRG-stratifications.tsv
+bam	happy		asm-foo	GRCh38	dipcall	-z20000,10000			bmk-foo		*	TRUE	v3.0	v3.0-GRCh38-CMRG-stratifications.tsv
+boom	truvari	--multimatch --passonly -r2000	asm-foo	GRCh38	dipcall	-z20000,10000			bmk-foo		*	TRUE	v3.0	v3.0-GRCh38-CMRG-stratifications.tsv
