@@ -39,13 +39,17 @@ references:
 # In the entry below we define one assembly by specifying URLs pointing to the
 # maternal/paternal FASTA files as well as a flag specifying if this assembly is
 # male (which will be used downstream by the variant caller). We give this
-# assembly a unique identifier, 'asm-foo' (which must start with 'asm-'), which
-# will be use to refer to this assembly in the output and in subsequent steps.
+# assembly a unique identifier, 'asm-foo', which will be use to refer to this
+# assembly in the output and in subsequent steps.
 
 assemblies:
-  asm-foo:
+  HG2-hifiasm_v0.11:
     maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/6AA58BE2-3710-4B27-AB6A-BEC23DBA14A2--RU-HG002-cleaned/HG002/assemblies/bakeoff/ru_scaffolded/HG002.mat.gap_filled_scaff.cleaned.fa.gz
     paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/6AA58BE2-3710-4B27-AB6A-BEC23DBA14A2--RU-HG002-cleaned/HG002/assemblies/bakeoff/ru_scaffolded/HG002.pat.gap_filled_scaff.cleaned.fa.gz
+    is_male: true
+  HG2-HPRC-20210804:
+    maternal: TODO
+    paternal: TODO
     is_male: true
 
 # We can specify additional assemblies like this
@@ -60,13 +64,21 @@ assemblies:
 # We specify a benchmark to use by supplying URLs to the .vcf and .bed files,
 # which will be used as truth inputs to hap.py downstream. We label this
 # benchmark with a unique identifier ('bmk-foo') that will be used to refer to
-# this benchmark in downstream steps. The identifier must start with 'bmk-'.
+# this benchmark in downstream steps.
 
 benchmarks:
-  bmk-foo:
+  v4.2.1:
     vcf_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz
     bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
     tbi_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz.tbi
+  smvar-CMRG-v1.0:
+    vcf_url: TODO
+    bed_url: TODO
+    tbi_url: TODO
+  SV-CMRG-v1.0:
+    vcf_url: TODO
+    bed_url: TODO
+    tbi_url: TODO
 
 # We can specify additional benchmarks like this
 
