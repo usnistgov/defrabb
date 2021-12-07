@@ -48,12 +48,12 @@ strats_base_path = join(
     resource_dir,
     "stratifications",
 )
-strats_full_path = join(
-    strats_base_path,
-    "{str_ver}",
+strats_full_path = join(strats_base_path, "v3.0")
+tsv_full_path = join(
+    strats_full_path,
     "{ref_prefix}",
+    "v3.0-{ref_prefix}-all-stratifications.tsv"
 )
-tsv_full_path = join(strats_full_path, "{str_tsv}")
 
 vcr_full_prefix = join(
     output_dir,
@@ -149,39 +149,16 @@ rule get_benchmark_tbi:
 ################################################################################
 # Get stratifications
 
-# def read_tsv_bed_files (wildcards):
-#     b = wildcards.bed_prefix
-#     t = wildcards.tsv_prefix
-#     o = checkpoints.get_strat_tsv.get(bed_prefix=b, tsv_prefix=t).output[0]
-#     with o.open() as f:
-#         beds = pd.read_table(f, header=None)[1].tolist()
-#         return [join(strats_full_path, b) for b in beds]
-
-# checkpoint get_strat_tsv:
-#     output: tsv_full_path
-#     params:
-#         root = lambda wildcards: str_config[wildcards.bed_prefix]["root"],
-#         tsv = lambda wildcards: str_config[wildcards.bed_prefix]["tsv"][wildcards.tsv_prefix],
-#     shell: "curl -f -L -o {output} {params.root}/{params.tsv}"
-
-# rule get_strat_beds:
-#     output: join(strats_full_path, "{bed}")
-#     wildcard_constraints:
-#         # NOTE: not all files in the tsv are "*.bed.gz"; a few just have "*.gz"
-#         bed = ".*\.gz"
-#     params:
-#         root = lambda wildcards: str_config[wildcards["bed_prefix"]]["root"],
-#     shell: "curl -f -L -o {output} {params.root}/{wildcards.bed}"
-
 rule get_strats:
     output: tsv_full_path
     params:
-        url_root = config["_strats_root"],
-        prefix = strats_base_path
+        root = config["_strats_root"],
+        target = strats_full_path
     shell: """
-    wget -r {params.url_root}/{wildcards.str_ver}/{wildcards.ref_prefix} \
-    -nH --cut-dirs=4 \
-    -P {params.prefix}
+    curl -L \
+        {params.root}/v3.0/v3.0-stratifications-{wildcards.ref_prefix}.tar.gz | \
+        gunzip -c | \
+        tar x -C {params.target}
     """
 
 ################################################################################
@@ -317,8 +294,6 @@ rule run_happy:
             apply_analyses_wildcards,
             rules.get_strats.output,
             {
-                "str_ver": "strat_version",
-                "str_tsv": "strat_list",
                 "ref_prefix": "ref",
             }
         ),

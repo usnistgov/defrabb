@@ -4,7 +4,6 @@ required:
   - references
   - assemblies
   - benchmarks
-  # - stratifications
   # - variant_caller_runs
   # - happy_runs
   - _dipcall_threads
