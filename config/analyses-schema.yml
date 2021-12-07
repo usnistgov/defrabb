@@ -15,8 +15,6 @@ required:
   - query_var_id
   - target_regions
   # - hpy_params
-  - strat_version
-  - strat_list
 additionalProperties: false
 properties:
   bench_id:
@@ -89,13 +87,3 @@ properties:
     anyOf:
       - type: boolean
       - type: string
-
-  strat_version:
-    description: the versions of stratifications to use
-    type: string
-
-  strat_list:
-    description: the .tsv within the stratification tarball/download list to use
-    type: string
-    
-
