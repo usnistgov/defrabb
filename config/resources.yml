@@ -20,15 +20,9 @@ references:
   GRCh37:
     ref_url: "ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz"
     par_bed: "hs37d5.PAR.bed"
-    # _strat_id: "GRCh37-stratifications-v2.0"
-    # _strat_url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh37/"
-    # _strat_tsv: "v2.0-GRCh37-stratifications.tsv"
   GRCh38:
     ref_url: "ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz"
     par_bed: "hs38.PAR.bed"
-    # _strat_id: "GRCh38-stratifications-v2.0"
-    # _strat_url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/"
-    # _strat_tsv: "v2.0-GRCh38-stratifications.tsv"
 
 ################################################################################
 # Assemblies
@@ -73,41 +67,6 @@ benchmarks:
 # bmk-another:
 #   vcf_url: http://another.vcf
 #   bed_url: http://another.bed
-
-################################################################################
-# Stratifications
-#
-# We specifify a stratification to be used as input for hap.py. Each
-# stratification set is identified by a key starting with 'str-' (here
-# 'str-foo'). The 'root' key is the base URL pointing to the directory holding
-# the .tsv file(s) and .bed files that form the stratification set. The
-# 'reference' is one of either 'GRCh37' or 'GRCh38' and is the reference on
-# which these stratifications are based. The 'tsv' key is a mapping of
-# identifiers for the .tsv files to be used downstream.
-#
-# In order to identify a specific set of stratification .bed files, use the keys
-# for both the root and the .tsv file (here 'str-foo' and 'boo'). See the hap.py
-# configuration for how these are used.
-
-# stratifications:
-#   GRCh37:
-#     v2.0: 
-#     v3.0: v3.0-stratifications-GRCh37.tar.gz
-#   GRCh38:
-#     v2.0:
-#     v3.0: v3.0-stratifications-GRCh38.tar.gz
-
-# We can specify additional stratifications like this. Note that multiple .tsv
-# files can be specified.
-
-#  str-other:
-#    root: ftp://strat-root
-#    reference: GRCh37
-#    tsv:
-#      boo: v2.0-GRCh37-stratifications.tsv
-#      bam: v2.0-GRCh38-other.tsv
-
-
 
 ################################################################################
 # internal
