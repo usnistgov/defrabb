@@ -6,14 +6,19 @@ from snakemake.io import apply_wildcards
 from os.path import join, basename, splitext
 from functools import partial
 
+
 include: "rules/common.smk"
+
 
 min_version("6.0")
 
 ################################################################################
 # init resources
 
+
 configfile: "config/resources.yml"
+
+
 validate(config, "config/resources-schema.yml")
 
 asm_config = config["assemblies"]
@@ -37,9 +42,8 @@ except ValueError:
 
 resource_dir = "resources"
 output_dir = "results"
-manual_dir = "manual"
 
-manual_target_regions_path = join(manual_dir, "target_regions")
+manual_target_regions_path = join(resource_dir, "manual", "target_regions")
 
 asm_full_path = join(resource_dir, "assemblies", "{asm_prefix}")
 ref_full_prefix = join(resource_dir, "references", "{ref_prefix}")
@@ -50,9 +54,7 @@ strats_base_path = join(
 )
 strats_full_path = join(strats_base_path, "v3.0")
 tsv_full_path = join(
-    strats_full_path,
-    "{ref_prefix}",
-    "v3.0-{ref_prefix}-all-stratifications.tsv"
+    strats_full_path, "{ref_prefix}", "v3.0-{ref_prefix}-all-stratifications.tsv"
 )
 
 vcr_full_prefix = join(
@@ -61,7 +63,7 @@ vcr_full_prefix = join(
     "{ref_prefix}",
     "{asm_prefix}",
     "{vcr_cmd}_{vcr_params}",
-    "dipcall"
+    "dipcall",
 )
 
 bench_full_path = join(output_dir, "bench", "{bench_prefix}")
@@ -73,8 +75,10 @@ tvi_full_path = join(bench_full_path, "truvari")
 ################################################################################
 # init wildcard constraints
 
-def format_constraint (xs):
+
+def format_constraint(xs):
     return "|".join(set(xs))
+
 
 # Only constrain the wildcards to match what is in the resources file. Anything
 # else that can be defined on the command line or in the analyses.tsv can is
@@ -84,85 +88,114 @@ wildcard_constraints:
     bmk_prefix=format_constraint(bmk_config),
     ref_prefix=format_constraint(ref_config),
 
+
 ################################################################################
 # main rule
 #
 # Define what files we want hap.py to make, and these paths will contain the
 # definitions for the assemblies, variant caller, etc to use in upstream rules.
 
+
 def expand_bench_output(path, cmd):
-    bps = analyses[analyses["bench_cmd"]==cmd].index.tolist()
-    return expand(path, bench_prefix = bps)
+    bps = analyses[analyses["bench_cmd"] == cmd].index.tolist()
+    return expand(path, bench_prefix=bps)
+
 
 rule all:
     input:
         expand_bench_output(join(hpy_full_path, "happy_out.extended.csv"), "happy"),
-        expand_bench_output(join(tvi_full_path, "out", "summary.txt"), "truvari")
+        expand_bench_output(join(tvi_full_path, "out", "summary.txt"), "truvari"),
+
 
 ################################################################################
 # Get and prepare assemblies
 
+
 rule get_assemblies:
-    output: join(asm_full_path, "{haplotype}.fa")
+    output:
+        join(asm_full_path, "{haplotype}.fa"),
     params:
-        url = lambda wildcards: asm_config[wildcards.asm_prefix][wildcards.haplotype]
+        url=lambda wildcards: asm_config[wildcards.asm_prefix][wildcards.haplotype],
     shell:
         "curl -f -L {params.url} | gunzip -c > {output}"
+
 
 ################################################################################
 # Get and prepare reference
 
+
 rule get_ref:
-    output: "{}.fa".format(ref_full_prefix)
+    output:
+        "{}.fa".format(ref_full_prefix),
     params:
-        url = lambda wildcards: ref_config[wildcards.ref_prefix]["ref_url"]
+        url=lambda wildcards: ref_config[wildcards.ref_prefix]["ref_url"],
     shell:
         "curl -f --connect-timeout 120 -L {params.url} | gunzip -c > {output}"
 
+
 rule index_ref:
-    input: rules.get_ref.output
-    output: "{}.fai".format(ref_full_prefix)
-    wrapper: "0.61.0/bio/samtools/faidx"
+    input:
+        rules.get_ref.output,
+    output:
+        "{}.fai".format(ref_full_prefix),
+    wrapper:
+        "0.61.0/bio/samtools/faidx"
+
 
 ################################################################################
 # Get benchmark vcf.gz and .bed
 
+
 # TODO wet code
 rule get_benchmark_vcf:
-    output: "{}.vcf.gz".format(benchmark_full_prefix)
+    output:
+        "{}.vcf.gz".format(benchmark_full_prefix),
     params:
-        url = lambda wildcards: bmk_config[wildcards["bmk_prefix"]]["vcf_url"]
-    shell: "curl -f -L -o {output} {params.url}"
+        url=lambda wildcards: bmk_config[wildcards["bmk_prefix"]]["vcf_url"],
+    shell:
+        "curl -f -L -o {output} {params.url}"
+
 
 rule get_benchmark_bed:
-    output: "{}.bed".format(benchmark_full_prefix)
+    output:
+        "{}.bed".format(benchmark_full_prefix),
     params:
-        url = lambda wildcards: bmk_config[wildcards["bmk_prefix"]]["bed_url"]
-    shell: "curl -f -L -o {output} {params.url}"
+        url=lambda wildcards: bmk_config[wildcards["bmk_prefix"]]["bed_url"],
+    shell:
+        "curl -f -L -o {output} {params.url}"
+
 
 rule get_benchmark_tbi:
-    output: "{}.vcf.gz.tbi".format(benchmark_full_prefix)
+    output:
+        "{}.vcf.gz.tbi".format(benchmark_full_prefix),
     params:
-        url = lambda wildcards: bmk_config[wildcards["bmk_prefix"]]["tbi_url"]
-    shell: "curl -f -L -o {output} {params.url}"
+        url=lambda wildcards: bmk_config[wildcards["bmk_prefix"]]["tbi_url"],
+    shell:
+        "curl -f -L -o {output} {params.url}"
+
 
 ################################################################################
 # Get stratifications
 
+
 rule get_strats:
-    output: tsv_full_path
+    output:
+        tsv_full_path,
     params:
-        root = config["_strats_root"],
-        target = strats_full_path
-    shell: """
-    curl -L \
-        {params.root}/v3.0/v3.0-stratifications-{wildcards.ref_prefix}.tar.gz | \
-        gunzip -c | \
-        tar x -C {params.target}
-    """
+        root=config["_strats_root"],
+        target=strats_full_path,
+    shell:
+        """
+        curl -L \
+            {params.root}/v3.0/v3.0-stratifications-{wildcards.ref_prefix}.tar.gz | \
+            gunzip -c | \
+            tar x -C {params.target}
+        """
+
 
 ################################################################################
 # Run Dipcall
+
 
 def get_male_bed(wildcards):
     is_male = asm_config[wildcards.asm_prefix]["is_male"]
@@ -170,34 +203,38 @@ def get_male_bed(wildcards):
     par_path = join(root, ref_config[wildcards.ref_prefix]["par_bed"])
     return "-x " + par_path if is_male else ""
 
-def get_extra (wildcards):
+
+def get_extra(wildcards):
     # TODO this seems brittle
     return "" if "nan" == wildcards.vcr_params else wildcards.vcr_params
 
+
 rule run_dipcall:
     input:
-        h1 = join(asm_full_path, "paternal.fa"),
-        h2 = join(asm_full_path, "maternal.fa"),
-        ref = rules.get_ref.output,
-        ref_idx = rules.index_ref.output
+        h1=join(asm_full_path, "paternal.fa"),
+        h2=join(asm_full_path, "maternal.fa"),
+        ref=rules.get_ref.output,
+        ref_idx=rules.index_ref.output,
     output:
-        make = "{}.mak".format(vcr_full_prefix),
-        vcf = "{}.dip.vcf.gz".format(vcr_full_prefix),
-        bed = "{}.dip.bed".format(vcr_full_prefix),
-        bam1 = "{}.hap1.bam".format(vcr_full_prefix),
-        bam2 = "{}.hap2.bam".format(vcr_full_prefix)
-    conda: "envs/dipcall.yml"
+        make="{}.mak".format(vcr_full_prefix),
+        vcf="{}.dip.vcf.gz".format(vcr_full_prefix),
+        bed="{}.dip.bed".format(vcr_full_prefix),
+        bam1="{}.hap1.bam".format(vcr_full_prefix),
+        bam2="{}.hap2.bam".format(vcr_full_prefix),
+    conda:
+        "envs/dipcall.yml"
     params:
-        prefix = vcr_full_prefix,
-        male_bed = get_male_bed,
-        ts = config["_dipcall_threads"],
-        extra = get_extra
-        # extra = lambda wildcards: "" if pd.isna(wildcards.vcr_params) else wildcards.vcr_params
-    log: "{}.log".format(vcr_full_prefix)
+        prefix=vcr_full_prefix,
+        male_bed=get_male_bed,
+        ts=config["_dipcall_threads"],
+        extra=get_extra,
+    log:
+        "{}.log".format(vcr_full_prefix),
     resources:
-        mem_mb = config["_dipcall_threads"] * 2 * 32000 ## GB per thread
-    threads: config["_dipcall_threads"] * 2 ## For diploid
-    shell: """
+        mem_mb=config["_dipcall_threads"] * 2 * 32000,  ## GB per thread
+    threads: config["_dipcall_threads"] * 2  ## For diploid
+    shell:
+        """
         echo "Writing Makefile defining dipcall pipeline"
         run-dipcall \
             {params.extra} \
@@ -207,10 +244,11 @@ rule run_dipcall:
             {input.h1} \
             {input.h2} \
             > {output.make}
-        
+
         echo "Running dipcall pipeline"
         make -j{params.ts} -f {output.make}
-    """
+        """
+
 
 ################################################################################
 # Postprocess variant caller output
@@ -227,32 +265,42 @@ rule run_dipcall:
 #         bgzip -c > {output}
 #     """
 
+
 rule split_multiallelic_sites:
-    input: rules.run_dipcall.output.vcf
+    input:
+        rules.run_dipcall.output.vcf,
     output:
-        vcf = "{}.dip.split_multi.vcf.gz".format(vcr_full_prefix),
-        vcf_tbi = "{}.dip.split_multi.vcf.gz.tbi".format(vcr_full_prefix)
-    conda: "envs/bcftools.yml"
-    shell: """
-    bcftools norm -m - {input} -Oz -o {output.vcf}
-    tabix -p vcf {output.vcf}
-    """
+        vcf="{}.dip.split_multi.vcf.gz".format(vcr_full_prefix),
+        vcf_tbi="{}.dip.split_multi.vcf.gz.tbi".format(vcr_full_prefix),
+    conda:
+        "envs/bcftools.yml"
+    shell:
+        """
+        bcftools norm -m - {input} -Oz -o {output.vcf}
+        tabix -p vcf {output.vcf}
+        """
+
 
 ################################################################################
 ## Run happy
+
 
 def apply_analyses_wildcards(s, keyvals, wildcards):
     ws = {k: analyses.loc[(wildcards.bench_prefix, v)] for k, v in keyvals.items()}
     return expand(s, **ws)
 
+
 def get_targeted(wildcards):
-    # ASSUME: target_regions is either True, False, or a string
+    # ASSUME: target_regions is either "true," "false," or a filename (all
+    # strings); the schema itself defines either a string or boolean type for
+    # this field, but the dataframe when parsed will contain all strings for
+    # this column
     h = wildcards.bench_prefix
     trs = analyses.loc[(h, "target_regions")]
-    if trs == False:
+    if trs == "false":
         return ""
     else:
-        if trs == True:
+        if trs == "true":
             # TODO not dry
             bed = apply_wildcards(
                 rules.run_dipcall.output.bed,
@@ -260,16 +308,17 @@ def get_targeted(wildcards):
                     "ref_prefix": analyses.loc[(h, "ref")],
                     "asm_prefix": analyses.loc[(h, "asm_id")],
                     "vcr_cmd": analyses.loc[(h, "varcaller")],
-                    "vcr_params": analyses.loc[(h, "vc_params")]
-                }
+                    "vcr_params": analyses.loc[(h, "vc_params")],
+                },
             )
         else:
             bed = join(manual_target_regions_path, trs)
         return "--target-regions {}".format(bed)
 
+
 rule run_happy:
     input:
-        query = partial(
+        query=partial(
             apply_analyses_wildcards,
             rules.run_dipcall.output.vcf,
             {
@@ -277,47 +326,50 @@ rule run_happy:
                 "asm_prefix": "asm_id",
                 "vcr_cmd": "varcaller",
                 "vcr_params": "vc_params",
-            }
+            },
         ),
         # TODO not dry
-        truth = partial(
+        truth=partial(
             apply_analyses_wildcards,
             rules.get_benchmark_vcf.output,
-            {"bmk_prefix": "truth_var_id"}
+            {"bmk_prefix": "truth_var_id"},
         ),
-        truth_regions = partial(
+        truth_regions=partial(
             apply_analyses_wildcards,
             rules.get_benchmark_bed.output,
-            {"bmk_prefix": "truth_var_id"}
+            {"bmk_prefix": "truth_var_id"},
         ),
-        strats = partial(
+        strats=partial(
             apply_analyses_wildcards,
             rules.get_strats.output,
             {
                 "ref_prefix": "ref",
-            }
+            },
         ),
-        genome = partial(
-            apply_analyses_wildcards,
-            rules.get_ref.output,
-            {"ref_prefix": "ref"}
-        )
-    output: join(hpy_full_path, "happy_out.extended.csv")
+        genome=partial(
+            apply_analyses_wildcards, rules.get_ref.output, {"ref_prefix": "ref"}
+        ),
+    output:
+        join(hpy_full_path, "happy_out.extended.csv"),
     priority: 1
     params:
-        prefix = lambda _, output: output [0][:-13],
-        threads = 6,
-        engine = "vcfeval",
-        extra = get_targeted
-    log: join(hpy_full_path, "happy.log")
-    wrapper: "0.78.0/bio/hap.py/hap.py"
+        prefix=lambda _, output: output[0][:-13],
+        threads=6,
+        engine="vcfeval",
+        extra=get_targeted,
+    log:
+        join(hpy_full_path, "happy.log"),
+    wrapper:
+        "0.78.0/bio/hap.py/hap.py"
+
 
 ################################################################################
 ## Run Truvari
 
+
 rule run_truvari:
     input:
-        query = partial(
+        query=partial(
             apply_analyses_wildcards,
             rules.split_multiallelic_sites.output.vcf,
             {
@@ -325,42 +377,50 @@ rule run_truvari:
                 "asm_prefix": "asm_id",
                 "vcr_cmd": "varcaller",
                 "vcr_params": "vc_params",
-            }
+            },
         ),
         # TODO not dry
-        truth = partial(
+        truth=partial(
             apply_analyses_wildcards,
             rules.get_benchmark_vcf.output,
-            {"bmk_prefix": "truth_var_id"}
+            {"bmk_prefix": "truth_var_id"},
         ),
-        truth_regions = partial(
+        truth_regions=partial(
             apply_analyses_wildcards,
             rules.get_benchmark_bed.output,
-            {"bmk_prefix": "truth_var_id"}
+            {"bmk_prefix": "truth_var_id"},
         ),
         # NOTE this isn't actually fed to the command but is still necessary
-        truth_tbi = partial(
+        truth_tbi=partial(
             apply_analyses_wildcards,
             rules.get_benchmark_tbi.output,
-            {"bmk_prefix": "truth_var_id"}
+            {"bmk_prefix": "truth_var_id"},
         ),
-        genome = partial(
-            apply_analyses_wildcards,
-            rules.get_ref.output,
-            {"ref_prefix": "ref"}
-        )
-    output: join(tvi_full_path, "out", "summary.txt")
-    log: join(tvi_full_path, "truvari.log")
+        genome=partial(
+            apply_analyses_wildcards, rules.get_ref.output, {"ref_prefix": "ref"}
+        ),
+    output:
+        join(tvi_full_path, "out", "summary.txt"),
+    log:
+        join(tvi_full_path, "truvari.log"),
     params:
-        extra = lambda wildcards: analyses.loc[(wildcards.bench_prefix, "bench_params")],
-        prefix = join(tvi_full_path, "out")
-    conda: "envs/truvari.yml"
-    shell: """
-    truvari bench \
-        -b {input.truth} \
-        -c {input.query} \
-        -o {params.prefix} \
-        -f {input.genome} \
-        --includebed {input.truth_regions} \
-        {params.extra}
-    """
+        extra=lambda wildcards: analyses.loc[(wildcards.bench_prefix, "bench_params")],
+        prefix=join(tvi_full_path, "out"),
+        tmpdir="/tmp/truvari",
+    conda:
+        "envs/truvari.yml"
+    # TODO this tmp thing is a workaround for the fact that snakemake
+    # over-zealously makes output directories when tools like truvari expect
+    # them to not exist. Also, /tmp is only a thing on Linux (if that matters)
+    shell:
+        """
+        truvari bench \
+            -b {input.truth} \
+            -c {input.query} \
+            -o {params.tmpdir} \
+            -f {input.genome} \
+            --includebed {input.truth_regions} \
+            {params.extra}
+        mv {params.tmpdir}/* {params.prefix}
+        rm -r {params.tmpdir}
+        """
