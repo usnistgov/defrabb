@@ -44,7 +44,7 @@ properties:
     unique: true
     patternProperties:
 
-      ^\w*$:
+      ^[\w\.\-]*$:
         type: object
         additionalProperties: false
         description: metadata for each assembly
@@ -70,7 +70,7 @@ properties:
     additionalProperties: false
     patternProperties:
 
-      ^\w*$:
+      ^[\w\.\-]*$:
         type: object
         additionalProperties: false
         description: metadata for each benchmark
