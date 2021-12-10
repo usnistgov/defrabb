@@ -231,7 +231,7 @@ rule run_dipcall:
     log:
         "{}.log".format(vcr_full_prefix),
     resources:
-        mem_mb=config["_dipcall_threads"] * 2 * 32000,  ## GB per thread
+        mem_mb=config["_dipcall_threads"] * 2 * 128000,  ## GB per thread
     threads: config["_dipcall_threads"] * 2  ## For diploid
     shell:
         """
@@ -290,6 +290,7 @@ def apply_analyses_wildcards(s, keyvals, wildcards):
     return expand(s, **ws)
 
 
+# TODO happy will break in non-obvious ways if this file doesn't exist
 def get_targeted(wildcards):
     # ASSUME: target_regions is either "true," "false," or a filename (all
     # strings); the schema itself defines either a string or boolean type for
