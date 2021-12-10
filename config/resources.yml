@@ -37,11 +37,12 @@ references:
 # assembly in the output and in subsequent steps.
 
 assemblies:
-  HG2-hifiasm_v0.11:
+  HG2-HPRC-20210804:
     maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/6AA58BE2-3710-4B27-AB6A-BEC23DBA14A2--RU-HG002-cleaned/HG002/assemblies/bakeoff/ru_scaffolded/HG002.mat.gap_filled_scaff.cleaned.fa.gz
     paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/6AA58BE2-3710-4B27-AB6A-BEC23DBA14A2--RU-HG002-cleaned/HG002/assemblies/bakeoff/ru_scaffolded/HG002.pat.gap_filled_scaff.cleaned.fa.gz
     is_male: true
-  HG2-HPRC-20210804:
+  # TODO these are on the NIST google drive and it doesn't seem to let me download directly
+  HG2-hifiasm_v0.11:
     maternal: TODO
     paternal: TODO
     is_male: true
