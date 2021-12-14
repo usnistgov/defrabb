@@ -317,29 +317,57 @@ def get_targeted(wildcards):
         return "--target-regions {}".format(bed)
 
 
+def choose_happy_output(out1, out2, wildcards):
+    return (
+        out1
+        if analyses.loc[(wildcards.bench_prefix, "compare_is_truth")] == "true"
+        else out2
+    )
+
+
+def apply_happy_vcf_wildcards(vcf, wildcards):
+    return apply_analyses_wildcards(
+        vcf,
+        {
+            "ref_prefix": "ref",
+            "asm_prefix": "asm_id",
+            "vcr_cmd": "varcaller",
+            "vcr_params": "vc_params",
+        },
+        wildcards,
+    )
+
+
+def get_happy_query_vcf(wildcards):
+    vcf = choose_happy_output(
+        rules.get_benchmark_vcf.output, rules.run_dipcall.output.vcf, wildcards
+    )
+    return apply_happy_vcf_wildcards(vcf, wildcards)
+
+
+def get_happy_truth_vcf(wildcards):
+    vcf = choose_happy_output(
+        rules.run_dipcall.output.vcf, rules.get_benchmark_vcf.output, wildcards
+    )
+    return apply_happy_vcf_wildcards(vcf, wildcards)
+
+
+def get_happy_truth_bed(wildcards):
+    bed = choose_happy_output(
+        rules.get_benchmark_bed.output, rules.run_dipcall.output.bed, wildcards
+    )
+    return apply_analyses_wildcards(
+        bed,
+        {"bmk_prefix": "compare_var_id"},
+        wildcards,
+    )
+
+
 rule run_happy:
     input:
-        query=partial(
-            apply_analyses_wildcards,
-            rules.run_dipcall.output.vcf,
-            {
-                "ref_prefix": "ref",
-                "asm_prefix": "asm_id",
-                "vcr_cmd": "varcaller",
-                "vcr_params": "vc_params",
-            },
-        ),
-        # TODO not dry
-        truth=partial(
-            apply_analyses_wildcards,
-            rules.get_benchmark_vcf.output,
-            {"bmk_prefix": "truth_var_id"},
-        ),
-        truth_regions=partial(
-            apply_analyses_wildcards,
-            rules.get_benchmark_bed.output,
-            {"bmk_prefix": "truth_var_id"},
-        ),
+        query=get_happy_query_vcf,
+        truth=get_happy_truth_vcf,
+        truth_regions=get_happy_truth_bed,
         strats=partial(
             apply_analyses_wildcards,
             rules.get_strats.output,
@@ -348,7 +376,9 @@ rule run_happy:
             },
         ),
         genome=partial(
-            apply_analyses_wildcards, rules.get_ref.output, {"ref_prefix": "ref"}
+            apply_analyses_wildcards,
+            rules.get_ref.output,
+            {"ref_prefix": "ref"},
         ),
     output:
         join(hpy_full_path, "happy_out.extended.csv"),
