@@ -1,5 +1,12 @@
-bench_id	bench_cmd	bench_params	asm_id	ref	varcaller	vc_params	vcf_postprocessing	bed_postprocessing	truth_var_id	truth_regions	query_var_id	target_regions
-foo	happy		asm-foo	GRCh38	dipcall	NA			bmk-foo		*	FALSE
-bar	happy		asm-foo	GRCh38	dipcall	-z20000,10000			bmk-foo		*	FALSE
-bam	happy		asm-foo	GRCh38	dipcall	-z20000,10000			bmk-foo		*	TRUE
-boom	truvari	--multimatch --passonly -r2000	asm-foo	GRCh38	dipcall	-z20000,10000			bmk-foo		*	TRUE
+bench_id	bench_cmd	bench_params	asm_id	ref	varcaller	vc_params	vcf_postprocessing	bed_postprocessing	truth_var_id	target_regions
+happy1	happy		HG2-hifiasm_v0.11	GRCh38	dipcall		gap2homvarbutfiltered	NA	v4.2.1	true
+happy2	happy		HG2-hifiasm_v0.11	GRCh38	dipcall	-z200000,10000	gap2homvarbutfiltered	NA	v4.2.1	true
+happy3	happy		HG2-hifiasm_v0.11	GRCh38	dipcall	-z200000,10000	gap2homvarbutfiltered	NA	v4.2.1	true
+happy4	happy		HG2-hifiasm_v0.11	GRCh38	dipcall	-z200000,10000	NA	NA	v4.2.1	true
+happy5	happy		HG2-hifiasm_v0.11	GRCh38	dipcall		gap2homvarbutfiltered	NA	smvar-CMRG-v1.0	GRCh38_CMRG_benchmark_gene_coordinates.bed
+happy6	happy		HG2-hifiasm_v0.11	GRCh38	dipcall	-z200000,10000	gap2homvarbutfiltered	NA	smvar-CMRG-v1.0	GRCh38_CMRG_benchmark_gene_coordinates.bed
+happy7	happy		HG2-hifiasm_v0.11	GRCh38	dipcall	-z200000,10000	NA	NA	smvar-CMRG-v1.0	GRCh38_CMRG_benchmark_gene_coordinates.bed
+happy8	happy		HG2-HPRC-20210804	GRCh38	dipcall	-z200000,10000	NA	NA	v4.2.1	true
+happy9	happy		HG2-HPRC-20210804	GRCh38	dipcall	-z200000,10000	NA	NA	smvar-CMRG-v1.0	GRCh38_CMRG_benchmark_gene_coordinates.bed
+truvari1	truvari	--multimatch --passonly -r2000	HG2-hifiasm_v0.11	GRCh38	dipcall	-z200000,10000	bcftools norm -m -	NA	SV-CMRG-v1.0	false
+truvari2	truvari	--multimatch --passonly -r2000	HG2-HPRC-20210804	GRCh38	dipcall	-z200000,10000	bcftools norm -m -	NA	SV-CMRG-v1.0	false
