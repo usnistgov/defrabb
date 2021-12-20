@@ -1,4 +1,4 @@
-bench_id	bench_cmd	bench_params	asm_id	ref	varcaller	vc_params	vcf_postprocessing	bed_postprocessing	compare_var_id	compare_is_truth	target_regions
+bench_id	bench_cmd	bench_params	asm_id	ref	varcaller	vc_params	vcf_postprocessing	bed_postprocessing	compare_var_id	vcr_is_query	target_regions
 happy1	happy		HG2-hifiasm_v0.11	GRCh38	dipcall		gap2homvarbutfiltered	NA	v4.2.1	true	true
 happy2	happy		HG2-hifiasm_v0.11	GRCh38	dipcall	-z200000,10000	gap2homvarbutfiltered	NA	v4.2.1	true	true
 happy3	happy		HG2-hifiasm_v0.11	GRCh38	dipcall	-z200000,10000	gap2homvarbutfiltered	NA	v4.2.1	true	true

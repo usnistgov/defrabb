@@ -11,7 +11,7 @@ required:
   # - vcf_postprocessing
   # - bed_postprocessing
   - compare_var_id
-  - compare_is_truth
+  - vcr_is_query
   # - truth_regions
   - target_regions
   # - hpy_params
@@ -69,12 +69,12 @@ properties:
     description: the id of the truth vcf file to use from resources.yml
     type: string
 
-  compare_is_truth:
+  vcr_is_query:
     description: |
-      Set to 'true' if the vcf/bed files from 'compare_var_id' are to be
-      used as truth input for the benchmark comparison tool. 'False' will set
-      them to the query input. The files from the variant caller will be fed to
-      the opposite input indicated by this setting.
+      Set to 'true' to feed the vcf and bed files from the variant caller as the
+      query inputs for the benchmark comparison tool. The truth inputs will be
+      whatever is indicated by 'compare_var_id'. Setting this to 'false' will
+      flip the truth and query inputs.
     type: string
     pattern: ^true|false$
 
