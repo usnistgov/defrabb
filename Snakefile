@@ -29,7 +29,7 @@ ref_config = config["references"]
 # init analyses
 
 ANALYSES_TSV = "config/analyses.tsv"
-_analyses = pd.read_table(ANALYSES_TSV, dtype = {"target_regions": str})
+_analyses = pd.read_table(ANALYSES_TSV, dtype={"target_regions": str})
 validate(_analyses, "config/analyses-schema.yml")
 
 try:
@@ -345,7 +345,6 @@ def get_genome_input(wildcards):
     )
 
 
-# TODO happy will break in non-obvious ways if this file doesn't exist
 def get_targeted(wildcards):
     # ASSUME: target_regions is either "true," "false," or a filename (all
     # strings); the schema itself defines either a string or boolean type for
@@ -354,32 +353,48 @@ def get_targeted(wildcards):
     h = wildcards.bench_prefix
     trs = analyses.loc[(h, "target_regions")]
     if trs == "false":
-        return ""
+        return None
     else:
         if trs == "true":
             # ASSUME each input will be a singleton and therefore the output
             # will be a singleton
-            bed = get_query_input(
+            return get_query_input(
                 rules.run_dipcall.output.bed,
                 rules.get_benchmark_bed.output,
                 wildcards,
             )[0]
         else:
-            bed = join(manual_target_regions_path, trs)
-        return "--target-regions {}".format(bed)
+            return join(manual_target_regions_path, trs)
+
+
+def format_targeted_arg(wildcards, input):
+    try:
+        return "--target-regions {}".format(input["target_regions"])
+    except AttributeError:
+        return ""
+
+
+def get_happy_inputs(wildcards):
+    inputs = {
+        "query": get_query_vcf(rules.run_dipcall.output.vcf, wildcards),
+        "truth": get_truth_vcf(rules.run_dipcall.output.vcf, wildcards),
+        "truth_regions": get_truth_bed(wildcards),
+        "strats": apply_analyses_wildcards(
+            rules.get_strats.output,
+            {"ref_prefix": "ref"},
+            wildcards,
+        ),
+        "genome": get_genome_input(wildcards),
+    }
+    trs = get_targeted(wildcards)
+    if trs is not None:
+        inputs["target_regions"] = trs
+    return inputs
 
 
 rule run_happy:
     input:
-        query=partial(get_query_vcf, rules.run_dipcall.output.vcf),
-        truth=partial(get_truth_vcf, rules.run_dipcall.output.vcf),
-        truth_regions=get_truth_bed,
-        strats=partial(
-            apply_analyses_wildcards,
-            rules.get_strats.output,
-            {"ref_prefix": "ref"},
-        ),
-        genome=get_genome_input,
+        unpack(get_happy_inputs),
     output:
         join(hpy_full_path, "happy_out.extended.csv"),
     priority: 1
@@ -387,7 +402,8 @@ rule run_happy:
         prefix=lambda _, output: output[0][:-13],
         threads=6,
         engine="vcfeval",
-        extra=get_targeted,
+        extra=format_targeted_arg,
+        # extra=get_targeted,
     log:
         join(hpy_full_path, "happy.log"),
     wrapper:
