@@ -75,8 +75,7 @@ properties:
       query inputs for the benchmark comparison tool. The truth inputs will be
       whatever is indicated by 'compare_var_id'. Setting this to 'false' will
       flip the truth and query inputs.
-    type: string
-    pattern: ^true|false$
+    type: boolean
 
   # truth_regions:
   #   description: the id of the truth bed file to use from resources.yml
