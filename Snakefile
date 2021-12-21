@@ -403,7 +403,6 @@ rule run_happy:
         threads=6,
         engine="vcfeval",
         extra=format_targeted_arg,
-        # extra=get_targeted,
     log:
         join(hpy_full_path, "happy.log"),
     wrapper:
