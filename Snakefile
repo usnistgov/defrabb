@@ -29,7 +29,7 @@ ref_config = config["references"]
 # init analyses
 
 ANALYSES_TSV = "config/analyses.tsv"
-_analyses = pd.read_table(ANALYSES_TSV)
+_analyses = pd.read_table(ANALYSES_TSV, dtype = {"target_regions": str})
 validate(_analyses, "config/analyses-schema.yml")
 
 try:
@@ -304,7 +304,7 @@ def apply_vcr_or_bmk_output(vcr_out, bmk_out, use_vcr, wildcards):
             },
             wildcards,
         )
-        if vcr_is_query == "true" and use_vcr
+        if vcr_is_query == use_vcr
         else apply_analyses_wildcards(
             bmk_out,
             {"bmk_prefix": "compare_var_id"},
@@ -357,12 +357,13 @@ def get_targeted(wildcards):
         return ""
     else:
         if trs == "true":
-            # TODO not dry
+            # ASSUME each input will be a singleton and therefore the output
+            # will be a singleton
             bed = get_query_input(
                 rules.run_dipcall.output.bed,
                 rules.get_benchmark_bed.output,
                 wildcards,
-            )
+            )[0]
         else:
             bed = join(manual_target_regions_path, trs)
         return "--target-regions {}".format(bed)
