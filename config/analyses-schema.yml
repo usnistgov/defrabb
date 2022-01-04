@@ -54,23 +54,21 @@ properties:
     description: additional params to be passed to the varcaller
     type: string
 
-  # TODO this is currently unused; what gets preprocessed when running this?
   vcf_postprocessing:
-    description: steps to do prior to running the variant caller
+    description: post processing of output vcf (variant calls) from varcaller
     type: string
 
-  # TODO this is currently unused; what gets postprocessed when running this?
   bed_postprocessing:
-    description: steps to do after running the variant caller
+    description: post processing of output bed (genomic regions) from varcaller
     type: 'null'
 
   truth_var_id:
     description: the id of the truth vcf file to use from resources.yml
     type: string
 
-  # truth_regions:
-  #   description: the id of the truth bed file to use from resources.yml
-  #   type: string
+  truth_regions:
+    description: the id of the truth bed file to use from resources.yml
+    type: string
 
   # NOTE: this field will be parsed entirely as a string by pandas, so need to
   # match on literal "true" or "false" strings as the datatype in the dataframe
