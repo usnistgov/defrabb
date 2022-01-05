@@ -7,7 +7,7 @@ before_script:
 
 lint:
   script:
-    - 'snakemake --lint'
+    - 'snakemake --version'
 
 black:
   script:
