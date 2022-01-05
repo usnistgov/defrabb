@@ -8,6 +8,7 @@ before_script:
 lint:
   script:
     - 'snakemake --version'
+    - 'snakemake --lint --cores 1 --verbose'
 
 black:
   script:
