@@ -2,7 +2,8 @@ image: mambaorg/micromamba
 
 before_script:
   - echo "Installing pipeline dependencies"
-  - mamba install -c bioconda -c conda-forge snakemake black
+  - conda update -n base -c defaults conda
+  - conda install -c bioconda -c conda-forge snakemake black
 
 lint:
   script:
