@@ -1,11 +1,14 @@
+image: miniconda3:4.4.10
+
+before_script:
+  - echo "Installing pipeline dependencies"
+  - conda --version
+  - conda install -c bioconda -c conda-forge snakemake black
+
 lint:
-  image: snakemake/snakemake:v6.9.1
   script:
     - 'snakemake --lint'
 
 black:
-  image: python:3.9.7
-  before_script:
-    - apt-get install black
   script:
     - 'black . --check'
