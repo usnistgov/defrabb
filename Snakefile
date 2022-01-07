@@ -28,14 +28,18 @@ ref_config = config["references"]
 ################################################################################
 # init analyses
 
-ANALYSES_TSV = "config/analyses.tsv"
-_analyses = pd.read_table(ANALYSES_TSV)
-validate(_analyses, "config/analyses-schema.yml")
 
-try:
-    analyses = _analyses.set_index("bench_id", verify_integrity=True)
-except ValueError:
-    print("All keys in column 'bench_id' must by unique")
+def get_analyses(path):
+    analyses = pd.read_table(path)
+    validate(analyses, "config/analyses-schema.yml")
+
+    try:
+        return analyses.set_index("bench_id", verify_integrity=True)
+    except ValueError:
+        print("All keys in column 'bench_id' must by unique")
+
+
+analyses = get_analyses("config/analyses.tsv")
 
 ################################################################################
 # init paths
