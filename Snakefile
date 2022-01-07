@@ -149,32 +149,31 @@ rule index_ref:
 # Get benchmark vcf.gz and .bed
 
 
-# TODO wet code
+def lookup_bench(key, wildcards):
+    return bmk_config[wildcards.bmk_prefix][key]
+
+
 rule get_benchmark_vcf:
     output:
         benchmark_full_prefix.with_suffix(".vcf.gz"),
     params:
-        url=lambda wildcards: bmk_config[wildcards["bmk_prefix"]]["vcf_url"],
+        url=partial(lookup_bench, "vcf_url"),
     shell:
         "curl -f -L -o {output} {params.url}"
 
 
-rule get_benchmark_bed:
+use rule get_benchmark_vcf as get_benchmark_bed with:
     output:
         benchmark_full_prefix.with_suffix(".bed"),
     params:
-        url=lambda wildcards: bmk_config[wildcards["bmk_prefix"]]["bed_url"],
-    shell:
-        "curl -f -L -o {output} {params.url}"
+        url=partial(lookup_bench, "bed_url"),
 
 
-rule get_benchmark_tbi:
+use rule get_benchmark_vcf as get_benchmark_tbi with:
     output:
         benchmark_full_prefix.with_suffix(".vcf.gz.tbi"),
     params:
-        url=lambda wildcards: bmk_config[wildcards["bmk_prefix"]]["tbi_url"],
-    shell:
-        "curl -f -L -o {output} {params.url}"
+        url=partial(lookup_bench, "tbi_url"),
 
 
 ################################################################################
