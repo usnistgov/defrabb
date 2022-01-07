@@ -4,7 +4,6 @@ from itertools import product
 from more_itertools import unzip, flatten
 from snakemake.utils import min_version, validate
 from snakemake.io import apply_wildcards
-from os.path import join, basename, splitext
 from functools import partial
 
 
