@@ -28,6 +28,9 @@ ref_config = config["references"]
 ################################################################################
 # init analyses
 
+ANALYSES_TSV = "config/analyses.tsv"
+_analyses = pd.read_table(ANALYSES_TSV, dtype={"target_regions": str})
+validate(_analyses, "config/analyses-schema.yml")
 
 def get_analyses(path):
     # target_regions must be a string even though it might only contain
@@ -255,11 +258,65 @@ rule split_multiallelic_sites:
 
 
 def apply_analyses_wildcards(s, keyvals, wildcards):
-    ws = {k: analyses.loc[(wildcards.bench_prefix, v)] for k, v in keyvals.items()}
+    p = wildcards.bench_prefix
+    ws = {k: analyses.loc[(p, v)] for k, v in keyvals.items()}
     return expand(s, **ws)
 
 
-# TODO happy will break in non-obvious ways if this file doesn't exist
+def apply_vcr_or_bmk_output(vcr_out, bmk_out, use_vcr, wildcards):
+    vcr_is_query = analyses.loc[(wildcards.bench_prefix, "vcr_is_query")]
+    return (
+        apply_analyses_wildcards(
+            vcr_out,
+            {
+                "ref_prefix": "ref",
+                "asm_prefix": "asm_id",
+                "vcr_cmd": "varcaller",
+                "vcr_params": "vc_params",
+            },
+            wildcards,
+        )
+        if vcr_is_query == use_vcr
+        else apply_analyses_wildcards(
+            bmk_out,
+            {"bmk_prefix": "compare_var_id"},
+            wildcards,
+        )
+    )
+
+
+def get_query_input(vcr_out, bmk_out, wildcards):
+    return apply_vcr_or_bmk_output(vcr_out, bmk_out, True, wildcards)
+
+
+def get_truth_input(vcr_out, bmk_out, wildcards):
+    return apply_vcr_or_bmk_output(vcr_out, bmk_out, False, wildcards)
+
+
+def get_query_vcf(vcr_out, wildcards):
+    return get_query_input(vcr_out, rules.get_benchmark_vcf.output, wildcards)
+
+
+def get_truth_vcf(vcr_out, wildcards):
+    return get_truth_input(vcr_out, rules.get_benchmark_vcf.output, wildcards)
+
+
+def get_truth_bed(wildcards):
+    return get_truth_input(
+        rules.run_dipcall.output.bed,
+        rules.get_benchmark_bed.output,
+        wildcards,
+    )
+
+
+def get_genome_input(wildcards):
+    return apply_analyses_wildcards(
+        rules.get_ref.output,
+        {"ref_prefix": "ref"},
+        wildcards,
+    )
+
+
 def get_targeted(wildcards):
     # ASSUME: target_regions is either "true," "false," or a filename (all
     # strings); the schema itself defines either a string or boolean type for
@@ -268,65 +325,55 @@ def get_targeted(wildcards):
     h = wildcards.bench_prefix
     trs = analyses.loc[(h, "target_regions")]
     if trs == "false":
-        return ""
+        return None
     else:
         if trs == "true":
-            # TODO not dry
-            bed = apply_wildcards(
+            # ASSUME each input will be a singleton and therefore the output
+            # will be a singleton
+            return get_query_input(
                 rules.run_dipcall.output.bed,
-                {
-                    "ref_prefix": analyses.loc[(h, "ref")],
-                    "asm_prefix": analyses.loc[(h, "asm_id")],
-                    "vcr_cmd": analyses.loc[(h, "varcaller")],
-                    "vcr_params": analyses.loc[(h, "vc_params")],
-                },
-            )
+                rules.get_benchmark_bed.output,
+                wildcards,
+            )[0]
         else:
-            bed = manual_target_regions_path / trs
-        return "--target-regions {}".format(bed)
+            return join(manual_target_regions_path, trs)
+
+
+def format_targeted_arg(wildcards, input):
+    try:
+        return "--target-regions {}".format(input["target_regions"])
+    except AttributeError:
+        return ""
+
+
+def get_happy_inputs(wildcards):
+    inputs = {
+        "query": get_query_vcf(rules.run_dipcall.output.vcf, wildcards),
+        "truth": get_truth_vcf(rules.run_dipcall.output.vcf, wildcards),
+        "truth_regions": get_truth_bed(wildcards),
+        "strats": apply_analyses_wildcards(
+            rules.get_strats.output,
+            {"ref_prefix": "ref"},
+            wildcards,
+        ),
+        "genome": get_genome_input(wildcards),
+    }
+    trs = get_targeted(wildcards)
+    if trs is not None:
+        inputs["target_regions"] = trs
+    return inputs
 
 
 rule run_happy:
     input:
-        query=partial(
-            apply_analyses_wildcards,
-            rules.run_dipcall.output.vcf,
-            {
-                "ref_prefix": "ref",
-                "asm_prefix": "asm_id",
-                "vcr_cmd": "varcaller",
-                "vcr_params": "vc_params",
-            },
-        ),
-        # TODO not dry
-        truth=partial(
-            apply_analyses_wildcards,
-            rules.get_benchmark_vcf.output,
-            {"bmk_prefix": "truth_var_id"},
-        ),
-        truth_regions=partial(
-            apply_analyses_wildcards,
-            rules.get_benchmark_bed.output,
-            {"bmk_prefix": "truth_var_id"},
-        ),
-        strats=partial(
-            apply_analyses_wildcards,
-            rules.get_strats.output,
-            {
-                "ref_prefix": "ref",
-            },
-        ),
-        genome=partial(
-            apply_analyses_wildcards, rules.get_ref.output, {"ref_prefix": "ref"}
-        ),
-    # TODO not dry
+        unpack(get_happy_inputs),
     output:
         hpy_full_path / "happy_out.extended.csv",
     params:
         prefix=str(hpy_full_path / "happy_out"),
         threads=6,
         engine="vcfeval",
-        extra=get_targeted,
+        extra=format_targeted_arg,
     log:
         hpy_full_path / "happy.log",
     wrapper:
@@ -337,38 +384,22 @@ rule run_happy:
 ## Run Truvari
 
 
+def get_truvari_truth_tbi(wildcards):
+    return get_truth_input(
+        rules.split_multiallelic_sites.output.tbi,
+        rules.get_benchmark_tbi.output,
+        wildcards,
+    )
+
+
 rule run_truvari:
     input:
-        query=partial(
-            apply_analyses_wildcards,
-            rules.split_multiallelic_sites.output.vcf,
-            {
-                "ref_prefix": "ref",
-                "asm_prefix": "asm_id",
-                "vcr_cmd": "varcaller",
-                "vcr_params": "vc_params",
-            },
-        ),
-        # TODO not dry
-        truth=partial(
-            apply_analyses_wildcards,
-            rules.get_benchmark_vcf.output,
-            {"bmk_prefix": "truth_var_id"},
-        ),
-        truth_regions=partial(
-            apply_analyses_wildcards,
-            rules.get_benchmark_bed.output,
-            {"bmk_prefix": "truth_var_id"},
-        ),
-        # NOTE this isn't actually fed to the command but is still necessary
-        truth_tbi=partial(
-            apply_analyses_wildcards,
-            rules.get_benchmark_tbi.output,
-            {"bmk_prefix": "truth_var_id"},
-        ),
-        genome=partial(
-            apply_analyses_wildcards, rules.get_ref.output, {"ref_prefix": "ref"}
-        ),
+        query=partial(get_query_vcf, rules.split_multiallelic_sites.output.vcf),
+        truth=partial(get_truth_vcf, rules.split_multiallelic_sites.output.vcf),
+        truth_regions=get_truth_bed,
+        # NOTE this isn't actually fed to the command but still must be present
+        truth_tbi=get_truvari_truth_tbi,
+        genome=get_genome_input,
     output:
         tvi_full_path / "out" / "summary.txt",
     log:
