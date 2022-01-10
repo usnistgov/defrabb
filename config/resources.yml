@@ -43,8 +43,8 @@ assemblies:
     is_male: true
   # TODO these are on the NIST google drive and it doesn't seem to let me download directly
   HG2-hifiasm_v0.11:
-    maternal: TODO
-    paternal: TODO
+    maternal: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/hifiasm-assembly/HG002-v0.11.mat.fa.gz
+    paternal: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/hifiasm-assembly/HG002-v0.11.pat.fa.gz
     is_male: true
 
 # We can specify additional assemblies like this
