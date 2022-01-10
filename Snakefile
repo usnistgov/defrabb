@@ -355,7 +355,6 @@ rule run_happy:
     # TODO not dry
     output:
         hpy_full_path / "happy_out.extended.csv",
-    priority: 1
     params:
         prefix=str(hpy_full_path / "happy_out"),
         threads=6,
