@@ -28,10 +28,6 @@ ref_config = config["references"]
 ################################################################################
 # init analyses
 
-ANALYSES_TSV = "config/analyses.tsv"
-_analyses = pd.read_table(ANALYSES_TSV, dtype={"target_regions": str})
-validate(_analyses, "schema/analyses-schema.yml")
-
 def get_analyses(path):
     # target_regions must be a string even though it might only contain
     # 'boolean' values
