@@ -19,7 +19,7 @@ min_version("6.0")
 configfile: "config/resources.yml"
 
 
-validate(config, "config/resources-schema.yml")
+validate(config, "schema/resources-schema.yml")
 
 asm_config = config["assemblies"]
 bmk_config = config["benchmarks"]
@@ -30,13 +30,13 @@ ref_config = config["references"]
 
 ANALYSES_TSV = "config/analyses.tsv"
 _analyses = pd.read_table(ANALYSES_TSV, dtype={"target_regions": str})
-validate(_analyses, "config/analyses-schema.yml")
+validate(_analyses, "schema/analyses-schema.yml")
 
 def get_analyses(path):
     # target_regions must be a string even though it might only contain
     # 'boolean' values
     analyses = pd.read_table(path, dtype={"target_regions": str})
-    validate(analyses, "config/analyses-schema.yml")
+    validate(analyses, "schema/analyses-schema.yml")
 
     try:
         return analyses.set_index("bench_id", verify_integrity=True)
