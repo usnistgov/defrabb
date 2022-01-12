@@ -27,19 +27,6 @@ ref_config = config["references"]
 
 ################################################################################
 # init analyses
-
-def get_analyses(path):
-    # target_regions must be a string even though it might only contain
-    # 'boolean' values
-    analyses = pd.read_table(path, dtype={"target_regions": str})
-    validate(analyses, "config/analyses-schema.yml")
-
-    try:
-        return analyses.set_index("bench_id", verify_integrity=True)
-    except ValueError:
-        print("All keys in column 'bench_id' must by unique")
-
-
 analyses = get_analyses("config/analyses.tsv")
 
 ################################################################################
@@ -77,11 +64,6 @@ tvi_full_path = bench_full_path / "truvari"
 ################################################################################
 # init wildcard constraints
 
-
-def format_constraint(xs):
-    return "|".join(set(xs))
-
-
 # Only constrain the wildcards to match what is in the resources file. Anything
 # else that can be defined on the command line or in the analyses.tsv can is
 # unconstrained (for now).
@@ -94,14 +76,6 @@ wildcard_constraints:
 ################################################################################
 # main rule
 #
-# Define what files we want hap.py to make, and these paths will contain the
-# definitions for the assemblies, variant caller, etc to use in upstream rules.
-
-
-def expand_bench_output(path, cmd):
-    bps = analyses[analyses["bench_cmd"] == cmd].index.tolist()
-    return expand(path, bench_prefix=bps)
-
 ## Rules to run locally
 localrules: get_ref, get_assemblies
 
@@ -121,8 +95,9 @@ rule get_assemblies:
         asm_full_path / "{haplotype}.fa",
     params:
         url=lambda wildcards: asm_config[wildcards.asm_prefix][wildcards.haplotype],
+    log: "logs/get_assemblies/{asm_prefix}_{haplotype}.log"
     shell:
-        "curl -f -L {params.url} | gunzip -c > {output}"
+        "curl -f -L {params.url} | gunzip -c > {output} 2> {log}"
 
 
 ################################################################################
@@ -134,27 +109,26 @@ rule get_ref:
         ref_full_prefix.with_suffix(".fa"),
     params:
         url=lambda wildcards: ref_config[wildcards.ref_prefix]["ref_url"],
+    log: "logs/get_ref/{ref_prefix}.log"
     shell:
-        "curl -f --connect-timeout 120 -L {params.url} | gunzip -c > {output}"
+        "curl -f --connect-timeout 120 -L {params.url} | gunzip -c > {output} 2> {log}"
 
 
 rule index_ref:
-    input: "resources/references/{ref}.fa"
-    output: "resources/references/{ref}.fa.fai"
+    input: "resources/references/{ref_prefix}.fa"
+    output: "resources/references/{ref_prefix}.fa.fai"
+    log: "logs/index_ref/{ref_prefix}.log"
     wrapper: "0.79.0/bio/samtools/faidx"
 
 ################################################################################
 # Get benchmark vcf.gz and .bed
 
-
-def lookup_bench(key, wildcards):
-    return bmk_config[wildcards.bmk_prefix][key]
-
 rule get_benchmark_vcf:
     output:
         benchmark_full_prefix.with_suffix(".vcf.gz"),
     params:
-        url=partial(lookup_bench, "vcf_url"),
+        url=lambda wildcards: bmk_config[wildcards.bmk_prefix]["vcf_url"],
+    log: "logs/get_benchmark_vcf/{bmk_prefix}.log"
     shell:
         "curl -f -L -o {output} {params.url}"
 
@@ -162,14 +136,16 @@ use rule get_benchmark_vcf as get_benchmark_bed with:
     output:
         benchmark_full_prefix.with_suffix(".bed"),
     params:
-        url=partial(lookup_bench, "bed_url"),
+        url=lambda wildcards: bmk_config[wildcards.bmk_prefix]["bed_url"],
+    log: "logs/get_benchmark_bed/{bmk_prefix}.log"
 
 
 use rule get_benchmark_vcf as get_benchmark_tbi with:
     output:
         benchmark_full_prefix.with_suffix(".vcf.gz.tbi"),
     params:
-        url=partial(lookup_bench, "tbi_url"),
+        url=lambda wildcards: bmk_config[wildcards.bmk_prefix]["tbi_url"],
+    log: "logs/get_benchmark_tbi/{bmk_prefix}.log"
 
 ################################################################################
 # Get stratifications
@@ -181,6 +157,7 @@ rule get_strats:
     params:
         root=config["_strats_root"],
         target=strats_full_path,
+    log: "logs/get_strats/v3.0_{ref_prefix}.log"
     shell:
         """
         curl -L \
@@ -198,7 +175,7 @@ def get_male_bed(wildcards):
     is_male = asm_config[wildcards.asm_prefix]["is_male"]
     root = config["_par_bed_root"]
     par_path = Path(root) / ref_config[wildcards.ref_prefix]["par_bed"]
-    return "-x " + str(par_path) if is_male else ""
+    return f"-x {str(par_path)}" if is_male else ""
 
 
 def get_extra(wildcards):
@@ -271,10 +248,11 @@ rule split_multiallelic_sites:
         vcf_tbi=vcr_full_prefix.with_suffix(".dip.split_multi.vcf.gz.tbi"),
     conda:
         "envs/bcftools.yml"
+    log: "logs/split_multiallelic_sites/{ref_prefix}_{asm_prefix}_{vcr_cmd}_{vcr_params}.log"
     shell:
         """
-        bcftools norm -m - {input} -Oz -o {output.vcf}
-        tabix -p vcf {output.vcf}
+        bcftools norm -m - {input} -Oz -o {output.vcf} 2> {log}
+        tabix -p vcf {output.vcf} 2>> {log}
         """
 
 
@@ -432,7 +410,7 @@ rule run_truvari:
     params:
         extra=lambda wildcards: analyses.loc[(wildcards.bench_prefix, "bench_params")],
         prefix=str(tvi_full_path / "out"),
-        tmpdir="/tmp/truvari",
+        tmpdir="tmp/truvari",
     conda:
         "envs/truvari.yml"
     # TODO this tmp thing is a workaround for the fact that snakemake
