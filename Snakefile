@@ -342,6 +342,8 @@ def format_targeted_arg(wildcards, input):
         return ""
 
 
+# TODO add the exclusion input somewhere in here vvv
+
 def get_happy_inputs(wildcards):
     inputs = {
         "query": get_query_vcf(rules.run_dipcall.output.vcf, wildcards),

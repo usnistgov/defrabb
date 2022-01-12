@@ -83,13 +83,80 @@ benchmarks:
     vcf_url: https://nist-midas.s3.amazonaws.com/pdrsrv/mds2-2336/submission_vcfs/B1S5A/B1S5A_HG002.vcf.gz
     bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
     tbi_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz.tbi
-    
 
 # We can specify additional benchmarks like this
 
 # bmk-another:
 #   vcf_url: http://another.vcf
 #   bed_url: http://another.bed
+    
+################################################################################
+# Beds for generating exclusions
+
+exclusion_beds:
+  homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+  segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/SegmentalDuplications/GRCh38_segdups.bed.gz
+  tandem_repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeats_gt10000bp_slop5.bed.gz
+  gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/OtherDifficult/GRCh38_gaps_slop15kb.bed.gz
+  self_chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
+
+exclusion_sets:
+  all:
+    - segdups_start.bed
+    - segdups_end.bed
+    - tandem_repeats_start.bed
+    - tandem_repeats_end.bed
+    - satellites_end.bed
+    - gaps.bed
+    - self_chains_start.bed
+    - self_chains_end.bed
+    - structural_variants.bed
+    - flanks.bed
+
+# exclusions:
+#   exclude_SVs:
+#     bedfile: HG002v11-align2-GRCh38.dip_SVsgt49bp.bed
+#     # md5: 
+#     description: |
+#       SVs and overlapping tandem repeats and hompolymers
+#     justification: |
+#       Because hap.py+vcfeval doesn't currently handle different representations
+#       of small variants around SVs
+
+#   exclude_segdups:
+#     bedfile(s): GRCh38_segdups_intersecting_dip_start_slop15kb.bed and GRCh38_segdups_intersecting_dip_end_slop15kb.bed 
+#     # md5: 
+#     description: |
+#       partially covered segmental duplications + 15kb slop on each side
+#     justification: |
+#       Because breaks in aligning the assembly to segmental duplications
+#       indicate potential assembly errors and/or large SVs or CNVs where small
+#       variants can't be benchmarked accurately
+
+#   exclude_TR_gt10000bp:
+#     bedfile(s): GRCh38_AllTandemRepeats_gt10000bp_intersecting_dip_start_slop15kb.bed and GRCh38_AllTandemRepeats_gt10000bp_intersecting_dip_end_slop15kb.bed 
+#     # md5: 
+#     description: |
+#       partially covered tandem repeats longer than 10kb + 15kb slop on each side
+#     justification: Because breaks in aligning the assembly to long tandem repeats indicate potential assembly errors and/or large SVs or CNVs where small variants can't be benchmarked accurately
+
+#   exclude_gaps:
+#     bedfile: GRCh38_gaps_slop15kb.bed.gz
+#     # md5: 
+#     description: gaps in GRCh38 + 15kb slop
+#     justification: |
+#       Because there are often SVs and other alignment issues around gaps in
+#       the reference, exclude all gaps in GRCh38 + 15kb slop
+
+#   exclude_self_chains:
+#     bedfile(s): GRCh38_chainSelf_intersecting_dip_start_slop15kb.bed and GRCh38_chainSelf_intersecting_dip_end_slop15kb.bed
+#     # md5: 
+#     description: self chains with potential assembly errors
+#     justification: |
+#       Because breaks in aligning the assembly to self chains indicate potential
+#       assembly errors and/or large SVs or CNVs where small variants can't
+#       be benchmarked accurately
+
 
 ################################################################################
 # internal
