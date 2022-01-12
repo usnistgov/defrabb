@@ -4,6 +4,7 @@ from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
 from os.path import join, basename
 
 include: "rules/common.smk"
+include: "rules/report.smk"
 
 ## File download
 FTP = FTPRemoteProvider()
@@ -37,6 +38,9 @@ par_ref = join(config["par_bed_root"], ref_dependent_data["par_bed"])
 
 ## Rules to run locally
 localrules: get_ref, get_assemblies
+
+## Snakemake Report
+report: report/workflow.rst
 
 rule all:
     input:
