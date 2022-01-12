@@ -107,7 +107,7 @@ def expand_bench_output(path, cmd):
 localrules: get_ref, get_assemblies
 
 ## Snakemake Report
-report: report/workflow.rst
+report: "report/workflow.rst"
 
 rule all:
     input:
