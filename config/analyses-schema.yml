@@ -51,6 +51,11 @@ properties:
     # pattern: ^dipcall|PAV$
     pattern: ^dipcall$
 
+  vc_param_id:
+    ## Will want to use "default" with vc_params="", when using default parameters
+    description: unique identifier for applied parameters
+    type: string
+
   vc_params:
     description: additional params to be passed to the varcaller
     type: string
