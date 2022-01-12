@@ -364,7 +364,7 @@ def get_targeted(wildcards):
                 wildcards,
             )[0]
         else:
-            return join(manual_target_regions_path, trs)
+            return manual_target_regions_path / trs
 
 
 def format_targeted_arg(wildcards, input):
