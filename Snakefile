@@ -8,6 +8,7 @@ from functools import partial
 
 
 include: "rules/common.smk"
+include: "rules/report.smk"
 
 
 min_version("6.0")
@@ -104,6 +105,9 @@ def expand_bench_output(path, cmd):
 
 ## Rules to run locally
 localrules: get_ref, get_assemblies
+
+## Snakemake Report
+report: report/workflow.rst
 
 rule all:
     input:
