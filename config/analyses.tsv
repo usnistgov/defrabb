@@ -1,3 +1,3 @@
-bench_id	bench_cmd	bench_params	asm_id	ref	varcaller	vc_params	vcf_postprocessing	bed_postprocessing	compare_var_id	vcr_is_query	target_regions
-happy1	happy		HG2-hifiasm_v0.11	GRCh38	dipcall	-z200000,10000	gap2homvarbutfiltered	NA	hifi-v4.2.1	false	true
-happy2	happy		HG2-hifiasm_v0.11	GRCh38	dipcall	-z200000,10000	gap2homvarbutfiltered	NA	hifi-v4.2.1	false	v4.2.1-complement.bed
+bench_id	bench_cmd	bench_params	asm_id	ref	varcaller	vc_param_id	vc_params	vcf_postprocessing	bed_postprocessing	compare_var_id	vcr_is_query	target_regions
+happy1	happy		HG2-hifiasm_v0.11	GRCh38	dipcall		z2k	-z200000,10000	gap2homvarbutfiltered	NA	hifi-v4.2.1	false	true
+happy2	happy		HG2-hifiasm_v0.11	GRCh38	dipcall		z2k	-z200000,10000	gap2homvarbutfiltered	NA	hifi-v4.2.1	false	v4.2.1-complement.bed
