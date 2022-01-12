@@ -64,6 +64,7 @@ tvi_full_path = bench_full_path / "truvari"
 ################################################################################
 # init wildcard constraints
 
+
 # Only constrain the wildcards to match what is in the resources file. Anything
 # else that can be defined on the command line or in the analyses.tsv can is
 # unconstrained (for now).
@@ -77,7 +78,9 @@ wildcard_constraints:
 # main rule
 #
 ## Rules to run locally
-localrules: get_ref, get_assemblies
+localrules:
+    get_ref,
+    get_assemblies,
 
 
 rule all:
@@ -95,7 +98,8 @@ rule get_assemblies:
         asm_full_path / "{haplotype}.fa",
     params:
         url=lambda wildcards: asm_config[wildcards.asm_prefix][wildcards.haplotype],
-    log: "logs/get_assemblies/{asm_prefix}_{haplotype}.log"
+    log:
+        "logs/get_assemblies/{asm_prefix}_{haplotype}.log",
     shell:
         "curl -f -L {params.url} | gunzip -c > {output} 2> {log}"
 
@@ -109,35 +113,45 @@ rule get_ref:
         ref_full_prefix.with_suffix(".fa"),
     params:
         url=lambda wildcards: ref_config[wildcards.ref_prefix]["ref_url"],
-    log: "logs/get_ref/{ref_prefix}.log"
+    log:
+        "logs/get_ref/{ref_prefix}.log",
     shell:
         "curl -f --connect-timeout 120 -L {params.url} | gunzip -c > {output} 2> {log}"
 
 
 rule index_ref:
-    input: "resources/references/{ref_prefix}.fa"
-    output: "resources/references/{ref_prefix}.fa.fai"
-    log: "logs/index_ref/{ref_prefix}.log"
-    wrapper: "0.79.0/bio/samtools/faidx"
+    input:
+        "resources/references/{ref_prefix}.fa",
+    output:
+        "resources/references/{ref_prefix}.fa.fai",
+    log:
+        "logs/index_ref/{ref_prefix}.log",
+    wrapper:
+        "0.79.0/bio/samtools/faidx"
+
 
 ################################################################################
 # Get benchmark vcf.gz and .bed
+
 
 rule get_benchmark_vcf:
     output:
         benchmark_full_prefix.with_suffix(".vcf.gz"),
     params:
         url=lambda wildcards: bmk_config[wildcards.bmk_prefix]["vcf_url"],
-    log: "logs/get_benchmark_vcf/{bmk_prefix}.log"
+    log:
+        "logs/get_benchmark_vcf/{bmk_prefix}.log",
     shell:
         "curl -f -L -o {output} {params.url}"
+
 
 use rule get_benchmark_vcf as get_benchmark_bed with:
     output:
         benchmark_full_prefix.with_suffix(".bed"),
     params:
         url=lambda wildcards: bmk_config[wildcards.bmk_prefix]["bed_url"],
-    log: "logs/get_benchmark_bed/{bmk_prefix}.log"
+    log:
+        "logs/get_benchmark_bed/{bmk_prefix}.log",
 
 
 use rule get_benchmark_vcf as get_benchmark_tbi with:
@@ -145,7 +159,9 @@ use rule get_benchmark_vcf as get_benchmark_tbi with:
         benchmark_full_prefix.with_suffix(".vcf.gz.tbi"),
     params:
         url=lambda wildcards: bmk_config[wildcards.bmk_prefix]["tbi_url"],
-    log: "logs/get_benchmark_tbi/{bmk_prefix}.log"
+    log:
+        "logs/get_benchmark_tbi/{bmk_prefix}.log",
+
 
 ################################################################################
 # Get stratifications
@@ -157,7 +173,8 @@ rule get_strats:
     params:
         root=config["_strats_root"],
         target=strats_full_path,
-    log: "logs/get_strats/v3.0_{ref_prefix}.log"
+    log:
+        "logs/get_strats/v3.0_{ref_prefix}.log",
     shell:
         """
         curl -L \
@@ -248,7 +265,8 @@ rule split_multiallelic_sites:
         vcf_tbi=vcr_full_prefix.with_suffix(".dip.split_multi.vcf.gz.tbi"),
     conda:
         "envs/bcftools.yml"
-    log: "logs/split_multiallelic_sites/{ref_prefix}_{asm_prefix}_{vcr_cmd}_{vcr_params}.log"
+    log:
+        "logs/split_multiallelic_sites/{ref_prefix}_{asm_prefix}_{vcr_cmd}_{vcr_params}.log",
     shell:
         """
         bcftools norm -m - {input} -Oz -o {output.vcf} 2> {log}
