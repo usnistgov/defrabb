@@ -147,6 +147,34 @@ rule index_ref:
     wrapper: "0.79.0/bio/samtools/faidx"
 
 ################################################################################
+# Get benchmark vcf.gz and .bed
+
+
+def lookup_bench(key, wildcards):
+    return bmk_config[wildcards.bmk_prefix][key]
+
+rule get_benchmark_vcf:
+    output:
+        benchmark_full_prefix.with_suffix(".vcf.gz"),
+    params:
+        url=partial(lookup_bench, "vcf_url"),
+    shell:
+        "curl -f -L -o {output} {params.url}"
+
+use rule get_benchmark_vcf as get_benchmark_bed with:
+    output:
+        benchmark_full_prefix.with_suffix(".bed"),
+    params:
+        url=partial(lookup_bench, "bed_url"),
+
+
+use rule get_benchmark_vcf as get_benchmark_tbi with:
+    output:
+        benchmark_full_prefix.with_suffix(".vcf.gz.tbi"),
+    params:
+        url=partial(lookup_bench, "tbi_url"),
+
+################################################################################
 # Get stratifications
 
 
