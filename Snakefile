@@ -213,8 +213,8 @@ rule run_dipcall:
     input:
         h1=asm_full_path / "paternal.fa",
         h2=asm_full_path / "maternal.fa",
-        ref=rules.get_ref.output,
-        ref_idx=rules.index_ref.output,
+        ref="resources/references/{ref_prefix}.fa",
+        ref_idx="resources/references/{ref_prefix}.fa.fai",
     output:
         make=vcr_full_prefix.with_suffix(".mak"),
         vcf=vcr_full_prefix.with_suffix(".dip.vcf.gz"),
