@@ -80,10 +80,6 @@ tvi_full_path = bench_full_path / "truvari"
 # init wildcard constraints
 
 
-def format_constraint(xs):
-    return "|".join(set(xs))
-
-
 # Only constrain the wildcards to match what is in the resources file. Anything
 # else that can be defined on the command line or in the analyses.tsv can is
 # unconstrained (for now).
@@ -126,8 +122,10 @@ rule get_assemblies:
         asm_full_path / "{haplotype}.fa",
     params:
         url=lambda wildcards: asm_config[wildcards.asm_prefix][wildcards.haplotype],
+    log:
+        "logs/get_assemblies/{asm_prefix}_{haplotype}.log",
     shell:
-        "curl -f -L {params.url} | gunzip -c > {output}"
+        "curl -f -L {params.url} | gunzip -c > {output} 2> {log}"
 
 
 ################################################################################
@@ -139,16 +137,16 @@ rule get_ref:
         ref_full_prefix.with_suffix(".fa"),
     params:
         url=lambda wildcards: ref_config[wildcards.ref_prefix]["ref_url"],
+    log:
+        "logs/get_ref/{ref_prefix}.log",
     shell:
-        "curl -f --connect-timeout 120 -L {params.url} | gunzip -c > {output}"
+        "curl -f --connect-timeout 120 -L {params.url} | gunzip -c > {output} 2> {log}"
 
 
 rule index_ref:
     input:
         rules.get_ref.output,
-        # "resources/references/{ref}.fa",
     output:
-        # "resources/references/{ref}.fa.fai",
         ref_full_prefix.with_suffix(".fai"),
     wrapper:
         "0.79.0/bio/samtools/faidx"
@@ -212,7 +210,7 @@ def get_male_bed(wildcards):
     is_male = asm_config[wildcards.asm_prefix]["is_male"]
     root = config["_par_bed_root"]
     par_path = Path(root) / ref_config[wildcards.ref_prefix]["par_bed"]
-    return "-x " + str(par_path) if is_male else ""
+    return f"-x {str(par_path)}" if is_male else ""
 
 
 def get_extra(wildcards):
@@ -229,8 +227,8 @@ rule run_dipcall:
     input:
         h1=asm_full_path / "paternal.fa",
         h2=asm_full_path / "maternal.fa",
-        ref=rules.get_ref.output,
-        ref_idx=rules.index_ref.output,
+        ref="resources/references/{ref_prefix}.fa",
+        ref_idx="resources/references/{ref_prefix}.fa.fai",
     output:
         make=vcr_full_prefix.with_suffix(".mak"),
         vcf=dip_vcf_path,
@@ -292,11 +290,13 @@ rule split_multiallelic_sites:
         vcf=vcr_full_prefix.with_suffix(".dip.split_multi.vcf.gz"),
         vcf_tbi=vcr_full_prefix.with_suffix(".dip.split_multi.vcf.gz.tbi"),
     conda:
-        "rules/envs/bcftools.yml"
+        "envs/bcftools.yml"
+    log:
+        "logs/split_multiallelic_sites/{ref_prefix}_{asm_prefix}_{vcr_cmd}_{vcr_params}.log",
     shell:
         """
-        bcftools norm -m - {input} -Oz -o {output.vcf}
-        tabix -p vcf {output.vcf}
+        bcftools norm -m - {input} -Oz -o {output.vcf} 2> {log}
+        tabix -p vcf {output.vcf} 2>> {log}
         """
 
 
@@ -468,7 +468,7 @@ rule run_truvari:
     params:
         extra=lambda wildcards: analyses.loc[(wildcards.bench_prefix, "bench_params")],
         prefix=str(tvi_full_path / "out"),
-        tmpdir="/tmp/truvari",
+        tmpdir="tmp/truvari",
     conda:
         "rules/envs/truvari.yml"
     # TODO this tmp thing is a workaround for the fact that snakemake
