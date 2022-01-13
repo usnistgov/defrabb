@@ -14,6 +14,7 @@ required:
   - vcr_is_query
   # - truth_regions
   - target_regions
+  - exclusion_set
   # - hpy_params
 additionalProperties: false
 properties:
@@ -91,3 +92,9 @@ properties:
       ".bed." If 'false,' happy will run in untargetted mode.
     type: string
     pattern: ^.*\.bed|true|false$
+
+  exclusion_set:
+    description: |
+      The exclusion set to apply. See 'resources.yml' for preset exclusion bed
+      files that may be used.
+    type: string

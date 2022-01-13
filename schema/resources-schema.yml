@@ -4,6 +4,8 @@ required:
   - references
   - assemblies
   - benchmarks
+  - exclusion_beds
+  - exclusion_sets
   # - variant_caller_runs
   # - happy_runs
   - _dipcall_threads
@@ -88,6 +90,29 @@ properties:
           tbi_url:
             format: uri
             description: the url to the benchmark tbi file
+
+  exclusion_beds:
+    description: The beds to use when generating the exclusions
+    additionalProperties: false
+    patternProperties:
+      ^homopolymers|segdups|tandem_repeat|gaps|self_chains$:
+        type: string
+        format: uri
+
+  exclusion_sets:
+    description: |
+      The exclusions which may be applied to the output of dipcall. Each key is
+      a list of bed files, with a (hopefully) self-explanatory name for what
+      is being excluded.
+    additionalProperties: false
+    patternProperties:
+
+      ^[\w\.\-]*$:
+        type: array
+        description: the list of exclusions in an exclusion set
+        items:
+          type: string
+          format: ^.*\.bed$
 
   # stratifications:
   #   description: |
