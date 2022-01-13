@@ -28,10 +28,11 @@ ref_config = config["references"]
 ################################################################################
 # init analyses
 
+
 def get_analyses(path):
     # target_regions must be a string even though it might only contain
     # 'boolean' values
-    analyses = pd.read_table(path, dtype={"target_regions": str})
+    analyses = pd.read_table(path, dtype={"target_regions": str, "exclusion_set": str})
     validate(analyses, "schema/analyses-schema.yml")
 
     try:
@@ -53,12 +54,12 @@ manual_target_regions_path = resource_dir / "manual" / "target_regions"
 asm_full_path = resource_dir / "assemblies" / "{asm_prefix}"
 ref_full_prefix = resource_dir / "references" / "{ref_prefix}"
 benchmark_full_prefix = resource_dir / "benchmarks" / "{bmk_prefix}"
-strats_base_path = resource_dir / "stratifications"
+# strats_base_path = resource_dir / "stratifications"
 
-strats_full_path = strats_base_path / "v3.0"
-tsv_full_path = (
-    strats_full_path / "{ref_prefix}" / "v3.0-{ref_prefix}-all-stratifications.tsv"
-)
+# strats_full_path = strats_base_path / "v3.0"
+# tsv_full_path = (
+#     strats_full_path / "{ref_prefix}" / "v3.0-{ref_prefix}-all-stratifications.tsv"
+# )
 
 vcr_full_prefix = (
     output_dir
@@ -73,6 +74,7 @@ bench_full_path = output_dir / "bench" / "{bench_prefix}"
 hpy_full_path = bench_full_path / "happy"
 
 tvi_full_path = bench_full_path / "truvari"
+
 
 ################################################################################
 # init wildcard constraints
@@ -102,8 +104,12 @@ def expand_bench_output(path, cmd):
     bps = analyses[analyses["bench_cmd"] == cmd].index.tolist()
     return expand(path, bench_prefix=bps)
 
+
 ## Rules to run locally
-localrules: get_ref, get_assemblies
+localrules:
+    get_ref,
+    get_assemblies,
+
 
 rule all:
     input:
@@ -138,27 +144,64 @@ rule get_ref:
 
 
 rule index_ref:
-    input: "resources/references/{ref}.fa"
-    output: "resources/references/{ref}.fa.fai"
-    wrapper: "0.79.0/bio/samtools/faidx"
+    input:
+        rules.get_ref.output,
+        # "resources/references/{ref}.fa",
+    output:
+        # "resources/references/{ref}.fa.fai",
+        ref_full_prefix.with_suffix(".fai"),
+    wrapper:
+        "0.79.0/bio/samtools/faidx"
+
 
 ################################################################################
 # Get stratifications
 
 
-rule get_strats:
+# rule get_strats:
+#     output:
+#         tsv_full_path,
+#     params:
+#         root=config["_strats_root"],
+#         target=strats_full_path,
+#     shell:
+#         """
+#         curl -L \
+#             {params.root}/v3.0/v3.0-stratifications-{wildcards.ref_prefix}.tar.gz | \
+#             gunzip -c | \
+#             tar x -C {params.target}
+#         """
+
+
+################################################################################
+# Get benchmark vcf.gz and .bed
+
+
+def lookup_bench(key, wildcards):
+    return bmk_config[wildcards.bmk_prefix][key]
+
+
+rule get_benchmark_vcf:
     output:
-        tsv_full_path,
+        benchmark_full_prefix.with_suffix(".vcf.gz"),
     params:
-        root=config["_strats_root"],
-        target=strats_full_path,
+        url=partial(lookup_bench, "vcf_url"),
     shell:
-        """
-        curl -L \
-            {params.root}/v3.0/v3.0-stratifications-{wildcards.ref_prefix}.tar.gz | \
-            gunzip -c | \
-            tar x -C {params.target}
-        """
+        "curl -f -L -o {output} {params.url}"
+
+
+use rule get_benchmark_vcf as get_benchmark_bed with:
+    output:
+        benchmark_full_prefix.with_suffix(".bed"),
+    params:
+        url=partial(lookup_bench, "bed_url"),
+
+
+use rule get_benchmark_vcf as get_benchmark_tbi with:
+    output:
+        benchmark_full_prefix.with_suffix(".vcf.gz.tbi"),
+    params:
+        url=partial(lookup_bench, "tbi_url"),
 
 
 ################################################################################
@@ -177,6 +220,11 @@ def get_extra(wildcards):
     return "" if "nan" == wildcards.vcr_params else wildcards.vcr_params
 
 
+# these are needed for exclusions.sml
+dip_vcf_path = vcr_full_prefix.with_suffix(".dip.vcf.gz")
+dip_bed_path = vcr_full_prefix.with_suffix(".dip.bed")
+
+
 rule run_dipcall:
     input:
         h1=asm_full_path / "paternal.fa",
@@ -185,12 +233,12 @@ rule run_dipcall:
         ref_idx=rules.index_ref.output,
     output:
         make=vcr_full_prefix.with_suffix(".mak"),
-        vcf=vcr_full_prefix.with_suffix(".dip.vcf.gz"),
-        bed=vcr_full_prefix.with_suffix(".dip.bed"),
+        vcf=dip_vcf_path,
+        bed=dip_bed_path,
         bam1=vcr_full_prefix.with_suffix(".hap1.bam"),
         bam2=vcr_full_prefix.with_suffix(".hap2.bam"),
     conda:
-        "envs/dipcall.yml"
+        "rules/envs/dipcall.yml"
     params:
         prefix=str(vcr_full_prefix),
         male_bed=get_male_bed,
@@ -218,6 +266,9 @@ rule run_dipcall:
         """
 
 
+include: "rules/exclusions.smk"
+
+
 ################################################################################
 # Postprocess variant caller output
 
@@ -225,7 +276,7 @@ rule run_dipcall:
 #     input: rules.run_dipcall.output.vcf
 #     output: "{}.dip.gap2homvarbutfiltered.vcf.gz".format(vcr_full_prefix)
 #     # bgzip is part of samtools, which is part of the diptcall env
-#     conda: "envs/dipcall.yml"
+#     conda: "rules/envs/dipcall.yml"
 #     shell: """
 #         gunzip -c {input} |\
 #         sed 's/1|\./1|1/' |\
@@ -241,7 +292,7 @@ rule split_multiallelic_sites:
         vcf=vcr_full_prefix.with_suffix(".dip.split_multi.vcf.gz"),
         vcf_tbi=vcr_full_prefix.with_suffix(".dip.split_multi.vcf.gz.tbi"),
     conda:
-        "envs/bcftools.yml"
+        "rules/envs/bcftools.yml"
     shell:
         """
         bcftools norm -m - {input} -Oz -o {output.vcf}
@@ -297,9 +348,23 @@ def get_truth_vcf(vcr_out, wildcards):
     return get_truth_input(vcr_out, rules.get_benchmark_vcf.output, wildcards)
 
 
+def get_dipcall_bed(wildcards):
+    return (
+        rules.run_dipcall.output.bed
+        if analyses.loc[(wildcards.bench_prefix, "exclusion_set")] == "none"
+        # TODO this is a hack that rests on the (probably decent) assumption
+        # that expand will always return a singleton list
+        else expand(
+            rules.subtract_exclusions.output,
+            bench_prefix=wildcards.bench_prefix,
+            allow_missing=True,
+        )[0]
+    )
+
+
 def get_truth_bed(wildcards):
     return get_truth_input(
-        rules.run_dipcall.output.bed,
+        get_dipcall_bed(wildcards),
         rules.get_benchmark_bed.output,
         wildcards,
     )
@@ -327,12 +392,12 @@ def get_targeted(wildcards):
             # ASSUME each input will be a singleton and therefore the output
             # will be a singleton
             return get_query_input(
-                rules.run_dipcall.output.bed,
+                get_dipcall_bed(wildcards),
                 rules.get_benchmark_bed.output,
                 wildcards,
             )[0]
         else:
-            return join(manual_target_regions_path, trs)
+            return manual_target_regions_path / trs
 
 
 def format_targeted_arg(wildcards, input):
@@ -342,18 +407,16 @@ def format_targeted_arg(wildcards, input):
         return ""
 
 
-# TODO add the exclusion input somewhere in here vvv
-
 def get_happy_inputs(wildcards):
     inputs = {
         "query": get_query_vcf(rules.run_dipcall.output.vcf, wildcards),
         "truth": get_truth_vcf(rules.run_dipcall.output.vcf, wildcards),
         "truth_regions": get_truth_bed(wildcards),
-        "strats": apply_analyses_wildcards(
-            rules.get_strats.output,
-            {"ref_prefix": "ref"},
-            wildcards,
-        ),
+        # "strats": apply_analyses_wildcards(
+        #     rules.get_strats.output,
+        #     {"ref_prefix": "ref"},
+        #     wildcards,
+        # ),
         "genome": get_genome_input(wildcards),
     }
     trs = get_targeted(wildcards)
@@ -375,7 +438,7 @@ rule run_happy:
     log:
         hpy_full_path / "happy.log",
     wrapper:
-        "0.78.0/bio/hap.py/hap.py"
+        "0.84.0/bio/hap.py/hap.py"
 
 
 ################################################################################
@@ -407,7 +470,7 @@ rule run_truvari:
         prefix=str(tvi_full_path / "out"),
         tmpdir="/tmp/truvari",
     conda:
-        "envs/truvari.yml"
+        "rules/envs/truvari.yml"
     # TODO this tmp thing is a workaround for the fact that snakemake
     # over-zealously makes output directories when tools like truvari expect
     # them to not exist. Also, /tmp is only a thing on Linux (if that matters)

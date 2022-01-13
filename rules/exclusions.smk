@@ -8,19 +8,21 @@ from functools import partial
 
 # resource paths
 
-exclusion_resources_dir = resouces_dir / "exclusions"
-downloads_dir = exclusion_resources_dir / "downloads"
+downloads_dir = resource_dir / "exclusions"
 
-dip_vcf_path = rules.run_dipcall.vcf
-dip_bed_path = rules.run_dipcall.bed
+# dip_vcf_path = rules.run_dipcall.vcf
+# dip_bed_path = rules.run_dipcall.bed
 
 # results paths
 
-exclusions_dir = bench_full_path / "exclusions"
-slop_dir = exclusion_dir / "slop"
+exclusions_dir = Path(dip_bed_path).parent / "exclusions"
+slop_dir = exclusions_dir / "slop"
 
-excluded_dip_file = exclusions_dir / "excluded.bed"
-excluded_log_file = exclusions_dir / "excluded.bed"
+# excluded_dip_file = exclusions_dir / "excluded.bed"
+# excluded_log_file = exclusions_dir / "excluded.log"
+dip_dir = exclusions_dir / "{bench_prefix}"
+excluded_dip_file = dip_dir / "excluded.bed"
+excluded_log_file = dip_dir / "excluded.log"
 
 # downloading stuff
 
@@ -31,6 +33,17 @@ rule download_bed_gz:
         url=lambda wildcards: config["exclusion_beds"][wildcards.index],
     shell:
         "curl -L {params.url} | gunzip -c > {output}"
+
+# TODO hack since this is the only bed file that isn't processed according to
+# the output from dipcall
+rule link_gaps:
+    input:
+        downloads_dir / "gaps.bed",
+    output:
+        exclusions_dir / "gaps.bed"
+    shell:
+        "cp {input} {output}"
+    
 
 # get genome.txt (used for bedtools slop and flank)
 
@@ -96,7 +109,7 @@ rule get_SVs_from_vcf:
 rule intersect_SVs_and_homopolymers:
     input:
         sv_bed=rules.get_SVs_from_vcf.output,
-        homopoly_bed=downloads_dir / "homopoly.bed",
+        homopoly_bed=downloads_dir / "homopolymers.bed",
     output:
         exclusions_dir / "structural_variants.bed",
     conda:
@@ -163,6 +176,9 @@ rule add_flanks:
     shell:
         "bedtools flank -i {input.bed} -g {input.genome} -b 15000 > {output}"
 
+def lookup_exclusions(wildcards):
+    xset = analyses.loc[(wildcards.bench_prefix, "exclusion_set")]
+    return [exclusions_dir / p for p in config["exclusion_sets"][xset]]
 
 rule subtract_exclusions:
     input:
@@ -181,7 +197,7 @@ rule subtract_exclusions:
         #     rules.intersect_SVs_and_homopolymers.output,
         #     rules.add_flanks.output,
         # ],
-        other_beds = lambda wildcards: analyses.loc[(wildcards.bench_prefix, "exclusion_set")]
+        other_beds = lookup_exclusions
     output:
         excluded_dip_file
     log:
@@ -190,7 +206,7 @@ rule subtract_exclusions:
         "envs/bedtools.yml"
     shell:
         """
-        python workflow/scripts/subtract_exclusions.py \
+        python scripts/subtract_exclusions.py \
         {input.dip_bed} \
         {output} \
         {input.other_beds} > {log}
