@@ -1,0 +1,26 @@
+{
+    "__default__" :
+    {
+        "account" : "nolson",
+        "mem" : "4G",
+        "time" : "00:30:00",
+        "c" : 1,
+        "partition" : "rack6",
+        "name"      : "{rule}.{wildcards}",
+        "output"    : "logs/defrabb/{rule}.{wildcards}.out",
+        "error"     : "logs/defrabb/{rule}.{wildcards}.err",
+        "resources" : ""
+    },
+    "run_dipcall" :
+    {
+        "time" : "06:00:00",
+        "mem" : "64G",
+        "n" : 1,
+    },
+    "run_happy" :
+    {
+        "time" : "06:00:00",
+        "mem" : "16G",
+        "n" : 1
+    }
+}
