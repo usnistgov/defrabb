@@ -178,7 +178,7 @@ rule add_flanks:
 
 def lookup_exclusions(wildcards):
     xset = analyses.loc[(wildcards.bench_prefix, "exclusion_set")]
-    return [exclusions_dir / p for p in config["exclusion_sets"][xset]]
+    return [exclusions_dir / p for p in config["exclusion_set"][xset]]
 
 rule subtract_exclusions:
     input:
