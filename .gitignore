@@ -5,7 +5,6 @@ logs/**
 .snakemake/**
 **.code-workspace
 
-resources/*
 data/asm17ab21
 ## Directories with tibanna run output
 giab-data

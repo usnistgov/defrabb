@@ -1,5 +1,0 @@
-channels:
-  - conda-forge
-dependencies:
-  - pip:
-    - Truvari==3.0.1
