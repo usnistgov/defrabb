@@ -19,7 +19,7 @@ min_version("6.0")
 configfile: "config/resources.yml"
 
 
-validate(config, "config/resources-schema.yml")
+validate(config, "schema/resources-schema.yml")
 
 asm_config = config["assemblies"]
 bmk_config = config["benchmarks"]
@@ -40,12 +40,12 @@ manual_target_regions_path = resource_dir / "manual" / "target_regions"
 asm_full_path = resource_dir / "assemblies" / "{asm_prefix}"
 ref_full_prefix = resource_dir / "references" / "{ref_prefix}"
 benchmark_full_prefix = resource_dir / "benchmarks" / "{bmk_prefix}"
-strats_base_path = resource_dir / "stratifications"
+# strats_base_path = resource_dir / "stratifications"
 
-strats_full_path = strats_base_path / "v3.0"
-tsv_full_path = (
-    strats_full_path / "{ref_prefix}" / "v3.0-{ref_prefix}-all-stratifications.tsv"
-)
+# strats_full_path = strats_base_path / "v3.0"
+# tsv_full_path = (
+#     strats_full_path / "{ref_prefix}" / "v3.0-{ref_prefix}-all-stratifications.tsv"
+# )
 
 vcr_full_prefix = (
     output_dir
@@ -98,8 +98,6 @@ rule get_assemblies:
         asm_full_path / "{haplotype}.fa",
     params:
         url=lambda wildcards: asm_config[wildcards.asm_prefix][wildcards.haplotype],
-    log:
-        "logs/get_assemblies/{asm_prefix}_{haplotype}.log",
     shell:
         "curl -f -L {params.url} | gunzip -c > {output} 2> {log}"
 
@@ -113,8 +111,6 @@ rule get_ref:
         ref_full_prefix.with_suffix(".fa"),
     params:
         url=lambda wildcards: ref_config[wildcards.ref_prefix]["ref_url"],
-    log:
-        "logs/get_ref/{ref_prefix}.log",
     shell:
         "curl -f --connect-timeout 120 -L {params.url} | gunzip -c > {output} 2> {log}"
 
@@ -128,6 +124,25 @@ rule index_ref:
         "logs/index_ref/{ref_prefix}.log",
     wrapper:
         "0.79.0/bio/samtools/faidx"
+
+
+################################################################################
+# Get stratifications
+
+
+# rule get_strats:
+#     output:
+#         tsv_full_path,
+#     params:
+#         root=config["_strats_root"],
+#         target=strats_full_path,
+#     shell:
+#         """
+#         curl -L \
+#             {params.root}/v3.0/v3.0-stratifications-{wildcards.ref_prefix}.tar.gz | \
+#             gunzip -c | \
+#             tar x -C {params.target}
+#         """
 
 
 ################################################################################
@@ -241,6 +256,9 @@ rule run_dipcall:
         """
 
 
+include: "rules/exclusions.smk"
+
+
 ################################################################################
 # Postprocess variant caller output
 
@@ -322,9 +340,23 @@ def get_truth_vcf(vcr_out, wildcards):
     return get_truth_input(vcr_out, rules.get_benchmark_vcf.output, wildcards)
 
 
+def get_dipcall_bed(wildcards):
+    return (
+        rules.run_dipcall.output.bed
+        if analyses.loc[(wildcards.bench_prefix, "exclusion_set")] == "none"
+        # TODO this is a hack that rests on the (probably decent) assumption
+        # that expand will always return a singleton list
+        else expand(
+            rules.subtract_exclusions.output,
+            bench_prefix=wildcards.bench_prefix,
+            allow_missing=True,
+        )[0]
+    )
+
+
 def get_truth_bed(wildcards):
     return get_truth_input(
-        rules.run_dipcall.output.bed,
+        get_dipcall_bed(wildcards),
         rules.get_benchmark_bed.output,
         wildcards,
     )
@@ -372,11 +404,11 @@ def get_happy_inputs(wildcards):
         "query": get_query_vcf(rules.run_dipcall.output.vcf, wildcards),
         "truth": get_truth_vcf(rules.run_dipcall.output.vcf, wildcards),
         "truth_regions": get_truth_bed(wildcards),
-        "strats": apply_analyses_wildcards(
-            rules.get_strats.output,
-            {"ref_prefix": "ref"},
-            wildcards,
-        ),
+        # "strats": apply_analyses_wildcards(
+        #     rules.get_strats.output,
+        #     {"ref_prefix": "ref"},
+        #     wildcards,
+        # ),
         "genome": get_genome_input(wildcards),
     }
     trs = get_targeted(wildcards)
@@ -398,7 +430,7 @@ rule run_happy:
     log:
         hpy_full_path / "happy.log",
     wrapper:
-        "0.78.0/bio/hap.py/hap.py"
+        "0.84.0/bio/hap.py/hap.py"
 
 
 ################################################################################

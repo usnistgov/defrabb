@@ -1,0 +1,100 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+description: whole genome assembly benchmark pipeline
+required:
+  - bench_id
+  - bench_cmd
+  # - bench_params
+  - asm_id
+  - ref
+  - varcaller
+  # - vc_params
+  # - vcf_postprocessing
+  # - bed_postprocessing
+  - compare_var_id
+  - vcr_is_query
+  # - truth_regions
+  - target_regions
+  - exclusion_set
+  # - hpy_params
+additionalProperties: false
+properties:
+  bench_id:
+    description: |
+      The ID for this analysis run. Every value in this column should be unique.
+    type: string
+
+  bench_cmd:
+    description: |
+      The benchmarking command to run. Must be either 'happy' or 'truvari'.
+    type: string
+    pattern: ^happy|truvari$
+
+  bench_params:
+    description: |
+      Additional params to pass to the benchmarking command. See
+      'target_regions' for how to control '--target-regions' (hap.py) and
+      '--includebed' (truvari).
+    type: string
+
+  asm_id:
+    description: the identifier of the assembly to use in resources.yml
+    type: string
+
+  ref:
+    description: the identifier of the reference to use in resources.yml
+    type: string
+    pattern: ^GRCh3[7,8]$
+
+  varcaller:
+    description: the variant caller to use
+    type: string
+    # TODO for now only dipcall supported
+    # pattern: ^dipcall|PAV$
+    pattern: ^dipcall$
+
+  vc_params:
+    description: additional params to be passed to the varcaller
+    type: string
+
+  vcf_postprocessing:
+    description: post processing of output vcf (variant calls) from varcaller
+    type: string
+
+  bed_postprocessing:
+    description: post processing of output bed (genomic regions) from varcaller
+    type: 'null'
+
+  compare_var_id:
+    description: the id of the truth vcf file to use from resources.yml
+    type: string
+
+  vcr_is_query:
+    description: |
+      Set to 'true' to feed the vcf and bed files from the variant caller as the
+      query inputs for the benchmark comparison tool. The truth inputs will be
+      whatever is indicated by 'compare_var_id'. Setting this to 'false' will
+      flip the truth and query inputs.
+    type: boolean
+
+  # truth_regions:
+  #   description: the id of the truth bed file to use from resources.yml
+  #   type: string
+
+  # NOTE: this field will be parsed entirely as a string by pandas, so need to
+  # match on literal "true" or "false" strings as the datatype in the dataframe
+  # will never be a boolean
+  target_regions:
+    description: |
+      The target regions to input to happy. If 'true,' will be tell happy to use
+      the bed file output by the variant caller. If a string, will be
+      interpreted as a path to the bed file to use (relative to
+      ./manual/target_regions); note the string must be a filename ending in
+      ".bed." If 'false,' happy will run in untargetted mode.
+    type: string
+    pattern: ^.*\.bed|true|false$
+
+  exclusion_set:
+    description: |
+      The exclusion set to apply. See 'resources.yml' for preset exclusion bed
+      files that may be used.
+    type: string
