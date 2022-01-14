@@ -5,7 +5,7 @@ required:
   - assemblies
   - benchmarks
   - exclusion_beds
-  - exclusion_sets
+  - exclusion_set
   # - variant_caller_runs
   # - happy_runs
   - _dipcall_threads
@@ -99,7 +99,7 @@ properties:
         type: string
         format: uri
 
-  exclusion_sets:
+  exclusion_set:
     description: |
       The exclusions which may be applied to the output of dipcall. Each key is
       a list of bed files, with a (hopefully) self-explanatory name for what
