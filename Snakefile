@@ -105,6 +105,13 @@ def expand_bench_output(path, cmd):
 localrules:
     get_ref,
     get_assemblies,
+    get_benchmark_vcf,
+    get_benchmark_bed,
+    get_genome,
+    download_bed_gz,
+    link_gaps,
+    get_satellites,
+    get_SVs_from_vcf
 
 
 rule all:
@@ -123,7 +130,7 @@ rule get_assemblies:
     params:
         url=lambda wildcards: asm_config[wildcards.asm_prefix][wildcards.haplotype],
     shell:
-        "curl -f -L {params.url} | gunzip -c > {output} 2> {log}"
+        "curl -f -L {params.url} | gunzip -c > {output}"
 
 
 ################################################################################
@@ -136,7 +143,7 @@ rule get_ref:
     params:
         url=lambda wildcards: ref_config[wildcards.ref_prefix]["ref_url"],
     shell:
-        "curl -f --connect-timeout 120 -L {params.url} | gunzip -c > {output} 2> {log}"
+        "curl -f --connect-timeout 120 -L {params.url} | gunzip -c > {output}"
 
 
 rule index_ref:
@@ -434,7 +441,7 @@ rule run_happy:
     log:
         hpy_full_path / "happy.log",
     wrapper:
-        "0.84.0/bio/hap.py/hap.py"
+        "file://../snakemake-wrappers/bio/hap.py/hap.py"
 
 
 ################################################################################
