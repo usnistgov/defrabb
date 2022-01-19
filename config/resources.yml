@@ -130,6 +130,16 @@ exclusion_set:
     - self_chains_end.bed
     - structural_variants.bed
     - flanks.bed
+  sv:
+    - segdups_start.bed
+    - segdups_end.bed
+    - tandem_repeats_start.bed
+    - tandem_repeats_end.bed
+    - satellites_end.bed
+    - gaps.bed
+    - self_chains_start.bed
+    - self_chains_end.bed
+    - flanks.bed
 
 # exclusions:
 #   exclude_SVs:
@@ -180,7 +190,7 @@ exclusion_set:
 # internal
 
 # the number of dipcall threads to use
-_dipcall_threads: 1
+_dipcall_threads: 2
 
 # the root of the par file for dipcall (and friends)
 _par_bed_root: data/par_bed

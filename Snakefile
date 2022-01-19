@@ -248,7 +248,7 @@ rule run_dipcall:
     log:
         vcr_full_prefix.with_suffix(".log"),
     resources:
-        mem_mb=config["_dipcall_threads"] * 2 * 128000,  ## GB per thread
+        mem_mb=config["_dipcall_threads"] * 2 * 4000,  ## GB per thread
     threads: config["_dipcall_threads"] * 2  ## For diploid
     shell:
         """
@@ -435,7 +435,7 @@ rule run_happy:
         hpy_full_path / "happy_out.extended.csv",
     params:
         prefix=str(hpy_full_path / "happy_out"),
-        threads=6,
+        threads=4,
         engine="vcfeval",
         extra=format_targeted_arg,
     log:
