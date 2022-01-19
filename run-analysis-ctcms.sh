@@ -1,16 +1,11 @@
 #!/usr/bin/bash
-## Time stamp for recording runs
-time=`date +%Y%m%d-%H%M%S`
-repotag="TODO"
-
 
 ## Start pipeline
 snakemake \
-	--use-conda -j 1 --profile slurm  \
-	--rerun-incomplete \
+	--use-conda -j 5 \
+	--profile slurm  \
 	--verbose \
-	--printshellcmds \
-	results/bench/test3/happy/happy_out.extended.csv
+	--printshellcmds
 
 ## TODO look into mounting resdata or NAS for exporting analysis output
 ## -d /working/geneteam/defrabb-runs/${time}_${repotag}  \
