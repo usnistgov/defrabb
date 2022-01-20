@@ -5,8 +5,10 @@ logs/**
 .snakemake/**
 **.code-workspace
 
-resources/*
 data/asm17ab21
 ## Directories with tibanna run output
 giab-data
 giab-tibanna-runs
+
+## Resources - use -f to add 
+resources/**
