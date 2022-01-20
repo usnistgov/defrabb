@@ -293,7 +293,7 @@ rule split_multiallelic_sites:
         vcf=vcr_full_prefix.with_suffix(".dip.split_multi.vcf.gz"),
         vcf_tbi=vcr_full_prefix.with_suffix(".dip.split_multi.vcf.gz.tbi"),
     conda:
-        "envs/bcftools.yml"
+        "rules/envs/bcftools.yml"
     log:
         "logs/split_multiallelic_sites/{ref_prefix}_{asm_prefix}_{vcr_cmd}_{vcr_params}.log",
     shell:
@@ -441,7 +441,7 @@ rule run_happy:
     log:
         hpy_full_path / "happy.log",
     wrapper:
-        "file://../snakemake-wrappers/bio/hap.py/hap.py"
+        "0.84.0/bio/hap.py/hap.py"
 
 
 ################################################################################
