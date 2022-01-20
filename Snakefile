@@ -66,7 +66,7 @@ vcr_full_prefix = (
     / "dipcall"
     / "{ref_prefix}"
     / "{asm_prefix}"
-    / "{vcr_cmd}_{vcr_params}"
+    / "{vcr_cmd}_{vcr_params_id}"
     / "dipcall"
 )
 bench_full_path = output_dir / "bench" / "{bench_prefix}"
@@ -208,24 +208,6 @@ use rule get_benchmark_vcf as get_benchmark_tbi with:
 ################################################################################
 # Run Dipcall
 
-
-def get_male_bed(wildcards):
-    is_male = asm_config[wildcards.asm_prefix]["is_male"]
-    root = config["_par_bed_root"]
-    par_path = Path(root) / ref_config[wildcards.ref_prefix]["par_bed"]
-    return f"-x {str(par_path)}" if is_male else ""
-
-
-def get_extra(wildcards):
-    # TODO this seems brittle
-    return "" if "nan" == wildcards.vcr_params else wildcards.vcr_params
-
-
-# these are needed for exclusions.sml
-dip_vcf_path = vcr_full_prefix.with_suffix(".dip.vcf.gz")
-dip_bed_path = vcr_full_prefix.with_suffix(".dip.bed")
-
-
 rule run_dipcall:
     input:
         h1=asm_full_path / "paternal.fa",
@@ -244,7 +226,7 @@ rule run_dipcall:
         prefix=str(vcr_full_prefix),
         male_bed=get_male_bed,
         ts=config["_dipcall_threads"],
-        extra=get_extra,
+        extra= lambda wildcards: analyses.loc[wildcards.vcr_param_id]["vcr_params"],
     log:
         vcr_full_prefix.with_suffix(".log"),
     resources:
@@ -295,7 +277,7 @@ rule split_multiallelic_sites:
     conda:
         "envs/bcftools.yml"
     log:
-        "logs/split_multiallelic_sites/{ref_prefix}_{asm_prefix}_{vcr_cmd}_{vcr_params}.log",
+        "logs/split_multiallelic_sites/{ref_prefix}_{asm_prefix}_{vcr_cmd}_{vcr_param_id}.log",
     shell:
         """
         bcftools norm -m - {input} -Oz -o {output.vcf} 2> {log}
