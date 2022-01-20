@@ -30,3 +30,12 @@ def format_constraint(xs):
 def expand_bench_output(path, cmd):
     bps = analyses[analyses["bench_cmd"] == cmd].index.tolist()
     return expand(path, bench_prefix=bps)
+
+################################################################################
+## Rule parameters
+
+def get_male_bed(wildcards):
+    is_male = asm_config[wildcards.asm_prefix]["is_male"]
+    root = config["_par_bed_root"]
+    par_path = Path(root) / ref_config[wildcards.ref_prefix]["par_bed"]
+    return f"-x {str(par_path)}" if is_male else ""
