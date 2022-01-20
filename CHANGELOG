@@ -1,0 +1,15 @@
+# Milestone v0.002 2022-01-20
+- This version of the pipeline was used to perform initial analysis of benchmark set performance using 
+- Added functionality to excluded defined genomic regions of draft benchmark regions bed file
+- Added utility scripts for running the pipeline on the CTCMS cluster
+- New Chr21 test dataset for use in pipeline development
+- Initial CI/CD setup
+- Snakemake formatting and linting using Snakemake tools
+- Documentation for running pipeline
+
+# Milestone v0.001 2022-01-10
+- First milestone 
+- added schema's for analyses table, config, and resources yamls
+- Added ability to define analyses run with a metadata table for documenting framework runs
+- Using pathlib for handling file paths
+- Implementing small variant benchmarking with happy and structural variant benchmarking with Truvari
