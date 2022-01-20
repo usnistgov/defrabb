@@ -262,3 +262,13 @@ properties:
     description: Path to the directory holding the statifications
     type: string
     format: uri
+
+  happy_threads:
+    description: the number of threads for happy runs
+    exclusiveMinimum: 0
+    type: integer
+
+  happy_mem:
+    description: memory required per happy run
+    type: string
+
