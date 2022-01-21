@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Author: Nathan Olson
 from snakemake.shell import shell
 log = snakemake.log_fmt_shell(stdout=False, stderr=True)
 
