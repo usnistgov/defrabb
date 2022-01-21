@@ -33,14 +33,14 @@ def get_happy_inputs(wildcards):
     inputs = {}
 
     ## asm variant call output - TODO link to post processing output
-    asm_vcf = "results/dipcall/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.vcf.gz"
+    asm_vcf = "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.vcf.gz"
     #asm_vcfidx = "results/dipcall/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.vcf.gz.tbi"
 
     ## Asm regions
     if analyses.loc[(wildcards.bench_id, "exclusion_set")] == "none":
-        asm_bed = "results/dipcall/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.bed"
+        asm_bed = "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.bed"
     else: 
-        asm_bed = "results/dipcall/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/{asm_prefix}/excluded.bed"
+        asm_bed = "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/excluded.bed"
 
     ## comparison variant call paths
     comp_id = analyses.loc[wildcards.bench_id, "compare_var_id"]
@@ -56,15 +56,15 @@ def get_happy_inputs(wildcards):
     
     ## Defining truth calls and regions along with query calls
     if query == "asm":
-        inputs["query_vcf"] = asm_vcf
+        inputs["query"] = asm_vcf
         #inputs["query_vcfidx"] = asm_vcfidx
-        inputs["truth_vcf"] = comp_vcf
+        inputs["truth"] = comp_vcf
         inputs["truth_vcfidx"] = comp_vcfidx
         inputs["truth_regions"] = comp_bed
     else:
-        inputs["query_vcf"] = comp_vcf
+        inputs["query"] = comp_vcf
         inputs["query_vcfidx"] = comp_vcfidx
-        inputs["truth_vcf"] = asm_vcf
+        inputs["truth"] = asm_vcf
         #inputs["truth_vcfidx"] = asm_vcfidx
         inputs["truth_regions"] = asm_bed
 
@@ -85,4 +85,4 @@ def get_happy_inputs(wildcards):
 ## Exclusions
 def lookup_excluded_region_set(wildcards):
     xset = analyses.loc[(wildcards.bench_id, "exclusion_set")]
-    return [exclusions_dir / p for p in config["exclusion_set"][xset]]
+    return [f"results/dipcall-{{bench_id}}/{{ref_prefix}}_{{asm_prefix}}_{{varcaller}}-{{vc_param_id}}/exclusions/{p}" for p in config["exclusion_set"][xset]]

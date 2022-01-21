@@ -1,30 +1,32 @@
 import pandas as pd
 from pathlib import Path
 from itertools import product
-from more_itertools import unzip, flatten
+# from more_itertools import unzip, flatten
 from snakemake.utils import min_version, validate
-from snakemake.io import apply_wildcards
-from functools import partial
+# from snakemake.io import apply_wildcards
+# from functools import partial
+
+## Hack for ambiguity between following rules
+ruleorder: get_satellites > download_bed_gz
 
 # results paths
-dip_bed_path = "results/dipcall/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.bed"
-exclusions_dir = Path(dip_bed_path).parent / "exclusions"
+dip_bed_path = "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.bed"
+
 
 # downloading stuff
 
 rule download_bed_gz:
-    output: "resources/exclusions/{ref_refix}_{genome_index}.bed",
+    output: "resources/exclusions/{ref_refix}/{genomic_region}.bed",
     params:
-        url=lambda wildcards: config["exclusion_beds"][wildcards.index],
+        url=lambda wildcards: config["exclusion_beds"][wildcards.genomic_region],
     shell:
         "curl -L {params.url} | gunzip -c > {output}"
 
 # TODO hack since this is the only bed file that isn't processed according to
 # the output from dipcall
 rule link_gaps:
-    input: "resources/exclusions/{ref_prefix}_gaps.bed",
-    output:
-        exclusions_dir / "{ref_prefix}_gaps.bed"
+    input: "resources/exclusions/{ref_prefix}/gaps.bed",
+    output: "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/gaps.bed"
     shell:
         "cp {input} {output}"
     
@@ -54,12 +56,13 @@ rule get_genome:
 
 
 rule get_satellites:
-    output: "resources/exclusions/{ref_prefix}_satellites.bed",
+    output: "resources/exclusions/{ref_prefix}/satellites.bed",
     params:
         login=mysql_login_params,
         extra="-N",
     conda:
         "../envs/mysql.yml"
+    priority: 1
     shell:
         """
         mysql {params.login} {params.extra} -A -B -e \
@@ -75,9 +78,8 @@ rule get_satellites:
 
 
 rule get_SVs_from_vcf:
-    input: "results/dipcall/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.vcf.gz",
-    output:
-        exclusions_dir / "dip_SVs.bed",
+    input: "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.vcf.gz",
+    output: "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/dip_SVs.bed",
     shell:
         """
         gunzip -c {input} | \
@@ -89,10 +91,9 @@ rule get_SVs_from_vcf:
 
 rule intersect_SVs_and_homopolymers:
     input:
-        sv_bed=exclusions_dir / "dip_SVs.bed",
-        homopoly_bed="resources/exclusions/{ref_prefix}_homopolymers.bed",
-    output:
-        exclusions_dir / "structural_variants.bed",
+        sv_bed="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/dip_SVs.bed",
+        homopoly_bed="resources/exclusions/{ref_prefix}/homopolymers.bed",
+    output: "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/structural_variants.bed",
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -112,20 +113,20 @@ rule intersect_SVs_and_homopolymers:
 
 rule add_slop:
     input:
-        bed="resources/exclusions/{ref_prefix}_{genomic_regions}.bed",
+        bed="resources/exclusions/{ref_prefix}/{genomic_regions}.bed",
         genome="resources/exclusions/{ref_prefix}.genome",
-    output: exclusions_dir / "slop" / "{genomics_regions}.bed",
+    output: "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/slop/{genomic_regions}.bed",
     conda: "../envs/bedtools.yml"
     shell: "bedtools slop -i {input.bed} -g {input.genome} -b 15000 > {output}"
 
 
 rule intersect_start_and_end:
     input:
-        dip="results/dipcall/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.bed",
-        xregions=exclusions_dir / "slop" / "{genomic_regions}.bed",
+        dip="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.bed",
+        xregions="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/slop/{genomic_regions}.bed",
     output:
-        start=exclusions_dir / "{genomic_regions}_start.bed",
-        end=exclusions_dir / "{genomic_regions}_end.bed",
+        start="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/{genomic_regions}_start.bed",
+        end="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/{genomic_regions}_end.bed",
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -145,10 +146,9 @@ rule intersect_start_and_end:
 
 rule add_flanks:
     input:
-        bed="results/dipcall/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.bed",
+        bed="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.bed",
         genome="resources/references/{ref_prefix}.fa",
-    output:
-        exclusions_dir / "flanks.bed",
+    output: "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/flanks.bed",
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -156,11 +156,10 @@ rule add_flanks:
 
 rule subtract_exclusions:
     input:
-        dip_bed="results/dipcall/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.bed",
+        dip_bed="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.bed",
         other_beds = lookup_excluded_region_set
-    output:
-        exclusions_dir / "{bench_prefix}" / "excluded.bed"
-    log: "logs/subtract_exclusions/{bench_prefix}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}_exclusions.log"
+    output: "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/excluded.bed"
+    log: "logs/subtract_exclusions-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}_exclusions.log"
     conda:
         "../envs/bedtools.yml"
     shell:
