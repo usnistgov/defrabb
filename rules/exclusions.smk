@@ -147,7 +147,7 @@ rule intersect_start_and_end:
 rule add_flanks:
     input:
         bed="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.bed",
-        genome="resources/references/{ref_prefix}.fa",
+        genome="resources/exclusions/{ref_prefix}.genome",
     output: "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/flanks.bed",
     conda:
         "../envs/bedtools.yml"
