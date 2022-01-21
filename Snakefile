@@ -1,10 +1,10 @@
 import pandas as pd
 from pathlib import Path
 from itertools import product
-from more_itertools import unzip, flatten
+# from more_itertools import unzip, flatten
 from snakemake.utils import min_version, validate
-from snakemake.io import apply_wildcards
-from functools import partial
+# from snakemake.io import apply_wildcards
+# from functools import partial
 
 
 include: "rules/common.smk"
@@ -38,9 +38,9 @@ analyses = get_analyses("config/analyses.tsv")
 # else that can be defined on the command line or in the analyses.tsv can is
 # unconstrained (for now).
 wildcard_constraints:
-    asm_prefix=format_constraint(asm_config),
-    bench_id=format_constraint(bmk_config),
-    rench_idprefix=format_constraint(ref_config),
+    asm_prefix="|".join(set(analyses["asm_id"].tolist())),
+    bmk_prefix="|".join(set(analyses["compare_var_id"].tolist())),
+    ref_prefix="|".join(set(analyses["ref"].tolist())),
 
 
 ################################################################################
@@ -64,13 +64,14 @@ localrules:
 
 rule all:
     input:
-        expand("results/bench/happy/{bench}_{ref}_{asm}_{vcr}-{vcrp}.extended.csv",
+        expand("results/bench/happy-{bench_id}/{ref_prefix}_{asm_prefix}-{varcaller}-{vc_param_id}_{bmk_prefix}.extended.csv",
             zip,
-            bench = analyses[analyses["bench_cmd"] == "happy"].index.tolist(),
-            ref = analyses.loc[analyses["bench_cmd"] == "happy"]["ref"].tolist(),
-            asm = analyses.loc[analyses["bench_cmd"] == "happy"]["asm_id"].tolist(),
-            vcr = analyses.loc[analyses["bench_cmd"] == "happy"]["varcaller"].tolist(),
-            vcrp = analyses.loc[analyses["bench_cmd"] == "happy"]["vc_param_id"].tolist()),
+            bench_id = analyses[analyses["bench_cmd"] == "happy"].index.tolist(),
+            ref_prefix = analyses.loc[analyses["bench_cmd"] == "happy"]["ref"].tolist(),
+            asm_prefix = analyses.loc[analyses["bench_cmd"] == "happy"]["asm_id"].tolist(),
+            varcaller = analyses.loc[analyses["bench_cmd"] == "happy"]["varcaller"].tolist(),
+            vc_param_id = analyses.loc[analyses["bench_cmd"] == "happy"]["vc_param_id"].tolist(),
+            bmk_prefix = analyses[analyses["bench_cmd"] == "happy"]["compare_var_id"].tolist()),
 #       expand("results/bench/truvari/{tvi_bench}.extended.csv", tvi_bench = analyses[analyses["bench_cmd"] == "truvari"].index.tolist()), ## Not yet used
 
 ################################################################################
@@ -91,10 +92,9 @@ rule get_assemblies:
 
 
 rule get_ref:
-    output:
-        "resources/references/{ref_prefix}.fa",
+    output: "resources/references/{ref_prefix}.fa",
     params:
-        url=lambda wildcards: bmk_config[wildcards.ref_prefix]["ref_url"],
+        url=lambda wildcards: ref_config[wildcards.ref_prefix]["ref_url"],
     shell:
         "curl -f --connect-timeout 120 -L {params.url} | gunzip -c > {output}"
 
@@ -103,7 +103,7 @@ rule index_ref:
     input:
         "resources/references/{ref_prefix}.fa",
     output:
-        "resources/references/{ref_prefix}.fai",
+        "resources/references/{ref_prefix}.fa.fai",
     wrapper:
         "0.79.0/bio/samtools/faidx"
 
@@ -134,7 +134,7 @@ rule get_benchmark_vcf:
     output:
         "resources/benchmarks/{bmk_prefix}.vcf.gz",
     params:
-        url=lambda wildcards: ref_config[wildcards.bmk_prefix]["vcf_url"],
+        url=lambda wildcards: bmk_config[wildcards.bmk_prefix]["vcf_url"],
     shell:
         "curl -f -L -o {output} {params.url}"
 
@@ -143,14 +143,13 @@ use rule get_benchmark_vcf as get_benchmark_bed with:
     output:
         "resources/benchmarks/{bmk_prefix}.bed",
     params:
-        url=lambda wildcards: ref_config[wildcards.bmk_prefix]["bed_url"],
+        url=lambda wildcards: bmk_config[wildcards.bmk_prefix]["bed_url"],
 
 
 use rule get_benchmark_vcf as get_benchmark_tbi with:
-    output:
+    output: 
         "resources/benchmarks/{bmk_prefix}.vcf.gz.tbi",
-    params:
-        url=lambda wildcards: ref_config[wildcards.bmk_prefix]["tbi_url"],
+    params: url=lambda wildcards: bmk_config[wildcards.bmk_prefix]["tbi_url"],
 
 
 ################################################################################
@@ -163,19 +162,19 @@ rule run_dipcall:
         ref="resources/references/{ref_prefix}.fa",
         ref_idx="resources/references/{ref_prefix}.fa.fai",
     output:
-        make="results/dipcall/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.mak",
-        vcf="results/dipcall/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.vcf.gz",
-        bed="results/dipcall/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.bed",
-        bam1="results/dipcall/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.hap1.bam",
-        bam2="results/dipcall/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.hap2.bam",
+        make="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.mak",
+        vcf="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.vcf.gz",
+        bed="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.bed",
+        bam1="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.hap1.bam",
+        bam2="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.hap2.bam",
     conda:
         "envs/dipcall.yml"
     params:
-        prefix="results/dipcall/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall",
+        prefix="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall",
         male_bed=get_male_bed,
         ts=config["_dipcall_threads"],
-        extra= lambda wildcards: analyses.loc[wildcards.vcr_param_id]["vc_params"],
-    log: "log/dipcall_{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.log",
+        extra= lambda wildcards: "" if analyses.loc[wildcards.bench_id]["vc_param_id"] == "default" else analyses.loc[wildcards.bench_id]["vc_params"],
+    log: "log/dipcall-{bench_id}_{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.log",
     resources:
         mem_mb=config["_dipcall_threads"] * 2 * 4000,  ## GB per thread
     threads: config["_dipcall_threads"] * 2  ## For diploid
@@ -212,12 +211,12 @@ rule run_dipcall:
 
 
 rule split_multiallelic_sites:
-    input: "results/dipcall/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.vcf.gz",
+    input: "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.vcf.gz",
     output:
-        vcf="results/dipcall/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.split_multi.vcf.gz",
-        vcf_tbi="results/dipcall/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.split_multi.vcf.gz.tbi",
+        vcf="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.split_multi.vcf.gz",
+        vcf_tbi="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.split_multi.vcf.gz.tbi",
     conda: "envs/bcftools.yml"
-    log: "logs/split_multiallelic_sites/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}.log",
+    log: "logs/split_multiallelic_sites-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}.log",
     shell:
         """
         bcftools norm -m - {input} -Oz -o {output.vcf} 2> {log}
@@ -236,7 +235,7 @@ rule run_happy:
         genome_index="resources/references/{ref_prefix}.fa.fai",
     output:
         multiext(
-            "results/bench/happy/{bench_id}_{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}",
+            "results/bench/happy-{bench_id}/{ref_prefix}_{asm_prefix}-{varcaller}-{vc_param_id}_{bmk_prefix}",
             ".runinfo.json",
             ".vcf.gz",
             ".summary.csv",
@@ -248,15 +247,15 @@ rule run_happy:
             ".roc.Locations.SNP.csv.gz",
         ),
     params:
-        prefix="results/bench/happy/{bench_id}",
+        prefix="results/bench/happy-{bench_id}/{ref_prefix}_{asm_prefix}-{varcaller}-{vc_param_id}_{bmk_prefix}",
         strat_tsv="resources/stratifications/v3.0/{ref_prefix}/v3.0-{ref_prefix}-all-stratifications.tsv",
         threads=config["happy_threads"],
         engine="vcfeval",
-        extra=lambda wildcards: "" if analyses.loc[(wildcards.bench_id, "target_regions")] == "false" else "-T {{input.target_regions}}",
+        extra=lambda wildcards: "" if analyses.loc[wildcards.bench_id]["target_regions"] == "false" else "-T {{input.target_regions}}",
     resources:
         mem_mb=config["happy_mem"],
     threads: config["happy_threads"]
-    log: "logs/run_happy_{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}.log",
+    log: "logs/run_happy_{bench_id}/{ref_prefix}_{asm_prefix}-{varcaller}-{vc_param_id}_{bmk_prefix}.log",
     conda:
         "envs/happy.yml"
     shell:
@@ -286,17 +285,17 @@ rule run_happy:
 rule run_truvari:
     input:
         query="results/dipcall/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.split_multi.vcf.gz",
-        truth=lambda wildcards: f"resources/benchmarks/{analyses.loc[wildcards.bench_id, 'compare_var_id']}.vcf.gz",
-        truth_regions=lambda wildcards: f"resources/benchmarks/{analyses.loc[wildcards.bench_id, 'compare_var_id']}.bed",
-        truth_tbi=lambda wildcards: f"resources/benchmarks/{analyses.loc[wildcards.bench_id, 'compare_var_id']}.vcf.gz.tbi",
+        truth=lambda wildcards: f"resources/benchmarks/{analyses.loc[wildcards.bmk_prefix, 'compare_var_id']}.vcf.gz",
+        truth_regions=lambda wildcards: f"resources/benchmarks/{analyses.loc[wildcards.bmk_prefix, 'compare_var_id']}.bed",
+        truth_tbi=lambda wildcards: f"resources/benchmarks/{analyses.loc[wildcards.bmk_prefix, 'compare_var_id']}.vcf.gz.tbi",
         genome="resources/references/{ref_prefix}.fa",
         genome_index="resources/references/{ref_prefix}.fa.fai",
     output:
-        "results/bench/truvari/{bench_id}/summary.txt",
-    log: "logs/run_truvari_{bench_id}/truvari.log",
+        "results/bench/truvari/{bmk_prefix}/summary.txt",
+    log: "logs/run_truvari_{bmk_prefix}/truvari.log",
     params:
-        extra=lambda wildcards: analyses.loc[(wildcards.bench_id, "bench_params")],
-        prefix="results/bench/truvari/{bench_id}/",
+        extra=lambda wildcards: analyses.loc[(wildcards.bmk_prefix, "bench_params")],
+        prefix="results/bench/truvari/{bmk_prefix}/",
         tmpdir="tmp/truvari",
     conda:
         "envs/truvari.yml"
