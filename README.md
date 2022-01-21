@@ -57,11 +57,21 @@ __Steps__
 # General Execution and Documenting Analysis Runs
 1. Use snakedeploy to create run directory (future work)
 1. Update relevant config files
-1. Run snakemake
-1. Create snakemake report
+1. Run snakemake (see documentation above)
+1. Create snakemake report (snakemake --archive 20220119_v0.002.tar.gz)
+	activate conda environment - `conda activate defrabb`
+	generate report - `snakemake --report v0.002-report.html`
+	Will want to run on CTCMs headnode as it requires a network connection
 1. Create snakemake archive for rerunning analyses
+	In conda environment `snakemake --archive 20220119_v0.002.tar.gz`
 1. Create directory and copy results files for archiving analysis run
-1. Fill out README with relevant run information - framework repo info, justification / reasoning for analyses, JZ notes (what did we learn)
+	- Creating directory `mkdir ../defrabb-runs/20220119_v0.002`
+	- Moving report and archive tarball to run archive directory `mv 20220119* ../defrabb-runs/20220119_v0.002/`
+	- Copying results to `cp -r results ../defrabb-runs/20220119_v0.002/`
+
+1. Fill out README with relevant run information - framework repo info - v0.002 tag (with some potential - hopefully minor-differences), who ran the framework and where/ how, justification / reasoning for analyses, JZ notes (what did we learn)
+
+1. Copy run archive to local directory `   rsync -rv --progress ctcms:/working/geneteam/defrabb-runs ~/Desktop` for upload to google drive and storage on NAS or resdata (this is a temporary hack until we work out an automated process, will want to check with Andrew Reid on best way to mount, can then use NAS utility to copy files to google drive). 
 
 Automating - copy output and config files to directory for archiving, script to automate archiving with call for report, updating analysis run log google sheet
 
