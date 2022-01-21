@@ -174,7 +174,7 @@ rule run_dipcall:
         male_bed=get_male_bed,
         ts=config["_dipcall_threads"],
         extra= lambda wildcards: "" if analyses.loc[wildcards.bench_id]["vc_param_id"] == "default" else analyses.loc[wildcards.bench_id]["vc_params"],
-    log: "log/dipcall-{bench_id}_{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.log",
+    log: "logs/dipcall-{bench_id}_{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.log",
     resources:
         mem_mb=config["_dipcall_threads"] * 2 * 4000,  ## GB per thread
     threads: config["_dipcall_threads"] * 2  ## For diploid
