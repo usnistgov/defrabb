@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Author: Nathan Dwarshuis
 import sys
 from pybedtools import BedTool
 from itertools import accumulate
