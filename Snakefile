@@ -251,32 +251,13 @@ rule run_happy:
         strat_tsv="resources/stratifications/v3.0/{ref_prefix}/v3.0-{ref_prefix}-all-stratifications.tsv",
         threads=config["happy_threads"],
         engine="vcfeval",
-        extra=lambda wildcards: "" if analyses.loc[wildcards.bench_id]["target_regions"] == "false" else "-T {{input.target_regions}}",
     resources:
         mem_mb=config["happy_mem"],
     threads: config["happy_threads"]
     log: "logs/run_happy_{bench_id}/{ref_prefix}_{asm_prefix}-{varcaller}-{vc_param_id}_{bmk_prefix}.log",
     conda:
         "envs/happy.yml"
-    shell:
-        """
-        echo "Extracting Stratifications tarball"
-        tar -xvf {input.strat_tb}
-
-        echo "Starting Happy Run"
-
-        hap.py \
-            --threads {params.threads} \
-            --engine {params.engine} \
-            -r {input.genome}  \
-            -f {input.truth_regions} \
-            --stratification {params.strat_tsv} \
-            -o {params.prefix} \
-            --verbose \
-            {params.extra} \
-            {input.truth} \
-            {input.query}
-        """
+    script: "scripts/run_happy.py"
 
 
 ################################################################################
