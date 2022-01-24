@@ -10,13 +10,13 @@ from snakemake.utils import min_version, validate
 ruleorder: get_satellites > download_bed_gz
 
 # results paths
-dip_bed_path = "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.bed"
+dip_bed_path = "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.bed"
 
 
 # downloading stuff
 
 rule download_bed_gz:
-    output: "resources/exclusions/{ref_refix}/{genomic_region}.bed",
+    output: "resources/exclusions/{ref_id}/{genomic_region}.bed",
     params:
         url=lambda wildcards: config["exclusion_beds"][wildcards.genomic_region],
     shell:
@@ -25,8 +25,8 @@ rule download_bed_gz:
 # TODO hack since this is the only bed file that isn't processed according to
 # the output from dipcall
 rule link_gaps:
-    input: "resources/exclusions/{ref_prefix}/gaps.bed",
-    output: "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/gaps.bed"
+    input: "resources/exclusions/{ref_id}/gaps.bed",
+    output: "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/gaps.bed"
     shell:
         "cp {input} {output}"
     
@@ -37,7 +37,7 @@ mysql_login_params = "--user=genome --host=genome-mysql.soe.ucsc.edu -P 3306 -D 
 
 
 rule get_genome:
-    output: "resources/exclusions/{ref_prefix}.genome",
+    output: "resources/exclusions/{ref_id}.genome",
     params:
         login=mysql_login_params,
         extra="-N",
@@ -56,7 +56,7 @@ rule get_genome:
 
 
 rule get_satellites:
-    output: "resources/exclusions/{ref_prefix}/satellites.bed",
+    output: "resources/exclusions/{ref_id}/satellites.bed",
     params:
         login=mysql_login_params,
         extra="-N",
@@ -78,8 +78,8 @@ rule get_satellites:
 
 
 rule get_SVs_from_vcf:
-    input: "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.vcf.gz",
-    output: "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/dip_SVs.bed",
+    input: lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.vcf.gz",
+    output: "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/dip_SVs.bed",
     shell:
         """
         gunzip -c {input} | \
@@ -91,9 +91,9 @@ rule get_SVs_from_vcf:
 
 rule intersect_SVs_and_homopolymers:
     input:
-        sv_bed="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/dip_SVs.bed",
-        homopoly_bed="resources/exclusions/{ref_prefix}/homopolymers.bed",
-    output: "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/structural_variants.bed",
+        sv_bed="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/dip_SVs.bed",
+        homopoly_bed="resources/exclusions/{ref_id}/homopolymers.bed",
+    output: "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/structural_variants.bed",
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -113,20 +113,20 @@ rule intersect_SVs_and_homopolymers:
 
 rule add_slop:
     input:
-        bed="resources/exclusions/{ref_prefix}/{genomic_regions}.bed",
-        genome="resources/exclusions/{ref_prefix}.genome",
-    output: "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/slop/{genomic_regions}.bed",
+        bed="resources/exclusions/{ref_id}/{genomic_regions}.bed",
+        genome="resources/exclusions/{ref_id}.genome",
+    output: "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/slop/{genomic_regions}.bed",
     conda: "../envs/bedtools.yml"
     shell: "bedtools slop -i {input.bed} -g {input.genome} -b 15000 > {output}"
 
 
 rule intersect_start_and_end:
     input:
-        dip="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.bed",
-        xregions="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/slop/{genomic_regions}.bed",
+        dip=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.bed",
+        xregions="resources/exclusions/{ref_id}/{genomic_regions}.bed",
     output:
-        start="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/{genomic_regions}_start.bed",
-        end="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/{genomic_regions}_end.bed",
+        start="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/{genomic_regions}_start.bed",
+        end="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/{genomic_regions}_end.bed",
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -142,13 +142,11 @@ rule intersect_start_and_end:
 
 
 # flanks
-
-
 rule add_flanks:
     input:
-        bed="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.bed",
-        genome="resources/exclusions/{ref_prefix}.genome",
-    output: "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/flanks.bed",
+        bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.bed",
+        genome="resources/exclusions/{ref_id}.genome",
+    output: "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/flanks.bed",
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -156,10 +154,10 @@ rule add_flanks:
 
 rule subtract_exclusions:
     input:
-        dip_bed="results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/dipcall.dip.bed",
+        dip_bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.bed",
         other_beds = lookup_excluded_region_set
-    output: "results/dipcall-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}/exclusions/excluded.bed"
-    log: "logs/subtract_exclusions-{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}_exclusions.log"
+    output: "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed"
+    log: "logs/subtract_exclusions/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions.log"
     conda:
         "../envs/bedtools.yml"
     shell:

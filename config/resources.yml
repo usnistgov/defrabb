@@ -73,7 +73,7 @@ assemblies:
 # benchmark with a unique identifier ('bmk-foo') that will be used to refer to
 # this benchmark in downstream steps.
 
-benchmarks:
+comparisons:
   v4.2.1:
     vcf_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz
     bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
@@ -115,7 +115,7 @@ exclusion_beds:
   self_chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
 
 exclusion_set:
-  all:
+  smvarall:
     - segdups_start.bed
     - segdups_end.bed
     - tandem_repeats_start.bed

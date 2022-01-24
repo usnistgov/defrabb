@@ -1,4 +1,4 @@
-bench_id	bench_cmd	bench_params	asm_id	ref	varcaller	vc_param_id	vc_params	vcf_postprocessing	bed_postprocessing	compare_var_id	vcr_is_query	target_regions	exclusion_set
-test1	happy		asm17aChr21	GRCh38	dipcall	default	nan	gap2homvarbutfiltered	NA	v4.2.1chr21	true	true	none
-test2	happy		asm17aChr21	GRCh38	dipcall	default	nan	gap2homvarbutfiltered	NA	v4.2.1chr21	false	chr21.bed	none
-test3	happy		asm17aChr21	GRCh38	dipcall	z2k	-z200000,10000	gap2homvarbutfiltered	NA	v4.2.1chr21	false	chr21.bed	all
+eval_id	eval_cmd	eval_params	eval_comp_id	eval_comp_truth	eval_truth_regions	eval_target_regions	bench_id	bench_type	asm_id	ref	varcaller	vc_param_id	vc_params	vcf_postprocessing	bed_postprocessing	exclusion_set
+test1	happy	default	v4.2.1chr21	true	true	true	smvarTB1	smvar	asm17aChr21	GRCh38	dipcall	default	default	none	none	none
+test2	happy	default	v4.2.1chr21	true	true	chr21.bed	smvarTB2	smvar	asm17aChr21	GRCh38	dipcall	default	default	gap2homvarbutfiltered	none	none
+test3	happy	default	v4.2.1chr21	true	true	chr21.bed	smvarTB3	smvar	asm17aChr21	GRCh38	dipcall	z2k	"-z200000,10000"	gap2homvarbutfiltered	exclude	all

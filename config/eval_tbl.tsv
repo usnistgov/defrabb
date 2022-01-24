@@ -1,0 +1,7 @@
+eval_id	bench_id	eval_cmd	eval_params	eval_comp_id	eval_comp_truth	eval_truth_regions	eval_target_regions
+eval1	testA	happy	default	v4.2.1chr21	true	true	true
+eval2	testA	happy	default	v4.2.1chr21	true	true	false
+eval3	testA	happy	default	v4.2.1chr21	false	true	true
+eval4	testB	happy	default	v4.2.1chr21	true	true	chr21.bed
+eval5	testC	happy	default	v4.2.1chr21	true	true	chr21.bed
+eval6	testD	truvari	default	v0.6chr21	true	true	false
