@@ -1,0 +1,4 @@
+vc_id	asm_id	ref	vc_cmd	vc_param_id	vc_params
+vc1	asm17aChr21	GRCh38	dipcall	default	default
+vc2	asm17aChr21	GRCh38	dipcall	default	default
+vc3	asm17aChr21	GRCh38	dipcall	z2k	"-z200000,10000"

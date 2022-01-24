@@ -3,7 +3,7 @@ description: downloadable resources for whole genome assembly benchmark pipeline
 required:
   - references
   - assemblies
-  - benchmarks
+  - comparisons
   - exclusion_beds
   - exclusion_set
   # - variant_caller_runs
@@ -65,9 +65,9 @@ properties:
             type: boolean
             description: true if this assembly to be processed as a male genome
 
-  benchmarks:
+  comparisons:
     description: |
-      The benchmarks to be used in the pipeline; each key is an identifier that
+      The comparison variant callsets to be used in evaluating draft benchmark sets; each key is an identifier that
       will be referenced in other sections.
     additionalProperties: false
     patternProperties:

@@ -1,40 +1,83 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 description: whole genome assembly benchmark pipeline
 required:
+  - eval_id
+  - eval_cmd
+  - eval_params
+  - eval_comp_id
+  - eval_comp_truth
+  - eval_truth_regions
+  - eval_target_regions
   - bench_id
-  - bench_cmd
-  # - bench_params
+  - bench_type
   - asm_id
   - ref
   - varcaller
-  # - vc_params
-  # - vcf_postprocessing
-  # - bed_postprocessing
-  - compare_var_id
-  - vcr_is_query
-  # - truth_regions
-  - target_regions
+  - vc_param_id
+  - vc_params
+  - vcf_postprocessing
+  - bed_postprocessing
   - exclusion_set
-  # - hpy_params
+
 additionalProperties: false
 properties:
-  bench_id:
+  eval_id:
     description: |
       The ID for this analysis run. Every value in this column should be unique.
     type: string
 
-  bench_cmd:
+  eval_cmd:
     description: |
-      The benchmarking command to run. Must be either 'happy' or 'truvari'.
+      The benchmarking tools command used for evaluating the draft benchmark set. Must be either 'happy' or 'truvari'.
     type: string
     pattern: ^happy|truvari$
 
-  bench_params:
+  eval_params:
     description: |
-      Additional params to pass to the benchmarking command. See
+      Additional params to pass to the benchmarking tool for the evaluations. See
       'target_regions' for how to control '--target-regions' (hap.py) and
-      '--includebed' (truvari).
+      '--includebed' (truvari). Use 'default' to run benchmarking tool with default parameters.
     type: string
+
+  eval_comp_id:
+    description: |
+      Id for the variant callset or benchmark set used for comparison when evaluating the draft benchmark set. 
+      Source files (vcf and beds) should be included in the resources.yml.
+    type: string
+
+  eval_comp_truth:
+    description: |
+      Set to 'true' to comparison variant calls and regions at truth inputs with the 'bench_id' as query input. 
+      Setting this to 'false' will
+      flip the truth and query inputs.
+    type: boolean
+
+  eval_truth_regions:
+    description: |
+      Set to 'true' the appropriate comparison regions or 'bench_id' regions will be used as the truth regions in the evaluation tool.
+    type: boolean
+
+  eval_target_regions:
+    description: |
+      The target regions to input to happy. If 'true,' will be tell happy to use
+      the bed file output by the variant caller. If a string, will be
+      interpreted as a path to the bed file to use (relative to
+      ./manual/target_regions); note the string must be a filename ending in
+      ".bed." If 'false,' happy will run in untargetted mode.
+    type: string
+    pattern: ^.*\.bed|true|false$
+
+  bench_id:
+    description: |
+      Unique id for draft benchmark set, will represent a unique combination of the 'bench_type', 'asm_id', 'ref', 'varcall', 'vc_param_id',
+      'vcf_postprocessing', 'bed_postprocessing', and 'exclusion_set'.
+    type: string
+
+  bench_type:
+    description: |
+      Type of draft benchmark set, either 'smvar' or 'stvar' for small and structural variants, respectively.
+    type: string
+    pattern: ^smvar|stvar$
 
   asm_id:
     description: the identifier of the assembly to use in resources.yml
@@ -67,36 +110,7 @@ properties:
 
   bed_postprocessing:
     description: post processing of output bed (genomic regions) from varcaller
-    type: 'null'
-
-  compare_var_id:
-    description: the id of the truth vcf file to use from resources.yml
     type: string
-
-  vcr_is_query:
-    description: |
-      Set to 'true' to feed the vcf and bed files from the variant caller as the
-      query inputs for the benchmark comparison tool. The truth inputs will be
-      whatever is indicated by 'compare_var_id'. Setting this to 'false' will
-      flip the truth and query inputs.
-    type: boolean
-
-  # truth_regions:
-  #   description: the id of the truth bed file to use from resources.yml
-  #   type: string
-
-  # NOTE: this field will be parsed entirely as a string by pandas, so need to
-  # match on literal "true" or "false" strings as the datatype in the dataframe
-  # will never be a boolean
-  target_regions:
-    description: |
-      The target regions to input to happy. If 'true,' will be tell happy to use
-      the bed file output by the variant caller. If a string, will be
-      interpreted as a path to the bed file to use (relative to
-      ./manual/target_regions); note the string must be a filename ending in
-      ".bed." If 'false,' happy will run in untargetted mode.
-    type: string
-    pattern: ^.*\.bed|true|false$
 
   exclusion_set:
     description: |
