@@ -124,7 +124,17 @@ exclusion_set:
     - gaps.bed
     - self_chains_start.bed
     - self_chains_end.bed
+    - flanks.bed
     - structural_variants.bed
+  stvarall:
+    - segdups_start.bed
+    - segdups_end.bed
+    - tandem_repeats_start.bed
+    - tandem_repeats_end.bed
+    - satellites_end.bed
+    - gaps.bed
+    - self_chains_start.bed
+    - self_chains_end.bed
     - flanks.bed
 
 # exclusions:
