@@ -1,4 +1,32 @@
 ## TODO Test
+rule run_assembly_stats:
+    input:
+        #Input assembly
+        assembly="resources/assemblies/{asm_id}/{haplotype}.fa",
+    output:
+        #Assembly statistics
+        assembly_stats="results/report/assemblies/{asm_id}_{haplotype}_stats.txt",
+    params:
+        # Tab delimited output, with a header, is set as the default. Other options are available:
+        #   -l <int>
+        #       Minimum length cutoff for each sequence.
+        #       Sequences shorter than the cutoff will be ignored [1]
+        #   -s
+        #       Print 'grep friendly' output
+        #   -t
+        #       Print tab-delimited output
+        #   -u
+        #       Print tab-delimited output with no header line
+        # If you want to add multiple options just delimit them with a space.
+        # Note that you can only pick one output format
+        # Check https://github.com/sanger-pathogens/assembly-stats for more details
+        extra="-t",
+    log:
+        "logs/run_assembly_stats/{asm_id}_{haplotype}.assembly-stats.log",
+    threads: 1
+    wrapper:
+        "v0.86.0/bio/assembly-stats"
+
 ## Potentially modify to calculate for all output beds
 rule get_bed_size:
 	input: "{genomic_region}.bed"
@@ -7,7 +35,7 @@ rule get_bed_size:
 	shell: """
 		cat {input} \
 			| '{sum+=$3-$2} END {print sum} \
-			> {output}
+			1> {output} 2> {log}
 		"""
 ## Genome Coverage
 ## TODO Modify for benchmark set development framework
@@ -30,7 +58,7 @@ rule get_bed_size:
 
 ## Variant Callset Stats
 rule get_vcf_stats:
-	input: "{variant_callset}.vcf"
+	input: "{variant_callset}.vcf.gz"
 	output: 
 		stats="results/report/{variant_callset}_stats.txt"
 	log: "logs/get_vcf_stats/{variant_callset}.log"

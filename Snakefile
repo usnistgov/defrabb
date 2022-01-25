@@ -5,6 +5,7 @@ from snakemake.utils import min_version, validate
 
 include: "rules/common.smk"
 include: "rules/exclusions.smk"
+include: "rules/report.smk"
 
 
 min_version("6.0")
@@ -133,7 +134,17 @@ rule all:
         "vc_param_id"
             ].tolist(),
         ),
-
+        ## rules for report
+        expand(
+            "results/report/assemblies/{asm_id}_{haplotype}_stats.txt",
+            asm_id = ASMIDS, haplotype = ["maternal", "paternal"])
+        expand("results/report/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}_stats.txt",
+            zip,
+            vc_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"].index.tolist(),
+            ref=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["ref"].tolist(),
+            asm_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["asm_id"].tolist(),
+            vc_cmd=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_cmd"].tolist(),
+            vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist()),           
 
 #       expand("results/bench/truvari/{tvi_bench}.extended.csv", tvi_bench = analyses[analyses["bench_cmd"] == "truvari"].index.tolist()), ## Not yet used
 
@@ -323,7 +334,7 @@ rule postprocess_vcf:
     input:
         lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.vcf.gz",
     output:
-        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
+        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
     log:
         "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     shell:
