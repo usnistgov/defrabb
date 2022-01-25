@@ -1,4 +1,0 @@
-bench_id	bench_cmd	bench_params	asm_id	ref	varcaller	vc_params	vcf_postprocessing	bed_postprocessing	compare_var_id	vcr_is_query	target_regions	exclusion_set
-test1	happy		asm17aChr21	GRCh38	dipcall	nan	gap2homvarbutfiltered	NA	v4.2.1chr21	true	true	none
-test2	happy		asm17aChr21	GRCh38	dipcall	nan	gap2homvarbutfiltered	NA	v4.2.1chr21	false	chr21.bed	none
-test3	happy		asm17aChr21	GRCh38	dipcall	nan	gap2homvarbutfiltered	NA	v4.2.1chr21	false	chr21.bed	all

@@ -18,3 +18,5 @@ GRCh38/**
 
 ## Slurm config
 etc/slurm/__pycache__/**
+## Scratch 
+scratch/**

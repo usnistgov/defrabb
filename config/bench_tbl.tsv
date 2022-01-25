@@ -1,5 +1,0 @@
-bench_id	vc_id	bench_type	bench_vcf_processing	bench_bed_processing	exclusion_set
-testA	vc1	smvar	none	none	none
-testB	vc2	smvar	gap2homvarbutfiltered	none	none
-testC	vc3	smvar	gap2homvarbutfiltered	exclude	smvarall
-testD	vc3	stvarall	gap2homvarbutfiltered	exclude	stvarall
