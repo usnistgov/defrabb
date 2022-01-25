@@ -137,7 +137,7 @@ rule all:
         ## rules for report
         expand(
             "results/report/assemblies/{asm_id}_{haplotype}_stats.txt",
-            asm_id = ASMIDS, haplotype = ["maternal", "paternal"])
+            asm_id = ASMIDS, haplotype = ["maternal", "paternal"]),
         expand("results/report/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}_stats.txt",
             zip,
             vc_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"].index.tolist(),
