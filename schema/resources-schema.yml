@@ -1,0 +1,285 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+description: downloadable resources for whole genome assembly benchmark pipeline
+required:
+  - references
+  - assemblies
+  - comparisons
+  - exclusion_beds
+  - exclusion_set
+  # - variant_caller_runs
+  # - happy_runs
+  - _dipcall_threads
+  - _par_bed_root
+  - stratifications
+additionalProperties: false
+properties:
+
+################################################################################
+# resources
+
+  references:
+    additionalProperties: false
+    patternProperties:
+
+      ^GRCh3[7,8]|GRCh38_chr21$:
+        type: object
+        description: metadata for each reference
+        properties:
+
+          ref_url:
+            format: url
+            description: url to the reference FASTA file
+
+          par_bed:
+            type: string
+            description: |
+              File name of the PAR.bed file used for the -x flag in
+              'run-dipcall'; will be prefixed with the value of 'par_bed_root'
+
+        required: [ref_url, par_bed]
+
+  assemblies:
+    description: |
+      The assemblies to be used in the pipeline; each key is an identifier that
+      will be referenced in other sections.
+    additionalProperties: false
+    unique: true
+    patternProperties:
+
+      ^[\w\.\-]*$:
+        type: object
+        additionalProperties: false
+        description: metadata for each assembly
+        required: [maternal, paternal, is_male]
+        properties:
+
+          maternal:
+            format: uri
+            description: the url to the maternal FASTA assembly file
+
+          paternal:
+            format: uri
+            description: the url to the paternal FASTA assembly file
+
+          is_male:
+            type: boolean
+            description: true if this assembly to be processed as a male genome
+
+  comparisons:
+    description: |
+      The comparison variant callsets to be used in evaluating draft benchmark sets; each key is an identifier that
+      will be referenced in other sections.
+    additionalProperties: false
+    patternProperties:
+
+      ^[\w\.\-]*$:
+        type: object
+        additionalProperties: false
+        description: metadata for each benchmark
+        required: [vcf_url, bed_url, tbi_url]
+        properties:
+
+          vcf_url:
+            format: uri
+            description: the url to the benchmark vcf file
+
+          bed_url:
+            format: uri
+            description: the url to the benchmark bed file
+
+          tbi_url:
+            format: uri
+            description: the url to the benchmark tbi file
+
+  exclusion_beds:
+    description: The beds to use when generating the exclusions
+    additionalProperties: false
+    patternProperties:
+      ^homopolymers|segdups|tandem_repeat|gaps|self_chains$:
+        type: string
+        format: uri
+
+  exclusion_set:
+    description: |
+      The exclusions which may be applied to the output of dipcall. Each key is
+      a list of bed files, with a (hopefully) self-explanatory name for what
+      is being excluded.
+    additionalProperties: false
+    patternProperties:
+
+      ^[\w\.\-]*$:
+        type: array
+        description: the list of exclusions in an exclusion set
+        items:
+          type: string
+          format: ^.*\.bed$
+
+  stratifications:
+    description: |
+      The stratification set to be used.
+    additionalProperties: false
+    patternProperties:
+      ^[\w\.\-]*$:
+        type: object
+        additionalProperties: false
+        description: metadata for stratification sets
+        required: [id, url, tarball, tsv]
+        properties:
+
+          id:
+            format: string
+            description: stratification set id
+          url:
+            format: uri
+            description: the url to the tarball with the stratification files
+          tarball:
+            format: string
+            description: name of the stratification tarball file
+          tsv:
+            format: string
+            description: name of the stratification tsv file used by happy
+
+  #         root:
+  #           description: the url to the root directory of the stratifications
+  #           format: uri
+
+  #         reference:
+  #           description: the reference to use with these stratifications
+  #           type: string
+  #           pattern: ^GRCh3[7,8]$
+
+  #         tsv:
+  #           type: object
+  #           description: |
+  #              The TSV file to be pulled for these stratifications. Each key is
+  #              an identifier to be referenced in other sections
+  #           propertyPatterns:
+  #             ^\w*$:
+  #               type: string
+  #               description: |
+  #                 The filename of the stratification TSV file to use. The full
+  #                 url to be downloaded will be the value of this key appended to
+  #                 the end of the 'root' key in the parent object. All bed files
+  #                 referenced in this TSV file will be downloaded as necessary
+  #                 in the pipeline.
+
+  # variant_caller_runs:
+  #   description: |
+  #     The paramaters for each variant caller run to be used in the pipeline;
+  #     each key is an identifier that will be referenced in other sections.
+  #   additionalProperties: false
+  #   patternProperties:
+
+  #     ^vcr-\w*$:
+  #       type: object
+  #       additionalProperties: false
+  #       description: metadata for each variant caller run
+  #       required: [assemblies, zdrop]
+  #       properties:
+
+  #         assemblies:
+  #           description: |
+  #             Idenfifiers for the assemblies to use in this variant caller run.
+  #             Each identifer should match the keys in the 'assemblies'
+  #             parameter.
+  #           type: array
+  #           minItems: 1
+  #           items:
+  #             type: string
+
+  #         zdrop:
+  #           description: |
+  #             The paramater to use for the -z flag in 'run-dipcall'. This
+  #             parameter takes two integers in a list like [X, Y], which will
+  #             be evaluated to '-z X,Y' when 'run-dipcall' is invoked.
+  #           anyOf:
+  #             - type: 'null'
+  #             - type: array
+  #               minItems: 2
+  #               maxItems: 2
+  #               items:
+  #                 type: integer
+
+  # happy_runs:
+  #   description: |
+  #     The parameters for each hap.py run to be performed in the pipeline. Each
+  #     key is a unique identifier for the given hap.py parameter set.
+  #   additionalProperties: false
+  #   patternProperties:
+
+  #     ^hpy-\w*$:
+  #       type: object
+  #       additionalProperties: false
+  #       description: metadata for each hap.py run
+  #       required: [variant_caller_runs, benchmarks, strats, use_targeted]
+  #       properties:
+
+  #         variant_caller_runs:
+  #           description: |
+  #             The identifiers of the variant caller runs to be used as input for
+  #             this hap.py configuration. Each identifier should match the keys
+  #             given in the 'variant_caller_runs' parameter.
+  #           type: array
+  #           minItems: 1
+  #           items:
+  #             type: string
+  
+  #         benchmarks:
+  #           description: |
+  #             The identifiers of the benchmarks runs to be used as input for
+  #             this hap.py configuration. Each identifier should match the keys
+  #             given in the 'benchmarks' parameter.
+  #           type: array
+  #           minItems: 1
+  #           items:
+  #             type: string
+  
+  #         strats:
+  #           description: |
+  #             The identifiers of the stratifications and TSV file to use for
+  #             this hap.py configuration. Each entry should match a root/TSV
+  #             combination defined in 'stratifications'.
+  #           type: array
+  #           minItems: 1
+  #           items:
+  #             type: object
+  #             required: [bed, tsv]
+  #             properties:
+  #               bed:
+  #                 type: string
+  #                 tsv:
+  #                   type: string
+  
+  #         use_targeted:
+  #           description: |
+  #             If true, use the .bed file output from the variant caller run in
+  #             the --targeted parameter when calling hap.py.
+  #           type: boolean
+
+################################################################################
+# static config
+
+  _dipcall_threads:
+    description: the number of dipcall threads to run
+    exclusiveMinimum: 0
+    type: integer
+
+  _par_bed_root:
+    description: |
+      Path to the directory with par files used for the -x flag in 'run-dipcall'
+    type: string
+
+  _strats_root:
+    description: Path to the directory holding the statifications
+    type: string
+    format: uri
+
+  happy_threads:
+    description: the number of threads for happy runs
+    exclusiveMinimum: 0
+    type: integer
+
+  happy_mem:
+    description: memory required per happy run
+    type: string
+

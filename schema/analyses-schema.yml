@@ -1,0 +1,124 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+description: whole genome assembly benchmark pipeline
+required:
+  - eval_id
+  - eval_cmd
+  - eval_params
+  - eval_comp_id
+  - eval_comp_truth
+  - eval_truth_regions
+  - eval_target_regions
+  - bench_id
+  - bench_type
+  - bench_vcf_processing
+  - bench_bed_processing
+  - exclusion_set
+  - vc_id
+  - asm_id
+  - ref
+  - vc_cmd
+  - vc_param_id
+  - vc_params
+
+additionalProperties: false
+properties:
+  eval_id:
+    description: |
+      The ID for this analysis run. Every value in this column should be unique.
+    type: string
+
+  eval_cmd:
+    description: |
+      The benchmarking tools command used for evaluating the draft benchmark set. Must be either 'happy' or 'truvari'.
+    type: string
+    pattern: ^happy|truvari$
+
+  eval_params:
+    description: |
+      Additional params to pass to the benchmarking tool for the evaluations. See
+      'target_regions' for how to control '--target-regions' (hap.py) and
+      '--includebed' (truvari). Use 'default' to run benchmarking tool with default parameters.
+    type: string
+
+  eval_comp_id:
+    description: |
+      Id for the variant callset or benchmark set used for comparison when evaluating the draft benchmark set. 
+      Source files (vcf and beds) should be included in the resources.yml.
+    type: string
+
+  eval_comp_truth:
+    description: |
+      Set to 'true' to comparison variant calls and regions at truth inputs with the 'bench_id' as query input. 
+      Setting this to 'false' will
+      flip the truth and query inputs.
+    type: boolean
+
+  eval_truth_regions:
+    description: |
+      Set to 'true' the appropriate comparison regions or 'bench_id' regions will be used as the truth regions in the evaluation tool.
+    type: boolean
+
+  eval_target_regions:
+    description: |
+      The target regions to input to happy. If 'true,' will be tell happy to use
+      the bed file output by the variant caller. If a string, will be
+      interpreted as a path to the bed file to use (relative to
+      ./manual/target_regions); note the string must be a filename ending in
+      ".bed." If 'false,' happy will run in untargetted mode.
+    type: string
+    pattern: ^.*\.bed|true|false$
+
+  bench_id:
+    description: |
+      Unique id for draft benchmark set, will represent a unique combination of the 'bench_type', 'asm_id', 'ref', 'varcall', 'vc_param_id',
+      'vcf_postprocessing', 'bed_postprocessing', and 'exclusion_set'.
+    type: string
+
+  bench_type:
+    description: |
+      Type of draft benchmark set, either 'smvar' or 'stvar' for small and structural variants, respectively.
+    type: string
+    pattern: ^smvar|stvar$
+
+  bench_vcf_processing:
+    description: post processing of output vcf (variant calls) from varcaller
+    type: string
+
+  bench_bed_processing:
+    description: post processing of output bed (genomic regions) from varcaller
+    type: string
+
+  exclusion_set:
+    description: |
+      The exclusion set to apply. See 'resources.yml' for preset exclusion bed
+      files that may be used.
+    type: string
+
+  vc_id:
+    description: unique identifier for the combination of variant call parameters
+    type: string
+
+  asm_id:
+    description: the identifier of the assembly to use in resources.yml
+    type: string
+
+  ref:
+    description: the identifier of the reference to use in resources.yml
+    type: string
+    pattern: ^GRCh3[7,8]|GRCh38_chr21$
+
+  vc_cmd:
+    description: the variant caller to use
+    type: string
+    # TODO for now only dipcall supported
+    # pattern: ^dipcall|PAV$
+    pattern: ^dipcall$
+
+  vc_param_id:
+    ## Will want to use "default" with vc_params="", when using default parameters
+    description: unique identifier for applied parameters
+    type: string
+
+  vc_params:
+    description: additional params to be passed to the varcaller
+    type: string
