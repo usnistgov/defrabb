@@ -304,8 +304,8 @@ rule run_happy:
             ".roc.Locations.SNP.csv.gz",
         ),
     params:
-        prefix="results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.extended.csv",
-        strat_tsv=lambda wildcards: f"resources/stratifications/v3.0/{analysis.loc[wildcards.eval_id]['ref_id']}/v3.0-{analysis.loc[wildcards.eval_id]['ref_id']}-all-stratifications.tsv",
+        prefix="results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
+        strat_tsv="resources/stratifications/v3.0/{ref_id}/v3.0-{ref_id}-all-stratifications.tsv",
         threads=config["happy_threads"],
         engine="vcfeval",
     resources:
