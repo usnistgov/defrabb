@@ -36,7 +36,7 @@ def get_happy_inputs(wildcards):
     ref_id = analyses.loc[wildcards.eval_id, "ref"]
 
     ## Reference genome
-    inputs["strat_tb"]=f"resources/{config['stratifications'][wildcards.ref_id]['tarball']}"
+    inputs["strat_tb"]=f"resources/strat_{ref_id}.tar.gz"
     inputs["genome"]=f"resources/references/{ref_id}.fa"
     inputs["genome_index"]=f"resources/references/{ref_id}.fa.fai"
 

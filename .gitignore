@@ -13,3 +13,8 @@ giab-tibanna-runs
 
 ## Resources - use -f to add 
 resources/**
+
+GRCh38/**
+
+## Slurm config
+etc/slurm/__pycache__/**

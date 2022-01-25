@@ -1,10 +1,6 @@
 import pandas as pd
 from pathlib import Path
-from itertools import product
-# from more_itertools import unzip, flatten
 from snakemake.utils import min_version, validate
-# from snakemake.io import apply_wildcards
-# from functools import partial
 
 
 include: "rules/common.smk"
@@ -27,15 +23,6 @@ ref_config = config["references"]
 
 ################################################################################
 # init analyses
-
-# analyses = get_analyses("config/analyses.tsv")
-#bench_tbl = pd.read_table("config/bench_tbl.tsv").set_index("bench_id", verify_integrity=True)
-#eval_tbl = pd.read_table("config/eval_tbl.tsv").set_index("eval_id", verify_integrity=True)
-#vc_tbl = pd.read_table("config/vc_tbl.tsv").set_index("vc_id", verify_integrity=True)
-
-## Making a combined data frame for easier variable look-up
-#run_tbl = pd.merge(eval_tbl, bench_tbl, how = "outer", on = "bench_id")
-#run_tbl = pd.merge(run_tbl, vc_tbl, how = "outer", on = "vc_id")
 
 # analyses = get_analyses("config/analyses.tsv")
 vc_tbl = pd.read_table("config/vc_tbl.tsv")
@@ -124,9 +111,14 @@ rule all:
 #       expand("results/bench/truvari/{tvi_bench}.extended.csv", tvi_bench = analyses[analyses["bench_cmd"] == "truvari"].index.tolist()), ## Not yet used
 
 ################################################################################
+################################################################################
+##
+## Downloading Resource Data Files
+##
+################################################################################
+################################################################################
+
 # Get and prepare assemblies
-
-
 rule get_assemblies:
     output:
         "resources/assemblies/{asm_id}/{haplotype}.fa",
@@ -135,18 +127,13 @@ rule get_assemblies:
     shell:
         "curl -f -L {params.url} | gunzip -c > {output}"
 
-
-################################################################################
 # Get and prepare reference
-
-
 rule get_ref:
     output: "resources/references/{ref_id}.fa",
     params:
         url=lambda wildcards: ref_config[wildcards.ref_id]["ref_url"],
     shell:
         "curl -f --connect-timeout 120 -L {params.url} | gunzip -c > {output}"
-
 
 rule index_ref:
     input:
@@ -160,21 +147,12 @@ rule index_ref:
 ################################################################################
 # Get stratifications
 
-
-# rule get_strats:
-#     output:
-#         tsv_full_path,
-#     params:
-#         root=config["_strats_root"],
-#         target=strats_full_path,
-#     shell:
-#         """
-#         curl -L \
-#             {params.root}/v3.0/v3.0-stratifications-{wildcards.ref_prefix}.tar.gz | \
-#             gunzip -c | \
-#             tar x -C {params.target}
-#         """
-
+rule get_strats:
+    output: "resources/strat_{ref_id}.tar.gz",
+    params:
+        url=lambda wildcards: config["stratifications"][wildcards.ref_id]["url"],
+    shell:
+        "curl -f -L -o {output} {params.url}"
 
 ################################################################################
 # Get vcf and bed files used in draft benchmark set evaluations
@@ -202,7 +180,14 @@ use rule get_comparison_vcf as get_comparison_tbi with:
 
 
 ################################################################################
-# Run Dipcall
+################################################################################
+##
+## Component: Assembly Based Variant Calling
+##
+################################################################################
+################################################################################
+
+## Run Dipcall
 
 rule run_dipcall:
     input:
@@ -244,11 +229,16 @@ rule run_dipcall:
         """
 
 ################################################################################
-# Postprocess variant caller output
+################################################################################
+##
+## Component: Generating Draft Benchmarkset from Assembly-Based Variant Calls
+##
+################################################################################
+################################################################################
 
 # rule dip_gap2homvarbutfiltered:
-#     input: rules.run_dipcall.output.vcf
-#     output: "{}.dip.gap2homvarbutfiltered.vcf.gz".format(vcr_full_prefix)
+#     input: "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz"
+#     output: "draft_benchmark_sets/{bench_id}/intermediate/{vc_id}.dip.gap2homvarbutfiltered.vcf.gz"
 #     # bgzip is part of samtools, which is part of the diptcall env
 #     conda: "envs/dipcall.yml"
 #     shell: """
@@ -285,6 +275,13 @@ rule postprocess_bed:
     shell: "cp {input} {output}"
 
 ################################################################################
+################################################################################
+##
+## Component: Evaluating Draft Benchmarksets
+##
+################################################################################
+################################################################################
+
 ## Run happy
 
 rule run_happy:
