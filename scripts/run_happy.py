@@ -38,3 +38,9 @@ shell(
 	"    {snakemake.input.query} )"
 	"{log}"
 )
+
+## Clean-up stratifications
+shell(
+	"(rm -r {snakemake.wildcards.ref_id})"
+	"{log}"
+)
