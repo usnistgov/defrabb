@@ -27,9 +27,9 @@ ref_config = config["references"]
 
 ################################################################################
 # init analyses
-
-# analyses = get_analyses("config/analyses.tsv")
-analyses = pd.read_table("config/analyses.tsv")
+## TODO add checks for setting indecies - maybe move to function`
+analyses = analyses = pd.read_table('config/analyses.tsv', dtype={"eval_target_regions": str})
+validate(analyses, "schema/analyses-schema.yml")
 
 ## Generating seperate tables for individual framework components
 ## asm variant calls
@@ -48,7 +48,7 @@ eval_ids = analyses[['eval_id', 'bench_id', 'ref']].drop_duplicates()
 eval_tbl = pd.merge(eval_ids, eval_params, how = "inner", on = "eval_id").set_index("eval_id")
 
 ## Setting index for analysis run lookup
-analyses = pd.read_table("config/analyses.tsv").set_index("eval_id")
+analyses = analyses.set_index("eval_id")
 
 
 ################################################################################
