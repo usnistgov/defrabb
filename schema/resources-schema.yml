@@ -10,7 +10,7 @@ required:
   # - happy_runs
   - _dipcall_threads
   - _par_bed_root
-  - _strats_root
+  - stratifications
 additionalProperties: false
 properties:
 
@@ -114,19 +114,30 @@ properties:
           type: string
           format: ^.*\.bed$
 
-  # stratifications:
-  #   description: |
-  #     The stratifications to be used in the pipeline; each key is an identifier
-  #     that will be referenced in other sections.
-  #   additionalProperties: false
-  #   patternProperties:
+  stratifications:
+    description: |
+      The stratification set to be used.
+    additionalProperties: false
+    patternProperties:
+      ^[\w\.\-]*$:
+        type: object
+        additionalProperties: false
+        description: metadata for stratification sets
+        required: [id, url, tarball, tsv]
+        properties:
 
-  #     ^str-\w*$:
-  #       type: object
-  #       additionalProperties: false
-  #       description: metadata for each stratification
-  #       required: [root, tsv]
-  #       properties:
+          id:
+            format: string
+            description: stratification set id
+          url:
+            format: uri
+            description: the url to the tarball with the stratification files
+          tarball:
+            format: string
+            description: name of the stratification tarball file
+          tsv:
+            format: string
+            description: name of the stratification tsv file used by happy
 
   #         root:
   #           description: the url to the root directory of the stratifications

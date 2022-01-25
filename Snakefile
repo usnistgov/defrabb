@@ -305,7 +305,7 @@ rule run_happy:
         ),
     params:
         prefix="results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
-        strat_tsv="resources/stratifications/v3.0/{ref_id}/v3.0-{ref_id}-all-stratifications.tsv",
+        strat_tsv=lambda wildcards: f"{wildcards.ref_id}/{config['stratifications'][wildcards.ref_id]['tsv']}",
         threads=config["happy_threads"],
         engine="vcfeval",
     resources:
