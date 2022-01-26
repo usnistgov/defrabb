@@ -25,7 +25,7 @@ strat_id = snakemake.config["stratifications"][ref_id]["id"]
 strat_dir = f"resources/stratifications/{strat_id}"
 strat_tsv = f"{strat_dir}/{snakemake.params.strat_tsv}"
 if not path.isdir(strat_dir):
-    shell("mkdir {strat_dir}", "{log}")
+    shell("mkdir -p {strat_dir}", "{log}")
     shell("tar -xvf {snakemake.input.strat_tb} -C {strat_dir})", "{log}")
 
 ## Running Happy
