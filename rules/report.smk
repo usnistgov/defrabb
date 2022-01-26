@@ -58,10 +58,10 @@ rule get_bed_size:
 
 ## Variant Callset Stats
 rule get_vcf_stats:
-	input: "results/asm_varcalls/{vc_id}/{variant_callset}.vcf.gz"
+	input: "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}_stats.txt"
 	output: 
-		stats="results/report/{vc_id}/{variant_callset}_stats.txt"
-	log: "logs/get_vcf_stats/{vc_id}/{variant_callset}.log"
+		stats="results/report/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}_stats.txt"
+	log: "logs/get_vcf_stats/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}_stats.txt"
 	conda: "envs/bcftools.yml"
 	shell: """
 		bcftools stats {input} > {output.txt}
