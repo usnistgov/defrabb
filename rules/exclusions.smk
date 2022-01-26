@@ -24,12 +24,11 @@ rule download_bed_gz:
     output:
         "resources/exclusions/{ref_id}/{genomic_region}.bed",
     log:
-        "logs/exclusions_{ref_id}_{genomic_region}.bed",
+        "logs/download_bed_gz/{ref_id}_{genomic_region}.log",
     params:
         url=lambda wildcards: config["exclusion_beds"][wildcards.genomic_region],
     shell:
         "curl -L {params.url} | gunzip -c 1> {output} 2> {log}"
-
 
 # TODO hack since this is the only bed file that isn't processed according to
 # the output from dipcall

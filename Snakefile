@@ -102,6 +102,7 @@ localrules:
     get_comparison_tbi,
     get_genome,
     get_strats,
+    index_ref,
     download_bed_gz,
     link_gaps,
     get_satellites,
@@ -176,7 +177,7 @@ rule index_ref:
     output:
         "resources/references/{ref_id}.fa.fai",
     log:
-        "logs/index_ref/{ref_id}.fa.fai",
+        "logs/index_ref/{ref_id}.log",
     wrapper:
         "0.79.0/bio/samtools/faidx"
 
