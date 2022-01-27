@@ -1,4 +1,4 @@
-## TODO Test
+## Assembly statistics for individual haploids
 rule run_assembly_stats:
     input:
         #Input assembly
@@ -37,6 +37,28 @@ rule get_bed_size:
 			| '{sum+=$3-$2} END {print sum} \
 			1> {output} 2> {log}
 		"""
+
+## Summary stats by chromosome, need to test/ debug getting ref_id from input bed
+rule get_bed_stats:
+    input:
+        bed="{bed_dir}/{ref_id}_{genomic_region}.bed",
+        genome="resouces/exclusions/{ref_id}.genome"
+    output: report("results/bed_stats/{ref_id}/{genomic_region}.tsv", caption = "report/bed_stats.rst", category = "Exclusion Stats")
+    log: "logs/get_bed/stats/{genomic_region}.log"
+    conda: "../envs/bedtools.yml"
+    shell: """
+        bedtools summary -i {genomic_regions} -g {genome}
+    """
+
+rule get_exclusion_coverage:
+    input: TODO - all exclusion stratifications
+    output: report("results/exclusion_stats/genomic_region_stat.tsv", caption = "report/exclusion_stats.rst", category = "Exclusion Stats")
+    log: "logs/get_exclusion_coverage/{exclusion_set}.log"
+    conda: "../envs/bedtools.yml"
+    shell: """
+        multiIntersectBed -header -i
+    """"
+
 ## Genome Coverage
 ## TODO Modify for benchmark set development framework
 # rule make_bench_cov_tbls:
