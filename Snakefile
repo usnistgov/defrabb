@@ -263,7 +263,7 @@ rule run_dipcall:
         if vc_tbl.loc[wildcards.vc_id]["vc_params"] == "default"
         else vc_tbl.loc[wildcards.vc_id]["vc_params"],
     log:
-        "logs/asm_varcalls-{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     resources:
         mem_mb=config["_dipcall_threads"] * 2 * 4000,  ## GB per thread
     threads: config["_dipcall_threads"] * 2  ## For diploid
