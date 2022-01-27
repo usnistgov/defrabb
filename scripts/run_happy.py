@@ -24,9 +24,18 @@ ref_id = snakemake.wildcards.ref_id
 strat_id = snakemake.config["stratifications"][ref_id]["id"]
 strat_dir = f"resources/stratifications/{strat_id}"
 strat_tsv = f"{strat_dir}/{snakemake.params.strat_tsv}"
-if not path.isdir(strat_dir):
-    shell("mkdir {strat_dir}", "{log}")
-    shell("tar -xvf {snakemake.input.strat_tb} -C {strat_dir})", "{log}")
+if path.isdir(strat_dir):
+    print("Strafications Directory Exists")
+else:
+    print("Making directory to extract stratifications into")
+    shell("mkdir -p {strat_dir}", "{log}")
+
+if path.isfile(strat_tsv):
+    print("Stratification tsv file present")
+else:
+    print("Extracting Stratifications")
+    shell("tar -xvf {snakemake.input.strat_tb} -C {strat_dir}", "{log}")
+
 
 ## Running Happy
 shell(

@@ -209,7 +209,7 @@ happy_threads: 4
 # Statifications
 stratifications:
     GRCh38:
-      id: "GRCh38-stratifications-v3.0"
+      id: "v3.0-stratifications-GRCh38"
       url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/v3.0-stratifications-GRCh38.tar.gz"
       tarball: "v3.0-stratifications-GRCh38.tar.gz"
       tsv: "v3.0-GRCh38-all-stratifications.tsv"
