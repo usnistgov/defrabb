@@ -188,11 +188,11 @@ rule index_ref:
 
 rule get_strats:
     output:
-        "resources/strat_{ref_id}.tar.gz",
+        "resources/strat_{ref_id}/{strat_id}.tar.gz",
     params:
-        url=lambda wildcards: config["stratifications"][wildcards.ref_id]["url"],
+        url=lambda wildcards: f"{config['stratifications'][wildcards.ref_id]['url']}",
     log:
-        "logs/get_strats/{ref_id}.log",
+        "logs/get_strats/{ref_id}_{strat_id}.log",
     shell:
         "curl -f -L -o {output} {params.url} &> {log}"
 
