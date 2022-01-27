@@ -9,6 +9,9 @@
 # - while not implemented yet, any URL field should theoretically allow
 #   filesystem urls (eg file://blablabla) to allow local preprocessing if
 #   desired
+################################################################################
+analyses: "config/analyses.tsv"
+
 
 ################################################################################
 # References
