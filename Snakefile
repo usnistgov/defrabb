@@ -264,6 +264,8 @@ rule run_dipcall:
         else vc_tbl.loc[wildcards.vc_id]["vc_params"],
     log:
         "logs/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    benchmark:
+        "benchmark/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv",
     resources:
         mem_mb=config["_dipcall_threads"] * 2 * 4000,  ## GB per thread
     threads: config["_dipcall_threads"] * 2  ## For diploid
@@ -380,6 +382,8 @@ rule run_happy:
     threads: config["happy_threads"]
     log:
         "logs/run_happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    benchmark:
+        "benchmark/run_happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv",
     conda:
         "envs/happy.yml"
     script:
