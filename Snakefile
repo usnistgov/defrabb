@@ -26,7 +26,7 @@ ref_config = config["references"]
 # init analyses
 ## TODO add checks for setting indecies - maybe move to function
 analyses = analyses = pd.read_table(
-    "config/analyses.tsv", dtype={"eval_target_regions": str}
+    config["analyses"], dtype={"eval_target_regions": str}
 )
 validate(analyses, "schema/analyses-schema.yml")
 
