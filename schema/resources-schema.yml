@@ -14,6 +14,13 @@ required:
 additionalProperties: false
 properties:
 
+  analyses: 
+    additionalProperties: false
+    patternProperties:
+      ^[\w\.\-]*tsv$:
+        type: string
+        description: path to analyses run table
+
 ################################################################################
 # resources
 
