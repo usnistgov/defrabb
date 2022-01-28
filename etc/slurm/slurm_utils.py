@@ -96,7 +96,7 @@ def format(_pattern, _quote_all=False, **kwargs):  # noqa: A001
 
 #  adapted from Job.format_wildcards in snakemake.jobs
 def format_wildcards(string, job_properties):
-    """ Format a string with variables from the job. """
+    """Format a string with variables from the job."""
 
     class Job(object):
         def __init__(self, job_properties):
@@ -113,9 +113,7 @@ def format_wildcards(string, job_properties):
     else:
         job._format_wildcards = None
     _variables = dict()
-    _variables.update(
-        dict(params=job._format_params, wildcards=job._format_wildcards)
-    )
+    _variables.update(dict(params=job._format_params, wildcards=job._format_wildcards))
     if hasattr(job, "rule"):
         _variables.update(dict(rule=job.rule))
     try:
@@ -313,8 +311,8 @@ def _get_cluster_configuration(partition, constraints=None, memory=0):
         import pandas as pd
     except ImportError:
         print(
-            "Error: currently advanced argument conversion "
-            "depends on 'pandas'.", file=sys.stderr
+            "Error: currently advanced argument conversion " "depends on 'pandas'.",
+            file=sys.stderr,
         )
         sys.exit(1)
 
