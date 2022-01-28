@@ -27,7 +27,7 @@ ref_config = config["references"]
 # init analyses
 ## TODO add checks for setting indecies - maybe move to function
 analyses = analyses = pd.read_table(
-    "config/analyses.tsv", dtype={"eval_target_regions": str}
+    config["analyses"], dtype={"eval_target_regions": str}
 )
 validate(analyses, "schema/analyses-schema.yml")
 
@@ -100,7 +100,10 @@ localrules:
     get_assemblies,
     get_comparison_vcf,
     get_comparison_bed,
+    get_comparison_tbi,
     get_genome,
+    get_strats,
+    index_ref,
     download_bed_gz,
     link_gaps,
     get_satellites,
@@ -187,7 +190,7 @@ rule index_ref:
     output:
         "resources/references/{ref_id}.fa.fai",
     log:
-        "logs/index_ref/{ref_id}.fa.fai",
+        "logs/index_ref/{ref_id}.log",
     wrapper:
         "0.79.0/bio/samtools/faidx"
 
@@ -197,11 +200,11 @@ rule index_ref:
 
 rule get_strats:
     output:
-        "resources/strat_{ref_id}.tar.gz",
+        "resources/strat_{ref_id}/{strat_id}.tar.gz",
     params:
-        url=lambda wildcards: config["stratifications"][wildcards.ref_id]["url"],
+        url=lambda wildcards: f"{config['stratifications'][wildcards.ref_id]['url']}",
     log:
-        "logs/get_strats/{ref_id}.log",
+        "logs/get_strats/{ref_id}_{strat_id}.log",
     shell:
         "curl -f -L -o {output} {params.url} &> {log}"
 
@@ -272,7 +275,9 @@ rule run_dipcall:
         if vc_tbl.loc[wildcards.vc_id]["vc_params"] == "default"
         else vc_tbl.loc[wildcards.vc_id]["vc_params"],
     log:
-        "logs/asm_varcalls-{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    benchmark:
+        "benchmark/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     resources:
         mem_mb=config["_dipcall_threads"] * 2 * 4000,  ## GB per thread
     threads: config["_dipcall_threads"] * 2  ## For diploid
@@ -389,6 +394,8 @@ rule run_happy:
     threads: config["happy_threads"]
     log:
         "logs/run_happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    benchmark:
+        "benchmark/run_happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "envs/happy.yml"
     script:

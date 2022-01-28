@@ -3,14 +3,6 @@ import pandas as pd
 # from more_itertools import unzip, flatten
 from snakemake.utils import min_version, validate
 
-# from snakemake.io import apply_wildcards
-# from functools import partial
-
-
-## Hack for ambiguity between following rules
-ruleorder: get_satellites > download_bed_gz
-
-
 # results paths
 dip_bed_path = (
     "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.bed"
@@ -24,7 +16,7 @@ rule download_bed_gz:
     output:
         "resources/exclusions/{ref_id}/{genomic_region}.bed",
     log:
-        "logs/exclusions_{ref_id}_{genomic_region}.bed",
+        "logs/download_bed_gz/{ref_id}_{genomic_region}.log",
     params:
         url=lambda wildcards: config["exclusion_beds"][wildcards.genomic_region],
     shell:
@@ -42,55 +34,6 @@ rule link_gaps:
         "logs/exclusions/{bench_id}_gaps_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     shell:
         "cp {input} {output} &> {log}"
-
-
-# get genome.txt (used for bedtools slop and flank)
-
-mysql_login_params = "--user=genome --host=genome-mysql.soe.ucsc.edu -P 3306 -D hg38"
-
-
-rule get_genome:
-    output:
-        "resources/exclusions/{ref_id}.genome",
-    log:
-        "logs/exclusions/{ref_id}_genome.log",
-    params:
-        login=mysql_login_params,
-        extra="-N",
-    conda:
-        "../envs/mysql.yml"
-    shell:
-        """
-        mysql {params.login} {params.extra} -A -B -e \
-        \"SELECT chrom,size FROM chromInfo
-        ORDER BY 'chrom';\" \
-        1> {output} 2> {log}
-        """
-
-
-# get satellites
-
-
-rule get_satellites:
-    output:
-        "resources/exclusions/{ref_id}/satellites.bed",
-    log:
-        "logs/exclusions/{ref_id}_satellites.log",
-    params:
-        login=mysql_login_params,
-        extra="-N",
-    conda:
-        "../envs/mysql.yml"
-    priority: 1
-    shell:
-        """
-        mysql {params.login} {params.extra} -A -B -e \
-        \"SELECT genoName,genoStart,genoEnd,repClass FROM rmsk
-        WHERE repClass = 'Satellite'
-        ORDER BY 'genoName';\" | \
-        awk 'OFS="\t" {{print $1, $2, $3}}' \
-        1> {output} 2> {log}
-        """
 
 
 # structural variants
@@ -120,6 +63,8 @@ rule intersect_SVs_and_homopolymers:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/structural_variants.bed",
     log:
         "logs/exclusions/{bench_id}_SVs_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    benchmark:
+        "benchmark/exclusions/{bench_id}_SVs_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -160,6 +105,8 @@ rule intersect_start_and_end:
         end="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/{genomic_regions}_end.bed",
     log:
         "logs/exclusions/{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    benchmark:
+        "benchmark/exclusions/{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -197,6 +144,8 @@ rule subtract_exclusions:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed",
     log:
         "logs/exclusions/{bench_id}_substract_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    benchmark:
+        "benchmark/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.benchmark"
     conda:
         "../envs/bedtools.yml"
     shell:
