@@ -40,12 +40,13 @@ CTCMS snakemake cluster deployment profile generated using ADD GIT REPO
 __Steps__
 
 1. Log into CTCMS using `ssh username@ruth.nist.gov` or `ssh ctcms` if `.ssh/config` is setup to do so (ask Nate O. if you want to do this).
-2. Create `tmux` session `tmux new-session -t [session name]`.
+1. Create `tmux` session `tmux new-session -s [session name]`.
 	This will create a detachable terminal session so that the pipeline does not fail if the ssh connection dropped.
-3. Activate conda environment for running pipeline `conda activate defrabb`. 
+1. Switch to appropriate git branch `git checkout [branchname]`, and make sure up to date `git status` and `git pull`. 
+1. Activate conda environment for running pipeline `conda activate defrabb`. 
 	This environment was create by Nate O. using `mamba env create -f envs/env.yml` from the root directory of this repository.
-4. Use complete `config/analyses.tsv` with required run information, update `config/resources.yml` if necessary.
-5. Run pipeline using `sh etc/run-analysis-ctcms.sh`
+1. Use complete `config/analyses.tsv` with required run information, update `config/resources.yml` if necessary.
+1. Run pipeline using `sh etc/run-analysis-ctcms.sh`
 
 
 ## Notes / Gotchas for the CTCMS cluster

@@ -1,13 +1,10 @@
 import pandas as pd
 from pathlib import Path
-from itertools import product
-from more_itertools import unzip, flatten
 from snakemake.utils import min_version, validate
-from snakemake.io import apply_wildcards
-from functools import partial
 
 
 include: "rules/common.smk"
+include: "rules/exclusions.smk"
 
 
 min_version("6.0")
@@ -22,71 +19,71 @@ configfile: "config/resources.yml"
 validate(config, "schema/resources-schema.yml")
 
 asm_config = config["assemblies"]
-bmk_config = config["benchmarks"]
+comp_config = config["comparisons"]
 ref_config = config["references"]
 
 ################################################################################
 # init analyses
-
-
-def get_analyses(path):
-    # target_regions must be a string even though it might only contain
-    # 'boolean' values
-    analyses = pd.read_table(path, dtype={"target_regions": str, "exclusion_set": str})
-    validate(analyses, "schema/analyses-schema.yml")
-
-    try:
-        return analyses.set_index("bench_id", verify_integrity=True)
-    except ValueError:
-        print("All keys in column 'bench_id' must by unique")
-
-
-analyses = get_analyses("config/analyses.tsv")
-
-################################################################################
-# init paths
-
-resource_dir = Path("resources")
-output_dir = Path("results")
-
-manual_target_regions_path = resource_dir / "manual" / "target_regions"
-
-asm_full_path = resource_dir / "assemblies" / "{asm_prefix}"
-ref_full_prefix = resource_dir / "references" / "{ref_prefix}"
-benchmark_full_prefix = resource_dir / "benchmarks" / "{bmk_prefix}"
-# strats_base_path = resource_dir / "stratifications"
-
-# strats_full_path = strats_base_path / "v3.0"
-# tsv_full_path = (
-#     strats_full_path / "{ref_prefix}" / "v3.0-{ref_prefix}-all-stratifications.tsv"
-# )
-
-vcr_full_prefix = (
-    output_dir
-    / "dipcall"
-    / "{ref_prefix}"
-    / "{asm_prefix}"
-    / "{vcr_cmd}_{vcr_params_id}"
-    / "dipcall"
+## TODO add checks for setting indecies - maybe move to function
+analyses = analyses = pd.read_table(
+    config["analyses"], dtype={"eval_target_regions": str}
 )
-bench_full_path = output_dir / "bench" / "{bench_prefix}"
+validate(analyses, "schema/analyses-schema.yml")
 
-hpy_full_path = bench_full_path / "happy"
+## Generating seperate tables for individual framework components
+## asm variant calls
+vc_params = analyses.filter(regex="vc_").drop_duplicates()
+vc_ids = analyses[["vc_id", "asm_id", "ref"]].drop_duplicates()
+vc_tbl = pd.merge(vc_ids, vc_params, how="inner", on="vc_id").set_index("vc_id")
 
-tvi_full_path = bench_full_path / "truvari"
+## draft benchmark set generation
+bench_params = analyses.filter(regex="bench_").drop_duplicates()
+bench_ids = analyses[["bench_id", "vc_id", "ref", "exclusion_set"]].drop_duplicates()
+bench_tbl = pd.merge(bench_ids, bench_params, how="inner", on="bench_id").set_index(
+    "bench_id"
+)
+
+## Evaluation Runs
+eval_params = analyses.filter(regex="eval_").drop_duplicates()
+eval_ids = analyses[["eval_id", "bench_id", "ref"]].drop_duplicates()
+eval_tbl = pd.merge(eval_ids, eval_params, how="inner", on="eval_id").set_index(
+    "eval_id"
+)
+
+## Setting index for analysis run lookup
+analyses = analyses.set_index("eval_id")
 
 
 ################################################################################
 # init wildcard constraints
+
+## Wildcard variables and ids
+
+## Variables for assembly based variant calling
+VCIDS = set(vc_tbl.index.tolist())
+REFIDS = set(vc_tbl["ref"].tolist())
+ASMIDS = set(vc_tbl["asm_id"].tolist())
+VCCMDS = set(vc_tbl["vc_cmd"].tolist())
+VCPARAMIDS = set(vc_tbl["vc_param_id"].tolist())
+
+## Draft benchmark set generation variables
+BENCHIDS = set(bench_tbl.index.tolist())
+
+
+## Benchmark Evaluations
+EVALIDS = set(eval_tbl.index.tolist())
+EVALCOMPIDS = set(eval_tbl["eval_comp_id"].tolist())
 
 
 # Only constrain the wildcards to match what is in the resources file. Anything
 # else that can be defined on the command line or in the analyses.tsv can is
 # unconstrained (for now).
 wildcard_constraints:
-    asm_prefix=format_constraint(asm_config),
-    bmk_prefix=format_constraint(bmk_config),
-    ref_prefix=format_constraint(ref_config),
+    asm_id="|".join(ASMIDS),
+    comp_id="|".join(EVALCOMPIDS),
+    ref_id="|".join(REFIDS),
+    bench_id="|".join(BENCHIDS),
+    eval_id="|".join(EVALIDS),
 
 
 ################################################################################
@@ -96,61 +93,91 @@ wildcard_constraints:
 # definitions for the assemblies, variant caller, etc to use in upstream rules.
 
 
-def expand_bench_output(path, cmd):
-    bps = analyses[analyses["bench_cmd"] == cmd].index.tolist()
-    return expand(path, bench_prefix=bps)
-
-
 ## Rules to run locally
 localrules:
     get_ref,
     get_assemblies,
-    get_benchmark_vcf,
-    get_benchmark_bed,
+    get_comparison_vcf,
+    get_comparison_bed,
+    get_comparison_tbi,
     get_genome,
+    get_strats,
+    index_ref,
     download_bed_gz,
     link_gaps,
     get_satellites,
-    get_SVs_from_vcf
+    get_SVs_from_vcf,
 
 
+## Using zip in rule all to get config sets by config table rows
 rule all:
     input:
-        expand_bench_output(hpy_full_path / "happy_out.extended.csv", "happy"),
-        expand_bench_output(tvi_full_path / "out" / "summary.txt", "truvari"),
+        expand(
+            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
+            zip,
+            vc_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"].index.tolist(),
+            ref=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["ref"].tolist(),
+            asm_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["asm_id"].tolist(),
+            vc_cmd=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_cmd"].tolist(),
+            vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist(),
+        ),
+        expand(
+            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.extended.csv",
+        zip,
+        eval_id=analyses[analyses["eval_cmd"] == "happy"].index.tolist(),
+        bench_id=analyses[analyses["eval_cmd"] == "happy"]["bench_id"].tolist(),
+        ref_id=analyses[analyses["eval_cmd"] == "happy"]["ref"].tolist(),
+        comp_id=analyses[analyses["eval_cmd"] == "happy"]["eval_comp_id"].tolist(),
+        asm_id=analyses[analyses["eval_cmd"] == "happy"]["asm_id"].tolist(),
+        vc_cmd=analyses[analyses["eval_cmd"] == "happy"]["vc_cmd"].tolist(),
+        vc_param_id=analyses[analyses["eval_cmd"] == "happy"][
+        "vc_param_id"
+            ].tolist(),
+        ),
 
+
+#       expand("results/bench/truvari/{tvi_bench}.extended.csv", tvi_bench = analyses[analyses["bench_cmd"] == "truvari"].index.tolist()), ## Not yet used
 
 ################################################################################
+################################################################################
+##
+## Downloading Resource Data Files
+##
+################################################################################
+################################################################################
+
+
 # Get and prepare assemblies
-
-
 rule get_assemblies:
     output:
-        asm_full_path / "{haplotype}.fa",
+        "resources/assemblies/{asm_id}/{haplotype}.fa",
     params:
-        url=lambda wildcards: asm_config[wildcards.asm_prefix][wildcards.haplotype],
+        url=lambda wildcards: asm_config[wildcards.asm_id][wildcards.haplotype],
+    log:
+        "logs/get_assemblies/{asm_id}_{haplotype}.log",
     shell:
-        "curl -f -L {params.url} | gunzip -c > {output}"
+        "curl -f -L {params.url} | gunzip -c 1> {output} 2> {log}"
 
 
-################################################################################
 # Get and prepare reference
-
-
 rule get_ref:
     output:
-        ref_full_prefix.with_suffix(".fa"),
+        "resources/references/{ref_id}.fa",
     params:
-        url=lambda wildcards: ref_config[wildcards.ref_prefix]["ref_url"],
+        url=lambda wildcards: ref_config[wildcards.ref_id]["ref_url"],
+    log:
+        "logs/get_ref/{ref_id}.log",
     shell:
-        "curl -f --connect-timeout 120 -L {params.url} | gunzip -c > {output}"
+        "curl -f --connect-timeout 120 -L {params.url} | gunzip -c 1> {output} 2> {log}"
 
 
 rule index_ref:
     input:
-        rules.get_ref.output,
+        "resources/references/{ref_id}.fa",
     output:
-        ref_full_prefix.with_suffix(".fai"),
+        "resources/references/{ref_id}.fa.fai",
+    log:
+        "logs/index_ref/{ref_id}.log",
     wrapper:
         "0.79.0/bio/samtools/faidx"
 
@@ -159,76 +186,86 @@ rule index_ref:
 # Get stratifications
 
 
-# rule get_strats:
-#     output:
-#         tsv_full_path,
-#     params:
-#         root=config["_strats_root"],
-#         target=strats_full_path,
-#     shell:
-#         """
-#         curl -L \
-#             {params.root}/v3.0/v3.0-stratifications-{wildcards.ref_prefix}.tar.gz | \
-#             gunzip -c | \
-#             tar x -C {params.target}
-#         """
-
-
-################################################################################
-# Get benchmark vcf.gz and .bed
-
-
-def lookup_bench(key, wildcards):
-    return bmk_config[wildcards.bmk_prefix][key]
-
-
-rule get_benchmark_vcf:
+rule get_strats:
     output:
-        benchmark_full_prefix.with_suffix(".vcf.gz"),
+        "resources/strat_{ref_id}/{strat_id}.tar.gz",
     params:
-        url=partial(lookup_bench, "vcf_url"),
+        url=lambda wildcards: f"{config['stratifications'][wildcards.ref_id]['url']}",
+    log:
+        "logs/get_strats/{ref_id}_{strat_id}.log",
     shell:
-        "curl -f -L -o {output} {params.url}"
-
-
-use rule get_benchmark_vcf as get_benchmark_bed with:
-    output:
-        benchmark_full_prefix.with_suffix(".bed"),
-    params:
-        url=partial(lookup_bench, "bed_url"),
-
-
-use rule get_benchmark_vcf as get_benchmark_tbi with:
-    output:
-        benchmark_full_prefix.with_suffix(".vcf.gz.tbi"),
-    params:
-        url=partial(lookup_bench, "tbi_url"),
+        "curl -f -L -o {output} {params.url} &> {log}"
 
 
 ################################################################################
-# Run Dipcall
+# Get vcf and bed files used in draft benchmark set evaluations
+
+
+rule get_comparison_vcf:
+    output:
+        "resources/comparison_variant_callsets/{comp_id}.vcf.gz",
+    params:
+        url=lambda wildcards: comp_config[wildcards.comp_id]["vcf_url"],
+    log:
+        "logs/get_comparisons/{comp_id}_vcf.log",
+    shell:
+        "curl -f -L -o {output} {params.url} &> {log}"
+
+
+use rule get_comparison_vcf as get_comparison_bed with:
+    output:
+        "resources/comparison_variant_callsets/{comp_id}.bed",
+    params:
+        url=lambda wildcards: comp_config[wildcards.comp_id]["bed_url"],
+    log:
+        "logs/get_comparisons/{comp_id}_bed.log",
+
+
+use rule get_comparison_vcf as get_comparison_tbi with:
+    output:
+        "resources/comparison_variant_callsets/{comp_id}.vcf.gz.tbi",
+    params:
+        url=lambda wildcards: comp_config[wildcards.comp_id]["tbi_url"],
+    log:
+        "logs/get_comparisons/{comp_id}_vcfidx.log",
+
+
+################################################################################
+################################################################################
+##
+## Component: Assembly Based Variant Calling
+##
+################################################################################
+################################################################################
+
+## Run Dipcall
+
 
 rule run_dipcall:
     input:
-        h1=asm_full_path / "paternal.fa",
-        h2=asm_full_path / "maternal.fa",
-        ref="resources/references/{ref_prefix}.fa",
-        ref_idx="resources/references/{ref_prefix}.fa.fai",
+        h1="resources/assemblies/{asm_id}/paternal.fa",
+        h2="resources/assemblies/{asm_id}/maternal.fa",
+        ref="resources/references/{ref_id}.fa",
+        ref_idx="resources/references/{ref_id}.fa.fai",
     output:
-        make=vcr_full_prefix.with_suffix(".mak"),
-        vcf=dip_vcf_path,
-        bed=dip_bed_path,
-        bam1=vcr_full_prefix.with_suffix(".hap1.bam"),
-        bam2=vcr_full_prefix.with_suffix(".hap2.bam"),
+        make="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.mak",
+        vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
+        bed="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.bed",
+        bam1="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1.bam",
+        bam2="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.hap2.bam",
     conda:
-        "rules/envs/dipcall.yml"
+        "envs/dipcall.yml"
     params:
-        prefix=str(vcr_full_prefix),
+        prefix="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
         male_bed=get_male_bed,
         ts=config["_dipcall_threads"],
-        extra= lambda wildcards: analyses.loc[wildcards.vcr_param_id]["vcr_params"],
+        extra=lambda wildcards: ""
+        if vc_tbl.loc[wildcards.vc_id]["vc_params"] == "default"
+        else vc_tbl.loc[wildcards.vc_id]["vc_params"],
     log:
-        vcr_full_prefix.with_suffix(".log"),
+        "logs/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    benchmark:
+        "benchmark/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     resources:
         mem_mb=config["_dipcall_threads"] * 2 * 4000,  ## GB per thread
     threads: config["_dipcall_threads"] * 2  ## For diploid
@@ -242,24 +279,26 @@ rule run_dipcall:
             {input.ref} \
             {input.h1} \
             {input.h2} \
-            > {output.make}
+            1> {output.make} 2> {log}
 
         echo "Running dipcall pipeline"
-        make -j{params.ts} -f {output.make}
+        make -j{params.ts} -f {output.make} &>> {log}
         """
 
 
-include: "rules/exclusions.smk"
-
-
 ################################################################################
-# Postprocess variant caller output
+################################################################################
+##
+## Component: Generating Draft Benchmarkset from Assembly-Based Variant Calls
+##
+################################################################################
+################################################################################
 
 # rule dip_gap2homvarbutfiltered:
-#     input: rules.run_dipcall.output.vcf
-#     output: "{}.dip.gap2homvarbutfiltered.vcf.gz".format(vcr_full_prefix)
+#     input: "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz"
+#     output: "draft_benchmark_sets/{bench_id}/intermediate/{vc_id}.dip.gap2homvarbutfiltered.vcf.gz"
 #     # bgzip is part of samtools, which is part of the diptcall env
-#     conda: "rules/envs/dipcall.yml"
+#     conda: "envs/dipcall.yml"
 #     shell: """
 #         gunzip -c {input} |\
 #         sed 's/1|\./1|1/' |\
@@ -268,206 +307,120 @@ include: "rules/exclusions.smk"
 #     """
 
 
-rule split_multiallelic_sites:
+## Using vc_name as a shortened wildcard to avoid writing out full variant call fileaname with multiple wildcards
+## TODO workout identification and naming for final draft benchmark variant callset
+# rule split_multiallelic_sites:
+#     input: lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, "vc_id")]}/{{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}}.dip.vcf.gz",
+#     output:
+#         vcf="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.split_multi.vcf.gz",
+#         vcf_tbi="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.split_multi.vcf.gz.tbi",
+#     conda: "envs/bcftools.yml"
+#     log: "logs/split_multiallelic_sites/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+#     shell:
+#         """
+#         bcftools norm -m - {input} -Oz -o {output.vcf} 2> {log}
+#         tabix -p vcf {output.vcf} 2>> {log}
+#         """
+
+
+rule postprocess_vcf:
     input:
-        rules.run_dipcall.output.vcf,
+        lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.vcf.gz",
     output:
-        vcf=vcr_full_prefix.with_suffix(".dip.split_multi.vcf.gz"),
-        vcf_tbi=vcr_full_prefix.with_suffix(".dip.split_multi.vcf.gz.tbi"),
-    conda:
-        "rules/envs/bcftools.yml"
+        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
     log:
-        "logs/split_multiallelic_sites/{ref_prefix}_{asm_prefix}_{vcr_cmd}_{vcr_param_id}.log",
+        "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     shell:
-        """
-        bcftools norm -m - {input} -Oz -o {output.vcf} 2> {log}
-        tabix -p vcf {output.vcf} 2>> {log}
-        """
+        "cp {input} {output} &> {log}"
+
+
+rule postprocess_bed:
+    input:
+        lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.bed",
+    output:
+        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.bed",
+    log:
+        "logs/process_benchmark_bed/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    shell:
+        "cp {input} {output} &> {log}"
 
 
 ################################################################################
+################################################################################
+##
+## Component: Evaluating Draft Benchmarksets
+##
+################################################################################
+################################################################################
+
 ## Run happy
-
-
-def apply_analyses_wildcards(s, keyvals, wildcards):
-    p = wildcards.bench_prefix
-    ws = {k: analyses.loc[(p, v)] for k, v in keyvals.items()}
-    return expand(s, **ws)
-
-
-def apply_vcr_or_bmk_output(vcr_out, bmk_out, use_vcr, wildcards):
-    vcr_is_query = analyses.loc[(wildcards.bench_prefix, "vcr_is_query")]
-    return (
-        apply_analyses_wildcards(
-            vcr_out,
-            {
-                "ref_prefix": "ref",
-                "asm_prefix": "asm_id",
-                "vcr_cmd": "varcaller",
-                "vcr_params": "vc_params",
-            },
-            wildcards,
-        )
-        if vcr_is_query == use_vcr
-        else apply_analyses_wildcards(
-            bmk_out,
-            {"bmk_prefix": "compare_var_id"},
-            wildcards,
-        )
-    )
-
-
-def get_query_input(vcr_out, bmk_out, wildcards):
-    return apply_vcr_or_bmk_output(vcr_out, bmk_out, True, wildcards)
-
-
-def get_truth_input(vcr_out, bmk_out, wildcards):
-    return apply_vcr_or_bmk_output(vcr_out, bmk_out, False, wildcards)
-
-
-def get_query_vcf(vcr_out, wildcards):
-    return get_query_input(vcr_out, rules.get_benchmark_vcf.output, wildcards)
-
-
-def get_truth_vcf(vcr_out, wildcards):
-    return get_truth_input(vcr_out, rules.get_benchmark_vcf.output, wildcards)
-
-
-def get_dipcall_bed(wildcards):
-    return (
-        rules.run_dipcall.output.bed
-        if analyses.loc[(wildcards.bench_prefix, "exclusion_set")] == "none"
-        # TODO this is a hack that rests on the (probably decent) assumption
-        # that expand will always return a singleton list
-        else expand(
-            rules.subtract_exclusions.output,
-            bench_prefix=wildcards.bench_prefix,
-            allow_missing=True,
-        )[0]
-    )
-
-
-def get_truth_bed(wildcards):
-    return get_truth_input(
-        get_dipcall_bed(wildcards),
-        rules.get_benchmark_bed.output,
-        wildcards,
-    )
-
-
-def get_genome_input(wildcards):
-    return apply_analyses_wildcards(
-        rules.get_ref.output,
-        {"ref_prefix": "ref"},
-        wildcards,
-    )
-
-
-def get_targeted(wildcards):
-    # ASSUME: target_regions is either "true," "false," or a filename (all
-    # strings); the schema itself defines either a string or boolean type for
-    # this field, but the dataframe when parsed will contain all strings for
-    # this column
-    h = wildcards.bench_prefix
-    trs = analyses.loc[(h, "target_regions")]
-    if trs == "false":
-        return None
-    else:
-        if trs == "true":
-            # ASSUME each input will be a singleton and therefore the output
-            # will be a singleton
-            return get_query_input(
-                get_dipcall_bed(wildcards),
-                rules.get_benchmark_bed.output,
-                wildcards,
-            )[0]
-        else:
-            return manual_target_regions_path / trs
-
-
-def format_targeted_arg(wildcards, input):
-    try:
-        return "--target-regions {}".format(input["target_regions"])
-    except AttributeError:
-        return ""
-
-
-def get_happy_inputs(wildcards):
-    inputs = {
-        "query": get_query_vcf(rules.run_dipcall.output.vcf, wildcards),
-        "truth": get_truth_vcf(rules.run_dipcall.output.vcf, wildcards),
-        "truth_regions": get_truth_bed(wildcards),
-        # "strats": apply_analyses_wildcards(
-        #     rules.get_strats.output,
-        #     {"ref_prefix": "ref"},
-        #     wildcards,
-        # ),
-        "genome": get_genome_input(wildcards),
-    }
-    trs = get_targeted(wildcards)
-    if trs is not None:
-        inputs["target_regions"] = trs
-    return inputs
 
 
 rule run_happy:
     input:
         unpack(get_happy_inputs),
     output:
-        hpy_full_path / "happy_out.extended.csv",
+        multiext(
+            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
+            ".runinfo.json",
+            ".vcf.gz",
+            ".summary.csv",
+            ".extended.csv",
+            ".metrics.json.gz",
+            ".roc.all.csv.gz",
+            ".roc.Locations.INDEL.csv.gz",
+            ".roc.Locations.INDEL.PASS.csv.gz",
+            ".roc.Locations.SNP.csv.gz",
+        ),
     params:
-        prefix=str(hpy_full_path / "happy_out"),
-        threads=4,
+        prefix="results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
+        strat_tsv=lambda wildcards: f"{wildcards.ref_id}/{config['stratifications'][wildcards.ref_id]['tsv']}",
+        threads=config["happy_threads"],
         engine="vcfeval",
-        extra=format_targeted_arg,
+    resources:
+        mem_mb=config["happy_mem"],
+    threads: config["happy_threads"]
     log:
-        hpy_full_path / "happy.log",
-    wrapper:
-        "0.84.0/bio/hap.py/hap.py"
+        "logs/run_happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    benchmark:
+        "benchmark/run_happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
+    conda:
+        "envs/happy.yml"
+    script:
+        "scripts/run_happy.py"
 
 
 ################################################################################
 ## Run Truvari
-
-
-def get_truvari_truth_tbi(wildcards):
-    return get_truth_input(
-        rules.split_multiallelic_sites.output.tbi,
-        rules.get_benchmark_tbi.output,
-        wildcards,
-    )
-
-
-rule run_truvari:
-    input:
-        query=partial(get_query_vcf, rules.split_multiallelic_sites.output.vcf),
-        truth=partial(get_truth_vcf, rules.split_multiallelic_sites.output.vcf),
-        truth_regions=get_truth_bed,
-        # NOTE this isn't actually fed to the command but still must be present
-        truth_tbi=get_truvari_truth_tbi,
-        genome=get_genome_input,
-    output:
-        tvi_full_path / "out" / "summary.txt",
-    log:
-        tvi_full_path / "truvari.log",
-    params:
-        extra=lambda wildcards: analyses.loc[(wildcards.bench_prefix, "bench_params")],
-        prefix=str(tvi_full_path / "out"),
-        tmpdir="tmp/truvari",
-    conda:
-        "rules/envs/truvari.yml"
-    # TODO this tmp thing is a workaround for the fact that snakemake
-    # over-zealously makes output directories when tools like truvari expect
-    # them to not exist. Also, /tmp is only a thing on Linux (if that matters)
-    shell:
-        """
-        truvari bench \
-            -b {input.truth} \
-            -c {input.query} \
-            -o {params.tmpdir} \
-            -f {input.genome} \
-            --includebed {input.truth_regions} \
-            {params.extra}
-        mv {params.tmpdir}/* {params.prefix}
-        rm -r {params.tmpdir}
-        """
+# rule run_truvari:
+#     input:
+#         query="results/dipcall/{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}_dipcall.dip.split_multi.vcf.gz",
+#         truth=lambda wildcards: f"resources/benchmarks/{analyses.loc[wildcards.bmk_prefix, 'compare_var_id']}.vcf.gz",
+#         truth_regions=lambda wildcards: f"resources/benchmarks/{analyses.loc[wildcards.bmk_prefix, 'compare_var_id']}.bed",
+#         truth_tbi=lambda wildcards: f"resources/benchmarks/{analyses.loc[wildcards.bmk_prefix, 'compare_var_id']}.vcf.gz.tbi",
+#         genome="resources/references/{ref_prefix}.fa",
+#         genome_index="resources/references/{ref_prefix}.fa.fai",
+#     output:
+#         "results/bench/truvari/{bmk_prefix}/summary.txt",
+#     log: "logs/run_truvari_{comp_prefix}/truvari.log",
+#     params:
+#         extra=lambda wildcards: analyses.loc[(wildcards.bmk_prefix, "bench_params")],
+#         prefix="results/bench/truvari/{comp_prefix}/",
+#         tmpdir="tmp/truvari",
+#     conda:
+#         "envs/truvari.yml"
+#     # TODO this tmp thing is a workaround for the fact that snakemake
+#     # over-zealously makes output directories when tools like truvari expect
+#     # them to not exist. Also, /tmp is only a thing on Linux (if that matters)
+#     shell:
+#         """
+#         truvari bench \
+#             -b {input.truth} \
+#             -c {input.query} \
+#             -o {params.tmpdir} \
+#             -f {input.genome} \
+#             --includebed {input.truth_regions} \
+#             {params.extra}
+#         mv {params.tmpdir}/* {params.prefix}
+#         rm -r {params.tmpdir}
+#         """

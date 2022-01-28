@@ -1,3 +1,7 @@
-bench_id	bench_cmd	bench_params	asm_id	ref	varcaller	vc_param_id	vc_params	vcf_postprocessing	bed_postprocessing	compare_var_id	vcr_is_query	target_regions
-happy1	happy		HG2-hifiasm_v0.11	GRCh38	dipcall		z2k	-z200000,10000	gap2homvarbutfiltered	NA	hifi-v4.2.1	false	true
-happy2	happy		HG2-hifiasm_v0.11	GRCh38	dipcall		z2k	-z200000,10000	gap2homvarbutfiltered	NA	hifi-v4.2.1	false	v4.2.1-complement.bed
+eval_id	bench_id	eval_cmd	eval_params	eval_comp_id	eval_comp_truth	eval_truth_regions	eval_target_regions	vc_id	bench_type	bench_vcf_processing	bench_bed_processing	exclusion_set	asm_id	ref	vc_cmd	vc_param_id	vc_params
+eval1	testA	happy	default	v4.2.1chr21	True	True	true	vc1	smvar	none	none	none	asm17aChr21	GRCh38	dipcall	default	default
+eval2	testA	happy	default	v4.2.1chr21	True	True	false	vc1	smvar	none	none	none	asm17aChr21	GRCh38	dipcall	default	default
+eval3	testA	happy	default	v4.2.1chr21	False	True	true	vc1	smvar	none	none	none	asm17aChr21	GRCh38	dipcall	default	default
+eval4	testB	happy	default	v4.2.1chr21	True	True	chr21.bed	vc2	smvar	gap2homvarbutfiltered	none	none	asm17aChr21	GRCh38	dipcall	default	default
+eval5	testC	happy	default	v4.2.1chr21	True	True	chr21.bed	vc3	smvar	gap2homvarbutfiltered	exclude	smvarall	asm17aChr21	GRCh38	dipcall	z2k	-z200000,10000
+eval6	testD	truvari	default	v0.6chr21	True	True	false	vc3	stvar	gap2homvarbutfiltered	exclude	stvarall	asm17aChr21	GRCh38	dipcall	z2k	-z200000,10000

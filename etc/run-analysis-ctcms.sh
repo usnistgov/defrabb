@@ -3,7 +3,7 @@
 ## Start pipeline
 snakemake \
 	--use-conda -j 5 \
-	--profile slurm  \
+	--profile etc/slurm  \
 	--verbose \
 	--printshellcmds
 
