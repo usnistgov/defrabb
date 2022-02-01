@@ -3,14 +3,6 @@ import pandas as pd
 # from more_itertools import unzip, flatten
 from snakemake.utils import min_version, validate
 
-# from snakemake.io import apply_wildcards
-# from functools import partial
-
-
-## Hack for ambiguity between following rules
-ruleorder: get_satellites > download_bed_gz
-
-
 # results paths
 dip_bed_path = (
     "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.bed"
@@ -30,6 +22,7 @@ rule download_bed_gz:
     shell:
         "curl -L {params.url} | gunzip -c 1> {output} 2> {log}"
 
+
 # TODO hack since this is the only bed file that isn't processed according to
 # the output from dipcall
 rule link_gaps:
@@ -41,55 +34,6 @@ rule link_gaps:
         "logs/exclusions/{bench_id}_gaps_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     shell:
         "cp {input} {output} &> {log}"
-
-
-# get genome.txt (used for bedtools slop and flank)
-
-mysql_login_params = "--user=genome --host=genome-mysql.soe.ucsc.edu -P 3306 -D hg38"
-
-
-rule get_genome:
-    output:
-        "resources/exclusions/{ref_id}.genome",
-    log:
-        "logs/exclusions/{ref_id}_genome.log",
-    params:
-        login=mysql_login_params,
-        extra="-N",
-    conda:
-        "../envs/mysql.yml"
-    shell:
-        """
-        mysql {params.login} {params.extra} -A -B -e \
-        \"SELECT chrom,size FROM chromInfo
-        ORDER BY 'chrom';\" \
-        1> {output} 2> {log}
-        """
-
-
-# get satellites
-
-
-rule get_satellites:
-    output:
-        "resources/exclusions/{ref_id}/satellites.bed",
-    log:
-        "logs/exclusions/{ref_id}_satellites.log",
-    params:
-        login=mysql_login_params,
-        extra="-N",
-    conda:
-        "../envs/mysql.yml"
-    priority: 1
-    shell:
-        """
-        mysql {params.login} {params.extra} -A -B -e \
-        \"SELECT genoName,genoStart,genoEnd,repClass FROM rmsk
-        WHERE repClass = 'Satellite'
-        ORDER BY 'genoName';\" | \
-        awk 'OFS="\t" {{print $1, $2, $3}}' \
-        1> {output} 2> {log}
-        """
 
 
 # structural variants
@@ -119,6 +63,8 @@ rule intersect_SVs_and_homopolymers:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/structural_variants.bed",
     log:
         "logs/exclusions/{bench_id}_SVs_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    benchmark:
+        "benchmark/exclusions/{bench_id}_SVs_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -158,7 +104,13 @@ rule intersect_start_and_end:
         start="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/{genomic_regions}_start.bed",
         end="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/{genomic_regions}_end.bed",
     log:
+<<<<<<< Updated upstream
         "logs/exclusions/{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    benchmark:
+        "benchmark/exclusions/{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
+=======
+        "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{genomic_regions}.log",
+>>>>>>> Stashed changes
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -195,7 +147,9 @@ rule subtract_exclusions:
     output:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed",
     log:
-        "logs/exclusions/{bench_id}_substract_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    benchmark:
+        "benchmark/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.benchmark"
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -205,3 +159,13 @@ rule subtract_exclusions:
         {output} \
         {input.other_beds} > {log}
         """
+
+rule summarize_exclusions:
+    input:
+        rules.subtract_exclusions.log
+    output:
+        "reports/exclusions/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.pdf",
+    conda:
+        "../envs/rmd.yml"
+    script:
+        "../scripts/reports/exclusions.Rmd"
