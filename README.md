@@ -35,23 +35,21 @@ Test pipeline for runtime errors using `snakemake --use-conda -j1`
 
 # Running Framework on CTCMS Cluster
 Documentation for running pipeline on CTCMS using tmux and the ctcms profile.
-CTCMS snakemake cluster deployment profile generated using ADD GIT REPO
+CTCMS snakemake cluster deployment profile generated using [Snakemake Slurm profile template](https://github.com/Snakemake-Profiles/slurm).
 
 __Steps__
 
 1. Log into CTCMS using `ssh username@ruth.nist.gov` or `ssh ctcms` if `.ssh/config` is setup to do so (ask Nate O. if you want to do this).
-1. Create `tmux` session `tmux new-session -s [session name]`.
-	This will create a detachable terminal session so that the pipeline does not fail if the ssh connection dropped.
+1. Create `tmux` session `tmux new-session -s [session name]`. This will create a detachable terminal session so that the pipeline does not fail if the ssh connection dropped.
 1. Switch to appropriate git branch `git checkout [branchname]`, and make sure up to date `git status` and `git pull`. 
-1. Activate conda environment for running pipeline `conda activate defrabb`. 
-	This environment was create by Nate O. using `mamba env create -f envs/env.yml` from the root directory of this repository.
+1. Activate conda environment for running pipeline `conda activate defrabb`. This environment was create by Nate O. using `mamba env create -f envs/env.yml` from the root directory of this repository.
 1. Use complete `config/analyses.tsv` with required run information, update `config/resources.yml` if necessary.
 1. Run pipeline using `sh etc/run-analysis-ctcms.sh`
 
 
 ## Notes / Gotchas for the CTCMS cluster
 
-* snakemake is executed on headnode as job nodes are not connected to the internet.
+* snakemake is executed on headnode as job nodes are not connected to the internet, which is required for conda environments, snakemake wrappers, and downloading resource files.
 * Need to first create conda environments using `snakemake --use-conda --conda-create-envs-only`
 * Can not define job memory requirement, for jobs with high memory requirements try increasing the number of threads.
 
@@ -59,20 +57,22 @@ __Steps__
 1. Use snakedeploy to create run directory (future work)
 1. Update relevant config files
 1. Run snakemake (see documentation above)
-1. Create snakemake report (snakemake --archive 20220119_v0.002.tar.gz)
+1. Create snakemake report
 	activate conda environment - `conda activate defrabb`
-	generate report - `snakemake --report v0.002-report.html`
+	generate report - `snakemake --report [milestone]-report.html`
 	Will want to run on CTCMs headnode as it requires a network connection
 1. Create snakemake archive for rerunning analyses
-	In conda environment `snakemake --archive 20220119_v0.002.tar.gz`
-1. Create directory and copy results files for archiving analysis run
-	- Creating directory `mkdir ../defrabb-runs/20220119_v0.002`
-	- Moving report and archive tarball to run archive directory `mv 20220119* ../defrabb-runs/20220119_v0.002/`
-	- Copying results to `cp -r results ../defrabb-runs/20220119_v0.002/`
+	In conda environment `snakemake --archive [YYYYMMDD_milestone].tar.gz`
+1. Create directory and copy results, logs, and benchmark files for archiving analysis run
+	- Creating directory `mkdir ../defrabb-runs/[YYYYMMDD_milestone]`
+	- Moving report and archive tarball to run archive directory `mv [YYYYMMDD_milestone]* ../defrabb-runs/[YYYYMMDD_milestone]/`
+	- Copying results to `cp -r results ../defrabb-runs/[YYYYMMDD_milestone]`
+	- Copying results to `cp -r logs ../defrabb-runs/[YYYYMMDD_milestone]`
+	- Copying results to `cp -r benchmark ../defrabb-runs/[YYYYMMDD_milestone]`
 
-1. Fill out README with relevant run information - framework repo info - v0.002 tag (with some potential - hopefully minor-differences), who ran the framework and where/ how, justification / reasoning for analyses, JZ notes (what did we learn)
+1. Fill out README with relevant run information - framework repo info - [milestone] tag (with some potential - hopefully minor-differences), who ran the framework and where/ how, justification / reasoning for analyses, JZ notes (what did we learn)
 
-1. Copy run archive to local directory `   rsync -rv --progress ctcms:/working/geneteam/defrabb-runs ~/Desktop` for upload to google drive and storage on NAS or resdata (this is a temporary hack until we work out an automated process, will want to check with Andrew Reid on best way to mount, can then use NAS utility to copy files to google drive). 
+1. If run on CTCMS, copy run archive to local directory `rsync -rv --progress ctcms:/working/geneteam/defrabb-runs ~/Desktop` for upload to google drive and storage on NAS in `giab/analyses/defrabb-runs`. Directory set to automatically sync with `BBD_Human_Genomics/defrabb_runs` team google drive directory.  
 
 Automating - copy output and config files to directory for archiving, script to automate archiving with call for report, updating analysis run log google sheet
 
