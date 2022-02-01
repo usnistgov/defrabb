@@ -229,13 +229,19 @@ use rule get_comparison_vcf as get_comparison_tbi with:
     log:
         "logs/get_comparisons/{comp_id}_vcfidx.log",
 
+
 rule tabix:
-    input: "{filename}.vcf.gz"
-    output: "{filename}.vcf.gz.tbi"
-    params: extra="-t"
-    log: "logs/tabix/{filename}.log"
+    input:
+        "{filename}.vcf.gz",
+    output:
+        "{filename}.vcf.gz.tbi",
+    params:
+        extra="-t",
+    log:
+        "logs/tabix/{filename}.log",
     wrapper:
         "v1.0.0/bio/bcftools/index"
+
 
 ################################################################################
 ################################################################################
