@@ -16,7 +16,13 @@ properties:
 
 ################################################################################
 # resources
-
+  analyses: 
+    additionalProperties:
+    patternProperties:
+      ^[\w\.\-]*tsv$:
+        type: string
+        description: |
+          File path to analyses tsv table
   references:
     additionalProperties: false
     patternProperties:
