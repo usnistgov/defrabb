@@ -104,13 +104,9 @@ rule intersect_start_and_end:
         start="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/{genomic_regions}_start.bed",
         end="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/{genomic_regions}_end.bed",
     log:
-<<<<<<< Updated upstream
         "logs/exclusions/{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
         "benchmark/exclusions/{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
-=======
-        "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{genomic_regions}.log",
->>>>>>> Stashed changes
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -160,9 +156,10 @@ rule subtract_exclusions:
         {input.other_beds} > {log}
         """
 
+
 rule summarize_exclusions:
     input:
-        rules.subtract_exclusions.log
+        rules.subtract_exclusions.log,
     output:
         "reports/exclusions/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.pdf",
     conda:
