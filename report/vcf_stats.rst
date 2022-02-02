@@ -1,0 +1,1 @@
+Variant c summary statistics calculatd using `bcftools stats` for {wildcards.prefix} {wildcards.haplotype}.

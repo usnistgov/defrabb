@@ -134,18 +134,17 @@ rule all:
         "vc_param_id"
             ].tolist(),
         ),
-        ## rules for report
+        # rules for report
         expand(
             "results/report/assemblies/{asm_id}_{haplotype}_stats.txt",
             asm_id = ASMIDS, haplotype = ["maternal", "paternal"]),
-        expand("results/report/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}_stats.txt",
+        expand("results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}_stats.txt",
             zip,
             vc_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"].index.tolist(),
             ref=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["ref"].tolist(),
             asm_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["asm_id"].tolist(),
             vc_cmd=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_cmd"].tolist(),
             vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist()),           
-
 #       expand("results/bench/truvari/{tvi_bench}.extended.csv", tvi_bench = analyses[analyses["bench_cmd"] == "truvari"].index.tolist()), ## Not yet used
 
 ################################################################################

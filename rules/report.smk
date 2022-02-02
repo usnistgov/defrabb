@@ -5,7 +5,7 @@ rule run_assembly_stats:
         assembly="resources/assemblies/{asm_id}/{haplotype}.fa",
     output:
         #Assembly statistics
-        assembly_stats="results/report/assemblies/{asm_id}_{haplotype}_stats.txt",
+        assembly_stats=report("results/report/assemblies/{asm_id}_{haplotype}_stats.txt", caption = "../report/asm_stats.rst", category = "Results")
     params:
         # Tab delimited output, with a header, is set as the default. Other options are available:
         #   -l <int>
@@ -30,7 +30,8 @@ rule run_assembly_stats:
 ## Potentially modify to calculate for all output beds
 rule get_bed_size:
 	input: "{genomic_region}.bed"
-	output: report("results/bed_size/{genomic_region}.txt", caption = "report/bed_size.rst", category = "Exclusion Stats")
+	output: "results/bed_size/{genomic_region}.txt"
+	# output: report("results/bed_size/{genomic_region}.txt", caption = "report/bed_size.rst", category = "Exclusion Stats")
 	log: "logs/get_bed_size/{genomic_region}.log"
 	shell: """
 		cat {input} \
@@ -43,21 +44,21 @@ rule get_bed_stats:
     input:
         bed="{bed_dir}/{ref_id}_{genomic_region}.bed",
         genome="resouces/exclusions/{ref_id}.genome"
-    output: report("results/bed_stats/{ref_id}/{genomic_region}.tsv", caption = "report/bed_stats.rst", category = "Exclusion Stats")
-    log: "logs/get_bed/stats/{genomic_region}.log"
+    output: "results/bed_stats/{bed_dir}_{ref_id}/{genomic_region}.tsv"
+    # output: report("results/bed_stats/{bed_dir}_{ref_id}/{genomic_region}.tsv", caption = "report/bed_stats.rst", category = "Exclusion Stats")
+    log: "logs/get_bed/stats/{bed_dir}_{ref_id}_{genomic_region}.log"
     conda: "../envs/bedtools.yml"
-    shell: """
-        bedtools summary -i {genomic_regions} -g {genome}
-    """
+    shell: "bedtools summary -i {bed} -g {genome}"
 
 rule get_exclusion_coverage:
-    input: TODO - all exclusion stratifications
-    output: report("results/exclusion_stats/genomic_region_stat.tsv", caption = "report/exclusion_stats.rst", category = "Exclusion Stats")
-    log: "logs/get_exclusion_coverage/{exclusion_set}.log"
+    input: "results/draft_benchmarksets/{draft_bench}_exclusions/{prefix}.bed"
+    # output: report("results/draft_benchmarksets/{draft_bench}_exclusions/{prefix}_stats.tsv", caption = "report/exclusion_stats.rst", category = "Exclusion Stats")
+    output: "results/draft_benchmarksets/{draft_bench}_exclusions/{prefix}_stats.tsv"
+    log: "logs/get_exclusion_coverage/{draft_bench}_{prefix}.log"
     conda: "../envs/bedtools.yml"
     shell: """
         multiIntersectBed -header -i
-    """"
+    """
 
 ## Genome Coverage
 ## TODO Modify for benchmark set development framework
@@ -80,39 +81,11 @@ rule get_exclusion_coverage:
 
 ## Variant Callset Stats
 rule get_vcf_stats:
-	input: "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}_stats.txt"
-	output: 
-		stats="results/report/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}_stats.txt"
-	log: "logs/get_vcf_stats/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}_stats.txt"
-	conda: "envs/bcftools.yml"
+	input: "{prefix}.dip.vcf.gz"
+	# output: report("{prefix}_stats.txt", caption = "report/vcf_stats.rst", category = "bcfstats Stats")
+	output: "{prefix}_stats.txt"
+	log: "logs/get_vcf_stats/{prefix}_stats.txt"
+	conda: "../envs/bcftools.yml"
 	shell: """
-		bcftools stats {input} > {output.txt}
+		bcftools stats {input} > {output}
 	"""
-
-### Small Var Table
-## TODO Modify for benchmark set development framework
-# rule make_smallvar_tbls:
-#     input: 
-#         anno_vcf="workflow/data/anno_vcf/HG002_{ref}_{benchmarkset}_smallvar_anno.vcf"
-#     output: "workflow/results/anno_vcf_tbls/HG002_{ref}_{benchmarkset}_smallvar_anno.tsv"
-#     conda: "envs/bcftools.yml"
-#     shell: """
-#         bcftools query \
-#             -f '%CHROM\\t%POS\\t[ %GT]\\t%TYPE\\t%INFO/GENE\\t%INFO/EXON\\t%REF\\t%ALT\\n' \
-#             {input.anno_vcf} \
-#             > {output}
-#     """
-
-## Structural Var Table
-## TODO Modify for benchmark set development framework
-# rule make_sv_tbls:
-#     input: 
-#         anno_vcf="workflow/data/anno_vcf/HG002_{ref}_{benchmarkset}_SV_anno.vcf"
-#     output: "workflow/results/anno_vcf_tbls/HG002_{ref}_{benchmarkset}_SV_anno.tsv"
-#     conda: "envs/bcftools.yml"
-#     shell: """
-#         bcftools query \
-#             -f '%CHROM\\t%POS\\t[ %GT]\\t%TYPE\\t%REPTYPE\\t%BREAKSIMLENGTH\\t%INFO/GENE\\t%INFO/EXON\\t%REF\\t%ALT\\n' \
-#             {input.anno_vcf} \
-#             > {output}
-#     """

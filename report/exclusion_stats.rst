@@ -1,1 +1,1 @@
-genome overlap for individual exclkusion bed files.
+genome overlap for individual exclusion bed files.
