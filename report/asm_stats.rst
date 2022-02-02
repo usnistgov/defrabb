@@ -1,1 +1,1 @@
-Assembly summary statistics for {wildcards.asm_id} {wildcards.haplotype}.
+Assembly summary statistics for {snakemake.wildcards.asm_id} {snakemake.wildcards.haplotype}.
