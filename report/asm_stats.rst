@@ -1,1 +1,1 @@
-Assembly summary statistics
+Assembly summary statistics for {wildcards.asm_id} {wildcards.haplotype}.

@@ -5,7 +5,7 @@ rule run_assembly_stats:
         assembly="resources/assemblies/{asm_id}/{haplotype}.fa",
     output:
         #Assembly statistics
-        assembly_stats=report("results/report/assemblies/{asm_id}_{haplotype}_stats.txt", caption = "../report/asm_stats.rst", category = "Results")
+        assembly_stats=report("results/report/assemblies/{asm_id}_{haplotype}_stats.txt", caption = "../report/asm_stats.rst", category = "Assembly")
     params:
         # Tab delimited output, with a header, is set as the default. Other options are available:
         #   -l <int>
@@ -31,7 +31,7 @@ rule run_assembly_stats:
 rule get_bed_size:
 	input: "{genomic_region}.bed"
 	output: "results/bed_size/{genomic_region}.txt"
-	# output: report("results/bed_size/{genomic_region}.txt", caption = "report/bed_size.rst", category = "Exclusion Stats")
+    # output: report("results/bed_size/{genomic_region}.txt", caption = "report/bed_size.rst", category = "Exclusion Stats")
 	log: "logs/get_bed_size/{genomic_region}.log"
 	shell: """
 		cat {input} \
@@ -82,8 +82,7 @@ rule get_exclusion_coverage:
 ## Variant Callset Stats
 rule get_vcf_stats:
 	input: "{prefix}.dip.vcf.gz"
-	# output: report("{prefix}_stats.txt", caption = "report/vcf_stats.rst", category = "bcfstats Stats")
-	output: "{prefix}_stats.txt"
+	output: report("{prefix}_stats.txt", caption = "../report/vcf_stats.rst", category = "bcfstats Stats")
 	log: "logs/get_vcf_stats/{prefix}_stats.txt"
 	conda: "../envs/bcftools.yml"
 	shell: """
