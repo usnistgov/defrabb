@@ -1,3 +1,15 @@
+# Milestone v0.003 2022-01-28
+- Version of pipeline used for generation and evaluation of the HG002 T2T assembly based draft benchmark set(HPRC-HG002-cur.20211005) with excluded regions.
+- Modified framework into three components; asm-varcalls, benchmark, and evaluations.
+- Repository clean-up, removing unused files and code, simiplifying results and log paths
+- Modified config files, analyses.tsv and resources.yml to better handle stratifications.
+- Added genome and satellites excluded files to the repo and moved rules to generate files to snippets.
+- Added directive for benchmarking for use in evaluating step resource requirements.
+- Updated test dataset and config files for additional testing
+- Revised documentation for running pipeline and added CONTRIBUTING.md with milestone release process.
+- Snakemake formatting and linting using Snakemake tools
+- Documentation for running pipeline
+
 # Milestone v0.002 2022-01-20
 - This version of the pipeline was used to perform initial analysis of benchmark set performance using 
 - Added functionality to excluded defined genomic regions of draft benchmark regions bed file
