@@ -109,8 +109,10 @@ localrules:
     get_satellites,
     get_SVs_from_vcf,
 
+
 ## Snakemake Report
 report: "report/workflow.rst"
+
 
 ## Using zip in rule all to get config sets by config table rows
 rule all:
@@ -126,26 +128,34 @@ rule all:
         ),
         expand(
             "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
-            zip,
-            eval_id=analyses[analyses["eval_cmd"] == "happy"].index.tolist(),
-            bench_id=analyses[analyses["eval_cmd"] == "happy"]["bench_id"].tolist(),
-            ref_id=analyses[analyses["eval_cmd"] == "happy"]["ref"].tolist(),
-            comp_id=analyses[analyses["eval_cmd"] == "happy"]["eval_comp_id"].tolist(),
-            asm_id=analyses[analyses["eval_cmd"] == "happy"]["asm_id"].tolist(),
-            vc_cmd=analyses[analyses["eval_cmd"] == "happy"]["vc_cmd"].tolist(),
-            vc_param_id=analyses[analyses["eval_cmd"] == "happy"]["vc_param_id"].tolist(),
+        zip,
+        eval_id=analyses[analyses["eval_cmd"] == "happy"].index.tolist(),
+        bench_id=analyses[analyses["eval_cmd"] == "happy"]["bench_id"].tolist(),
+        ref_id=analyses[analyses["eval_cmd"] == "happy"]["ref"].tolist(),
+        comp_id=analyses[analyses["eval_cmd"] == "happy"]["eval_comp_id"].tolist(),
+        asm_id=analyses[analyses["eval_cmd"] == "happy"]["asm_id"].tolist(),
+        vc_cmd=analyses[analyses["eval_cmd"] == "happy"]["vc_cmd"].tolist(),
+        vc_param_id=analyses[analyses["eval_cmd"] == "happy"][
+        "vc_param_id"
+            ].tolist(),
         ),
         ## rules for report
         expand(
             "results/report/assemblies/{asm_id}_{haplotype}_stats.txt",
-            asm_id = ASMIDS, haplotype = ["maternal", "paternal"]),
-        expand("results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}_stats.txt",
+            asm_id=ASMIDS,
+            haplotype=["maternal", "paternal"],
+        ),
+        expand(
+            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}_stats.txt",
             zip,
             vc_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"].index.tolist(),
             ref=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["ref"].tolist(),
             asm_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["asm_id"].tolist(),
             vc_cmd=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_cmd"].tolist(),
-            vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist()),           
+            vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist(),
+        ),
+
+
 #       expand("results/bench/truvari/{tvi_bench}.extended.csv", tvi_bench = analyses[analyses["bench_cmd"] == "truvari"].index.tolist()), ## Not yet used
 
 ################################################################################
@@ -190,6 +200,7 @@ rule index_ref:
         "logs/index_ref/{ref_id}.log",
     wrapper:
         "0.79.0/bio/samtools/faidx"
+
 
 ################################################################################
 # Get stratifications
@@ -238,13 +249,19 @@ use rule get_comparison_vcf as get_comparison_tbi with:
     log:
         "logs/get_comparisons/{comp_id}_vcfidx.log",
 
-rule tabix:
-    input: "{filename}.vcf.gz"
-    output: "{filename}.vcf.gz.tbi"
-    params: extra="-t"
-    log: "logs/tabix/{filename}.log"
-    wrapper:
-        "v1.0.0/bio/bcftools/index"
+## TODO - fix for when tbi url not provided
+# rule tabix:
+#     input:
+#         "{filename}.vcf.gz",
+#     output:
+#         "{filename}.vcf.gz.tbi",
+#     params:
+#         extra="-t",
+#     log:
+#         "logs/tabix/{filename}.log",
+#     wrapper:
+#         "v1.0.0/bio/bcftools/index"
+
 
 ################################################################################
 ################################################################################
@@ -387,7 +404,11 @@ rule run_happy:
             ".roc.Locations.INDEL.PASS.csv.gz",
             ".roc.Locations.SNP.csv.gz",
         ),
-        report("results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv", caption = "report/happy_summary.rst", category = "Happy")
+        report(
+            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
+            caption="report/happy_summary.rst",
+            category="Happy",
+        ),
     params:
         prefix="results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
         strat_tsv=lambda wildcards: f"{wildcards.ref_id}/{config['stratifications'][wildcards.ref_id]['tsv']}",
