@@ -1,1 +1,1 @@
-Happy summary.csv table for {wildcards.vc_id}
+Happy summary.csv table for {snakemake.wildcards.vc_id}.
