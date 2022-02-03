@@ -153,7 +153,13 @@ rule all:
             vc_cmd=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_cmd"].tolist(),
             vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist(),
         ),
-
+        expand("reports/exclusions/{bench_id}/{ref_id}_{asm_id}_{vc_id}-{exclusion_set}.pdf"
+        zip,
+        bench_id=bench_tbl.index.tolist(),
+        ref_id=bench_tbl["ref"].tolist(),
+        vc_id=bench_tbl["vc_id"].tolist(),
+        exclusion_set=bench_tbl["exclusion_set"].tolist()
+        ),
 
 #       expand("results/bench/truvari/{tvi_bench}.extended.csv", tvi_bench = analyses[analyses["bench_cmd"] == "truvari"].index.tolist()), ## Not yet used
 

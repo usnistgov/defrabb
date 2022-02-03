@@ -159,9 +159,9 @@ rule subtract_exclusions:
 
 rule summarize_exclusions:
     input:
-        rules.subtract_exclusions.log,
+        lambda wildcards: f"logs/exclusions/{{bench_id}}_subtract_{{ref_id}}_{{asm_id}}_{vc_tbl.loc[(wildcards.vc_id, 'vc_cmd')]}-{vc_tbl.loc[(wildcards.vc_id, 'vc_param_id')]}.log",
     output:
-        "reports/exclusions/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.pdf",
+        "reports/exclusions/{bench_id}/{ref_id}_{asm_id}_{vc_id}-{exclusion_set}.pdf"
     conda:
         "../envs/rmd.yml"
     script:
