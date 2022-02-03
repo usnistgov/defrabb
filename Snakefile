@@ -85,6 +85,7 @@ wildcard_constraints:
     ref_id="|".join(REFIDS),
     bench_id="|".join(BENCHIDS),
     eval_id="|".join(EVALIDS),
+    vc_param_id="|".join(VCPARAMIDS)
 
 
 ################################################################################
@@ -373,7 +374,7 @@ rule postprocess_bed:
     input:
         lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.bed",
     output:
-        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.bed",
+        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed",
     log:
         "logs/process_benchmark_bed/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     shell:
