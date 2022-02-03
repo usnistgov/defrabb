@@ -189,7 +189,10 @@ exclusion_set:
 
 ## Dipcall Resources ##############
 # the number of dipcall threads to use
-_dipcall_threads: 1
+_dipcall_threads: 3
+
+# the number of parallel jobs for dipcall's call to make - 2 or one per haplotype
+_dipcall_jobs: 2
 
 # the root of the par file for dipcall (and friends)
 _par_bed_root: data/par_bed
