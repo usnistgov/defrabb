@@ -181,7 +181,7 @@ rule get_assemblies:
 # Get and prepare reference
 rule get_ref:
     output:
-        "resources/references/{ref_id}.fa",
+        protected("resources/references/{ref_id}.fa"),
     params:
         url=lambda wildcards: ref_config[wildcards.ref_id]["ref_url"],
     log:
@@ -207,7 +207,7 @@ rule index_ref:
 
 rule get_strats:
     output:
-        "resources/strat_{ref_id}/{strat_id}.tar.gz",
+        protected("resources/strat_{ref_id}/{strat_id}.tar.gz"),
     params:
         url=lambda wildcards: f"{config['stratifications'][wildcards.ref_id]['url']}",
     log:
