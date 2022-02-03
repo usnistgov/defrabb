@@ -102,12 +102,10 @@ localrules:
     get_comparison_vcf,
     get_comparison_bed,
     get_comparison_tbi,
-    get_genome,
     get_strats,
     index_ref,
     download_bed_gz,
     link_gaps,
-    get_satellites,
     get_SVs_from_vcf,
 
 
@@ -177,7 +175,7 @@ rule get_assemblies:
     log:
         "logs/get_assemblies/{asm_id}_{haplotype}.log",
     shell:
-        "curl -f -L {params.url} | gunzip -c 1> {output} 2> {log}"
+        "curl -f -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
 
 
 # Get and prepare reference
@@ -189,7 +187,7 @@ rule get_ref:
     log:
         "logs/get_ref/{ref_id}.log",
     shell:
-        "curl -f --connect-timeout 120 -L {params.url} | gunzip -c 1> {output} 2> {log}"
+        "curl -f --connect-timeout 120 -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
 
 
 rule index_ref:
