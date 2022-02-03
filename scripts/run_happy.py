@@ -42,6 +42,7 @@ shell(
     "(hap.py "
     "    --threads {snakemake.params.threads} "
     "    {engine} "
+    "    {snakemake.params.engine_extra} "
     "    -r {snakemake.input.genome}  "
     "    {truth_regions} "
     "    --stratification {strat_tsv} "
