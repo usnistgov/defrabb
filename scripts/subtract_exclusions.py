@@ -31,9 +31,7 @@ def print_summary(after, excluded):
 
 
 def get_excluded(paths):
-    print(paths)
     non_empty_paths = [i for i in paths if os_stat(i).st_size == 0]
-    print(non_empty_paths)
     return [*map(BedTool, non_empty_paths)]
 
 
