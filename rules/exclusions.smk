@@ -22,6 +22,7 @@ rule download_bed_gz:
     shell:
         "curl -L {params.url} | gunzip -c 1> {output} 2> {log}"
 
+
 # TODO hack since this is the only bed file that isn't processed according to
 # the output from dipcall
 rule link_gaps:
@@ -105,7 +106,7 @@ rule intersect_start_and_end:
     log:
         "logs/exclusions/{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
-        "benchmark/exclusions/{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv",
+        "benchmark/exclusions/{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -142,9 +143,9 @@ rule subtract_exclusions:
     output:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed",
     log:
-        "logs/exclusions/{bench_id}_substract_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
-        "benchmark/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.benchmark",
+        "benchmark/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.benchmark"
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -154,3 +155,14 @@ rule subtract_exclusions:
         {output} \
         {input.other_beds} > {log}
         """
+
+
+rule summarize_exclusions:
+    input:
+        rules.subtract_exclusions.log,
+    output:
+        "reports/exclusions/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.pdf",
+    conda:
+        "../envs/rmd.yml"
+    script:
+        "../scripts/reports/exclusions.Rmd"

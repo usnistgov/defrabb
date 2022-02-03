@@ -13,6 +13,8 @@
 analyses: "config/analyses.tsv"
 
 
+analyses: "config/analyses.tsv"
+
 ################################################################################
 # References
 #

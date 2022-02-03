@@ -1,0 +1,1 @@
+Variant callset summary statistics calculatd using `bcftools stats` for {snakemake.wildcards.prefix} {snakemake.wildcards.haplotype}.
