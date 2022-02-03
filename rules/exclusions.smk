@@ -20,7 +20,7 @@ rule download_bed_gz:
     params:
         url=lambda wildcards: config["exclusion_beds"][wildcards.genomic_region],
     shell:
-        "curl -L {params.url} | gunzip -c 1> {output} 2> {log}"
+        "curl -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
 
 
 # TODO hack since this is the only bed file that isn't processed according to
