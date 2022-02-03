@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # Author: Nathan Dwarshuis
 import sys
+from os import stat as os_stat
 import pandas as pd
 from pybedtools import BedTool
 from itertools import accumulate
@@ -11,6 +12,9 @@ from itertools import accumulate
 
 def count_bp(bedfile):
     df = bedfile.to_dataframe(names=["chr", "start", "end"])
+    ## To avoid error with empty bed files
+    if len(df.index) < 1:
+        return int(0)
     return int((df["end"] - df["start"]).sum())
 
 
@@ -27,7 +31,10 @@ def print_summary(after, excluded):
 
 
 def get_excluded(paths):
-    return [*map(BedTool, paths)]
+    print(paths)
+    non_empty_paths = [i for i in paths if os_stat(i).st_size == 0]
+    print(non_empty_paths)
+    return [*map(BedTool, non_empty_paths)]
 
 
 def exclude_beds(input_bed, excluded_beds):
