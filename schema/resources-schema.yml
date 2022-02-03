@@ -11,7 +11,7 @@ required:
   - _dipcall_threads
   - _par_bed_root
   - stratifications
-additionalProperties: false
+additionalProperties: true
 properties:
 
   analyses: 

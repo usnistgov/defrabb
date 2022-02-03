@@ -5,6 +5,7 @@ from snakemake.utils import min_version, validate
 
 include: "rules/common.smk"
 include: "rules/exclusions.smk"
+include: "rules/report.smk"
 
 
 min_version("6.0")
@@ -84,6 +85,7 @@ wildcard_constraints:
     ref_id="|".join(REFIDS),
     bench_id="|".join(BENCHIDS),
     eval_id="|".join(EVALIDS),
+    vc_param_id="|".join(VCPARAMIDS)
 
 
 ################################################################################
@@ -100,13 +102,15 @@ localrules:
     get_comparison_vcf,
     get_comparison_bed,
     get_comparison_tbi,
-    get_genome,
     get_strats,
     index_ref,
     download_bed_gz,
     link_gaps,
-    get_satellites,
     get_SVs_from_vcf,
+
+
+## Snakemake Report
+report: "report/workflow.rst"
 
 
 ## Using zip in rule all to get config sets by config table rows
@@ -122,7 +126,7 @@ rule all:
             vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist(),
         ),
         expand(
-            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.extended.csv",
+            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
         zip,
         eval_id=analyses[analyses["eval_cmd"] == "happy"].index.tolist(),
         bench_id=analyses[analyses["eval_cmd"] == "happy"]["bench_id"].tolist(),
@@ -133,6 +137,21 @@ rule all:
         vc_param_id=analyses[analyses["eval_cmd"] == "happy"][
         "vc_param_id"
             ].tolist(),
+        ),
+        ## rules for report
+        expand(
+            "results/report/assemblies/{asm_id}_{haplotype}_stats.txt",
+            asm_id=ASMIDS,
+            haplotype=["maternal", "paternal"],
+        ),
+        expand(
+            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}_stats.txt",
+            zip,
+            vc_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"].index.tolist(),
+            ref=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["ref"].tolist(),
+            asm_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["asm_id"].tolist(),
+            vc_cmd=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_cmd"].tolist(),
+            vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist(),
         ),
 
 
@@ -156,7 +175,7 @@ rule get_assemblies:
     log:
         "logs/get_assemblies/{asm_id}_{haplotype}.log",
     shell:
-        "curl -f -L {params.url} | gunzip -c 1> {output} 2> {log}"
+        "curl -f -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
 
 
 # Get and prepare reference
@@ -168,7 +187,7 @@ rule get_ref:
     log:
         "logs/get_ref/{ref_id}.log",
     shell:
-        "curl -f --connect-timeout 120 -L {params.url} | gunzip -c 1> {output} 2> {log}"
+        "curl -f --connect-timeout 120 -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
 
 
 rule index_ref:
@@ -229,18 +248,19 @@ use rule get_comparison_vcf as get_comparison_tbi with:
     log:
         "logs/get_comparisons/{comp_id}_vcfidx.log",
 
+## TODO - fix for when tbi url not provided
+# rule tabix:
+#     input:
+#         "{filename}.vcf.gz",
+#     output:
+#         "{filename}.vcf.gz.tbi",
+#     params:
+#         extra="-t",
+#     log:
+#         "logs/tabix/{filename}.log",
+#     wrapper:
+#         "v1.0.0/bio/bcftools/index"
 
-rule tabix:
-    input:
-        "{filename}.vcf.gz",
-    output:
-        "{filename}.vcf.gz.tbi",
-    params:
-        extra="-t",
-    log:
-        "logs/tabix/{filename}.log",
-    wrapper:
-        "v1.0.0/bio/bcftools/index"
 
 
 ################################################################################
@@ -272,6 +292,7 @@ rule run_dipcall:
         prefix="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
         male_bed=get_male_bed,
         ts=config["_dipcall_threads"],
+        make_jobs=config["_dipcall_jobs"],
         extra=lambda wildcards: ""
         if vc_tbl.loc[wildcards.vc_id]["vc_params"] == "default"
         else vc_tbl.loc[wildcards.vc_id]["vc_params"],
@@ -280,12 +301,13 @@ rule run_dipcall:
     benchmark:
         "benchmark/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     resources:
-        mem_mb=config["_dipcall_threads"] * 2 * 4000,  ## GB per thread
-    threads: config["_dipcall_threads"] * 2  ## For diploid
+        mem_mb=45000,  ## GB per thread - 16 Gb per job for sorting and estimating 30 max for alignment steps
+    threads: config["_dipcall_threads"] * config["_dipcall_jobs"]  ## For diploid
     shell:
         """
         echo "Writing Makefile defining dipcall pipeline"
         run-dipcall \
+            -t {params.ts} \
             {params.extra} \
             {params.male_bed} \
             {params.prefix} \
@@ -295,7 +317,7 @@ rule run_dipcall:
             1> {output.make} 2> {log}
 
         echo "Running dipcall pipeline"
-        make -j{params.ts} -f {output.make} &>> {log}
+        make -j {params.make_jobs} -f {output.make} &>> {log}
         """
 
 
@@ -340,7 +362,7 @@ rule postprocess_vcf:
     input:
         lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.vcf.gz",
     output:
-        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
+        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
     log:
         "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     shell:
@@ -351,7 +373,7 @@ rule postprocess_bed:
     input:
         lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.bed",
     output:
-        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.bed",
+        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed",
     log:
         "logs/process_benchmark_bed/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     shell:
@@ -377,13 +399,17 @@ rule run_happy:
             "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
             ".runinfo.json",
             ".vcf.gz",
-            ".summary.csv",
             ".extended.csv",
             ".metrics.json.gz",
             ".roc.all.csv.gz",
             ".roc.Locations.INDEL.csv.gz",
             ".roc.Locations.INDEL.PASS.csv.gz",
             ".roc.Locations.SNP.csv.gz",
+        ),
+        report(
+            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
+            caption="report/happy_summary.rst",
+            category="Happy",
         ),
     params:
         prefix="results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
