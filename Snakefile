@@ -278,7 +278,7 @@ rule run_dipcall:
         h1="resources/assemblies/{asm_id}/paternal.fa",
         h2="resources/assemblies/{asm_id}/maternal.fa",
         ref="resources/references/{ref_id}.fa",
-        ref_idx="resources/references/{ref_id}.fa.fai",
+        ref_idx="resources/references/{ref_id}.mmi",
     output:
         make="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.mak",
         vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
@@ -307,6 +307,7 @@ rule run_dipcall:
         echo "Writing Makefile defining dipcall pipeline"
         run-dipcall \
             -t {params.ts} \
+            -d {input.ref_idx} \
             {params.extra} \
             {params.male_bed} \
             {params.prefix} \
@@ -415,6 +416,7 @@ rule run_happy:
         strat_tsv=lambda wildcards: f"{wildcards.ref_id}/{config['stratifications'][wildcards.ref_id]['tsv']}",
         threads=config["happy_threads"],
         engine="vcfeval",
+        engine_extra = lambda wildcards: f"--engine-vcfeval-template resources/references/{wildcards.ref_id}.sdf"
     resources:
         mem_mb=config["happy_mem"],
     threads: config["happy_threads"]
