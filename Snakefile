@@ -39,7 +39,7 @@ vc_tbl = pd.merge(vc_ids, vc_params, how="inner", on="vc_id").set_index("vc_id")
 
 ## draft benchmark set generation
 bench_params = analyses.filter(regex="bench_").drop_duplicates()
-bench_ids = analyses[["bench_id", "vc_id", "ref", "exclusion_set"]].drop_duplicates()
+bench_ids = analyses[["bench_id", "asm_id", "vc_id", "vc_cmd", "vc_param_id", "ref", "exclusion_set"]].drop_duplicates()
 bench_tbl = pd.merge(bench_ids, bench_params, how="inner", on="bench_id").set_index(
     "bench_id"
 )
@@ -110,7 +110,7 @@ localrules:
 
 
 ## Snakemake Report
-report: "report/workflow.rst"
+# report: "report/workflow.rst"
 
 
 ## Using zip in rule all to get config sets by config table rows
@@ -125,42 +125,60 @@ rule all:
             vc_cmd=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_cmd"].tolist(),
             vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist(),
         ),
-        expand(
-            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
-        zip,
-        eval_id=analyses[analyses["eval_cmd"] == "happy"].index.tolist(),
-        bench_id=analyses[analyses["eval_cmd"] == "happy"]["bench_id"].tolist(),
-        ref_id=analyses[analyses["eval_cmd"] == "happy"]["ref"].tolist(),
-        comp_id=analyses[analyses["eval_cmd"] == "happy"]["eval_comp_id"].tolist(),
-        asm_id=analyses[analyses["eval_cmd"] == "happy"]["asm_id"].tolist(),
-        vc_cmd=analyses[analyses["eval_cmd"] == "happy"]["vc_cmd"].tolist(),
-        vc_param_id=analyses[analyses["eval_cmd"] == "happy"][
-        "vc_param_id"
-            ].tolist(),
-        ),
+        # expand(
+        #     "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
+        # zip,
+        # eval_id=analyses[analyses["eval_cmd"] == "happy"].index.tolist(),
+        # bench_id=analyses[analyses["eval_cmd"] == "happy"]["bench_id"].tolist(),
+        # ref_id=analyses[analyses["eval_cmd"] == "happy"]["ref"].tolist(),
+        # comp_id=analyses[analyses["eval_cmd"] == "happy"]["eval_comp_id"].tolist(),
+        # asm_id=analyses[analyses["eval_cmd"] == "happy"]["asm_id"].tolist(),
+        # vc_cmd=analyses[analyses["eval_cmd"] == "happy"]["vc_cmd"].tolist(),
+        # vc_param_id=analyses[analyses["eval_cmd"] == "happy"][
+        # "vc_param_id"
+        #     ].tolist(),
+        # ),
         ## rules for report
-        expand(
-            "results/report/assemblies/{asm_id}_{haplotype}_stats.txt",
-            asm_id=ASMIDS,
-            haplotype=["maternal", "paternal"],
-        ),
-        expand(
-            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}_stats.txt",
-            zip,
-            vc_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"].index.tolist(),
-            ref=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["ref"].tolist(),
-            asm_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["asm_id"].tolist(),
-            vc_cmd=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_cmd"].tolist(),
-            vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist(),
-        ),
-        expand("reports/exclusions/{bench_id}/{ref_id}_{asm_id}_{vc_id}-{exclusion_set}.pdf"
-        zip,
-        bench_id=bench_tbl.index.tolist(),
-        ref_id=bench_tbl["ref"].tolist(),
-        vc_id=bench_tbl["vc_id"].tolist(),
-        exclusion_set=bench_tbl["exclusion_set"].tolist()
-        ),
-
+        # expand(
+        #     "results/report/assemblies/{asm_id}_{haplotype}_stats.txt",
+        #     asm_id=ASMIDS,
+        #     haplotype=["maternal", "paternal"],
+        # ),
+        # expand(
+        #     "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.dip_bcftools_stats.txt",
+        #     zip,
+        #     vc_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"].index.tolist(),
+        #     ref=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["ref"].tolist(),
+        #     asm_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["asm_id"].tolist(),
+        #     vc_cmd=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_cmd"].tolist(),
+        #     vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist(),
+        # ),
+        # expand(
+        #     "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.dip_rtg_stats.txt",
+        #     zip,
+        #     vc_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"].index.tolist(),
+        #     ref=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["ref"].tolist(),
+        #     asm_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["asm_id"].tolist(),
+        #     vc_cmd=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_cmd"].tolist(),
+        #     vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist(),
+        # ),
+        # expand(
+        #     "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}_rtg_stats.txt",
+        #     zip,
+        #     bench_id=bench_tbl.index.tolist(),
+        #     vc_id=bench_tbl["vc_id"].tolist(),
+        #     ref=bench_tbl["ref"].tolist(),
+        #     asm_id=bench_tbl["asm_id"].tolist(),
+        #     vc_cmd=bench_tbl["vc_cmd"].tolist(),
+        #     vc_param_id=bench_tbl["vc_param_id"].tolist(),
+        # ),
+        # expand("results/report/{bench_id}/{ref_id}_{vc_id}-{exclusion_set}.html",
+        # zip,
+        # bench_id=bench_tbl[bench_tbl["exclusion_set"] != "none"].index.tolist(),
+        # ref_id=bench_tbl[bench_tbl["exclusion_set"] != "none"]["ref"].tolist(),
+        # vc_id=bench_tbl[bench_tbl["exclusion_set"] != "none"]["vc_id"].tolist(),
+        # exclusion_set=bench_tbl[bench_tbl["exclusion_set"] != "none"]["exclusion_set"].tolist()
+        # ),
 #       expand("results/bench/truvari/{tvi_bench}.extended.csv", tvi_bench = analyses[analyses["bench_cmd"] == "truvari"].index.tolist()), ## Not yet used
 
 ################################################################################

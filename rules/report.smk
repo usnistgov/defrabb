@@ -56,7 +56,7 @@ rule get_number_of_variants:
     output:
         "{prefix}/nvars_{genomic_region}.txt"
     log: "logs/{prefix}_{genomic_region}_var_counts.tsv"
-    conda: "../envs/bedtools.yaml"
+    conda: "../envs/bedtools.yml"
     shell: """
         nvar=$(intersectBed \
          -a {input.vcf} \
