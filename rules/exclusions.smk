@@ -104,9 +104,9 @@ rule intersect_start_and_end:
         start="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/{genomic_regions}_start.bed",
         end="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/{genomic_regions}_end.bed",
     log:
-        "logs/exclusions/{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/exclusions/start_end_{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
-        "benchmark/exclusions/{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
+        "benchmark/exclusions/start_end_{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -155,14 +155,3 @@ rule subtract_exclusions:
         {output} \
         {input.other_beds} > {log}
         """
-
-
-rule summarize_exclusions:
-    input:
-        lambda wildcards: f"logs/exclusions/{{bench_id}}_subtract_{{ref_id}}_{{asm_id}}_{vc_tbl.loc[(wildcards.vc_id, 'vc_cmd')]}-{vc_tbl.loc[(wildcards.vc_id, 'vc_param_id')]}.log",
-    output:
-        "reports/exclusions/{bench_id}/{ref_id}_{asm_id}_{vc_id}-{exclusion_set}.pdf"
-    conda:
-        "../envs/rmd.yml"
-    script:
-        "../scripts/reports/exclusions.Rmd"

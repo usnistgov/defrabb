@@ -48,6 +48,22 @@ rule get_bed_size:
             1> {output} 2> {log}
         """
 
+## TODO - fix output filename and add to rule all
+rule get_number_of_variants:
+    input: 
+        vcf="{prefix}.vcf.gz",
+        bed="{genomic_region}.bed"
+    output:
+        "{prefix}/nvars_{genomic_region}.txt"
+    log: "logs/{prefix}_{genomic_region}_var_counts.tsv"
+    conda: "../envs/bedtools.yaml"
+    shell: """
+        nvar=$(intersectBed \
+         -a {input.vcf} \
+         -b {input.bed} \
+         | wc -l
+        echo {input.bed} $nvar 1> {output}  2> {log}
+    """
 
 ## Summary stats by chromosome, need to test/ debug getting ref_id from input bed
 rule get_bed_stats:
@@ -102,18 +118,44 @@ rule get_exclusion_coverage:
 
 
 ## Variant Callset Stats
-rule get_vcf_stats:
+rule get_bcftools_stats:
     input:
-        "{prefix}.dip.vcf.gz",
+        "{prefix}.vcf.gz",
     output:
         report(
-            "{prefix}_stats.txt",
-            caption="../report/vcf_stats.rst",
-            category="bcfstats Stats",
+            "{prefix}_bcftools_stats.txt",
+            caption="../report/bcftools_stats.rst",
+            category="VCF Stats",
         ),
     log:
-        "logs/get_vcf_stats/{prefix}_stats.txt",
+        "logs/get_bcftools_stats/{prefix}_stats.txt",
     conda:
         "../envs/bcftools.yml"
     shell:
         " bcftools stats {input} > {output} "
+
+rule get_rtg_vcf_stats:
+    input:
+        "{prefix}.vcf.gz",
+    output:
+        report(
+            "{prefix}_rtg_stats.txt",
+            caption="../report/rtg_stats.rst",
+            category="rtgtools Stats",
+        ),
+    log:
+        "logs/get_rtg_vcf_stats/{prefix}_stats.txt",
+    conda:
+        "../envs/rtgtools.yml"
+    shell:
+        " rtg vcfstats {input} 1> {output} 2> {log}"
+
+rule summarize_exclusions:
+    input:
+        lambda wildcards: f"logs/exclusions/{{bench_id}}_subtract_{{ref_id}}_{vc_tbl.loc[(wildcards.vc_id, 'asm_id')]}_{vc_tbl.loc[(wildcards.vc_id, 'vc_cmd')]}-{vc_tbl.loc[(wildcards.vc_id, 'vc_param_id')]}.log",
+    output:
+        "results/report/{bench_id}/{ref_id}_{vc_id}-{exclusion_set}.html"
+    conda:
+        "../envs/rmd.yml"
+    script:
+        "../scripts/reports/exclusions.Rmd"
