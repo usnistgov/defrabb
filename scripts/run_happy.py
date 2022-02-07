@@ -33,6 +33,7 @@ else:
 if path.isfile(strat_tsv):
     print("Stratification tsv file present")
 else:
+    print(f"Stratification table, {strat_tsv}, not present.")
     print("Extracting Stratifications")
     shell("tar -xvf {snakemake.input.strat_tb} -C {strat_dir}", "{log}")
 
