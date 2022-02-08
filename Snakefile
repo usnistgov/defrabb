@@ -120,8 +120,7 @@ report: "report/workflow.rst"
 
 # defining variables for cleaner rule all
 happy_analyses = analyses[analyses["eval_cmd"] == "happy"]
-dipcall_tbl = dipcall_tbl
-
+dipcall_tbl = vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]
 
 rule all:
     input:
@@ -181,13 +180,11 @@ rule all:
         ),
         expand(
             "results/report/{bench_id}/{ref_id}_{vc_id}-{exclusion_set}.html",
-        zip,
-        bench_id=bench_tbl[bench_tbl["exclusion_set"] != "none"].index.tolist(),
-        ref_id=bench_tbl[bench_tbl["exclusion_set"] != "none"]["ref"].tolist(),
-        vc_id=bench_tbl[bench_tbl["exclusion_set"] != "none"]["vc_id"].tolist(),
-        exclusion_set=bench_tbl[bench_tbl["exclusion_set"] != "none"][
-        "exclusion_set"
-            ].tolist(),
+            zip,
+            bench_id=bench_tbl[bench_tbl["exclusion_set"] != "none"].index.tolist(),
+            ref_id=bench_tbl[bench_tbl["exclusion_set"] != "none"]["ref"].tolist(),
+            vc_id=bench_tbl[bench_tbl["exclusion_set"] != "none"]["vc_id"].tolist(),
+            exclusion_set=bench_tbl[bench_tbl["exclusion_set"] != "none"]["exclusion_set"].tolist(),
         ),
 
 

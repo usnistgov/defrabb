@@ -83,7 +83,7 @@ rule get_bed_stats:
     conda:
         "../envs/bedtools.yml"
     shell:
-        "bedtools summary -i {bed} -g {genome}"
+        "bedtools summary -i {input.bed} -g {input.genome} 1> {output} 2> {log}"
 
 
 rule get_exclusion_coverage:
@@ -100,27 +100,6 @@ rule get_exclusion_coverage:
         """
         multiIntersectBed -header -i
         """
-
-
-## Genome Coverage
-## TODO Modify for benchmark set development framework
-# rule make_bench_cov_tbls:
-#     input:
-#         a=ensembl_dir + "/{ref}_mrg_full_{region}.bed",
-#         b=benchdir + "/HG002_{ref}_{benchmarkset}_{benchtype}.bed"
-#     output: "workflow/results/bench_cov_tbls/HG002_{ref}_{benchmarkset}_{benchtype}_{region}_cov.tsv"
-#     threads: 2
-#     wrapper: "0.74.0/bio/bedtools/coveragebed"
-
-## TODO Modify for benchmark set development framework
-# rule make_strat_cov_tbls:
-#     input:
-#         a= ensembl_dir + "/{ref}_mrg_full_{region}.bed",
-#         b= "workflow/data/strats/{ref}_{strat}.bed.gz"
-#     output: "workflow/results/strat_cov_tbls/{strat}_{ref}_mrg_{region}_cov.tsv"
-#     threads: 2
-#     wrapper: "0.74.0/bio/bedtools/coveragebed"
-
 
 ## Variant Callset Stats
 rule get_bcftools_stats:
@@ -164,5 +143,6 @@ rule summarize_exclusions:
         "results/report/{bench_id}/{ref_id}_{vc_id}-{exclusion_set}.html",
     conda:
         "../envs/rmd.yml"
+    log: "logs/summarise_exclusions/{bench_id}_{ref_id}_{vc_id}-{exclusion_set}.log"
     script:
         "../scripts/reports/exclusions.Rmd"
