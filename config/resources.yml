@@ -67,12 +67,12 @@ assemblies:
 #   is_male: false
 
 ################################################################################
-# Benchmarks
+# Comparisons
 #
-# We specify a benchmark to use by supplying URLs to the .vcf and .bed files,
-# which will be used as truth inputs to hap.py downstream. We label this
-# benchmark with a unique identifier ('bmk-foo') that will be used to refer to
-# this benchmark in downstream steps.
+# We specify a comparisons to use by supplying URLs to the .vcf and .bed files,
+# which will be used into hap.py downstream to evaluate the draft benchmark. We label this
+# comparison with a unique identifier ('cmp-foo') that will be used to refer to
+# this comparison in downstream steps.
 
 comparisons:
   v4.2.1:
@@ -101,7 +101,7 @@ comparisons:
 
 # We can specify additional benchmarks like this
 
-# bmk-another:
+# cmp-another:
 #   vcf_url: http://another.vcf
 #   bed_url: http://another.bed
     
