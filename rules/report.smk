@@ -48,22 +48,27 @@ rule get_bed_size:
             1> {output} 2> {log}
         """
 
+
 ## TODO - fix output filename and add to rule all
 rule get_number_of_variants:
-    input: 
+    input:
         vcf="{prefix}.vcf.gz",
-        bed="{genomic_region}.bed"
+        bed="{genomic_region}.bed",
     output:
-        "{prefix}/nvars_{genomic_region}.txt"
-    log: "logs/{prefix}_{genomic_region}_var_counts.tsv"
-    conda: "../envs/bedtools.yml"
-    shell: """
+        "{prefix}/nvars_{genomic_region}.txt",
+    log:
+        "logs/{prefix}_{genomic_region}_var_counts.tsv",
+    conda:
+        "../envs/bedtools.yml"
+    shell:
+        """
         nvar=$(intersectBed \
          -a {input.vcf} \
          -b {input.bed} \
          | wc -l
         echo {input.bed} $nvar 1> {output}  2> {log}
-    """
+        """
+
 
 ## Summary stats by chromosome, need to test/ debug getting ref_id from input bed
 rule get_bed_stats:
@@ -134,6 +139,7 @@ rule get_bcftools_stats:
     shell:
         " bcftools stats {input} > {output} "
 
+
 rule get_rtg_vcf_stats:
     input:
         "{prefix}.vcf.gz",
@@ -150,11 +156,12 @@ rule get_rtg_vcf_stats:
     shell:
         " rtg vcfstats {input} 1> {output} 2> {log}"
 
+
 rule summarize_exclusions:
     input:
         lambda wildcards: f"logs/exclusions/{{bench_id}}_subtract_{{ref_id}}_{vc_tbl.loc[(wildcards.vc_id, 'asm_id')]}_{vc_tbl.loc[(wildcards.vc_id, 'vc_cmd')]}-{vc_tbl.loc[(wildcards.vc_id, 'vc_param_id')]}.log",
     output:
-        "results/report/{bench_id}/{ref_id}_{vc_id}-{exclusion_set}.html"
+        "results/report/{bench_id}/{ref_id}_{vc_id}-{exclusion_set}.html",
     conda:
         "../envs/rmd.yml"
     script:

@@ -47,7 +47,7 @@ def get_happy_inputs(wildcards):
 
     ## asm variant call output - TODO link to post processing output
     bench_vcf = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz"
-    
+
     ## Asm regions
     if analyses.loc[(wildcards.eval_id, "exclusion_set")] == "none":
         bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed"

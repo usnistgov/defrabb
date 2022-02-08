@@ -10,6 +10,7 @@ include: "rules/report.smk"
 
 min_version("6.0")
 
+
 ################################################################################
 # init resources
 
@@ -39,7 +40,9 @@ vc_tbl = pd.merge(vc_ids, vc_params, how="inner", on="vc_id").set_index("vc_id")
 
 ## draft benchmark set generation
 bench_params = analyses.filter(regex="bench_").drop_duplicates()
-bench_ids = analyses[["bench_id", "asm_id", "vc_id", "vc_cmd", "vc_param_id", "ref", "exclusion_set"]].drop_duplicates()
+bench_ids = analyses[
+    ["bench_id", "asm_id", "vc_id", "vc_cmd", "vc_param_id", "ref", "exclusion_set"]
+].drop_duplicates()
 bench_tbl = pd.merge(bench_ids, bench_params, how="inner", on="bench_id").set_index(
     "bench_id"
 )
@@ -85,7 +88,7 @@ wildcard_constraints:
     ref_id="|".join(REFIDS),
     bench_id="|".join(BENCHIDS),
     eval_id="|".join(EVALIDS),
-    vc_param_id="|".join(VCPARAMIDS)
+    vc_param_id="|".join(VCPARAMIDS),
 
 
 ################################################################################
@@ -110,33 +113,37 @@ localrules:
 
 
 ## Snakemake Report
-# report: "report/workflow.rst"
+report: "report/workflow.rst"
 
 
 ## Using zip in rule all to get config sets by config table rows
+
+# defining variables for cleaner rule all
+happy_analyses = analyses[analyses["eval_cmd"] == "happy"]
+dipcall_tbl = dipcall_tbl
+
+
 rule all:
     input:
         expand(
             "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
             zip,
-            vc_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"].index.tolist(),
-            ref=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["ref"].tolist(),
-            asm_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["asm_id"].tolist(),
-            vc_cmd=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_cmd"].tolist(),
-            vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist(),
+            vc_id=dipcall_tbl.index.tolist(),
+            ref=dipcall_tbl["ref"].tolist(),
+            asm_id=dipcall_tbl["asm_id"].tolist(),
+            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
+            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
         ),
         expand(
             "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
-        zip,
-        eval_id=analyses[analyses["eval_cmd"] == "happy"].index.tolist(),
-        bench_id=analyses[analyses["eval_cmd"] == "happy"]["bench_id"].tolist(),
-        ref_id=analyses[analyses["eval_cmd"] == "happy"]["ref"].tolist(),
-        comp_id=analyses[analyses["eval_cmd"] == "happy"]["eval_comp_id"].tolist(),
-        asm_id=analyses[analyses["eval_cmd"] == "happy"]["asm_id"].tolist(),
-        vc_cmd=analyses[analyses["eval_cmd"] == "happy"]["vc_cmd"].tolist(),
-        vc_param_id=analyses[analyses["eval_cmd"] == "happy"][
-        "vc_param_id"
-            ].tolist(),
+            zip,
+            eval_id=happy_analyses.index.tolist(),
+            bench_id=happy_analyses["bench_id"].tolist(),
+            ref_id=happy_analyses["ref"].tolist(),
+            comp_id=happy_analyses["eval_comp_id"].tolist(),
+            asm_id=happy_analyses["asm_id"].tolist(),
+            vc_cmd=happy_analyses["vc_cmd"].tolist(),
+            vc_param_id=happy_analyses["vc_param_id"].tolist(),
         ),
         # rules for report
         expand(
@@ -147,20 +154,20 @@ rule all:
         expand(
             "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.dip_bcftools_stats.txt",
             zip,
-            vc_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"].index.tolist(),
-            ref=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["ref"].tolist(),
-            asm_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["asm_id"].tolist(),
-            vc_cmd=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_cmd"].tolist(),
-            vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist(),
+            vc_id=dipcall_tbl.index.tolist(),
+            ref=dipcall_tbl["ref"].tolist(),
+            asm_id=dipcall_tbl["asm_id"].tolist(),
+            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
+            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
         ),
         expand(
             "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.dip_rtg_stats.txt",
             zip,
-            vc_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"].index.tolist(),
-            ref=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["ref"].tolist(),
-            asm_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["asm_id"].tolist(),
-            vc_cmd=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_cmd"].tolist(),
-            vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist(),
+            vc_id=dipcall_tbl.index.tolist(),
+            ref=dipcall_tbl["ref"].tolist(),
+            asm_id=dipcall_tbl["asm_id"].tolist(),
+            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
+            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
         ),
         expand(
             "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}_rtg_stats.txt",
@@ -172,13 +179,18 @@ rule all:
             vc_cmd=bench_tbl["vc_cmd"].tolist(),
             vc_param_id=bench_tbl["vc_param_id"].tolist(),
         ),
-        expand("results/report/{bench_id}/{ref_id}_{vc_id}-{exclusion_set}.html",
+        expand(
+            "results/report/{bench_id}/{ref_id}_{vc_id}-{exclusion_set}.html",
         zip,
         bench_id=bench_tbl[bench_tbl["exclusion_set"] != "none"].index.tolist(),
         ref_id=bench_tbl[bench_tbl["exclusion_set"] != "none"]["ref"].tolist(),
         vc_id=bench_tbl[bench_tbl["exclusion_set"] != "none"]["vc_id"].tolist(),
-        exclusion_set=bench_tbl[bench_tbl["exclusion_set"] != "none"]["exclusion_set"].tolist()
+        exclusion_set=bench_tbl[bench_tbl["exclusion_set"] != "none"][
+        "exclusion_set"
+            ].tolist(),
         ),
+
+
 #       expand("results/bench/truvari/{tvi_bench}.extended.csv", tvi_bench = analyses[analyses["bench_cmd"] == "truvari"].index.tolist()), ## Not yet used
 
 ################################################################################
@@ -224,6 +236,7 @@ rule index_ref:
     wrapper:
         "0.79.0/bio/samtools/faidx"
 
+
 rule index_ref_mmi:
     input:
         "resources/references/{ref_id}.fa",
@@ -231,15 +244,24 @@ rule index_ref_mmi:
         "resources/references/{ref_id}.mmi",
     log:
         "logs/index_ref_mmi/{ref_id}.log",
-    conda: "envs/dipcall.yml"
-    shell: "minimap2 -x asm5 -d {output} {input} &> {log}"
+    conda:
+        "envs/dipcall.yml"
+    shell:
+        "minimap2 -x asm5 -d {output} {input} &> {log}"
+
 
 rule index_ref_sdf:
-    input: "resources/references/{ref_id}.fa"
-    output: directory("resources/references/{ref_id}.sdf")
-    log: "logs/index_ref_sdf/{ref_id}.log"
-    conda: "envs/rtgtools.yml"
-    shell: "rtg format -o {output} {input}"
+    input:
+        "resources/references/{ref_id}.fa",
+    output:
+        directory("resources/references/{ref_id}.sdf"),
+    log:
+        "logs/index_ref_sdf/{ref_id}.log",
+    conda:
+        "envs/rtgtools.yml"
+    shell:
+        "rtg format -o {output} {input}"
+
 
 ################################################################################
 # Get stratifications
@@ -288,6 +310,7 @@ use rule get_comparison_vcf as get_comparison_tbi with:
     log:
         "logs/get_comparisons/{comp_id}_vcfidx.log",
 
+
 ## TODO - fix for when tbi url not provided
 # rule tabix:
 #     input:
@@ -300,7 +323,6 @@ use rule get_comparison_vcf as get_comparison_tbi with:
 #         "logs/tabix/{filename}.log",
 #     wrapper:
 #         "v1.0.0/bio/bcftools/index"
-
 
 
 ################################################################################
@@ -458,7 +480,7 @@ rule run_happy:
         strat_tsv=lambda wildcards: f"{wildcards.ref_id}/{config['stratifications'][wildcards.ref_id]['tsv']}",
         threads=config["happy_threads"],
         engine="vcfeval",
-        engine_extra = lambda wildcards: f"--engine-vcfeval-template resources/references/{wildcards.ref_id}.sdf"
+        engine_extra=lambda wildcards: f"--engine-vcfeval-template resources/references/{wildcards.ref_id}.sdf",
     resources:
         mem_mb=config["happy_mem"],
     threads: config["happy_threads"]
