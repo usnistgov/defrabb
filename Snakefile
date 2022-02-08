@@ -125,60 +125,60 @@ rule all:
             vc_cmd=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_cmd"].tolist(),
             vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist(),
         ),
-        # expand(
-        #     "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
-        # zip,
-        # eval_id=analyses[analyses["eval_cmd"] == "happy"].index.tolist(),
-        # bench_id=analyses[analyses["eval_cmd"] == "happy"]["bench_id"].tolist(),
-        # ref_id=analyses[analyses["eval_cmd"] == "happy"]["ref"].tolist(),
-        # comp_id=analyses[analyses["eval_cmd"] == "happy"]["eval_comp_id"].tolist(),
-        # asm_id=analyses[analyses["eval_cmd"] == "happy"]["asm_id"].tolist(),
-        # vc_cmd=analyses[analyses["eval_cmd"] == "happy"]["vc_cmd"].tolist(),
-        # vc_param_id=analyses[analyses["eval_cmd"] == "happy"][
-        # "vc_param_id"
-        #     ].tolist(),
-        # ),
-        ## rules for report
-        # expand(
-        #     "results/report/assemblies/{asm_id}_{haplotype}_stats.txt",
-        #     asm_id=ASMIDS,
-        #     haplotype=["maternal", "paternal"],
-        # ),
-        # expand(
-        #     "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.dip_bcftools_stats.txt",
-        #     zip,
-        #     vc_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"].index.tolist(),
-        #     ref=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["ref"].tolist(),
-        #     asm_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["asm_id"].tolist(),
-        #     vc_cmd=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_cmd"].tolist(),
-        #     vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist(),
-        # ),
-        # expand(
-        #     "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.dip_rtg_stats.txt",
-        #     zip,
-        #     vc_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"].index.tolist(),
-        #     ref=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["ref"].tolist(),
-        #     asm_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["asm_id"].tolist(),
-        #     vc_cmd=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_cmd"].tolist(),
-        #     vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist(),
-        # ),
-        # expand(
-        #     "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}_rtg_stats.txt",
-        #     zip,
-        #     bench_id=bench_tbl.index.tolist(),
-        #     vc_id=bench_tbl["vc_id"].tolist(),
-        #     ref=bench_tbl["ref"].tolist(),
-        #     asm_id=bench_tbl["asm_id"].tolist(),
-        #     vc_cmd=bench_tbl["vc_cmd"].tolist(),
-        #     vc_param_id=bench_tbl["vc_param_id"].tolist(),
-        # ),
-        # expand("results/report/{bench_id}/{ref_id}_{vc_id}-{exclusion_set}.html",
-        # zip,
-        # bench_id=bench_tbl[bench_tbl["exclusion_set"] != "none"].index.tolist(),
-        # ref_id=bench_tbl[bench_tbl["exclusion_set"] != "none"]["ref"].tolist(),
-        # vc_id=bench_tbl[bench_tbl["exclusion_set"] != "none"]["vc_id"].tolist(),
-        # exclusion_set=bench_tbl[bench_tbl["exclusion_set"] != "none"]["exclusion_set"].tolist()
-        # ),
+        expand(
+            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
+        zip,
+        eval_id=analyses[analyses["eval_cmd"] == "happy"].index.tolist(),
+        bench_id=analyses[analyses["eval_cmd"] == "happy"]["bench_id"].tolist(),
+        ref_id=analyses[analyses["eval_cmd"] == "happy"]["ref"].tolist(),
+        comp_id=analyses[analyses["eval_cmd"] == "happy"]["eval_comp_id"].tolist(),
+        asm_id=analyses[analyses["eval_cmd"] == "happy"]["asm_id"].tolist(),
+        vc_cmd=analyses[analyses["eval_cmd"] == "happy"]["vc_cmd"].tolist(),
+        vc_param_id=analyses[analyses["eval_cmd"] == "happy"][
+        "vc_param_id"
+            ].tolist(),
+        ),
+        # rules for report
+        expand(
+            "results/report/assemblies/{asm_id}_{haplotype}_stats.txt",
+            asm_id=ASMIDS,
+            haplotype=["maternal", "paternal"],
+        ),
+        expand(
+            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.dip_bcftools_stats.txt",
+            zip,
+            vc_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"].index.tolist(),
+            ref=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["ref"].tolist(),
+            asm_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["asm_id"].tolist(),
+            vc_cmd=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_cmd"].tolist(),
+            vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist(),
+        ),
+        expand(
+            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.dip_rtg_stats.txt",
+            zip,
+            vc_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"].index.tolist(),
+            ref=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["ref"].tolist(),
+            asm_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["asm_id"].tolist(),
+            vc_cmd=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_cmd"].tolist(),
+            vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist(),
+        ),
+        expand(
+            "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}_rtg_stats.txt",
+            zip,
+            bench_id=bench_tbl.index.tolist(),
+            vc_id=bench_tbl["vc_id"].tolist(),
+            ref=bench_tbl["ref"].tolist(),
+            asm_id=bench_tbl["asm_id"].tolist(),
+            vc_cmd=bench_tbl["vc_cmd"].tolist(),
+            vc_param_id=bench_tbl["vc_param_id"].tolist(),
+        ),
+        expand("results/report/{bench_id}/{ref_id}_{vc_id}-{exclusion_set}.html",
+        zip,
+        bench_id=bench_tbl[bench_tbl["exclusion_set"] != "none"].index.tolist(),
+        ref_id=bench_tbl[bench_tbl["exclusion_set"] != "none"]["ref"].tolist(),
+        vc_id=bench_tbl[bench_tbl["exclusion_set"] != "none"]["vc_id"].tolist(),
+        exclusion_set=bench_tbl[bench_tbl["exclusion_set"] != "none"]["exclusion_set"].tolist()
+        ),
 #       expand("results/bench/truvari/{tvi_bench}.extended.csv", tvi_bench = analyses[analyses["bench_cmd"] == "truvari"].index.tolist()), ## Not yet used
 
 ################################################################################
@@ -224,6 +224,22 @@ rule index_ref:
     wrapper:
         "0.79.0/bio/samtools/faidx"
 
+rule index_ref_mmi:
+    input:
+        "resources/references/{ref_id}.fa",
+    output:
+        "resources/references/{ref_id}.mmi",
+    log:
+        "logs/index_ref_mmi/{ref_id}.log",
+    conda: "envs/dipcall.yml"
+    shell: "minimap2 -x asm5 -d {output} {input} &> {log}"
+
+rule index_ref_sdf:
+    input: "resources/references/{ref_id}.fa"
+    output: directory("resources/references/{ref_id}.sdf")
+    log: "logs/index_ref_sdf/{ref_id}.log"
+    conda: "envs/rtgtools.yml"
+    shell: "rtg format -o {output} {input}"
 
 ################################################################################
 # Get stratifications
@@ -303,7 +319,8 @@ rule run_dipcall:
         h1="resources/assemblies/{asm_id}/paternal.fa",
         h2="resources/assemblies/{asm_id}/maternal.fa",
         ref="resources/references/{ref_id}.fa",
-        ref_idx="resources/references/{ref_id}.mmi",
+        ref_idx="resources/references/{ref_id}.fa.fai",
+        ref_mmi="resources/references/{ref_id}.mmi",
     output:
         make="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.mak",
         vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
@@ -332,7 +349,7 @@ rule run_dipcall:
         echo "Writing Makefile defining dipcall pipeline"
         run-dipcall \
             -t {params.ts} \
-            -d {input.ref_idx} \
+            -d {input.ref_mmi} \
             {params.extra} \
             {params.male_bed} \
             {params.prefix} \

@@ -30,6 +30,8 @@ The GIAB benchmark set development framework is a snakemake bioinformatic pipeli
 3. Run pipeline using `snakemake --use-conda -j1`
 
 ## Development and Testing
+A small dataset with chr 21 for GRCh38 [^1] was developed for testing and development. 
+The resources are either included in the repository or are hosted in a GIAB S3 bucket with appropriate urls included in the `resources.yml`
 small example datasets are included / made available for testing framework code. 
 Test pipeline for runtime errors using `snakemake --use-conda -j1`
 
@@ -77,3 +79,6 @@ __Steps__
 Automating - copy output and config files to directory for archiving, script to automate archiving with call for report, updating analysis run log google sheet
 
 <!-- Resources/ Citations -->
+
+# Footnotes
+[^1]: Chromosome 13 was included in the test dataset reference as dipcall incorrectly included line breaks in dip.vcf when only chr21 was included. We might want to submit an issue to the dipcall repo about this issue.
