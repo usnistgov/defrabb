@@ -1,7 +1,7 @@
 library(tidyverse)
 
-xlog <- "../../logs/exclusions/testC/subtract_GRCh38_asm17aChr21_dipcall-z2k.log" %>%
-    read.csv(sep = "\t") %>%
+xlog <- "logs/exclusions/testC_subtract_GRCh38_asm17aChr21_dipcall-z2k.log" %>%
+    read_tsv(skip = 2) %>%
     as_tibble()
 
 init <- xlog[1, ]

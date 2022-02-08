@@ -19,7 +19,6 @@ rule download_bed_gz:
         "logs/download_bed_gz/{ref_id}_{genomic_region}.log",
     params:
         url=lambda wildcards: config["exclusion_beds"][wildcards.genomic_region],
-    group: "exclusions"
     shell:
         "curl -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
 
@@ -33,7 +32,6 @@ rule link_gaps:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/gaps.bed",
     log:
         "logs/exclusions/{bench_id}_gaps_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
-    group: "exclusions"
     shell:
         "cp {input} {output} &> {log}"
 
@@ -48,7 +46,6 @@ rule get_SVs_from_vcf:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/dip_SVs.bed",
     log:
         "logs/exclusions/{bench_id}_div_SVs_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
-    group: "exclusions"
     shell:
         """
         gunzip -c {input} | \
@@ -70,7 +67,6 @@ rule intersect_SVs_and_homopolymers:
         "benchmark/exclusions/{bench_id}_SVs_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "../envs/bedtools.yml"
-    group: "exclusions"
     shell:
         """
         intersectBed -wa \
@@ -96,7 +92,6 @@ rule add_slop:
         "logs/exclusions/{bench_id}_slop_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed",
     conda:
         "../envs/bedtools.yml"
-    group: "exclusions"
     shell:
         "bedtools slop -i {input.bed} -g {input.genome} -b 15000 1> {output} 2> {log}"
 
@@ -114,7 +109,6 @@ rule intersect_start_and_end:
         "benchmark/exclusions/start_end_{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "../envs/bedtools.yml"
-    group: "exclusions"
     shell:
         """
         awk '{{FS=OFS="\t"}} {{print $1, $2, $2+1}}' {input.dip} | \
@@ -138,7 +132,6 @@ rule add_flanks:
         "logs/exclusions/{bench_id}_flanks_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     conda:
         "../envs/bedtools.yml"
-    group: "exclusions"
     shell:
         "bedtools flank -i {input.bed} -g {input.genome} -b 15000 1> {output} 2> {log}"
 
@@ -148,18 +141,18 @@ rule subtract_exclusions:
         dip_bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.bed",
         other_beds=lookup_excluded_region_set,
     output:
-        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed",
+        bed="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed",
+        stats="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded_stats.txt"
     log:
         "logs/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
         "benchmark/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.benchmark"
     conda:
         "../envs/bedtools.yml"
-    group: "exclusions"
     shell:
         """
         python scripts/subtract_exclusions.py \
         {input.dip_bed} \
         {output} \
-        {input.other_beds} > {log}
+        {input.other_beds} 1> {output.stats} 2> {log}
         """

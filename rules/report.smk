@@ -145,7 +145,7 @@ rule get_rtg_vcf_stats:
 
 rule summarize_exclusions:
     input:
-        lambda wildcards: f"logs/exclusions/{{bench_id}}_subtract_{{ref_id}}_{vc_tbl.loc[(wildcards.vc_id, 'asm_id')]}_{vc_tbl.loc[(wildcards.vc_id, 'vc_cmd')]}-{vc_tbl.loc[(wildcards.vc_id, 'vc_param_id')]}.log",
+        lambda wildcards: f"results/draft_benchmarksets/{{bench_id}}/{{ref_id}}_{vc_tbl.loc[(wildcards.vc_id, 'asm_id')]}_{vc_tbl.loc[(wildcards.vc_id, 'vc_cmd')]}-{vc_tbl.loc[(wildcards.vc_id, 'vc_param_id')]}.excluded_stats.txt"
     output:
         "results/report/{bench_id}/{ref_id}_{vc_id}-{exclusion_set}.html",
     conda:

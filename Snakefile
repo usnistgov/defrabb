@@ -479,7 +479,7 @@ rule run_happy:
         engine="vcfeval",
         engine_extra=lambda wildcards: f"--engine-vcfeval-template resources/references/{wildcards.ref_id}.sdf",
     resources:
-        mem_mb=config["happy_mem"],
+        mem_mb=36000,
     threads: config["happy_threads"]
     log:
         "logs/run_happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
