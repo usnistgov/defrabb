@@ -20,3 +20,11 @@ GRCh38/**
 etc/slurm/__pycache__/**
 ## Scratch 
 scratch/**
+
+## Rproject files
+.Rproj.user
+.Rhistory
+
+## Runtime Benchmark results
+benchmark/**
+
