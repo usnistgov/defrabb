@@ -61,7 +61,7 @@ def get_happy_inputs(wildcards):
     comp_bed = "resources/comparison_variant_callsets/{comp_id}.bed"
 
     ## Determining which callsets and regions are used as truth
-    if analyses.loc[wildcards.eval_id, "eval_comp_truth"] == "true":
+    if analyses.loc[wildcards.eval_id, "eval_comp_id_is_truth"] == "true":
         query = "asm"
     else:
         query = "comp"

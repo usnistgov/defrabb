@@ -5,7 +5,7 @@ required:
   - eval_cmd
   - eval_params
   - eval_comp_id
-  - eval_comp_truth
+  - eval_comp_id_is_truth
   - eval_truth_regions
   - eval_target_regions
   - bench_id
@@ -46,7 +46,7 @@ properties:
       Source files (vcf and beds) should be included in the resources.yml.
     type: string
 
-  eval_comp_truth:
+  eval_comp_id_is_truth:
     description: |
       Set to 'true' to comparison variant calls and regions at truth inputs with the 'bench_id' as query input. 
       Setting this to 'false' will
