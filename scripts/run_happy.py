@@ -23,7 +23,7 @@ if target_regions:
 ref_id = snakemake.wildcards.ref_id
 strat_id = snakemake.config["stratifications"][ref_id]["id"]
 # strat_dir = f"resources/stratifications/{strat_id}"
-strat_tsv = f"{ref_id}/{snakemake.params.strat_tsv}"
+strat_tsv = f"{snakemake.params.strat_tsv}"
 # if path.isdir(strat_dir):
 #     print("Strafications Directory Exists")
 # else:
@@ -35,12 +35,12 @@ strat_tsv = f"{ref_id}/{snakemake.params.strat_tsv}"
 # else:
 # print(f"Stratification table, {strat_tsv}, not present.")
 print("Extracting Stratifications")
-shell("tar -xvf {snakemake.input.strat_tb}, "{log}")
+shell("tar -xvf {snakemake.input.strat_tb}", "{log}")
 
 if path.isfile(strat_tsv):
     print("Stratification tsv file present")
 else:
-    print("stratifications file not present!!! help!")
+    print(f"stratifications file, {strat_tsv}, not present!!! help!")
     shell("ls -lR")
 
 ## Running Happy
