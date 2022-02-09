@@ -1,5 +1,3 @@
-HI NATE!!!
-
 # GIAB Assembly-Based Benchmark Set Development Framework
 <!--
 
