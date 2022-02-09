@@ -266,7 +266,7 @@ rule index_ref_sdf:
 
 rule get_strats:
     output:
-        protected("resources/strat_{ref_id}/{strat_id}.tar.gz"),
+        protected("resources/strats/{ref_id}/{strat_id}.tar.gz"),
     params:
         url=lambda wildcards: f"{config['stratifications'][wildcards.ref_id]['url']}",
     log:
@@ -361,7 +361,7 @@ rule run_dipcall:
     benchmark:
         "benchmark/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     resources:
-        mem_mb=45000,  ## GB per thread - 16 Gb per job for sorting and estimating 30 max for alignment steps
+        mem_mb=config["_dipcall_threads"] * config["_dipcall_jobs"] * 16000,  ## GB per thread - 16 Gb per job for sorting and estimating 30 max for alignment steps
     threads: config["_dipcall_threads"] * config["_dipcall_jobs"]  ## For diploid
     shell:
         """
@@ -479,7 +479,7 @@ rule run_happy:
         engine="vcfeval",
         engine_extra=lambda wildcards: f"--engine-vcfeval-template resources/references/{wildcards.ref_id}.sdf",
     resources:
-        mem_mb=36000,
+        mem_mb=64000,
     threads: config["happy_threads"]
     log:
         "logs/run_happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
