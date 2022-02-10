@@ -3,13 +3,15 @@
 
 ## Input parameters will convert to script arguments
 ## Number of jobs to run
-JOBS=10
-RUNDIR="asm-bench-dev"
+JOBS=1
+RUNDIR="asm-bench-dev-jenny_test"
 DISKMB=50000
-DRYRUN=""
+#DRYRUN=""
+DRYRUN="--dryrun"
+
 
 ### Personal
-PROFILE="tibanna"
+PROFILE="default"
 UNICORN="tibanna_unicorn_giab_test3"
 
 ### Setting AWS credentials
