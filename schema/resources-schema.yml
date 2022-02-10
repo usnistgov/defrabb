@@ -11,7 +11,7 @@ required:
   - _dipcall_threads
   - _par_bed_root
   - stratifications
-additionalProperties: false
+additionalProperties: true
 properties:
 
   analyses: 
@@ -23,7 +23,13 @@ properties:
 
 ################################################################################
 # resources
-
+  analyses: 
+    additionalProperties:
+    patternProperties:
+      ^[\w\.\-]*tsv$:
+        type: string
+        description: |
+          File path to analyses tsv table
   references:
     additionalProperties: false
     patternProperties:

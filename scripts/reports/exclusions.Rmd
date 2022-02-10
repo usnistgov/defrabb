@@ -1,0 +1,27 @@
+---
+title: "Exclusions Report"
+---
+
+``` {r echo=FALSE, message=FALSE}
+library(tidyverse)
+
+xlog <- snakemake@input[[1]] %>%
+    read_tsv()
+
+init <- xlog[1, ]
+
+init_length <- init$resulting_length
+
+```
+
+# Exclusions Summary
+
+Starting length before exclusions: `r init_length`bp
+
+``` {r echo=FALSE, results="asis"}
+xlog %>%
+    mutate(
+           percent_decrease = 100 * exclusion_length / init_length,
+           bp_diff = lag(exclusion_length) - exclusion_length) %>%
+    knitr::kable()
+```
