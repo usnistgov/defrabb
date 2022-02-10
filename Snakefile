@@ -6,6 +6,7 @@ from snakemake.utils import min_version, validate
 include: "rules/common.smk"
 include: "rules/exclusions.smk"
 include: "rules/report.smk"
+# include: "rules/bench_vcf_processing.smk"
 
 
 min_version("6.0")
@@ -106,7 +107,6 @@ localrules:
     get_comparison_bed,
     get_comparison_tbi,
     get_strats,
-    index_ref,
     download_bed_gz,
     link_gaps,
     get_SVs_from_vcf,
@@ -132,6 +132,16 @@ rule all:
             asm_id=dipcall_tbl["asm_id"].tolist(),
             vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
             vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
+        ),
+        ## Bench VCF Processing
+        expand(
+            "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
+            zip,
+            bench_id=bench_tbl.index.tolist(),
+            ref=bench_tbl["ref"].tolist(),
+            asm_id=bench_tbl["asm_id"].tolist(),
+            vc_cmd=bench_tbl["vc_cmd"].tolist(),
+            vc_param_id=bench_tbl["vc_param_id"].tolist(),
         ),
         expand(
             "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
@@ -214,7 +224,7 @@ rule get_assemblies:
 # Get and prepare reference
 rule get_ref:
     output:
-        protected("resources/references/{ref_id}.fa"),
+        "resources/references/{ref_id}.fa",
     params:
         url=lambda wildcards: ref_config[wildcards.ref_id]["ref_url"],
     log:
@@ -230,6 +240,8 @@ rule index_ref:
         "resources/references/{ref_id}.fa.fai",
     log:
         "logs/index_ref/{ref_id}.log",
+    resources:
+        mem_mb=16000
     wrapper:
         "0.79.0/bio/samtools/faidx"
 
@@ -243,8 +255,11 @@ rule index_ref_mmi:
         "logs/index_ref_mmi/{ref_id}.log",
     conda:
         "envs/dipcall.yml"
+    resources:
+        mem_mb= 36000
+    threads: 4
     shell:
-        "minimap2 -x asm5 -d {output} {input} &> {log}"
+        "minimap2 -x asm5 -d {output} {input}"
 
 
 rule index_ref_sdf:
@@ -266,7 +281,7 @@ rule index_ref_sdf:
 
 rule get_strats:
     output:
-        protected("resources/strats/{ref_id}/{strat_id}.tar.gz"),
+        "resources/strats/{ref_id}/{strat_id}.tar.gz",
     params:
         url=lambda wildcards: f"{config['stratifications'][wildcards.ref_id]['url']}",
     log:
@@ -361,7 +376,7 @@ rule run_dipcall:
     benchmark:
         "benchmark/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     resources:
-        mem_mb=config["_dipcall_threads"] * config["_dipcall_jobs"] * 16000,  ## GB per thread - 16 Gb per job for sorting and estimating 30 max for alignment steps
+        mem_mb=config["_dipcall_jobs"] * 128000,  ## GB per thread - 16 Gb per job for sorting and estimating 30 max for alignment steps
     threads: config["_dipcall_threads"] * config["_dipcall_jobs"]  ## For diploid
     shell:
         """
@@ -390,17 +405,6 @@ rule run_dipcall:
 ################################################################################
 ################################################################################
 
-# rule dip_gap2homvarbutfiltered:
-#     input: "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz"
-#     output: "draft_benchmark_sets/{bench_id}/intermediate/{vc_id}.dip.gap2homvarbutfiltered.vcf.gz"
-#     # bgzip is part of samtools, which is part of the diptcall env
-#     conda: "envs/dipcall.yml"
-#     shell: """
-#         gunzip -c {input} |\
-#         sed 's/1|\./1|1/' |\
-#         grep -v 'HET\|GAP1\|DIP' |\
-#         bgzip -c > {output}
-#     """
 
 
 ## Using vc_name as a shortened wildcard to avoid writing out full variant call fileaname with multiple wildcards
