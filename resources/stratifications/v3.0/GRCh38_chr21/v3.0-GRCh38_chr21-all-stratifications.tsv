@@ -1,4 +1,0 @@
-ancestry_Neanderthal	ancestry/GRCh38_ancestry_Neanderthal.bed.gz
-population_CNV_FP_regions	OtherDifficult/GRCh38_population_CNV_FP_regions.bed.gz
-alldifficultregions	union/GRCh38_alldifficultregions.bed.gz
-notinalldifficultregions	union/GRCh38_notinalldifficultregions.bed.gz

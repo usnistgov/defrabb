@@ -20,7 +20,7 @@ rule download_bed_gz:
     params:
         url=lambda wildcards: config["exclusion_beds"][wildcards.genomic_region],
     shell:
-        "curl -L {params.url} | gunzip -c 1> {output} 2> {log}"
+        "curl -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
 
 
 # TODO hack since this is the only bed file that isn't processed according to
@@ -104,9 +104,9 @@ rule intersect_start_and_end:
         start="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/{genomic_regions}_start.bed",
         end="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/{genomic_regions}_end.bed",
     log:
-        "logs/exclusions/{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/exclusions/start_end_{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
-        "benchmark/exclusions/{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
+        "benchmark/exclusions/start_end_{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -141,9 +141,10 @@ rule subtract_exclusions:
         dip_bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.bed",
         other_beds=lookup_excluded_region_set,
     output:
-        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed",
+        bed="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed",
+        stats="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded_stats.txt"
     log:
-        "logs/exclusions/{bench_id}_substract_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
         "benchmark/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.benchmark"
     conda:
@@ -153,5 +154,5 @@ rule subtract_exclusions:
         python scripts/subtract_exclusions.py \
         {input.dip_bed} \
         {output} \
-        {input.other_beds} > {log}
+        {input.other_beds} 1> {output.stats} 2> {log}
         """

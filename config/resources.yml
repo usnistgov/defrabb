@@ -12,7 +12,6 @@
 ################################################################################
 analyses: "config/analyses.tsv"
 
-
 ################################################################################
 # References
 #
@@ -28,7 +27,7 @@ references:
     par_bed: "hs38.PAR.bed"
   ## For testing
   GRCh38_chr21:
-    ref_url: "local_file"
+    ref_url: "https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_chr21.fa.gz"
     par_bed: "hs38.PAR.bed"
 
 ################################################################################
@@ -68,12 +67,12 @@ assemblies:
 #   is_male: false
 
 ################################################################################
-# Benchmarks
+# Comparisons
 #
-# We specify a benchmark to use by supplying URLs to the .vcf and .bed files,
-# which will be used as truth inputs to hap.py downstream. We label this
-# benchmark with a unique identifier ('bmk-foo') that will be used to refer to
-# this benchmark in downstream steps.
+# We specify a comparisons to use by supplying URLs to the .vcf and .bed files,
+# which will be used into hap.py downstream to evaluate the draft benchmark. We label this
+# comparison with a unique identifier ('cmp-foo') that will be used to refer to
+# this comparison in downstream steps.
 
 comparisons:
   v4.2.1:
@@ -89,7 +88,7 @@ comparisons:
     bed_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/StructuralVariant/HG002_GRCh38_CMRG_SV_v1.00.bed
     tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/StructuralVariant/HG002_GRCh38_CMRG_SV_v1.00.vcf.gz.tbi
   # HiFi deepvariant from pFDA with v4.2.1 truth regions
-  HifiDV-v4.2.1:
+  HiFiDV-v4.2.1:
     vcf_url: https://nist-midas.s3.amazonaws.com/pdrsrv/mds2-2336/submission_vcfs/B1S5A/B1S5A_HG002.vcf.gz
     bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
     ## TODO - this is not the correct url for this vcfs index file, it probably isn't only
@@ -102,7 +101,7 @@ comparisons:
 
 # We can specify additional benchmarks like this
 
-# bmk-another:
+# cmp-another:
 #   vcf_url: http://another.vcf
 #   bed_url: http://another.bed
     
@@ -189,13 +188,16 @@ exclusion_set:
 
 ## Dipcall Resources ##############
 # the number of dipcall threads to use
-_dipcall_threads: 1
+_dipcall_threads: 3
+
+# the number of parallel jobs for dipcall's call to make - 2 or one per haplotype
+_dipcall_jobs: 2
 
 # the root of the par file for dipcall (and friends)
 _par_bed_root: data/par_bed
 
 ## Happy Resources ################
-happy_mem: 64G
+happy_mem: 24G
 happy_threads: 4
 
 # Statifications
@@ -205,3 +207,8 @@ stratifications:
       url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/v3.0-stratifications-GRCh38.tar.gz"
       tarball: "v3.0-stratifications-GRCh38.tar.gz"
       tsv: "v3.0-GRCh38-all-stratifications.tsv"
+    GRCh38_chr21:
+      id: "v3.0-stratifications-GRCh38_chr21"
+      url: "https://giab-data.s3.amazonaws.com/giab-test-data/v3.0-stratifications-GRCh38_chr21.tar.gz"
+      tarball: "v3.0-stratifications-GRCh38_chr21.tar.gz"
+      tsv: "v3.0-GRCh38-test-stratifications.tsv"

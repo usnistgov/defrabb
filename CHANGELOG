@@ -1,3 +1,7 @@
+# Milestone v0.004 TBD
+- Revising test dataset for easier local development
+- Adding basic report functionality
+
 # Milestone v0.003 2022-01-28
 - Version of pipeline used for generation and evaluation of the HG002 T2T assembly based draft benchmark set(HPRC-HG002-cur.20211005) with excluded regions.
 - Modified framework into three components; asm-varcalls, benchmark, and evaluations.

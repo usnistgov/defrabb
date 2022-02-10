@@ -32,5 +32,8 @@ snakemake \
 		subnet=subnet-083080d579317ad61 \
 		log_bucket=giab-tibanna-logs \
 		root_ebs_size=32 \
+	--precommand "cat etc/nist_dns.txt >> /etc/resolv.conf; cat /etc/resolv.conf" \
 	--default-remote-prefix=giab-tibanna-runs/${RUNDIR} \
-	--default-resources disk_mb=50000
+	--default-resources disk_mb=50000 \
+	--rerun-incomplete \
+	--keep-going

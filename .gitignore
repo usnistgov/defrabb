@@ -26,8 +26,10 @@ etc/slurm/__pycache__/**
 ## Scratch 
 scratch/**
 
-## Rstudo project files
-.Rproj.user/**
+## Rproject files
+.Rproj.user
 .Rhistory
-*Rproj
+
+## Runtime Benchmark results
+benchmark/**
 
