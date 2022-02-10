@@ -1,0 +1,2 @@
+eval_id	bench_id	eval_cmd	eval_params	eval_comp_id	eval_comp_truth	eval_truth_regions	eval_target_regions	vc_id	bench_type	bench_vcf_processing	bench_bed_processing	exclusion_set	asm_id	ref	vc_cmd	vc_param_id	vc_params
+GRCh38_T~HG002-HPRC-dipz2k_Q~hifidv	GRCh38_HG002-HPRC-dipz2k_smvar-excluded	happy	default	HiFiDV-v4.2.1	FALSE	TRUE	TRUE	GRCh38_HG002-HPRC_dipz2k	smvar	none	exclude	smvarall	HG2-HPRC-20211005	GRCh38	dipcall	z2k	"-z200000,10000"
