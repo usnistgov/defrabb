@@ -121,19 +121,19 @@ rule all:
             vc_cmd=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_cmd"].tolist(),
             vc_param_id=vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]["vc_param_id"].tolist(),
         ),
-        expand(
-            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.extended.csv",
-        zip,
-        eval_id=analyses[analyses["eval_cmd"] == "happy"].index.tolist(),
-        bench_id=analyses[analyses["eval_cmd"] == "happy"]["bench_id"].tolist(),
-        ref_id=analyses[analyses["eval_cmd"] == "happy"]["ref"].tolist(),
-        comp_id=analyses[analyses["eval_cmd"] == "happy"]["eval_comp_id"].tolist(),
-        asm_id=analyses[analyses["eval_cmd"] == "happy"]["asm_id"].tolist(),
-        vc_cmd=analyses[analyses["eval_cmd"] == "happy"]["vc_cmd"].tolist(),
-        vc_param_id=analyses[analyses["eval_cmd"] == "happy"][
-        "vc_param_id"
-            ].tolist(),
-        ),
+        # expand(
+        #     "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.extended.csv",
+        # zip,
+        # eval_id=analyses[analyses["eval_cmd"] == "happy"].index.tolist(),
+        # bench_id=analyses[analyses["eval_cmd"] == "happy"]["bench_id"].tolist(),
+        # ref_id=analyses[analyses["eval_cmd"] == "happy"]["ref"].tolist(),
+        # comp_id=analyses[analyses["eval_cmd"] == "happy"]["eval_comp_id"].tolist(),
+        # asm_id=analyses[analyses["eval_cmd"] == "happy"]["asm_id"].tolist(),
+        # vc_cmd=analyses[analyses["eval_cmd"] == "happy"]["vc_cmd"].tolist(),
+        # vc_param_id=analyses[analyses["eval_cmd"] == "happy"][
+        # "vc_param_id"
+        #     ].tolist(),
+        # ),
 
 
 #       expand("results/bench/truvari/{tvi_bench}.extended.csv", tvi_bench = analyses[analyses["bench_cmd"] == "truvari"].index.tolist()), ## Not yet used
@@ -280,11 +280,18 @@ rule run_dipcall:
             {input.h1} \
             {input.h2} \
             1> {output.make} 2> {log}
-
         echo "Running dipcall pipeline"
-        make -j{params.ts} -f {output.make} &>> {log}
+        make -j{params.ts} -f {output.make} >> {log}
         """
-
+rule index_dip_bam:
+    input:
+        "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam"
+    output:
+        "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam.bai"
+    log:
+        "logs/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam.bai.log"
+    wrapper:
+        "v1.1.0/bio/samtools/index"
 
 ################################################################################
 ################################################################################
