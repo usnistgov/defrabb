@@ -36,5 +36,5 @@ snakemake \
 	--default-remote-prefix=giab-tibanna-runs/${RUNDIR} \
 	--default-resources disk_mb=50000 \
 	--rerun-incomplete \
-	--keep-going \
- 	--config analyses="config/resources.yml"
+	--keep-going
+#  	--config analyses="config/resources.yml"
