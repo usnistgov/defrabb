@@ -4,7 +4,7 @@
 ## Input parameters will convert to script arguments
 ## Number of jobs to run
 JOBS=1
-RUNDIR="asm-bench-dev-jenny_test"
+RUNDIR="asm-bench-dev-jenny-test"
 DISKMB=50000
 #DRYRUN=""
 DRYRUN="--dryrun"
@@ -36,4 +36,5 @@ snakemake \
 	--default-remote-prefix=giab-tibanna-runs/${RUNDIR} \
 	--default-resources disk_mb=50000 \
 	--rerun-incomplete \
-	--keep-going
+	--keep-going \
+ 	--config analyses="config/resources.yml"
