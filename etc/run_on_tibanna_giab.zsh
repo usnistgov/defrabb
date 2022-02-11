@@ -6,8 +6,8 @@
 JOBS=1
 RUNDIR="asm-bench-dev-jenny-test"
 DISKMB=50000
-#DRYRUN=""
-DRYRUN="--dryrun"
+DRYRUN=""
+#DRYRUN="--dryrun"
 
 
 ### Personal
