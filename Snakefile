@@ -101,15 +101,16 @@ wildcard_constraints:
 ## Rules to run locally
 localrules:
     get_ref,
+    index_ref,
     get_assemblies,
     get_comparison_vcf,
     get_comparison_bed,
     get_comparison_tbi,
     get_strats,
-    index_ref,
     download_bed_gz,
     link_gaps,
     get_SVs_from_vcf,
+    
 
 
 ## Snakemake Report
@@ -132,6 +133,34 @@ rule all:
             asm_id=dipcall_tbl["asm_id"].tolist(),
             vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
             vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
+        ),
+        expand(
+            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1.bam",
+            zip,
+            vc_id=dipcall_tbl.index.tolist(),
+            ref=dipcall_tbl["ref"].tolist(),
+            asm_id=dipcall_tbl["asm_id"].tolist(),
+            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
+            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
+        ),
+        expand(
+            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap2.bam",
+            zip,
+            vc_id=dipcall_tbl.index.tolist(),
+            ref=dipcall_tbl["ref"].tolist(),
+            asm_id=dipcall_tbl["asm_id"].tolist(),
+            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
+            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
+        ),
+        expand(
+            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam.bai",
+            zip,
+            vc_id=dipcall_tbl.index.tolist(),
+            ref=dipcall_tbl["ref"].tolist(),
+            asm_id=dipcall_tbl["asm_id"].tolist(),
+            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
+            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
+            hap=dipcall_tbl.index.tolist(),
         ),
         expand(
             "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
@@ -168,19 +197,19 @@ rule all:
             vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
             vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
         ),
-        # expand(
-        #     "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.extended.csv",
-        # zip,
-        # eval_id=analyses[analyses["eval_cmd"] == "happy"].index.tolist(),
-        # bench_id=analyses[analyses["eval_cmd"] == "happy"]["bench_id"].tolist(),
-        # ref_id=analyses[analyses["eval_cmd"] == "happy"]["ref"].tolist(),
-        # comp_id=analyses[analyses["eval_cmd"] == "happy"]["eval_comp_id"].tolist(),
-        # asm_id=analyses[analyses["eval_cmd"] == "happy"]["asm_id"].tolist(),
-        # vc_cmd=analyses[analyses["eval_cmd"] == "happy"]["vc_cmd"].tolist(),
-        # vc_param_id=analyses[analyses["eval_cmd"] == "happy"][
-        # "vc_param_id"
-        #     ].tolist(),
-        # ),
+        expand(
+            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.extended.csv",
+        zip,
+        eval_id=analyses[analyses["eval_cmd"] == "happy"].index.tolist(),
+        bench_id=analyses[analyses["eval_cmd"] == "happy"]["bench_id"].tolist(),
+        ref_id=analyses[analyses["eval_cmd"] == "happy"]["ref"].tolist(),
+        comp_id=analyses[analyses["eval_cmd"] == "happy"]["eval_comp_id"].tolist(),
+        asm_id=analyses[analyses["eval_cmd"] == "happy"]["asm_id"].tolist(),
+        vc_cmd=analyses[analyses["eval_cmd"] == "happy"]["vc_cmd"].tolist(),
+        vc_param_id=analyses[analyses["eval_cmd"] == "happy"][
+        "vc_param_id"
+            ].tolist(),
+        ),
 
 
 #       expand("results/bench/truvari/{tvi_bench}.extended.csv", tvi_bench = analyses[analyses["bench_cmd"] == "truvari"].index.tolist()), ## Not yet used
@@ -234,6 +263,8 @@ rule index_ref_mmi:
         "resources/references/{ref_id}.fa",
     output:
         "resources/references/{ref_id}.mmi",
+    resources:
+        mem_mb=2400
     log:
         "logs/index_ref_mmi/{ref_id}.log",
     conda:
@@ -376,7 +407,8 @@ rule run_dipcall:
         """
 rule index_dip_bam:
     input:
-        "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam"
+        "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1.bam",
+        "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1.bam",
     output:
         "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam.bai"
     log:
