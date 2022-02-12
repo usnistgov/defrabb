@@ -135,23 +135,24 @@ rule all:
             vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
         ),
         expand(
-            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1.bam",
+            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam",
             zip,
             vc_id=dipcall_tbl.index.tolist(),
             ref=dipcall_tbl["ref"].tolist(),
             asm_id=dipcall_tbl["asm_id"].tolist(),
             vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
             vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
+            hap=["hap1","hap2"]
         ),
-        expand(
-            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap2.bam",
-            zip,
-            vc_id=dipcall_tbl.index.tolist(),
-            ref=dipcall_tbl["ref"].tolist(),
-            asm_id=dipcall_tbl["asm_id"].tolist(),
-            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
-            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
-        ),
+        # expand(
+        #     "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap2.bam",
+        #     zip,
+        #     vc_id=dipcall_tbl.index.tolist(),
+        #     ref=dipcall_tbl["ref"].tolist(),
+        #     asm_id=dipcall_tbl["asm_id"].tolist(),
+        #     vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
+        #     vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
+        # ),
         expand(
             "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam.bai",
             zip,
@@ -160,8 +161,18 @@ rule all:
             asm_id=dipcall_tbl["asm_id"].tolist(),
             vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
             vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
-            hap=dipcall_tbl.index.tolist(),
+            hap=["hap1","hap2"]
         ),
+        expand(
+            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap2.bam.bai",
+            zip,
+            vc_id=dipcall_tbl.index.tolist(),
+            ref=dipcall_tbl["ref"].tolist(),
+            asm_id=dipcall_tbl["asm_id"].tolist(),
+            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
+            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
+        ),
+
         expand(
             "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
             zip,
@@ -407,8 +418,7 @@ rule run_dipcall:
         """
 rule index_dip_bam:
     input:
-        "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1.bam",
-        "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1.bam",
+        "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam",
     output:
         "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam.bai"
     log:
