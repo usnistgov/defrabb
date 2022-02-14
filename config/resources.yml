@@ -114,6 +114,7 @@ exclusion_beds:
   tandem_repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeats_gt10000bp_slop5.bed.gz
   gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/OtherDifficult/GRCh38_gaps_slop15kb.bed.gz
   self_chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
+  satellites: https://giab-data.s3.amazonaws.com/giab-test-data/satellites.bed.gz
 
 exclusion_set:
   smvarall:
@@ -188,7 +189,7 @@ exclusion_set:
 
 ## Dipcall Resources ##############
 # the number of dipcall threads to use
-_dipcall_threads: 3
+_dipcall_threads: 16
 
 # the number of parallel jobs for dipcall's call to make - 2 or one per haplotype
 _dipcall_jobs: 2
@@ -197,7 +198,7 @@ _dipcall_jobs: 2
 _par_bed_root: data/par_bed
 
 ## Happy Resources ################
-happy_mem: 24G
+happy_mem: 64G
 happy_threads: 4
 
 # Statifications
