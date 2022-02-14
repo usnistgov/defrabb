@@ -108,7 +108,7 @@ properties:
     description: The beds to use when generating the exclusions
     additionalProperties: false
     patternProperties:
-      ^homopolymers|segdups|tandem_repeat|gaps|self_chains$:
+      ^homopolymers|segdups|tandem_repeat|gaps|self_chains|satellites$:
         type: string
         format: uri
 
