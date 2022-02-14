@@ -89,6 +89,7 @@ wildcard_constraints:
     ref_id="|".join(REFIDS),
     bench_id="|".join(BENCHIDS),
     eval_id="|".join(EVALIDS),
+    vc_id="|".join(VCIDS),
     vc_param_id="|".join(VCPARAMIDS),
 
 
