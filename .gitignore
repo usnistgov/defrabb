@@ -1,23 +1,28 @@
 .DS_Store
 .vscode/**
+**.code-workspace
+
+### Pipeline Files #########
 .snakemake/**
 results/**
 logs/**
+benchmark/**
 .snakemake/**
-**.code-workspace
+## Resources - use -f to add 
+resources/**
+## Run archiving files
+*_v*.tar.gz
+v*-report.html
 
-data/asm17ab21
+
 ## Directories with tibanna run output
 giab-data
 giab-tibanna-runs
 
-## Resources - use -f to add 
-resources/**
-
-GRCh38/**
 
 ## Slurm config
 etc/slurm/__pycache__/**
+
 ## Scratch 
 scratch/**
 
