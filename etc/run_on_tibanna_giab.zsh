@@ -4,10 +4,10 @@
 ## Input parameters will convert to script arguments
 ## Number of jobs to run
 JOBS=1
-RUNDIR="asm-bench-dev-jenny_test"
+RUNDIR="asm-bench-dev-jenny-test"
 DISKMB=50000
-#DRYRUN=""
-DRYRUN="--dryrun"
+DRYRUN=""
+#DRYRUN="--dryrun"
 
 
 ### Personal
