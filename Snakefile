@@ -134,16 +134,6 @@ rule all:
             vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
             vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
         ),
-        # expand(
-        #     "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam",
-        #     zip,
-        #     vc_id=dipcall_tbl.index.tolist(),
-        #     ref=dipcall_tbl["ref"].tolist(),
-        #     asm_id=dipcall_tbl["asm_id"].tolist(),
-        #     vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
-        #     vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
-        #     hap=["hap1","hap2"]
-        # ),
         expand(
             "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1.bam.bai",
             zip,
