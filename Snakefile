@@ -386,9 +386,10 @@ rule run_dipcall:
             {input.ref} \
             {input.h1} \
             {input.h2} \
-            1> {output.make} 2> {log}
+            1> {output.make}
+
         echo "Running dipcall pipeline"
-        make -j{params.ts} -f {output.make} >> {log}
+        make -j{params.ts} -f {output.make}
         """
 rule index_dip_bam:
     input:
