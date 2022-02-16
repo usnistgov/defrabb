@@ -8,6 +8,9 @@ dip_bed_path = (
     "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.bed"
 )
 
+wildcard_constraints:
+    ref_id="GRCh38|GRCh37|GRCh38_chr21",
+    genomic_regions="homopolymers|segdups|tandem_repeat|gaps|self_chains|satellites"
 
 # downloading stuff
 
@@ -16,7 +19,7 @@ rule download_bed_gz:
     output:
         "resources/exclusions/{ref_id}/{genomic_region}.bed",
     log:
-        "logs/download_bed_gz/{ref_id}_{genomic_region}.log",
+        "logs/download_bed_gz/{ref_id}-{genomic_region}.log",
     params:
         url=lambda wildcards: config["exclusion_beds"][wildcards.genomic_region],
     group: "download"
