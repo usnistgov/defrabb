@@ -103,7 +103,6 @@ wildcard_constraints:
 ## Rules to run locally
 localrules:
     get_ref,
-    index_ref,
     get_assemblies,
     get_comparison_vcf,
     get_comparison_bed,
@@ -258,6 +257,7 @@ rule index_ref:
         "logs/index_ref/{ref_id}.log",
     resources:
         mem_mb=16000
+    group: "indexing"
     wrapper:
         "0.79.0/bio/samtools/faidx"
 
@@ -267,15 +267,14 @@ rule index_ref_mmi:
         "resources/references/{ref_id}.fa",
     output:
         "resources/references/{ref_id}.mmi",
-    resources:
-        mem_mb=2400
     log:
         "logs/index_ref_mmi/{ref_id}.log",
+    threads: 4
+    resources:
+        mem_mb=2400
     conda:
         "envs/dipcall.yml"
-    resources:
-        mem_mb= 36000
-    threads: 4
+    group: "indexing"
     shell:
         "minimap2 -x asm5 -d {output} {input}"
 
@@ -289,6 +288,7 @@ rule index_ref_sdf:
         "logs/index_ref_sdf/{ref_id}.log",
     conda:
         "envs/rtgtools.yml"
+    group: "indexing"
     shell:
         "rtg format -o {output} {input}"
 
@@ -394,8 +394,8 @@ rule run_dipcall:
     benchmark:
         "benchmark/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     resources:
-        mem_mb=config["_dipcall_jobs"] *  config["_dipcall_mem"],  ## GB per make job run in parallel - 16 Gb per job for sorting and estimating 30 max for alignment steps
-    threads: config["_dipcall_threads"] * config["_dipcall_jobs"]  ## For diploid
+        mem_mb=config["_dipcall_jobs"] *  config["_dipcall_mem"],  ## GB per make job run in parallel
+    threads: config["_dipcall_threads"] * config["_dipcall_jobs"]
     shell:
         """
         echo "Writing Makefile defining dipcall pipeline"
@@ -430,24 +430,6 @@ rule index_dip_bam:
 ##
 ################################################################################
 ################################################################################
-
-
-
-## Using vc_name as a shortened wildcard to avoid writing out full variant call fileaname with multiple wildcards
-## TODO workout identification and naming for final draft benchmark variant callset
-# rule split_multiallelic_sites:
-#     input: lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, "vc_id")]}/{{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}}.dip.vcf.gz",
-#     output:
-#         vcf="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.split_multi.vcf.gz",
-#         vcf_tbi="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.split_multi.vcf.gz.tbi",
-#     conda: "envs/bcftools.yml"
-#     log: "logs/split_multiallelic_sites/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
-#     shell:
-#         """
-#         bcftools norm -m - {input} -Oz -o {output.vcf} 2> {log}
-#         tabix -p vcf {output.vcf} 2>> {log}
-#         """
-
 
 rule postprocess_vcf:
     input:
@@ -507,12 +489,12 @@ rule run_happy:
     params:
         prefix="results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
         strat_tsv=lambda wildcards: f"{wildcards.ref_id}/{config['stratifications'][wildcards.ref_id]['tsv']}",
-        threads=config["happy_threads"],
+        threads=config["_happy_threads"],
         engine="vcfeval",
         engine_extra=lambda wildcards: f"--engine-vcfeval-template resources/references/{wildcards.ref_id}.sdf",
     resources:
-        mem_mb=64000,
-    threads: config["happy_threads"]
+        mem_mb=config["_happy_mem"],
+    threads: config["_happy_threads"]
     log:
         "logs/run_happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
