@@ -456,6 +456,7 @@ rule postprocess_vcf:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
     log:
         "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    group: "postprocess"
     shell:
         "cp {input} {output} &> {log}"
 
@@ -467,6 +468,7 @@ rule postprocess_bed:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed",
     log:
         "logs/process_benchmark_bed/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    group: "postprocess"
     shell:
         "cp {input} {output} &> {log}"
 
