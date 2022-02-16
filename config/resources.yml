@@ -189,16 +189,19 @@ exclusion_set:
 
 ## Dipcall Resources ##############
 # the number of dipcall threads to use
-_dipcall_threads: 16
+_dipcall_threads: 18
 
 # the number of parallel jobs for dipcall's call to make - 2 or one per haplotype
-_dipcall_jobs: 2
+_dipcall_jobs: 4
+
+# Mem per job
+_dipcall_mem: 32000
 
 # the root of the par file for dipcall (and friends)
 _par_bed_root: data/par_bed
 
 ## Happy Resources ################
-happy_mem: 64G
+happy_mem: 24G
 happy_threads: 4
 
 # Statifications

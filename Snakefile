@@ -372,7 +372,7 @@ rule run_dipcall:
     benchmark:
         "benchmark/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     resources:
-        mem_mb=config["_dipcall_jobs"] * 128000,  ## GB per thread - 16 Gb per job for sorting and estimating 30 max for alignment steps
+        mem_mb=config["_dipcall_jobs"] *  config["_dipcall_mem"],  ## GB per make job run in parallel - 16 Gb per job for sorting and estimating 30 max for alignment steps
     threads: config["_dipcall_threads"] * config["_dipcall_jobs"]  ## For diploid
     shell:
         """
