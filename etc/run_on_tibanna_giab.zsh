@@ -3,11 +3,11 @@
 
 ## Input parameters will convert to script arguments
 ## Number of jobs to run
-JOBS=1
-RUNDIR="asm-bench-dev-jenny_test"
+JOBS=20
+RUNDIR="asm-bench-dev"
 DISKMB=50000
-#DRYRUN=""
-DRYRUN="--dryrun"
+DRYRUN=""
+#DRYRUN="--dryrun"
 
 
 ### Personal
@@ -27,9 +27,7 @@ time \
 			log_bucket=giab-tibanna-logs \
 			root_ebs_size=32 \
 			spot_instance=True \
-			behavior_on_capacity_limit=wait_and_retry \
+			behavior_on_capacity_limit=retry_without_spot \
 		--precommand "cat etc/nist_dns.txt >> /etc/resolv.conf; cat /etc/resolv.conf" \
 		--default-remote-prefix=giab-tibanna-runs/${RUNDIR} \
-		--default-resources disk_mb=50000 \
-		--rerun-incomplete \
-		--keep-going
+		--default-resources disk_mb=50000
