@@ -32,9 +32,9 @@ references:
 exclusion_beds:
   homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
   segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/SegmentalDuplications/GRCh38_segdups.bed.gz
-  tandem_repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeats_gt10000bp_slop5.bed.gz
+  tandem-repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeats_gt10000bp_slop5.bed.gz
   gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/OtherDifficult/GRCh38_gaps_slop15kb.bed.gz
-  self_chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
+  self-chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
   satellites: https://giab-data.s3.amazonaws.com/giab-test-data/satellites.bed.gz
 
 # Stratifications - set of genomic regions used to calculate genomic context 
@@ -271,19 +271,19 @@ exclusion_set:
   smvarall:
     - segdups_start.bed
     - segdups_end.bed
-    - tandem_repeats_start.bed
-    - tandem_repeats_end.bed
+    - tandem-repeats_start.bed
+    - tandem-repeats_end.bed
     - satellites_end.bed
     - gaps.bed
-    - self_chains_start.bed
-    - self_chains_end.bed
+    - self-chains_start.bed
+    - self-chains_end.bed
     - flanks.bed
-    - structural_variants.bed
+    - structural-variants.bed
   stvarall:
     - segdups_start.bed
     - segdups_end.bed
-    - tandem_repeats_start.bed
-    - tandem_repeats_end.bed
+    - tandem-repeats_start.bed
+    - tandem-repeats_end.bed
     - satellites_end.bed
     - gaps.bed
     - self_chains_start.bed

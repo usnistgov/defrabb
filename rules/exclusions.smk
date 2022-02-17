@@ -8,7 +8,7 @@ dip_bed_path = (
 
 wildcard_constraints:
     ref_id="GRCh38|GRCh37|GRCh38_chr21",
-    genomic_regions="homopolymers|segdups|tandem_repeat|gaps|self_chains|satellites",
+    genomic_regions="homopolymers|segdups|tandem_repeat|gaps|self-chains|satellites|tandem-repeats",
 
 
 # downloading beds used for exclusion
@@ -64,7 +64,7 @@ rule intersect_SVs_and_homopolymers:
         sv_bed="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/dip_SVs.bed",
         homopoly_bed="resources/exclusions/{ref_id}/homopolymers.bed",
     output:
-        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/structural_variants.bed",
+        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/structural-variants.bed",
     log:
         "logs/exclusions/{bench_id}_SVs_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
