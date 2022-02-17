@@ -6,6 +6,8 @@ from snakemake.utils import min_version, validate
 include: "rules/common.smk"
 include: "rules/exclusions.smk"
 include: "rules/report.smk"
+
+
 # include: "rules/bench_vcf_processing.smk"
 
 
@@ -111,7 +113,6 @@ localrules:
     download_bed_gz,
     link_gaps,
     get_SVs_from_vcf,
-    
 
 
 ## Snakemake Report
@@ -123,6 +124,7 @@ report: "report/workflow.rst"
 # defining variables for cleaner rule all
 happy_analyses = analyses[analyses["eval_cmd"] == "happy"]
 dipcall_tbl = vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]
+
 
 rule all:
     input:
@@ -256,8 +258,9 @@ rule index_ref:
     log:
         "logs/index_ref/{ref_id}.log",
     resources:
-        mem_mb=16000
-    group: "indexing"
+        mem_mb=16000,
+    group:
+        "indexing"
     wrapper:
         "0.79.0/bio/samtools/faidx"
 
@@ -271,10 +274,11 @@ rule index_ref_mmi:
         "logs/index_ref_mmi/{ref_id}.log",
     threads: 4
     resources:
-        mem_mb=2400
+        mem_mb=2400,
     conda:
         "envs/dipcall.yml"
-    group: "indexing"
+    group:
+        "indexing"
     shell:
         "minimap2 -x asm5 -d {output} {input}"
 
@@ -288,7 +292,8 @@ rule index_ref_sdf:
         "logs/index_ref_sdf/{ref_id}.log",
     conda:
         "envs/rtgtools.yml"
-    group: "indexing"
+    group:
+        "indexing"
     shell:
         "rtg format -o {output} {input}"
 
@@ -394,7 +399,7 @@ rule run_dipcall:
     benchmark:
         "benchmark/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     resources:
-        mem_mb=config["_dipcall_jobs"] *  config["_dipcall_mem"],  ## GB per make job run in parallel
+        mem_mb=config["_dipcall_jobs"] * config["_dipcall_mem"],  ## GB per make job run in parallel
     threads: config["_dipcall_threads"] * config["_dipcall_jobs"]
     shell:
         """
@@ -413,15 +418,18 @@ rule run_dipcall:
         echo "Running dipcall pipeline"
         make -j{params.ts} -f {output.make}
         """
+
+
 rule index_dip_bam:
     input:
         "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam",
     output:
-        "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam.bai"
+        "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam.bai",
     log:
-        "logs/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam.bai.log"
+        "logs/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam.bai.log",
     wrapper:
         "v1.1.0/bio/samtools/index"
+
 
 ################################################################################
 ################################################################################
@@ -431,6 +439,7 @@ rule index_dip_bam:
 ################################################################################
 ################################################################################
 
+
 rule postprocess_vcf:
     input:
         lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.vcf.gz",
@@ -438,7 +447,8 @@ rule postprocess_vcf:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
     log:
         "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
-    group: "postprocess"
+    group:
+        "postprocess"
     shell:
         "cp {input} {output} &> {log}"
 
@@ -450,7 +460,8 @@ rule postprocess_bed:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed",
     log:
         "logs/process_benchmark_bed/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
-    group: "postprocess"
+    group:
+        "postprocess"
     shell:
         "cp {input} {output} &> {log}"
 
