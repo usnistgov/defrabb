@@ -3,8 +3,9 @@
 
 ## Input parameters will convert to script arguments
 ## Number of jobs to run
-JOBS=20
-RUNDIR="asm-bench-dev"
+JOBS=1
+RUNDIR="defrabb-HPRC-44"
+ANALYSES="config/analyses_single.tsv"
 DISKMB=50000
 DRYRUN=""
 #DRYRUN="--dryrun"
@@ -20,7 +21,7 @@ export TIBANNA_DEFAULT_STEP_FUNCTION_NAME=${UNICORN}
 ## Running Snakemake
 time \
 	snakemake \
-		--use-conda -j${JOBS} -p --verbose ${DRYRUN}\
+		--use-conda -j${JOBS} -p --verbose ${DRYRUN} --config analyses=${ANALYSES}\
 		--tibanna \
 		--tibanna-config \
 			subnet=subnet-083080d579317ad61 \
@@ -30,4 +31,5 @@ time \
 			behavior_on_capacity_limit=retry_without_spot \
 		--precommand "cat etc/nist_dns.txt >> /etc/resolv.conf; cat /etc/resolv.conf" \
 		--default-remote-prefix=giab-tibanna-runs/${RUNDIR} \
-		--default-resources disk_mb=50000
+		--default-resources disk_mb=50000 \
+		--keep-going
