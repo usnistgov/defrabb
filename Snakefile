@@ -77,7 +77,7 @@ VCPARAMIDS = set(vc_tbl["vc_param_id"].tolist())
 BENCHIDS = set(bench_tbl.index.tolist())
 
 
-## Benchmark Evaluations
+## Evaluations
 EVALIDS = set(eval_tbl.index.tolist())
 EVALCOMPIDS = set(eval_tbl["eval_comp_id"].tolist())
 
@@ -98,9 +98,6 @@ wildcard_constraints:
 ################################################################################
 # main rule
 #
-# Define what files we want hap.py to make, and these paths will contain the
-# definitions for the assemblies, variant caller, etc to use in upstream rules.
-
 
 ## Rules to run locally
 localrules:
