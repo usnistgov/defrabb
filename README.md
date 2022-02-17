@@ -61,17 +61,17 @@ Low memory jobs, defined in Snakefile, are run on "local" instance. Higher memor
 2. Start instance, e.g., (ssh command for your instance can be found under "Connect" button) 
 `ssh -v -i "~/.ssh/user.pem" ec2-user@10.208.44.53`
 3. install dependencies
-	- miniconda
-`wget https://repo.anaconda.com/miniconda/Miniconda3-py37_4.11.0-Linux-x86_64.sh`
-`sh Miniconda3-py37_4.11.0-Linux-x86_64.sh`
-`echo $HOME (/home/ec2-user)`
-`export PATH="$HOME/miniconda3/bin:$PATH"`
-	- tmux
-`sudo yum install tmux`
-	- git 
-`sudo yum install git`
-	- mamba
-`conda install -c conda-forge mamba`
+	- miniconda\
+`wget https://repo.anaconda.com/miniconda/Miniconda3-py37_4.11.0-Linux-x86_64.sh`\
+`sh Miniconda3-py37_4.11.0-Linux-x86_64.sh`\
+`echo $HOME (/home/ec2-user)`\
+`export PATH="$HOME/miniconda3/bin:$PATH"`\
+	- tmux\
+`sudo yum install tmux`\
+	- git\
+`sudo yum install git`\
+	- mamba\
+`conda install -c conda-forge mamba`\
 	- nano (this might already be installed)
 4. initialize conda for shell interaction
 conda init bash (needed to restart shell after this)
