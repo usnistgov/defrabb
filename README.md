@@ -58,7 +58,7 @@ __Steps__
 # Running Framework on AWS with Tibanna
 Low memory jobs, defined in Snakefile, are run on "local" instance. Higher memory, compute intensive jobs will be run on instances started by Tibanna with appropriate resources. 
 1. Set up AWS instance [^2] e.g. i3.large w/ 2vCPU, 15GB and 1TB storage (less storage migth be possible if fewer assemblies will be run)
-2. Start instance, e.g., (ssh command for your instance can be found under "Connect" button) 
+2. Start instance, e.g., (ssh command for your instance can be found under "Connect" button)\
 `ssh -v -i "~/.ssh/user.pem" ec2-user@10.208.44.53`
 3. install dependencies
 	- miniconda\
@@ -75,13 +75,13 @@ Low memory jobs, defined in Snakefile, are run on "local" instance. Higher memor
 	- nano (this might already be installed)
 4. initialize conda for shell interaction
 conda init bash (needed to restart shell after this)
-5. clone defrabb git repo and switch desired branch
-`git clone https://gitlab.nist.gov/gitlab/njd2/giab-asm-bench-whole-genome.git`
+5. clone defrabb git repo and switch desired branch\
+`git clone https://gitlab.nist.gov/gitlab/njd2/giab-asm-bench-whole-genome.git`\
 `git checkout desired-branch`
-6. use mamba to set up defrabb env
+6. use mamba to set up defrabb environment\
 `mamba env create -f envs/env.yml -n defrabb`
-7. Add AWS credentials
-get "DEFAULT" credentials `cat ~/.aws/credentials`
+7. Add AWS credentials\
+get "DEFAULT" credentials `cat ~/.aws/credentials`\
 `aws configure` entering the following from your file above when propted
 	- AWS Access Key ID
 	- AWS Secret Access Key
@@ -94,16 +94,16 @@ get "DEFAULT" credentials `cat ~/.aws/credentials`
 	- RUNDIR = directory in S3 bucket `giab-tibanna-runs` that outputs should go to
 	- JOBS and DISKMB = adjust as appropriate for your run requirements
 ## preparing to start run on AWS instance
-1. start tmux session. See [online tmux cheatsheet](https://tmuxcheatsheet.com) for helpful tmux commands [^3]
+1. start tmux session. See [online tmux cheatsheet](https://tmuxcheatsheet.com) for helpful tmux commands [^3]\
 `tmux new-session -s my-session-name`
-2. activate defrabb environment
-conda activate defrabb
-3. start run w/ tibanna
+2. activate defrabb environment\
+`conda activate defrabb`
+3. start run w/ tibanna\
 `sh etc/run_on_tibanna_giab.sh`
 4. You can look at tibanna logs for each job
-	- list the jobs, in this example 10
-`tibanna stat -s tibanna_unicorn_giab_test3 -n 10`
-	- job IDs will be on far left, copy jobID 
+	- list the jobs, in this example 10\
+`tibanna stat -s tibanna_unicorn_giab_test3 -n 10`\
+	- job IDs will be on far left, copy jobID\
 `tibanna log -s tibanna_unicorn_giab_test3 -j <paste jobID#>`
 ## Notes / Gotchas for AWS instance
 - Tibanna and all jobs started with tibanna are run in docker containters.  There is a limit on how many docker containers can be started in a given time.
