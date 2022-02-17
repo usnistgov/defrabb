@@ -59,13 +59,13 @@ __Steps__
 Low memory jobs, defined in Snakefile, are run on "local" instance. Higher memory, compute intensive jobs will be run on instances started by Tibanna with appropriate resources. 
 1. Set up AWS instance [^2] e.g. i3.large w/ 2vCPU, 15GB and 1TB storage (less storage migth be possible if fewer assemblies will be run)
 2. Start instance, e.g., (ssh command for your instance can be found under "Connect" button)\
-`ssh -v -i "~/.ssh/user.pem" ec2-user@10.208.44.53`
+`ssh -v -i "~/.ssh/user.pem" ec2-user@##.###.##.##`
 3. install dependencies
 	- miniconda\
-`wget https://repo.anaconda.com/miniconda/Miniconda3-py37_4.11.0-Linux-x86_64.sh`\
-`sh Miniconda3-py37_4.11.0-Linux-x86_64.sh`\
-`echo $HOME (/home/ec2-user)`\
-`export PATH="$HOME/miniconda3/bin:$PATH"`\
+`wget https://repo.anaconda.com/miniconda/Miniconda3-py37_4.11.0-Linux-x86_64.sh`
+`sh Miniconda3-py37_4.11.0-Linux-x86_64.sh`
+`echo $HOME (/home/ec2-user)`
+`export PATH="$HOME/miniconda3/bin:$PATH"`
 	- tmux\
 `sudo yum install tmux`\
 	- git\
