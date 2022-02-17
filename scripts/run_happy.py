@@ -22,18 +22,8 @@ if target_regions:
 ## Extracting stratification tarball
 ref_id = snakemake.wildcards.ref_id
 strat_id = snakemake.config["stratifications"][ref_id]["id"]
-# strat_dir = f"resources/stratifications/{strat_id}"
 strat_tsv = f"{snakemake.params.strat_tsv}"
-# if path.isdir(strat_dir):
-#     print("Strafications Directory Exists")
-# else:
-#     print("Making directory to extract stratifications into")
-#     shell("mkdir -p {strat_dir}", "{log}")
 
-# if path.isfile(strat_tsv):
-#     print("Stratification tsv file present")
-# else:
-# print(f"Stratification table, {strat_tsv}, not present.")
 print("Extracting Stratifications")
 shell("tar -xvf {snakemake.input.strat_tb}", "{log}")
 

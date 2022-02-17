@@ -1,8 +1,5 @@
 import pandas as pd
 
-# from more_itertools import unzip, flatten
-from snakemake.utils import min_version, validate
-
 # results paths
 dip_bed_path = (
     "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.bed"
@@ -14,9 +11,7 @@ wildcard_constraints:
     genomic_regions="homopolymers|segdups|tandem_repeat|gaps|self_chains|satellites",
 
 
-# downloading stuff
-
-
+# downloading beds used for exclusion
 rule download_bed_gz:
     output:
         "resources/exclusions/{ref_id}/{genomic_region}.bed",
@@ -45,9 +40,7 @@ rule link_gaps:
         "cp {input} {output} &> {log}"
 
 
-# structural variants
-
-
+# structural variants - using asm varcalls vcf to identify structural variants for exclusion
 rule get_SVs_from_vcf:
     input:
         lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.vcf.gz",
@@ -83,34 +76,15 @@ rule intersect_SVs_and_homopolymers:
     shell:
         """
         intersectBed -wa \
-        -a {input.homopoly_bed} \
-        -b {input.sv_bed} | \
-        multiIntersectBed -i stdin {input.sv_bed} | \
-        awk '{{FS=OFS="\\t"}} {{print $1,$2-50,$3+50}}' | \
-        mergeBed -i stdin -d 1000 \
-        1> {output} 2>{log}
+                -a {input.homopoly_bed} \
+                -b {input.sv_bed} | \
+            multiIntersectBed -i stdin {input.sv_bed} | \
+            awk '{{FS=OFS="\\t"}} {{print $1,$2-50,$3+50}}' | \
+            mergeBed -i stdin -d 1000 \
+                1> {output} 2>{log}
         """
 
-
-# segdups/tandemreps/self chains
-
-
-rule add_slop:
-    input:
-        bed="resources/exclusions/{ref_id}/{genomic_regions}.bed",
-        genome="resources/exclusions/{ref_id}.genome",
-    output:
-        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/slop/{genomic_regions}.bed",
-    log:
-        "logs/exclusions/{bench_id}_slop_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed",
-    conda:
-        "../envs/bedtools.yml"
-    group:
-        "postprocess"
-    shell:
-        "bedtools slop -i {input.bed} -g {input.genome} -b 15000 1> {output} 2> {log}"
-
-
+## Finding breaks in assemblies for excluded regions
 rule intersect_start_and_end:
     input:
         dip=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.bed",
@@ -137,6 +111,21 @@ rule intersect_start_and_end:
         1> {output.end} 2>> {log}
         """
 
+### Rule not used - expanding exclusion regions by 15kb
+# rule add_slop:
+#     input:
+#         bed="resources/exclusions/{ref_id}/{genomic_regions}.bed",
+#         genome="resources/exclusions/{ref_id}.genome",
+#     output:
+#         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/slop/{genomic_regions}.bed",
+#     log:
+#         "logs/exclusions/{bench_id}_slop_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed",
+#     conda:
+#         "../envs/bedtools.yml"
+#     group:
+#         "postprocess"
+#     shell:
+#         "bedtools slop -i {input.bed} -g {input.genome} -b 15000 1> {output} 2> {log}"
 
 # flanks
 rule add_flanks:
@@ -154,7 +143,8 @@ rule add_flanks:
     shell:
         "bedtools flank -i {input.bed} -g {input.genome} -b 15000 1> {output} 2> {log}"
 
-
+## Removing excluded genomic regions from asm varcalls bed file 
+## for draft benchmark regions
 rule subtract_exclusions:
     input:
         dip_bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.bed",

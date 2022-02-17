@@ -21,7 +21,9 @@ rule fix_XY_genotype:
         """
 
 
-## Used when evaluating assembly accuracy using established benchmark
+## Use when evaluating assembly accuracy with established benchmark
+##  This rule is an artifact from previous assembly benchmarking pipeline 
+##  Not current used - keeping here for potential future use
 rule dip_gap2homvarbutfiltered:
     input:
         "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",

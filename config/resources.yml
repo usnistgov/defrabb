@@ -315,6 +315,11 @@ comparisons:
     vcf_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz
     bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
     tbi_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz.tbi
+  ## GIAB Variant Callsets for comparison
+  HiFiDV-v4.2.1:
+    vcf_url: https://nist-midas.s3.amazonaws.com/pdrsrv/mds2-2336/submission_vcfs/B1S5A/B1S5A_HG002.vcf.gz
+    bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
+    tbi_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz.tbi
   ## HPRC 44 Genome DeepVariant Callsets
   Hifi-DV-HG01123:
     vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01123/HG01123.GRCh38_no_alt.deepvariant.vcf.gz
