@@ -30,5 +30,4 @@ time \
 			behavior_on_capacity_limit=retry_without_spot \
 		--precommand "cat etc/nist_dns.txt >> /etc/resolv.conf; cat /etc/resolv.conf" \
 		--default-remote-prefix=giab-tibanna-runs/${RUNDIR} \
-		--default-resources disk_mb=50000 \
-		--forceall
+		--default-resources disk_mb=50000
