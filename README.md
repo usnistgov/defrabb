@@ -55,6 +55,60 @@ __Steps__
 * Need to first create conda environments using `snakemake --use-conda --conda-create-envs-only`
 * Can not define job memory requirement, for jobs with high memory requirements try increasing the number of threads.
 
+# Running Framework on AWS with Tibanna
+Low memory jobs, defined in Snakefile, are run on "local" instance. Higher memory, compute intensive jobs will be run on instances started by Tibanna with appropriate resources. 
+1. Set up AWS instance [^2] e.g. i3.large w/ 2vCPU, 15GB and 1TB storage (less storage migth be possible if fewer assemblies will be run)
+2. Start instance, e.g., (ssh command for your instance can be found under "Connect" button) 
+`ssh -v -i "~/.ssh/user.pem" ec2-user@10.208.44.53`
+3. install dependencies
+- miniconda
+`wget https://repo.anaconda.com/miniconda/Miniconda3-py37_4.11.0-Linux-x86_64.sh`
+`sh Miniconda3-py37_4.11.0-Linux-x86_64.sh`
+`echo $HOME (/home/ec2-user)`
+`export PATH="$HOME/miniconda3/bin:$PATH"`
+- tmux
+`sudo yum install tmux`
+- git 
+`sudo yum install git`
+- mamba
+`conda install -c conda-forge mamba`
+- nano (this might already be installed)
+4. initialize conda for shell interaction
+conda init bash (needed to restart shell after this)
+5. clone defrabb git repo and switch desired branch
+`git clone https://gitlab.nist.gov/gitlab/njd2/giab-asm-bench-whole-genome.git`
+`git checkout desired-branch`
+6. use mamba to set up defrabb env
+`mamba env create -f envs/env.yml -n defrabb`
+7. Add AWS credentials
+get "DEFAULT" credentials `cat ~/.aws/credentials`
+`aws configure` entering the following from your file above when propted
+- AWS Access Key ID
+- AWS Secret Access Key
+- Default region name 
+- Default output format
+8. Set up directory in S3 bucket `giab-tibanna-runs` for run output
+9. Make any necessary changes to `etc/run_on_tibanna_giab.sh`
+- DRYRUN = comment/uncomment, it is suggested you start with a dry run first
+- ANALYSES = add path to file, e.g. `config/myfile.tsv` if you want to overide use of `anslyses.tsv` defined in `resources.yml` 
+- RUNDIR = directory in S3 bucket `giab-tibanna-runs` that outputs should go to
+- JOBS and DISKMB = adjust as appropriate for your run requirements
+## preparing to start run on AWS instance
+1. start tmux session. See [online tmux cheatsheet](https://tmuxcheatsheet.com) for helpful tmux commands [^3]
+`tmux new-session -s my-session-name`
+2. activate defrabb environment
+conda activate defrabb
+3. start run w/ tibanna
+`sh etc/run_on_tibanna_giab.sh`
+4. You can look at tibanna logs for each job
+- list the jobs, in this example 10
+`tibanna stat -s tibanna_unicorn_giab_test3 -n 10`
+- job IDs will be on far left, copy jobID 
+`tibanna log -s tibanna_unicorn_giab_test3 -j <paste jobID#>`
+## Notes / Gotchas for AWS instance
+- Tibanna and all jobs started with tibanna are run in docker containters.  There is a limit on how many docker containers can be started in a given time.
+- If you are downloading numerous large files and run into issues with downloads failing the instance might be out of storage and you might have to increase size of storage through EC2 console after stopping instance. 
+
 # General Execution and Documenting Analysis Runs
 1. Use snakedeploy to create run directory (future work)
 1. Update relevant config files
@@ -82,3 +136,5 @@ Automating - copy output and config files to directory for archiving, script to 
 
 # Footnotes
 [^1]: Chromosome 13 was included in the test dataset reference as dipcall incorrectly included line breaks in dip.vcf when only chr21 was included. We might want to submit an issue to the dipcall repo about this issue.
+[^2]: [Team resource on setting up AWS instance](https://docs.google.com/document/d/1IdAKastyUShjVl_8msWSR-n1ReKuhXpI_fqLcU829QQ/edit)
+[^3]: tmux commands shortcut commands like `ctrl + b s`  means press `b` while holding down `ctrl` then release both `ctrl` and `b` then press `s` alone. 
