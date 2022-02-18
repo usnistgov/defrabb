@@ -1,4 +1,4 @@
-# Milestone v0.004 TBD
+# Milestone v0.004 2022-02-18
 - Revising test dataset for easier local development
 - Adding basic report functionality
 - Modifying logging and run scipts to help with debugging when running on AWS via Tibanna
