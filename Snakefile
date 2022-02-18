@@ -103,7 +103,6 @@ wildcard_constraints:
 ## Rules to run locally
 localrules:
     get_ref,
-    index_ref,
     get_assemblies,
     get_comparison_vcf,
     get_comparison_bed,
