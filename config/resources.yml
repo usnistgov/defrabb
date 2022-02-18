@@ -12,24 +12,45 @@
 ################################################################################
 analyses: "config/analyses.tsv"
 
-
 ################################################################################
-# References
+## Reference Data Files
+# Reference Genomes
 #
-# TODO add some nice docs here
-
-# TODO not sure if the strats should go here or not
 references:
   GRCh37:
     ref_url: "ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz"
     par_bed: "hs37d5.PAR.bed"
   GRCh38:
-    ref_url: "ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz"
+    ref_url: "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz"
     par_bed: "hs38.PAR.bed"
   ## For testing
   GRCh38_chr21:
-    ref_url: "local_file"
+    ref_url: "https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_chr21.fa.gz"
     par_bed: "hs38.PAR.bed"
+
+## URL for excluded beds - will want to make reference genome specific at some point
+exclusion_beds:
+  homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+  segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/SegmentalDuplications/GRCh38_segdups.bed.gz
+  tandem-repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeats_gt10000bp_slop5.bed.gz
+  gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/OtherDifficult/GRCh38_gaps_slop15kb.bed.gz
+  self-chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
+  satellites: https://giab-data.s3.amazonaws.com/giab-test-data/satellites.bed.gz
+
+# Stratifications - set of genomic regions used to calculate genomic context 
+#   dependent variant calling performance
+stratifications:
+    GRCh38:
+      id: "v3.0-stratifications-GRCh38"
+      url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/v3.0-stratifications-GRCh38.tar.gz"
+      tarball: "v3.0-stratifications-GRCh38.tar.gz"
+      tsv: "v3.0-GRCh38-all-stratifications.tsv"
+    ## For testing
+    GRCh38_chr21:
+      id: "v3.0-stratifications-GRCh38_chr21"
+      url: "https://giab-data.s3.amazonaws.com/giab-test-data/v3.0-stratifications-GRCh38_chr21.tar.gz"
+      tarball: "v3.0-stratifications-GRCh38_chr21.tar.gz"
+      tsv: "v3.0-GRCh38-test-stratifications.tsv"
 
 ################################################################################
 # Assemblies
@@ -42,16 +63,15 @@ references:
 # male (which will be used downstream by the variant caller). We give this
 # assembly a unique identifier, 'asm-foo', which will be use to refer to this
 # assembly in the output and in subsequent steps.
+# 
+# We can specify additional assemblies like this
+# asm-another:
+#   maternal: https://another-maternal.fa
+#   paternal: https://another-paternal.fa
+#   is_male: false
 
 assemblies:
-  HG2-HPRC-20210804:
-    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/6AA58BE2-3710-4B27-AB6A-BEC23DBA14A2--RU-HG002-cleaned/HG002/assemblies/bakeoff/ru_scaffolded/HG002.mat.gap_filled_scaff.cleaned.fa.gz
-    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/6AA58BE2-3710-4B27-AB6A-BEC23DBA14A2--RU-HG002-cleaned/HG002/assemblies/bakeoff/ru_scaffolded/HG002.pat.gap_filled_scaff.cleaned.fa.gz
-    is_male: true
-  HG2-HPRC-20211005:
-    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/21edcb42-02c4-4e9f-b226-6773e62484a4--RU-HG002-commons/assembly/curated_round2/HG002.mat.cur.20211005.fasta.gz
-    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/21edcb42-02c4-4e9f-b226-6773e62484a4--RU-HG002-commons/assembly/curated_round2/HG002.pat.cur.20211005.fasta.gz
-    is_male: true   
+  ## For testing
   HG2-hifiasm_v0.11:
     maternal: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/hifiasm-assembly/HG002-v0.11.mat.fa.gz
     paternal: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/hifiasm-assembly/HG002-v0.11.pat.fa.gz
@@ -60,84 +80,446 @@ assemblies:
     maternal: https://giab-data.s3.amazonaws.com/giab-test-data/asm17aChr21/maternal.fa.gz
     paternal: https://giab-data.s3.amazonaws.com/giab-test-data/asm17aChr21/paternal.fa.gz
     is_male: true
-
-# We can specify additional assemblies like this
-# asm-another:
-#   maternal: https://another-maternal.fa
-#   paternal: https://another-paternal.fa
-#   is_male: false
+  ## HPRC 44 Genome Assemblies from pangenome work
+  HPRC-HG00733:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG00733/assemblies/year1_f1_assembly_v2_genbank/HG00733.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG00733/assemblies/year1_f1_assembly_v2_genbank/HG00733.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG01109:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG01109/assemblies/year1_f1_assembly_v2_genbank/HG01109.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG01109/assemblies/year1_f1_assembly_v2_genbank/HG01109.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: true
+  HPRC-HG01243:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG01243/assemblies/year1_f1_assembly_v2_genbank/HG01243.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG01243/assemblies/year1_f1_assembly_v2_genbank/HG01243.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: true
+  HPRC-HG02055:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG02055/assemblies/year1_f1_assembly_v2_genbank/HG02055.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG02055/assemblies/year1_f1_assembly_v2_genbank/HG02055.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: true
+  HPRC-HG02080:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG02080/assemblies/year1_f1_assembly_v2_genbank/HG02080.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG02080/assemblies/year1_f1_assembly_v2_genbank/HG02080.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG02109:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG02109/assemblies/year1_f1_assembly_v2_genbank/HG02109.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG02109/assemblies/year1_f1_assembly_v2_genbank/HG02109.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG02145:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG02145/assemblies/year1_f1_assembly_v2_genbank/HG02145.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG02145/assemblies/year1_f1_assembly_v2_genbank/HG02145.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: true
+  HPRC-HG02723:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG02723/assemblies/year1_f1_assembly_v2_genbank/HG02723.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG02723/assemblies/year1_f1_assembly_v2_genbank/HG02723.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG02818:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG02818/assemblies/year1_f1_assembly_v2_genbank/HG02818.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG02818/assemblies/year1_f1_assembly_v2_genbank/HG02818.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG03098:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG03098/assemblies/year1_f1_assembly_v2_genbank/HG03098.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG03098/assemblies/year1_f1_assembly_v2_genbank/HG03098.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: true
+  HPRC-HG03486:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG03486/assemblies/year1_f1_assembly_v2_genbank/HG03486.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG03486/assemblies/year1_f1_assembly_v2_genbank/HG03486.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG03492:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG03492/assemblies/year1_f1_assembly_v2_genbank/HG03492.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG03492/assemblies/year1_f1_assembly_v2_genbank/HG03492.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: true
+  HPRC-NA18906:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/NA18906/assemblies/year1_f1_assembly_v2_genbank/NA18906.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/NA18906/assemblies/year1_f1_assembly_v2_genbank/NA18906.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-NA20129:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/NA20129/assemblies/year1_f1_assembly_v2_genbank/NA20129.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/NA20129/assemblies/year1_f1_assembly_v2_genbank/NA20129.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-NA21309:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/NA21309/assemblies/year1_f1_assembly_v2_genbank/NA21309.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/NA21309/assemblies/year1_f1_assembly_v2_genbank/NA21309.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG00438:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG00438/assemblies/year1_f1_assembly_v2_genbank/HG00438.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG00438/assemblies/year1_f1_assembly_v2_genbank/HG00438.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG00621:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG00621/assemblies/year1_f1_assembly_v2_genbank/HG00621.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG00621/assemblies/year1_f1_assembly_v2_genbank/HG00621.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: true
+  HPRC-HG00673:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG00673/assemblies/year1_f1_assembly_v2_genbank/HG00673.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG00673/assemblies/year1_f1_assembly_v2_genbank/HG00673.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: true
+  HPRC-HG00735:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG00735/assemblies/year1_f1_assembly_v2_genbank/HG00735.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG00735/assemblies/year1_f1_assembly_v2_genbank/HG00735.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG00741:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG00741/assemblies/year1_f1_assembly_v2_genbank/HG00741.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG00741/assemblies/year1_f1_assembly_v2_genbank/HG00741.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG01071:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01071/assemblies/year1_f1_assembly_v2_genbank/HG01071.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01071/assemblies/year1_f1_assembly_v2_genbank/HG01071.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG01106:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01106/assemblies/year1_f1_assembly_v2_genbank/HG01106.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01106/assemblies/year1_f1_assembly_v2_genbank/HG01106.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: true
+  HPRC-HG01123:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01123/assemblies/year1_f1_assembly_v2_genbank/HG01123.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01123/assemblies/year1_f1_assembly_v2_genbank/HG01123.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG01175:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01175/assemblies/year1_f1_assembly_v2_genbank/HG01175.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01175/assemblies/year1_f1_assembly_v2_genbank/HG01175.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG01258:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01258/assemblies/year1_f1_assembly_v2_genbank/HG01258.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01258/assemblies/year1_f1_assembly_v2_genbank/HG01258.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: true
+  HPRC-HG01358:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01358/assemblies/year1_f1_assembly_v2_genbank/HG01358.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01358/assemblies/year1_f1_assembly_v2_genbank/HG01358.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: true
+  HPRC-HG01361:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01361/assemblies/year1_f1_assembly_v2_genbank/HG01361.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01361/assemblies/year1_f1_assembly_v2_genbank/HG01361.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG01891:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01891/assemblies/year1_f1_assembly_v2_genbank/HG01891.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01891/assemblies/year1_f1_assembly_v2_genbank/HG01891.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG01928:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01928/assemblies/year1_f1_assembly_v2_genbank/HG01928.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01928/assemblies/year1_f1_assembly_v2_genbank/HG01928.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: true
+  HPRC-HG01952:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01952/assemblies/year1_f1_assembly_v2_genbank/HG01952.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01952/assemblies/year1_f1_assembly_v2_genbank/HG01952.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: true
+  HPRC-HG01978:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01978/assemblies/year1_f1_assembly_v2_genbank/HG01978.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG01978/assemblies/year1_f1_assembly_v2_genbank/HG01978.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG02148:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG02148/assemblies/year1_f1_assembly_v2_genbank/HG02148.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG02148/assemblies/year1_f1_assembly_v2_genbank/HG02148.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG02257:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG02257/assemblies/year1_f1_assembly_v2_genbank/HG02257.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG02257/assemblies/year1_f1_assembly_v2_genbank/HG02257.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG02486:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG02486/assemblies/year1_f1_assembly_v2_genbank/HG02486.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG02486/assemblies/year1_f1_assembly_v2_genbank/HG02486.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: true
+  HPRC-HG02559:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG02559/assemblies/year1_f1_assembly_v2_genbank/HG02559.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG02559/assemblies/year1_f1_assembly_v2_genbank/HG02559.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG02572:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG02572/assemblies/year1_f1_assembly_v2_genbank/HG02572.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG02572/assemblies/year1_f1_assembly_v2_genbank/HG02572.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: true
+  HPRC-HG02622:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG02622/assemblies/year1_f1_assembly_v2_genbank/HG02622.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG02622/assemblies/year1_f1_assembly_v2_genbank/HG02622.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG02630:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG02630/assemblies/year1_f1_assembly_v2_genbank/HG02630.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG02630/assemblies/year1_f1_assembly_v2_genbank/HG02630.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG02717:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG02717/assemblies/year1_f1_assembly_v2_genbank/HG02717.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG02717/assemblies/year1_f1_assembly_v2_genbank/HG02717.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: true
+  HPRC-HG02886:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG02886/assemblies/year1_f1_assembly_v2_genbank/HG02886.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG02886/assemblies/year1_f1_assembly_v2_genbank/HG02886.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG03453:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG03453/assemblies/year1_f1_assembly_v2_genbank/HG03453.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG03453/assemblies/year1_f1_assembly_v2_genbank/HG03453.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG03516:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG03516/assemblies/year1_f1_assembly_v2_genbank/HG03516.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG03516/assemblies/year1_f1_assembly_v2_genbank/HG03516.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG03540:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG03540/assemblies/year1_f1_assembly_v2_genbank/HG03540.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG03540/assemblies/year1_f1_assembly_v2_genbank/HG03540.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: false
+  HPRC-HG03579:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG03579/assemblies/year1_f1_assembly_v2_genbank/HG03579.maternal.f1_assembly_v2_genbank.fa.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC/HG03579/assemblies/year1_f1_assembly_v2_genbank/HG03579.paternal.f1_assembly_v2_genbank.fa.gz
+    is_male: true
 
 ################################################################################
-# Benchmarks
-#
-# We specify a benchmark to use by supplying URLs to the .vcf and .bed files,
-# which will be used as truth inputs to hap.py downstream. We label this
-# benchmark with a unique identifier ('bmk-foo') that will be used to refer to
-# this benchmark in downstream steps.
+# Benchmark Generation
+# 
+# Set of rule and processes applied to raw assembly based variant callsets used 
+# to convert them into vcf and bed files for use in benchmarking variant 
+# callsets and training variant calling algorithms.
 
-comparisons:
-  v4.2.1:
-    vcf_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz
-    bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
-    tbi_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz.tbi
-  smvar-CMRG-v1.0:
-    vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/SmallVariant/HG002_GRCh38_CMRG_smallvar_v1.00.vcf.gz
-    bed_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/SmallVariant/HG002_GRCh38_CMRG_smallvar_v1.00.bed
-    tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/SmallVariant/HG002_GRCh38_CMRG_smallvar_v1.00.vcf.gz.tbi
-  SV-CMRG-v1.0:
-    vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/StructuralVariant/HG002_GRCh38_CMRG_SV_v1.00.vcf.gz
-    bed_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/StructuralVariant/HG002_GRCh38_CMRG_SV_v1.00.bed
-    tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/StructuralVariant/HG002_GRCh38_CMRG_SV_v1.00.vcf.gz.tbi
-  # HiFi deepvariant from pFDA with v4.2.1 truth regions
-  HifiDV-v4.2.1:
-    vcf_url: https://nist-midas.s3.amazonaws.com/pdrsrv/mds2-2336/submission_vcfs/B1S5A/B1S5A_HG002.vcf.gz
-    bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
-    ## TODO - this is not the correct url for this vcfs index file, it probably isn't only
-    tbi_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz.tbi
-  ## For testing - will want to create urls for testing
-  v4.2.1chr21:
-    vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/v4.2.1chr21.vcf.gz
-    bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/v4.2.1chr21.bed
-    tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/v4.2.1chr21.vcf.gz.tbi
-
-# We can specify additional benchmarks like this
-
-# bmk-another:
-#   vcf_url: http://another.vcf
-#   bed_url: http://another.bed
-    
-################################################################################
-# Beds for generating exclusions
-
-exclusion_beds:
-  homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
-  segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/SegmentalDuplications/GRCh38_segdups.bed.gz
-  tandem_repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeats_gt10000bp_slop5.bed.gz
-  gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/OtherDifficult/GRCh38_gaps_slop15kb.bed.gz
-  self_chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
+# Defined sets of Genomic Regions to exclude from draft benchmark regions.
 
 exclusion_set:
   smvarall:
     - segdups_start.bed
     - segdups_end.bed
-    - tandem_repeats_start.bed
-    - tandem_repeats_end.bed
+    - tandem-repeats_start.bed
+    - tandem-repeats_end.bed
     - satellites_end.bed
     - gaps.bed
-    - self_chains_start.bed
-    - self_chains_end.bed
+    - self-chains_start.bed
+    - self-chains_end.bed
     - flanks.bed
-    - structural_variants.bed
+    - structural-variants.bed
   stvarall:
     - segdups_start.bed
     - segdups_end.bed
-    - tandem_repeats_start.bed
-    - tandem_repeats_end.bed
+    - tandem-repeats_start.bed
+    - tandem-repeats_end.bed
     - satellites_end.bed
     - gaps.bed
     - self_chains_start.bed
     - self_chains_end.bed
     - flanks.bed
+
+################################################################################
+# Comparisons
+#
+# We specify a variant callset for use in evaluating the draft benchmark sets 
+# by supplying URLs to the .vcf.gz and optionally .bed and .vcf.gz.tbi files,
+# which will be used as truth inputs to hap.py downstream. We label the
+# comparison callsets with a unique identifier ('cmp-foo') that will be used to refer to
+# this comparison variant callset in downstream steps.
+
+# We can specify additional comparison callsets like this
+# cmp-another:
+#   vcf_url: http://another.vcf
+#   bed_url: http://another.bed
+
+comparisons:
+  ## For testing
+  v4.2.1chr21:
+    vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/v4.2.1chr21.vcf.gz
+    bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/v4.2.1chr21.bed
+    tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/v4.2.1chr21.vcf.gz.tbi
+  ## GIAB Benchmark Sets
+  v4.2.1:
+    vcf_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz
+    bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
+    tbi_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz.tbi
+  ## GIAB Variant Callsets for comparison
+  HiFiDV-v4.2.1:
+    vcf_url: https://nist-midas.s3.amazonaws.com/pdrsrv/mds2-2336/submission_vcfs/B1S5A/B1S5A_HG002.vcf.gz
+    bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
+    tbi_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz.tbi
+  ## HPRC 44 Genome DeepVariant Callsets
+  Hifi-DV-HG01123:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01123/HG01123.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01123/HG01123.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG01258:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01258/HG01258.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01258/HG01258.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG01358:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01358/HG01358.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01358/HG01358.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG01361:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01361/HG01361.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01361/HG01361.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG01891:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01891/HG01891.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01891/HG01891.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG02257:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02257/HG02257.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02257/HG02257.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG02486:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02486/HG02486.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02486/HG02486.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG02559:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02559/HG02559.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02559/HG02559.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG02572:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02572/HG02572.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02572/HG02572.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG03516:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03516/HG03516.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03516/HG03516.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG00438:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00438/HG00438.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00438/HG00438.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG00621:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00621/HG00621.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00621/HG00621.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG00673:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00673/HG00673.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00673/HG00673.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG00735:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00735/HG00735.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00735/HG00735.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG00741:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00741/HG00741.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00741/HG00741.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG01071:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01071/HG01071.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01071/HG01071.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG01106:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01106/HG01106.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01106/HG01106.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG01175:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01175/HG01175.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01175/HG01175.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG01928:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01928/HG01928.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01928/HG01928.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG01952:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01952/HG01952.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01952/HG01952.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG01978:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01978/HG01978.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01978/HG01978.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG02148:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02148/HG02148.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02148/HG02148.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG02622:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02622/HG02622.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02622/HG02622.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG02630:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02630/HG02630.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02630/HG02630.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG02717:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02717/HG02717.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02717/HG02717.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG02886:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02886/HG02886.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02886/HG02886.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG03453:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03453/HG03453.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03453/HG03453.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG03540:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03540/HG03540.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03540/HG03540.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG03579:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03579/HG03579.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03579/HG03579.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG00733:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00733/HG00733.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00733/HG00733.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG01109:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01109/HG01109.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01109/HG01109.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG01243:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01243/HG01243.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01243/HG01243.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG02080:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02080/HG02080.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02080/HG02080.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG02109:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02109/HG02109.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02109/HG02109.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG02145:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02145/HG02145.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02145/HG02145.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG02723:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02723/HG02723.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02723/HG02723.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG02818:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02818/HG02818.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02818/HG02818.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG03486:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03486/HG03486.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03486/HG03486.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG03492:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03492/HG03492.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03492/HG03492.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-NA18906:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/NA18906/NA18906.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/NA18906/NA18906.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-NA20129:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/NA20129/NA20129.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/NA20129/NA20129.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-NA21309:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/NA21309/NA21309.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/NA21309/NA21309.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG02055:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02055/HG02055.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02055/HG02055.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+  Hifi-DV-HG03098:
+    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03098/HG03098.GRCh38_no_alt.deepvariant.vcf.gz
+    bed_url: 
+    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03098/HG03098.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+
+################################################################################
+# Rule compute resource requirements and data dependencies
+
+## Dipcall Resources ##############
+# the number of dipcall threads to use
+_dipcall_threads: 18
+
+# the number of parallel jobs for dipcall's call to make - 2 or one per haplotype
+_dipcall_jobs: 4
+
+# Mem per job
+_dipcall_mem: 32000
+
+# the root of the par file for dipcall (and friends)
+_par_bed_root: data/par_bed
+
+## Happy Resources ################
+_happy_threads: 4
+_happy_mem: 24000
+
+################################################################################
+## Extra - will want to incorporate information into pipeline documentation/ reporting later
 
 # exclusions:
 #   exclude_SVs:
@@ -182,26 +564,3 @@ exclusion_set:
 #       Because breaks in aligning the assembly to self chains indicate potential
 #       assembly errors and/or large SVs or CNVs where small variants can't
 #       be benchmarked accurately
-
-
-################################################################################
-# internal
-
-## Dipcall Resources ##############
-# the number of dipcall threads to use
-_dipcall_threads: 1
-
-# the root of the par file for dipcall (and friends)
-_par_bed_root: data/par_bed
-
-## Happy Resources ################
-happy_mem: 64G
-happy_threads: 4
-
-# Statifications
-stratifications:
-    GRCh38:
-      id: "v3.0-stratifications-GRCh38"
-      url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/v3.0-stratifications-GRCh38.tar.gz"
-      tarball: "v3.0-stratifications-GRCh38.tar.gz"
-      tsv: "v3.0-GRCh38-all-stratifications.tsv"
