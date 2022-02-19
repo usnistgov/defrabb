@@ -19,8 +19,8 @@ rule download_bed_gz:
         "logs/download_bed_gz/{ref_id}-{genomic_region}.log",
     params:
         url=lambda wildcards: config["exclusion_beds"][wildcards.genomic_region],
-    group:
-        "download"
+#    group:
+#        "download"
     shell:
         "curl -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
 
@@ -34,8 +34,8 @@ rule link_gaps:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/gaps.bed",
     log:
         "logs/exclusions/{bench_id}_gaps_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
-    group:
-        "postprocess"
+#    group:
+#        "postprocess"
     shell:
         "cp {input} {output} &> {log}"
 
@@ -48,8 +48,8 @@ rule get_SVs_from_vcf:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/dip_SVs.bed",
     log:
         "logs/exclusions/{bench_id}_div_SVs_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
-    group:
-        "postprocess"
+#    group:
+#        "postprocess"
     shell:
         """
         gunzip -c {input} | \
@@ -71,8 +71,8 @@ rule intersect_SVs_and_homopolymers:
         "benchmark/exclusions/{bench_id}_SVs_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "../envs/bedtools.yml"
-    group:
-        "postprocess"
+#    group:
+#        "postprocess"
     shell:
         """
         intersectBed -wa \
@@ -98,8 +98,8 @@ rule intersect_start_and_end:
         "benchmark/exclusions/start_end_{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "../envs/bedtools.yml"
-    group:
-        "postprocess"
+#    group:
+#        "postprocess"
     shell:
         """
         awk '{{FS=OFS="\t"}} {{print $1, $2, $2+1}}' {input.dip} | \
@@ -138,8 +138,8 @@ rule add_flanks:
         "logs/exclusions/{bench_id}_flanks_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     conda:
         "../envs/bedtools.yml"
-    group:
-        "postprocess"
+#    group:
+#        "postprocess"
     shell:
         "bedtools flank -i {input.bed} -g {input.genome} -b 15000 1> {output} 2> {log}"
 
@@ -158,8 +158,8 @@ rule subtract_exclusions:
         "benchmark/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.benchmark"
     conda:
         "../envs/bedtools.yml"
-    group:
-        "postprocess"
+#    group:
+#        "postprocess"
     shell:
         """
         python scripts/subtract_exclusions.py \
