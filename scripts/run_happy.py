@@ -4,7 +4,7 @@
 from os import path
 from snakemake.shell import shell
 
-log = snakemake.log_fmt_shell(stdout=True, stderr=True)
+log = snakemake.log_fmt_shell(stdout=True, stderr=False)
 
 ## Optional parameters
 engine = snakemake.params.get("engine", "")
@@ -31,7 +31,8 @@ if path.isfile(strat_tsv):
     print("Stratification tsv file present")
 else:
     print(f"stratifications file, {strat_tsv}, not present!!! help!")
-    shell("ls -lR")
+
+##    shell("ls -lR")
 
 ## Running Happy
 shell(
