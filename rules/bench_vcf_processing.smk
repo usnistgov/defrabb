@@ -22,7 +22,7 @@ rule fix_XY_genotype:
 
 
 ## Use when evaluating assembly accuracy with established benchmark
-##  This rule is an artifact from previous assembly benchmarking pipeline 
+##  This rule is an artifact from previous assembly benchmarking pipeline
 ##  Not current used - keeping here for potential future use
 rule dip_gap2homvarbutfiltered:
     input:

@@ -99,6 +99,7 @@ wildcard_constraints:
 # main rule
 #
 
+
 ## Rules to run locally
 localrules:
     get_ref,
@@ -110,7 +111,14 @@ localrules:
     download_bed_gz,
     link_gaps,
     get_SVs_from_vcf,
-
+    subtract_exclusions,
+    add_flanks,
+    intersect_start_and_end,
+    intersect_SVs_and_homopolymers,
+    get_SVs_from_vcf,
+    link_gaps,
+    postprocess_vcf,
+    postprocess_bed,
 
 ## Snakemake Report
 report: "report/workflow.rst"
@@ -197,19 +205,19 @@ rule all:
             vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
             vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
         ),
-        expand(
-            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.extended.csv",
-        zip,
-        eval_id=analyses[analyses["eval_cmd"] == "happy"].index.tolist(),
-        bench_id=analyses[analyses["eval_cmd"] == "happy"]["bench_id"].tolist(),
-        ref_id=analyses[analyses["eval_cmd"] == "happy"]["ref"].tolist(),
-        comp_id=analyses[analyses["eval_cmd"] == "happy"]["eval_comp_id"].tolist(),
-        asm_id=analyses[analyses["eval_cmd"] == "happy"]["asm_id"].tolist(),
-        vc_cmd=analyses[analyses["eval_cmd"] == "happy"]["vc_cmd"].tolist(),
-        vc_param_id=analyses[analyses["eval_cmd"] == "happy"][
-        "vc_param_id"
-            ].tolist(),
-        ),
+        # expand(
+        #     "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.extended.csv",
+        # zip,
+        # eval_id=analyses[analyses["eval_cmd"] == "happy"].index.tolist(),
+        # bench_id=analyses[analyses["eval_cmd"] == "happy"]["bench_id"].tolist(),
+        # ref_id=analyses[analyses["eval_cmd"] == "happy"]["ref"].tolist(),
+        # comp_id=analyses[analyses["eval_cmd"] == "happy"]["eval_comp_id"].tolist(),
+        # asm_id=analyses[analyses["eval_cmd"] == "happy"]["asm_id"].tolist(),
+        # vc_cmd=analyses[analyses["eval_cmd"] == "happy"]["vc_cmd"].tolist(),
+        # vc_param_id=analyses[analyses["eval_cmd"] == "happy"][
+        # "vc_param_id"
+        #     ].tolist(),
+        # ),
 
 
 #       expand("results/bench/truvari/{tvi_bench}.extended.csv", tvi_bench = analyses[analyses["bench_cmd"] == "truvari"].index.tolist()), ## Not yet used
