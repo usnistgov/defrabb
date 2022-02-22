@@ -39,9 +39,8 @@ def get_happy_inputs(wildcards):
     ref_id = analyses.loc[wildcards.eval_id, "ref"]
     inputs["genome"] = f"resources/references/{ref_id}.fa"
     inputs["genome_index"] = f"resources/references/{ref_id}.fa.fai"
-    strat_tb = config['stratifications'][wildcards.ref_id]['tarball']
+    strat_tb = config["stratifications"][wildcards.ref_id]["tarball"]
     inputs["strat_tb"] = f"resources/strats/{ref_id}/{strat_tb}"
-
 
     ## draft benchmark variant calls
     draft_bench_vcf = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz"
