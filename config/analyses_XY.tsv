@@ -1,6 +1,6 @@
 eval_id	bench_id	eval_cmd	eval_params	eval_comp_id	eval_comp_id_is_truth	eval_truth_regions	eval_target_regions	vc_id	bench_type	bench_vcf_processing	bench_bed_processing	exclusion_set	asm_id	ref	vc_cmd	vc_param_id	vc_params
-GRCh38_T~T2TXYv2.7_dipz2k_Q~HPRCdip	GRCh38_T2T-XYv2.7-dipz2k_smvar-excluded	happy	default	HG2-HPRC-20211005	FALSE	TRUE	HPRC-HG002-cur.20211005.dip.bed	GRCh38_T2T-XYv2.7_dipz2k	smvar	none	exclude	smvarall	T2T-XY-v2.7	GRCh38	dipcall	z2k	"-z200000,10000"
-GRCh38_T~T2TXYv2.7_dipz2k_Q~HPRCdip	GRCh38_T2T-XYv2.7-dipz2k_smvar-excluded	happy	default	HG2-HPRC-20211005	FALSE	TRUE	FALSE	GRCh38_T2T-XYv2.7_dipz2k	smvar	none	exclude	smvarall	T2T-XY-v2.7	GRCh38	dipcall	z2k	"-z200000,10000"
-GRCh38_T~T2TXYv2.7_dipz2k_Q~HiFiDV	GRCh38_T2T-XYv2.7-dipz2k_smvar-excluded	happy	default	HiFiDV-v4.2.1	FALSE	TRUE		GRCh38_T2T-XYv2.7_dipz2k									
+GRCh38_T~T2TXYv2.7_dipz2k_Q~HPRCdip	GRCh38_T2T-XYv2.7-dipz2k_smvar-excluded	happy	default	HG2-HPRC-20211005	FALSE	TRUE	GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip.bed	GRCh38_T2T-XYv2.7_dipz2k	smvar	none	exclude	smvarall	T2T-XY-v2.7	GRCh38	dipcall	z2k	"-z200000,10000"
+GRCh38_T~T2TXYv2.7_dipz2k_Q~HPRCdip	GRCh38_T2T-XYv2.7-dipz2k_smvar-excluded	happy	default	HG2-HPRC-20211005	FALSE	TRUE	GRCh38_chrXY.bed	GRCh38_T2T-XYv2.7_dipz2k	smvar	none	exclude	smvarall	T2T-XY-v2.7	GRCh38	dipcall	z2k	"-z200000,10000"
+GRCh38_T~T2TXYv2.7_dipz2k_Q~HiFiDV	GRCh38_T2T-XYv2.7-dipz2k_smvar-excluded	happy	default	HiFiDV-v4.2.1	FALSE	TRUE	GRCh38_chrXY.bed	GRCh38_T2T-XYv2.7_dipz2k	smvar	fix_XY_genotype	exclude	smvarall	T2T-XY-v2.7	GRCh38	dipcall	z2k	"-z200000,10000"
 																	
 `																	
