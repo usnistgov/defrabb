@@ -1,2 +1,4 @@
 eval_id	bench_id	eval_cmd	eval_params	eval_comp_id	eval_comp_id_is_truth	eval_truth_regions	eval_target_regions	vc_id	bench_type	bench_vcf_processing	bench_bed_processing	exclusion_set	asm_id	ref	vc_cmd	vc_param_id	vc_params
 GRCh38_T~HPRC-HG00733-dipz2k_Q~HiFiDV-HG00733	GRCh38_HPRC-HG00733-dipz2k_smvar-excluded	happy	default	Hifi-DV-HG00733	FALSE	TRUE	GRCh38_autosomes.bed	GRCh38_HPRC-HG00733_dipz2k	smvar	none	exclude	smvarall	HPRC-HG00733	GRCh38	dipcall	z2k	"-z200000,10000"
+GRCh38_T~HPRC-HG01109-dipz2k_Q~HiFiDV-HG01109	GRCh38_HPRC-HG01109-dipz2k_smvar-excluded	happy	default	Hifi-DV-HG01109	FALSE	TRUE	GRCh38_autosomes.bed	GRCh38_HPRC-HG01109_dipz2k	smvar	none	exclude	smvarall	HPRC-HG01109	GRCh38	dipcall	z2k	"-z200000,10000"
+

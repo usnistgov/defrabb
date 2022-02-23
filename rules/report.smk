@@ -121,6 +121,7 @@ rule get_bcftools_stats:
             "{prefix}_bcftools_stats.txt",
             caption="../report/bcftools_stats.rst",
             category="VCF Stats",
+            subcategory="bcftools stats"
         ),
     log:
         "logs/get_bcftools_stats/{prefix}_stats.txt",
@@ -139,7 +140,8 @@ rule get_rtg_vcf_stats:
         report(
             "{prefix}_rtg_stats.txt",
             caption="../report/rtg_stats.rst",
-            category="rtgtools Stats",
+            category="VCF Stats",
+            subcategory="rtgtools stats",
         ),
     log:
         "logs/get_rtg_vcf_stats/{prefix}_stats.txt",
