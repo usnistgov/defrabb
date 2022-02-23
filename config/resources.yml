@@ -81,6 +81,11 @@ assemblies:
     maternal: https://giab-data.s3.amazonaws.com/giab-test-data/asm17aChr21/maternal.fa.gz
     paternal: https://giab-data.s3.amazonaws.com/giab-test-data/asm17aChr21/paternal.fa.gz
     is_male: true
+  ## T2T XY assemblies (maternal=X and paternal=Y)
+  T2T-XY-v2.7:
+    maternal: https://drive.google.com/file/d/1SD0gLj8vTb16ZJO42NfcCz7kBhZ1LcE_/view?usp=sharing
+    paternal: https://drive.google.com/file/d/1GSjXQiYNwADzNHqLLsq3uwlSucj29o2l/view?usp=sharing
+    is_male: true
   ## HPRC 44 Genome Assemblies from pangenome work
   HPRC-HG00733:
     maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG00733/assemblies/year1_f1_assembly_v2_genbank/HG00733.maternal.f1_assembly_v2_genbank.fa.gz
@@ -316,6 +321,11 @@ comparisons:
     vcf_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz
     bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
     tbi_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz.tbi
+  ## HPRC callsets from dipcall
+  HG2-HPRC-20211005:
+    vcf_url: https://giab-tibanna-runs.s3.amazonaws.com/asm-bench-dev-jenny-test/results/asm_varcalls/GRCh38_HG002-HPRC_dipz2k/GRCh38_HG2-HPRC-20211005_dipcall-z2k.dip.vcf.gz
+    bed_url: https://giab-tibanna-runs.s3.amazonaws.com/asm-bench-dev-jenny-test/results/asm_varcalls/GRCh38_HG002-HPRC_dipz2k/GRCh38_HG2-HPRC-20211005_dipcall-z2k.dip.bed
+    tbi_url:
   ## GIAB Variant Callsets for comparison
   HiFiDV-v4.2.1:
     vcf_url: https://nist-midas.s3.amazonaws.com/pdrsrv/mds2-2336/submission_vcfs/B1S5A/B1S5A_HG002.vcf.gz
