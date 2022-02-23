@@ -3,24 +3,24 @@
 
 ## Input parameters will convert to script arguments
 ## Number of jobs to run
-JOBS=50
-RUNDIR="asm-bench-dev"
+JOBS=5
+RUNDIR="defrabb-HPRC-44"
 DISKMB=50000
 DRYRUN=""
 #DRYRUN="--dryrun"
+ANALYSES="config/analyses_44.tsv"
 
-
-### Personal
+#### Personal
 PROFILE="default"
-UNICORN="tibanna_unicorn_giab_test3"
+#UNICORN="tibanna_unicorn_giab_test3"
 
 ## Setting Tibanna Unicorn
-export TIBANNA_DEFAULT_STEP_FUNCTION_NAME=${UNICORN}
+#export TIBANNA_DEFAULT_STEP_FUNCTION_NAME=${UNICORN}
 
 ## Running Snakemake
 time \
 	snakemake \
-		--use-conda -j${JOBS} -p --verbose ${DRYRUN} --config analyses=${ANALYSES}\
+		--use-conda -j${JOBS} -p --verbose ${DRYRUN} --config analyses=${ANALYSES} \
 		--tibanna \
 		--tibanna-config \
 			subnet=subnet-083080d579317ad61 \
