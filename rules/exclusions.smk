@@ -8,7 +8,7 @@ dip_bed_path = (
 
 wildcard_constraints:
     ref_id="GRCh38|GRCh37|GRCh38_chr21",
-    genomic_regions="homopolymers|segdups|tandem_repeat|gaps|self-chains|satellites|tandem-repeats",
+    genomic_regions="homopolymers|segdups|tandem-repeat|gaps|self-chains|satellites",
 
 
 # downloading beds used for exclusion
