@@ -10,7 +10,7 @@
 #   filesystem urls (eg file://blablabla) to allow local preprocessing if
 #   desired
 ################################################################################
-analyses: "config/analyses_44.tsv"
+analyses: "config/analyses_XY.tsv"
 
 ################################################################################
 # References
