@@ -334,27 +334,27 @@ use rule get_comparison_vcf as get_comparison_bed with:
         "logs/get_comparisons/{comp_id}_bed.log",
 
 
-use rule get_comparison_vcf as get_comparison_tbi with:
-    output:
-        "resources/comparison_variant_callsets/{comp_id}.vcf.gz.tbi",
-    params:
-        url=lambda wildcards: comp_config[wildcards.comp_id]["tbi_url"],
-    log:
-        "logs/get_comparisons/{comp_id}_vcfidx.log",
+#use rule get_comparison_vcf as get_comparison_tbi with:
+#    output:
+#        "resources/comparison_variant_callsets/{comp_id}.vcf.gz.tbi",
+#    params:
+#        url=lambda wildcards: comp_config[wildcards.comp_id]["tbi_url"],
+#    log:
+#        "logs/get_comparisons/{comp_id}_vcfidx.log",
 
 
 ## TODO - fix for when tbi url not provided
-# rule tabix:
-#     input:
-#         "{filename}.vcf.gz",
-#     output:
-#         "{filename}.vcf.gz.tbi",
-#     params:
-#         extra="-t",
-#     log:
-#         "logs/tabix/{filename}.log",
-#     wrapper:
-#         "v1.0.0/bio/bcftools/index"
+rule tabix:
+     input:
+         "{filename}.vcf.gz",
+     output:
+         "{filename}.vcf.gz.tbi",
+     params:
+         extra="-t",
+     log:
+         "logs/tabix/{filename}.log",
+     wrapper:
+         "v1.0.0/bio/bcftools/index"
 
 
 ################################################################################
