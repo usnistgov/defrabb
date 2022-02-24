@@ -35,24 +35,21 @@ def get_happy_inputs(wildcards):
     ## Creating empty dictionary for storing inputs
     inputs = {}
 
-    ## Evaluation Parameters
+    ## Reference genome and stratifications
     ref_id = analyses.loc[wildcards.eval_id, "ref"]
-
-    ## Reference genome
-    inputs[
-        "strat_tb"
-    ] = f"resources/strats/{ref_id}/{config['stratifications'][wildcards.ref_id]['tarball']}"
     inputs["genome"] = f"resources/references/{ref_id}.fa"
     inputs["genome_index"] = f"resources/references/{ref_id}.fa.fai"
+    strat_tb = config["stratifications"][wildcards.ref_id]["tarball"]
+    inputs["strat_tb"] = f"resources/strats/{ref_id}/{strat_tb}"
 
-    ## asm variant call output - TODO link to post processing output
-    bench_vcf = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz"
+    ## draft benchmark variant calls
+    draft_bench_vcf = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz"
 
-    ## Asm regions
+    ## draft benchmark regions
     if analyses.loc[(wildcards.eval_id, "exclusion_set")] == "none":
-        bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed"
+        draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed"
     else:
-        bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed"
+        draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed"
 
     ## comparison variant call paths
     comp_vcf = "resources/comparison_variant_callsets/{comp_id}.vcf.gz"
@@ -61,30 +58,28 @@ def get_happy_inputs(wildcards):
 
     ## Determining which callsets and regions are used as truth
     if analyses.loc[wildcards.eval_id, "eval_comp_id_is_truth"] == True:
-        query = "asm"
+        query = "draft_bench"
     else:
         query = "comp"
 
     ## Defining truth calls and regions along with query calls
-    if query == "asm":
-        inputs["query"] = bench_vcf
-        # inputs["query_vcfidx"] = asm_vcfidx
+    if query == "draft_bench":
+        inputs["query"] = draft_bench_vcf
         inputs["truth"] = comp_vcf
         inputs["truth_vcfidx"] = comp_vcfidx
         inputs["truth_regions"] = comp_bed
     else:
         inputs["query"] = comp_vcf
         inputs["query_vcfidx"] = comp_vcfidx
-        inputs["truth"] = bench_vcf
-        # inputs["truth_vcfidx"] = asm_vcfidx
-        inputs["truth_regions"] = bench_bed
+        inputs["truth"] = draft_bench_vcf
+        inputs["truth_regions"] = draft_bench_bed
 
     ## Determining Target regions
     trs = eval_tbl.loc[wildcards.eval_id, "eval_target_regions"]
     if trs.lower() != "false":
         if trs.lower() == "true":
-            if query == "asm":
-                inputs["target_regions"] = bench_bed
+            if query == "draft_bench":
+                inputs["target_regions"] = draft_bench_bed
             else:
                 inputs["target_regions"] = comp_bed
         else:

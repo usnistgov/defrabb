@@ -1,0 +1,40 @@
+---
+title: "HPRC 44 Pangenomes Data Tidying"
+author: "Nate Olson"
+date: "2/23/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+```
+
+
+## Assembly Metrics Table
+
+## Dipcall vcf stats
+
+## Exclusions Table
+
+## Happy Tables
+
+Combined Summary Tables
+```{r}
+summary_csvs <- list.files(path = here("giab-tibanna-runs"), pattern = "summary", full.names = TRUE, recursive = TRUE)
+summary_df <- summary_csvs %>% 
+        set_names(., nm = str_remove(., ".*/")) %>% 
+        map_dfr(read_csv, .id ="evaluation") %>% 
+        mutate(HPRCID = str_extract(evaluation,pattern = "(HPRC-=<?).*"))
+```
+
+
+
+```{r}
+summary_df
+```
+```{r}
+ggplot(summary_df) + geom_point(aes(y = METRIC.Recall, x = evaluation,color = Type))
+```
+
