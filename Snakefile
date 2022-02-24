@@ -14,6 +14,9 @@ include: "rules/report.smk"
 min_version("6.0")
 
 
+## Rule ordering for ambiguous rules
+ruleorder: download_bed_gz > sort_bed
+
 ################################################################################
 # init resources
 
@@ -133,15 +136,15 @@ dipcall_tbl = vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]
 
 rule all:
     input:
-        expand(
-            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
-            zip,
-            vc_id=dipcall_tbl.index.tolist(),
-            ref=dipcall_tbl["ref"].tolist(),
-            asm_id=dipcall_tbl["asm_id"].tolist(),
-            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
-            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
-        ),
+        # expand(
+        #     "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
+        #     zip,
+        #     vc_id=dipcall_tbl.index.tolist(),
+        #     ref=dipcall_tbl["ref"].tolist(),
+        #     asm_id=dipcall_tbl["asm_id"].tolist(),
+        #     vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
+        #     vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
+        # ),
         ## Bench VCF Processing
         expand(
             "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
@@ -152,59 +155,59 @@ rule all:
             vc_cmd=bench_tbl["vc_cmd"].tolist(),
             vc_param_id=bench_tbl["vc_param_id"].tolist(),
         ),
-        expand(
-            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1.bam.bai",
-            zip,
-            vc_id=dipcall_tbl.index.tolist(),
-            ref=dipcall_tbl["ref"].tolist(),
-            asm_id=dipcall_tbl["asm_id"].tolist(),
-            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
-            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
-        ),
-        expand(
-            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap2.bam.bai",
-            zip,
-            vc_id=dipcall_tbl.index.tolist(),
-            ref=dipcall_tbl["ref"].tolist(),
-            asm_id=dipcall_tbl["asm_id"].tolist(),
-            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
-            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
-        ),
-        expand(
-            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
-            zip,
-            eval_id=happy_analyses.index.tolist(),
-            bench_id=happy_analyses["bench_id"].tolist(),
-            ref_id=happy_analyses["ref"].tolist(),
-            comp_id=happy_analyses["eval_comp_id"].tolist(),
-            asm_id=happy_analyses["asm_id"].tolist(),
-            vc_cmd=happy_analyses["vc_cmd"].tolist(),
-            vc_param_id=happy_analyses["vc_param_id"].tolist(),
-        ),
+        # expand(
+        #     "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1.bam.bai",
+        #     zip,
+        #     vc_id=dipcall_tbl.index.tolist(),
+        #     ref=dipcall_tbl["ref"].tolist(),
+        #     asm_id=dipcall_tbl["asm_id"].tolist(),
+        #     vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
+        #     vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
+        # ),
+        # expand(
+        #     "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap2.bam.bai",
+        #     zip,
+        #     vc_id=dipcall_tbl.index.tolist(),
+        #     ref=dipcall_tbl["ref"].tolist(),
+        #     asm_id=dipcall_tbl["asm_id"].tolist(),
+        #     vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
+        #     vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
+        # ),
+        # expand(
+        #     "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
+        #     zip,
+        #     eval_id=happy_analyses.index.tolist(),
+        #     bench_id=happy_analyses["bench_id"].tolist(),
+        #     ref_id=happy_analyses["ref"].tolist(),
+        #     comp_id=happy_analyses["eval_comp_id"].tolist(),
+        #     asm_id=happy_analyses["asm_id"].tolist(),
+        #     vc_cmd=happy_analyses["vc_cmd"].tolist(),
+        #     vc_param_id=happy_analyses["vc_param_id"].tolist(),
+        # ),
         # rules for report
-        expand(
-            "results/report/assemblies/{asm_id}_{haplotype}_stats.txt",
-            asm_id=ASMIDS,
-            haplotype=["maternal", "paternal"],
-        ),
-        expand(
-            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.dip_bcftools_stats.txt",
-            zip,
-            vc_id=dipcall_tbl.index.tolist(),
-            ref=dipcall_tbl["ref"].tolist(),
-            asm_id=dipcall_tbl["asm_id"].tolist(),
-            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
-            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
-        ),
-        expand(
-            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.dip_rtg_stats.txt",
-            zip,
-            vc_id=dipcall_tbl.index.tolist(),
-            ref=dipcall_tbl["ref"].tolist(),
-            asm_id=dipcall_tbl["asm_id"].tolist(),
-            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
-            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
-        ),
+        # expand(
+        #     "results/report/assemblies/{asm_id}_{haplotype}_stats.txt",
+        #     asm_id=ASMIDS,
+        #     haplotype=["maternal", "paternal"],
+        # ),
+        # expand(
+        #     "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.dip_bcftools_stats.txt",
+        #     zip,
+        #     vc_id=dipcall_tbl.index.tolist(),
+        #     ref=dipcall_tbl["ref"].tolist(),
+        #     asm_id=dipcall_tbl["asm_id"].tolist(),
+        #     vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
+        #     vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
+        # ),
+        # expand(
+        #     "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.dip_rtg_stats.txt",
+        #     zip,
+        #     vc_id=dipcall_tbl.index.tolist(),
+        #     ref=dipcall_tbl["ref"].tolist(),
+        #     asm_id=dipcall_tbl["asm_id"].tolist(),
+        #     vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
+        #     vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
+        # ),
         # expand(
         #     "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.extended.csv",
         # zip,
@@ -424,6 +427,14 @@ rule run_dipcall:
         make -j{params.ts} -f {output.make}
         """
 
+rule sort_bed:
+    input:
+        in_file= "{prefix}.bed",
+        ## TODO remove hardcoding for genome file
+        genome="resources/exclusions/GRCh38.genome"
+    output: "{prefix}_sorted.bed"
+    wrapper:
+        "0.74.0/bio/bedtools/sort"
 
 rule index_dip_bam:
     input:
@@ -460,7 +471,7 @@ rule postprocess_vcf:
 
 rule postprocess_bed:
     input:
-        lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.bed",
+        lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
     output:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed",
     log:
