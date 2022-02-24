@@ -100,15 +100,15 @@ get "DEFAULT" credentials ,e.g., `cat ~/.aws/credentials`\
 	- JOBS and DISKMB = adjust as appropriate for your run requirements
 	- review snakemake command and options used by snakemake and tibanna to ensure they are appropriate for your run
 5. start tmux session. See [online tmux cheatsheet](https://tmuxcheatsheet.com) for helpful tmux commands [^3]\
-`tmux new-session -s my-session-name`
+`tmux new-session -s my-session-name` multiple people can log in to the session using `tmux a -t my-session-name`
 6. activate defrabb environment\
 `conda activate defrabb`
 7. start run w/ tibanna\
 `sh etc/run_on_tibanna_giab.sh`
 
 ## Monitoring run on AWS instance
-1. Switch from tmux session running script to new tmux session
-`ctrl + b n`[^3]
+1. Switch from tmux session running script to new tmux session[^3]\
+`ctrl + b n` (n=next window) this switches between session windows and can be used to get back to your session.  If timeout occured and you need to log back in to EC2 you can re-attach session after login using `tmux a -t my-session-name` where `my-session-name` is the name of the session you started the run in.
 2. Viewing tibanna logs for each job.  This is helpful because job information in the job seesion window goes away as new jobs are started. This will allow you to see if jobs have completed or failed and hopefully gives you information on why they failed. 
 	- list the jobs, in this example 10\
 `tibanna stat -s tibanna_unicorn_giab_test3 -n 10`\
