@@ -157,7 +157,7 @@ rule subtract_exclusions:
         """
         python scripts/subtract_exclusions.py \
         {input.dip_bed} \
-        {output} \
+        {output.bed} \
         {output.stats} \
-        {input.other_beds} &> {log}
+        {input.other_beds}
         """
