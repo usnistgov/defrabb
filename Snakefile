@@ -153,6 +153,24 @@ rule all:
             vc_param_id=bench_tbl["vc_param_id"].tolist(),
         ),
         expand(
+            "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed",
+            zip,
+            bench_id=bench_tbl.index.tolist(),
+            ref=bench_tbl["ref"].tolist(),
+            asm_id=bench_tbl["asm_id"].tolist(),
+            vc_cmd=bench_tbl["vc_cmd"].tolist(),
+            vc_param_id=bench_tbl["vc_param_id"].tolist(),
+        ),
+        expand(
+            "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded_stats.txt",
+            zip,
+            bench_id=bench_tbl.index.tolist(),
+            ref=bench_tbl["ref"].tolist(),
+            asm_id=bench_tbl["asm_id"].tolist(),
+            vc_cmd=bench_tbl["vc_cmd"].tolist(),
+            vc_param_id=bench_tbl["vc_param_id"].tolist(),
+        ),
+        expand(
             "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1.bam.bai",
             zip,
             vc_id=dipcall_tbl.index.tolist(),
@@ -205,19 +223,19 @@ rule all:
             vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
             vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
         ),
-        # expand(
-        #     "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.extended.csv",
-        # zip,
-        # eval_id=analyses[analyses["eval_cmd"] == "happy"].index.tolist(),
-        # bench_id=analyses[analyses["eval_cmd"] == "happy"]["bench_id"].tolist(),
-        # ref_id=analyses[analyses["eval_cmd"] == "happy"]["ref"].tolist(),
-        # comp_id=analyses[analyses["eval_cmd"] == "happy"]["eval_comp_id"].tolist(),
-        # asm_id=analyses[analyses["eval_cmd"] == "happy"]["asm_id"].tolist(),
-        # vc_cmd=analyses[analyses["eval_cmd"] == "happy"]["vc_cmd"].tolist(),
-        # vc_param_id=analyses[analyses["eval_cmd"] == "happy"][
-        # "vc_param_id"
-        #     ].tolist(),
-        # ),
+        expand(
+           "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.extended.csv",
+        zip,
+        eval_id=analyses[analyses["eval_cmd"] == "happy"].index.tolist(),
+        bench_id=analyses[analyses["eval_cmd"] == "happy"]["bench_id"].tolist(),
+        ref_id=analyses[analyses["eval_cmd"] == "happy"]["ref"].tolist(),
+        comp_id=analyses[analyses["eval_cmd"] == "happy"]["eval_comp_id"].tolist(),
+        asm_id=analyses[analyses["eval_cmd"] == "happy"]["asm_id"].tolist(),
+        vc_cmd=analyses[analyses["eval_cmd"] == "happy"]["vc_cmd"].tolist(),
+        vc_param_id=analyses[analyses["eval_cmd"] == "happy"][
+        "vc_param_id"
+            ].tolist(),
+        ),
 
 
 #       expand("results/bench/truvari/{tvi_bench}.extended.csv", tvi_bench = analyses[analyses["bench_cmd"] == "truvari"].index.tolist()), ## Not yet used
