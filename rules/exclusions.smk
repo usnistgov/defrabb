@@ -8,7 +8,7 @@ dip_bed_path = (
 
 wildcard_constraints:
     ref_id="GRCh38|GRCh37|GRCh38_chr21",
-    genomic_regions="homopolymers|segdups|tandem-repeat|gaps|self-chains|satellites",
+    genomic_region="homopolymers|segdups|tandem-repeats|gaps|self-chains|satellites",
 
 
 # downloading beds used for exclusion
@@ -19,8 +19,6 @@ rule download_bed_gz:
         "logs/download_bed_gz/{ref_id}-{genomic_region}.log",
     params:
         url=lambda wildcards: config["exclusion_beds"][wildcards.genomic_region],
-#    group:
-#        "download"
     shell:
         "curl -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
 
@@ -85,14 +83,14 @@ rule intersect_SVs_and_homopolymers:
 rule intersect_start_and_end:
     input:
         dip=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
-        xregions="resources/exclusions/{ref_id}/{genomic_regions}.bed",
+        xregions="resources/exclusions/{ref_id}/{genomic_region}_sorted.bed",
     output:
-        start="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/{genomic_regions}_start.bed",
-        end="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/{genomic_regions}_end.bed",
+        start="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/{genomic_region}_start.bed",
+        end="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_exclusions/{genomic_region}_end.bed",
     log:
-        "logs/exclusions/start_end_{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/exclusions/start_end_{bench_id}_{genomic_region}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
-        "benchmark/exclusions/start_end_{bench_id}_{genomic_regions}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
+        "benchmark/exclusions/start_end_{bench_id}_{genomic_region}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "../envs/bedtools.yml"
     group: "postprocess"

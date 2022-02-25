@@ -18,7 +18,7 @@ def count_bp(bedfile):
     return int((df["end"] - df["start"]).sum())
 
 
-def print_summary(after, excluded):
+def print_summary(after, excluded, exclusion_stats):
     # ASSUME: 'excluded' will have one less than 'after', since 'after' will
     # have the initial bed file before any exclusions were performed
     paths = ["initial"] + [*map(lambda b: b.fn, excluded)]
@@ -27,11 +27,12 @@ def print_summary(after, excluded):
     pd.DataFrame(
         [*zip(paths, bed_lengths, after_lengths)],
         columns=["exclusion", "exclusion_length", "resulting_length"],
-    ).to_csv(sys.stdout, index=False, sep="\t")
+    ).to_csv(exclusion_stats, index=False, sep="\t")
 
 
 def get_excluded(paths):
-    non_empty_paths = [i for i in paths if os_stat(i).st_size == 0]
+    non_empty_paths = [i for i in paths if os_stat(i).st_size != 0]
+    ## TODO - add warning for empty paths
     return [*map(BedTool, non_empty_paths)]
 
 
@@ -48,9 +49,9 @@ def exclude_beds(input_bed, excluded_beds):
 
 def main():
     input_bed = BedTool(sys.argv[1])
-    excluded_beds = get_excluded(sys.argv[3:])
+    excluded_beds = get_excluded(sys.argv[4:])
     after_exclusions = exclude_beds(input_bed, excluded_beds)
-    print_summary(after_exclusions, excluded_beds)
+    print_summary(after_exclusions, excluded_beds, sys.argv[3])
     after_exclusions[-1].saveas(sys.argv[2])
 
 
