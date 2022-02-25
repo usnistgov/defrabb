@@ -275,10 +275,11 @@ assemblies:
 
 exclusion_set:
   smvarall:
-    - segdups_start_sorted_sorted.bed
+    - segdups_start_sorted.bed
     - segdups_end_sorted.bed
     - tandem-repeats_start_sorted.bed
     - tandem-repeats_end_sorted.bed
+    - satellites_start_sorted.bed
     - satellites_end_sorted.bed
     - gaps_sorted.bed
     - self-chains_start_sorted.bed
