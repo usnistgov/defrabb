@@ -17,6 +17,7 @@ min_version("6.0")
 ## Rule ordering for ambiguous rules
 ruleorder: download_bed_gz > sort_bed
 
+
 ################################################################################
 # init resources
 
@@ -110,19 +111,18 @@ localrules:
     get_assemblies,
     get_comparison_vcf,
     get_comparison_bed,
-    get_comparison_tbi,
     get_strats,
     download_bed_gz,
-    link_gaps,
     get_SVs_from_vcf,
     subtract_exclusions,
     add_flanks,
     intersect_start_and_end,
     intersect_SVs_and_homopolymers,
     get_SVs_from_vcf,
-    link_gaps,
     postprocess_vcf,
     postprocess_bed,
+    sort_bed,
+
 
 ## Snakemake Report
 report: "report/workflow.rst"
@@ -183,18 +183,7 @@ rule all:
             vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
             vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
         ),
-        expand(
-            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
-            zip,
-            eval_id=happy_analyses.index.tolist(),
-            bench_id=happy_analyses["bench_id"].tolist(),
-            ref_id=happy_analyses["ref"].tolist(),
-            comp_id=happy_analyses["eval_comp_id"].tolist(),
-            asm_id=happy_analyses["asm_id"].tolist(),
-            vc_cmd=happy_analyses["vc_cmd"].tolist(),
-            vc_param_id=happy_analyses["vc_param_id"].tolist(),
-        ),
-        # rules for report
+        ## rules for report
         expand(
             "results/report/assemblies/{asm_id}_{haplotype}_stats.txt",
             asm_id=ASMIDS,
@@ -219,6 +208,17 @@ rule all:
             vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
         ),
         expand(
+            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
+            zip,
+            eval_id=happy_analyses.index.tolist(),
+            bench_id=happy_analyses["bench_id"].tolist(),
+            ref_id=happy_analyses["ref"].tolist(),
+            comp_id=happy_analyses["eval_comp_id"].tolist(),
+            asm_id=happy_analyses["asm_id"].tolist(),
+            vc_cmd=happy_analyses["vc_cmd"].tolist(),
+            vc_param_id=happy_analyses["vc_param_id"].tolist(),
+        ),
+        expand(
             "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.extended.csv",
         zip,
         eval_id=analyses[analyses["eval_cmd"] == "happy"].index.tolist(),
@@ -231,6 +231,7 @@ rule all:
         "vc_param_id"
             ].tolist(),
         ),
+
 
 #       expand("results/bench/truvari/{tvi_bench}.extended.csv", tvi_bench = analyses[analyses["bench_cmd"] == "truvari"].index.tolist()), ## Not yet used
 
@@ -436,15 +437,21 @@ rule run_dipcall:
         make -j{params.ts} -f {output.make}
         """
 
+
 rule sort_bed:
     input:
-        in_file= "{prefix}.bed",
+        in_file="{prefix}.bed",
         ## TODO remove hardcoding for genome file
-        genome="resources/exclusions/GRCh38.genome"
-    output: "{prefix}_sorted.bed"
-    log: "logs/sort_bed/{prefix}.log"
+        genome="resources/exclusions/GRCh38.genome",
+    output:
+        "{prefix}_sorted.bed",
+    log:
+        "logs/sort_bed/{prefix}.log",
+    group:
+        "postprocess"
     wrapper:
         "0.74.0/bio/bedtools/sort"
+
 
 rule index_dip_bam:
     input:
