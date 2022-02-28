@@ -90,9 +90,36 @@ def get_happy_inputs(wildcards):
 
 
 ## Exclusions
-def lookup_excluded_region_set(wildcards):
-    xset = bench_tbl.loc[wildcards.bench_id]["exclusion_set"]
-    return [
-        f"results/draft_benchmarksets/{{bench_id}}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}_exclusions/{p}"
-        for p in config["exclusion_set"][xset]
-    ]
+def get_exclusion_inputs(wildcards):
+
+    ## Getting list of excluded regions
+    exclusion_set_id = bench_tbl.loc[wildcards.bench_id, "exclusion_set"]
+    exclusion_set = config["exclusion_set"][exclusion_set_id]
+
+    ## Initiating empty list for storing paths for beds to excluded from
+    ## diploid assembled regions
+    exc_paths = []
+    for exclusion in exclusion_set:
+
+        ## Determining path for asm specific exclusions and asm agnostic exclusions
+        if exclusion in config["exclusion_asm_agnostic"]:
+            exc_path = f"resources/exclusions/{{ref_id}}/{exclusion}"
+        else:
+            exc_path = f"results/draft_benchmarksets/{{bench_id}}/exclusions/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}_{exclusion}"
+
+        ## Adding slop - currently a 15kb hard coded buffer around excluded repeat regions
+        if exclusion in config["exclusion_slop_regions"]:
+            exc_path = f"{exc_path}_slop"
+
+        ## Defining which regions are excluded based on diploid assembly breaks
+        if exclusion in config["exclusion_asm_intersect"]:
+            exc_paths += [f"{exc_path}_start", f"{exc_path}_end"]
+        else:
+            exc_paths = exc_paths + [exc_path]
+
+    ## Adding to exc_paths list and ensuring all beds are sorted
+    ## prior to exclusion from dip assembled regions
+    exclusion_paths = [f"{exc}_sorted.bed" for exc in exc_paths]
+
+    ## Returning list of bed paths for exclusion
+    return exclusion_paths
