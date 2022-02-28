@@ -52,6 +52,7 @@ bench_ids = analyses[
 bench_tbl = pd.merge(bench_ids, bench_params, how="inner", on="bench_id").set_index(
     "bench_id"
 )
+bench_excluded_tbl = bench_tbl[bench_tbl.exclusion_set != "none"]
 
 ## Evaluation Runs
 eval_params = analyses.filter(regex="eval_").drop_duplicates()
@@ -158,11 +159,11 @@ rule all:
         expand(
             "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed",
             zip,
-            bench_id=bench_tbl.index.tolist(),
-            ref=bench_tbl["ref"].tolist(),
-            asm_id=bench_tbl["asm_id"].tolist(),
-            vc_cmd=bench_tbl["vc_cmd"].tolist(),
-            vc_param_id=bench_tbl["vc_param_id"].tolist(),
+            bench_id=bench_excluded_tbl.index.tolist(),
+            ref=bench_excluded_tbl["ref"].tolist(),
+            asm_id=bench_excluded_tbl["asm_id"].tolist(),
+            vc_cmd=bench_excluded_tbl["vc_cmd"].tolist(),
+            vc_param_id=bench_excluded_tbl["vc_param_id"].tolist(),
         ),
         expand(
             "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1.bam.bai",
