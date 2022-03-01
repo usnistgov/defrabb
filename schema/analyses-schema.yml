@@ -29,9 +29,9 @@ properties:
 
   eval_cmd:
     description: |
-      The benchmarking tools command used for evaluating the draft benchmark set. Must be either 'happy' or 'truvari'.
+      The benchmarking tools command used for evaluating the draft benchmark set. Must be either 'happy', 'truvari', or 'unhappy' for when not performing an evaluation set.
     type: string
-    pattern: ^happy|truvari$
+    pattern: ^happy|truvari|unhappy$
 
   eval_params:
     description: |
@@ -42,29 +42,29 @@ properties:
 
   eval_comp_id:
     description: |
-      Id for the variant callset or benchmark set used for comparison when evaluating the draft benchmark set. 
+      Id for the variant callset (or benchmark set) used for comparison when evaluating the draft benchmark set. 
       Source files (vcf and beds) should be included in the resources.yml.
     type: string
 
   eval_comp_id_is_truth:
     description: |
-      Set to 'true' to comparison variant calls and regions at truth inputs with the 'bench_id' as query input. 
-      Setting this to 'false' will
-      flip the truth and query inputs.
+      Set to 'true' to use the comparison variant calls and regions as the truth set in the evaluation and 'bench_id' as the query.  
+      Setting this to 'false' make the 'bench_id' (draft benchmarkset) the truth set in the evaluation and 'comp_id' as the query.
     type: boolean
 
   eval_truth_regions:
     description: |
-      Set to 'true' the appropriate comparison regions or 'bench_id' regions will be used as the truth regions in the evaluation tool.
+      Set to 'true' the appropriate draft benchmark ('bench_id') or comparison ('comp_id') regions will be used as the truth regions in the evaluation tool.
+      If set to 'false' no truth regions are provided as input for the evaluation tool.
     type: boolean
 
   eval_target_regions:
     description: |
-      The target regions to input to happy. If 'true,' will be tell happy to use
-      the bed file output by the variant caller. If a string, will be
-      interpreted as a path to the bed file to use (relative to
+      The target regions for the evaluation tool. When provided the evaluation tool will only compare variant calls in the defined region.
+      If 'true,' the bed file associated with the query variant callset will be used as the target region.
+      If a string, the value will be interpreted as a path to the bed file to use (relative to
       ./manual/target_regions); note the string must be a filename ending in
-      ".bed." If 'false,' happy will run in untargetted mode.
+      ".bed." If 'false,' the evaluation tool will run in an untargetted mode.
     type: string
     pattern: ^.*\.bed|(?i)true|(?i)false$
 

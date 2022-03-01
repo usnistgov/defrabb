@@ -275,26 +275,40 @@ assemblies:
 
 exclusion_set:
   smvarall:
-    - segdups_start.bed
-    - segdups_end.bed
-    - tandem-repeats_start.bed
-    - tandem-repeats_end.bed
-    - satellites_end.bed
-    - gaps.bed
-    - self-chains_start.bed
-    - self-chains_end.bed
-    - flanks.bed
-    - structural-variants.bed
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - self-chains
+    - flanks
+    - svs-and-homopolymers
   stvarall:
-    - segdups_start.bed
-    - segdups_end.bed
-    - tandem-repeats_start.bed
-    - tandem-repeats_end.bed
-    - satellites_end.bed
-    - gaps.bed
-    - self_chains_start.bed
-    - self_chains_end.bed
-    - flanks.bed
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - self-chains
+    - flanks
+
+## Regions 
+exclusion_slop_regions:
+  - segdups
+  - tandem-repeats
+  - gaps
+  - self-chains
+
+exclusion_asm_intersect:
+  - segdups
+  - tandem-repeats
+  - satellites
+  - self-chains
+
+exclusion_asm_agnostic:
+  - gaps
+
+exclusion_ref_agnostic:
+  - flanks
+  - svs-and-homopolymers
 
 ################################################################################
 # Comparisons

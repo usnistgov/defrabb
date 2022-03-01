@@ -121,7 +121,7 @@ rule get_bcftools_stats:
             "{prefix}_bcftools_stats.txt",
             caption="../report/bcftools_stats.rst",
             category="VCF Stats",
-            subcategory="bcftools stats"
+            subcategory="bcftools stats",
         ),
     log:
         "logs/get_bcftools_stats/{prefix}_stats.txt",

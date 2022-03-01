@@ -6,6 +6,10 @@ required:
   - comparisons
   - exclusion_beds
   - exclusion_set
+  - exclusion_slop_regions
+  - exclusion_asm_intersect
+  - exclusion_asm_agnostic
+  - exclusion_ref_agnostic
   - stratifications
   - _dipcall_threads
   - _dipcall_jobs
@@ -123,7 +127,60 @@ properties:
         description: the list of exclusions in an exclusion set
         items:
           type: string
-          format: ^.*\.bed$
+          format: ^.*$
+
+  exclusion_slop_regions:
+    description: |
+      Exclusions regions where slop is applied before exclusion or 
+      identification of diploid assembly coverage.
+    additionalProperties: false
+    patternProperties:
+
+      ^[\w\.\-]*$:
+        type: array
+        description: the list of exclusions to apply slop to
+        items:
+          type: string
+          format: ^.*$
+
+  exclusion_asm_intersect:
+    description: |
+      Exclusions regions where only incompletely assembled regions are excluded.
+    additionalProperties: false
+    patternProperties:
+
+      ^[\w\.\-]*$:
+        type: array
+        description: the list of exclusions exclude based on assembly coverage
+        items:
+          type: string
+          format: ^.*$
+
+  exclusion_asm_agnostic:
+    description: |
+      Exclusions whose genomic regions are not dependent on the diploid assembly.
+    additionalProperties: false
+    patternProperties:
+
+      ^[\w\.\-]*$:
+        type: array
+        description: the list of exclusions excluded for all assemblies
+        items:
+          type: string
+          format: ^.*$
+
+  exclusion_ref_agnostic:
+    description: |
+      Exclusions whose genomic regions are not dependent on the reference genome.
+    additionalProperties: false
+    patternProperties:
+
+      ^[\w\.\-]*$:
+        type: array
+        description: the list of exclusions independent of reference genome
+        items:
+          type: string
+          format: ^.*$
 
   stratifications:
     description: |
