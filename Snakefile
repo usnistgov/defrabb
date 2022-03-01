@@ -157,6 +157,15 @@ rule all:
             vc_param_id=bench_tbl["vc_param_id"].tolist(),
         ),
         expand(
+            "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi",
+            zip,
+            bench_id=bench_tbl.index.tolist(),
+            ref=bench_tbl["ref"].tolist(),
+            asm_id=bench_tbl["asm_id"].tolist(),
+            vc_cmd=bench_tbl["vc_cmd"].tolist(),
+            vc_param_id=bench_tbl["vc_param_id"].tolist(),
+        ),
+        expand(
             "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed",
             zip,
             bench_id=bench_excluded_tbl.index.tolist(),
@@ -354,17 +363,7 @@ use rule get_comparison_vcf as get_comparison_bed with:
     log:
         "logs/get_comparisons/{comp_id}_bed.log",
 
-
-# use rule get_comparison_vcf as get_comparison_tbi with:
-#    output:
-#        "resources/comparison_variant_callsets/{comp_id}.vcf.gz.tbi",
-#    params:
-#        url=lambda wildcards: comp_config[wildcards.comp_id]["tbi_url"],
-#    log:
-#        "logs/get_comparisons/{comp_id}_vcfidx.log",
-
-
-## TODO - fix for when tbi url not provided
+## General indexing rule for vcfs
 rule tabix:
     input:
         "{filename}.vcf.gz",
