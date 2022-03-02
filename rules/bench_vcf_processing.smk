@@ -53,7 +53,7 @@ rule split_multiallelic_sites:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.split_multi.vcf.gz",
         vcf_tbi="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.split_multi.vcf.gz.tbi",
     conda:
-        "envs/bcftools.yml"
+        "../envs/bcftools.yml"
     log:
         "logs/split_multiallelic_sites/{bench_id}_{prefix}.log",
     shell:
