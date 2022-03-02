@@ -364,6 +364,7 @@ use rule get_comparison_vcf as get_comparison_bed with:
     log:
         "logs/get_comparisons/{comp_id}_bed.log",
 
+
 ## General indexing rule for vcfs
 rule tabix:
     input:
