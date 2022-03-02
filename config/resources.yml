@@ -86,6 +86,11 @@ assemblies:
     maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-v2.7_XY/chrX_v2.7.fa
     paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-v2.7_XY/chrY_v2.7.fa
     is_male: true
+  ## chr X from T2Tv2.7 and CHM13v2.  For use with AI work
+  T2Tv2.7-CHM13v2_chrX:
+    maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2Tv2.7-CHM13v2_chrX/T2T-v2.7_HG2chrX.fa.gz
+    paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2Tv2.7-CHM13v2_chrX/chm13v2.0_CHM13chrX.fa.gz
+    is_male: false
   ## HPRC 44 Genome Assemblies from pangenome work
   HPRC-HG00733:
     maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG00733/assemblies/year1_f1_assembly_v2_genbank/HG00733.maternal.f1_assembly_v2_genbank.fa.gz
