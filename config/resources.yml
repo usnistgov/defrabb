@@ -336,9 +336,9 @@ comparisons:
     bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
     tbi_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz.tbi
   ## HPRC callsets from dipcall
-  HG2-HPRC-20211005:
-    vcf_url: https://giab-tibanna-runs.s3.amazonaws.com/asm-bench-dev-jenny-test/results/asm_varcalls/GRCh38_HG002-HPRC_dipz2k/GRCh38_HG2-HPRC-20211005_dipcall-z2k.dip.vcf.gz
-    bed_url: https://giab-tibanna-runs.s3.amazonaws.com/asm-bench-dev-jenny-test/results/asm_varcalls/GRCh38_HG002-HPRC_dipz2k/GRCh38_HG2-HPRC-20211005_dipcall-z2k.dip.bed
+  HG2-HPRC-20211005-XY:
+    vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip.vcf.gz
+    bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip.bed
     tbi_url:
   ## GIAB Variant Callsets for comparison
   HiFiDV-v4.2.1:
