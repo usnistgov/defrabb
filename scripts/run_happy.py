@@ -4,7 +4,7 @@
 from os import path
 from snakemake.shell import shell
 
-log = snakemake.log_fmt_shell(stdout=True, stderr=False)
+log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
 ## Optional parameters
 engine = snakemake.params.get("engine", "")
@@ -20,19 +20,19 @@ if target_regions:
     target_regions = f"-T {target_regions}"
 
 ## Extracting stratification tarball
+## Can add if statement with eval_params to see if starts are used
 ref_id = snakemake.wildcards.ref_id
 strat_id = snakemake.config["stratifications"][ref_id]["id"]
 strat_tsv = f"{snakemake.params.strat_tsv}"
 
 print("Extracting Stratifications")
-shell("tar -xvf {snakemake.input.strat_tb}", "{log}")
+shell("tar -xf {snakemake.input.strat_tb}", "{log}")
 
 if path.isfile(strat_tsv):
     print("Stratification tsv file present")
 else:
     print(f"stratifications file, {strat_tsv}, not present!!! help!")
 
-##    shell("ls -lR")
 
 ## Running Happy
 shell(
