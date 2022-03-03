@@ -1,9 +1,10 @@
-# Milestone v0.004 TBD
+# Milestone v0.004 2022-02-18
 - Revising test dataset for easier local development
 - Adding basic report functionality
 - Modifying logging and run scipts to help with debugging when running on AWS via Tibanna
 - Added rules for indexing dipcall output bams
 - Initial optimization of dipcall and happy resource compute requirements
+- Added initial funtionality for processing draft benchmark vcfs
 - Revised and restructured resources.yml and schema for clearer documentation and easier use.
 - Added analyses.tsv and updated resource config files for running framework on 44 HPRC genome and HG002 XY
 - Cleaning up code and comments

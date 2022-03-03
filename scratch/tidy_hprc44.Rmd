@@ -1,0 +1,143 @@
+---
+title: "HPRC 44 Pangenomes Data Tidying - Exclusion Fix Debugging"
+author: "Nate Olson"
+date: "2/23/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+source(here("scripts", "annotation-phredticks.R"))
+```
+
+## Assembly Metrics Table
+
+## Dipcall vcf stats
+
+## Exclusions Table
+
+## Happy Tables
+
+Combined Summary Tables
+```{r}
+no_exclusions_summary_csvs <- list.files(path = "~/Desktop/defrabb-HPRC-44-happy-evals-no-exclusions/", pattern = "summary.csv", 
+                           full.names = TRUE, recursive = TRUE)
+no_exclusions_summary_df <- no_exclusions_summary_csvs %>% 
+        set_names(., nm = str_remove(., ".*/happy/")) %>% 
+        map_dfr(read_csv, show_col_types = FALSE, .id ="evaluation_file") %>% 
+        mutate(bench_id = str_extract(evaluation_file, pattern = "(?<=_GRCh38_).*(?=-dipz2k)"),
+               comp_id = str_extract(evaluation_file, pattern = "(?<=_Q~).*(?=_GRCh38)"),
+               comp_type = str_remove(comp_id, pattern = "-[HG|NA].*"))
+```
+
+```{r}
+exclusions_summary_csvs <- list.files(path = here("giab-tibanna-runs/defrabb-HPRC-44"), pattern = "summary.csv", 
+                           full.names = TRUE, recursive = TRUE)
+exclusions_summary_df <- exclusions_summary_csvs %>% 
+        set_names(., nm = str_remove(., ".*/happy/")) %>% 
+        map_dfr(read_csv, show_col_types = FALSE, .id ="evaluation_file") %>% 
+        mutate(bench_id = str_extract(evaluation_file, pattern = "(?<=_GRCh38_).*(?=-dipz2k)"),
+               comp_id = str_extract(evaluation_file, pattern = "(?<=_Q~).*(?=_GRCh38)"),
+               comp_type = str_remove(comp_id, pattern = "-[HG|NA].*"))
+
+summary_df <- bind_rows(excluded_bed = exclusions_summary_df, 
+                        raw_dip_bed = no_exclusions_summary_df,
+                        .id = "exclusions_applied")
+```
+
+
+## Exploratory analysis for initial evaluation set
+```{r fig.height = 6, width = 3}
+summary_df %>% 
+        mutate(phred_recall = -10*log(1-METRIC.Recall)/log(10)) %>% 
+        ggplot() + 
+        geom_point(aes(y = phred_recall, x = bench_id, color = exclusions_applied)) + 
+        scale_y_continuous(
+            breaks = c(0, 10, 20, 30, 40),
+            labels = c("0", "90", "99", "99.9", "99.99")
+        ) +
+        annotation_phredticks(sides = "b",
+                              scaled = FALSE) +
+        coord_flip() + 
+        facet_wrap(~Type*comp_type, nrow = 1) + 
+        theme_bw() + 
+        theme(legend.position = "bottom") 
+```
+
+```{r fig.height = 6, width = 3}
+summary_df %>% 
+        mutate(phred_precision = -10*log(1-METRIC.Precision)/log(10)) %>% 
+        ggplot() + 
+        geom_point(aes(y = phred_precision, x = bench_id, color = exclusions_applied)) + 
+        scale_y_continuous(
+            breaks = c(0, 10, 20, 30, 40),
+            labels = c("0", "90", "99", "99.9", "99.99")
+        ) +
+        annotation_phredticks(sides = "b",
+                              scaled = FALSE) +
+        coord_flip() + 
+        facet_wrap(~Type*comp_type, nrow = 1) + 
+        theme_bw() + 
+        theme(legend.position = "bottom") 
+```
+
+
+```{r}
+summary_df %>% 
+        write_tsv("defrabb-HPRC44_combined-happy-summary_2022-02-28.tsv")
+```
+
+## Exclusion Stats
+Generating table with excluded and initial (dip.bed) total sizes
+
+```{r}
+excluded_tsvs <- list.files(path = here("giab-tibanna-runs/defrabb-HPRC-44"), pattern = "excluded_stats",
+                           full.names = TRUE, recursive = TRUE)
+
+
+excluded_df <- excluded_tsvs %>% 
+        set_names(., nm = str_remove(., ".*/_smvar-excluded/")) %>% 
+        map_dfr(read_tsv, show_col_types = FALSE, .id ="excluded_file") %>% 
+        mutate(hprc_id = str_extract(excluded_file, "(?<=_HPRC-).*(?=-dipz2k)"),
+               exclusion_id = case_when(exclusion == "initial" ~ exclusion,
+                                        str_detect(exclusion, "draft_benchmarksets") ~ str_extract(exclusion, "(?<=_dipcall-z2k_).*(?=.bed)"),
+                                        str_detect(exclusion, "resources/exclusions") ~ str_extract(exclusion, "(?<=GRCh../).*(?=.bed)"),
+                                        TRUE ~ "I'm a bug"))
+
+wide_exclusions_df <- excluded_df %>% 
+        pivot_wider(id_cols = hprc_id, names_from = exclusion_id, values_from = c("exclusion_length", "resulting_length"))
+write_tsv(wide_exclusions_df, "hprc_44_exclusions_example.tsv")
+```
+
+```{r}
+excluded_df %>% filter(exclusion_id != "initial") %>% 
+ggplot() + 
+        geom_point(aes(x = hprc_id, y = exclusion_length, color = exclusion_id)) +
+        scale_y_log10() + 
+        theme_bw() + 
+        theme(axis.text.x = element_text(angle = 270),
+              legend.position = "bottom")
+```
+```{r}
+excluded_df %>% filter(exclusion_id != "initial") %>% 
+                mutate(exclusion_id = fct_reorder(exclusion_id, exclusion_length, .fun = "median")) %>% 
+ggplot() + 
+        geom_point(aes(x = exclusion_id, y = exclusion_length, color =hprc_id)) +
+        scale_y_log10() + 
+        coord_flip() + 
+        theme_bw() + 
+        theme(legend.position = "bottom")
+```
+
+```{r}
+excluded_df %>% #filter(exclusion_id != "initial") %>% 
+        mutate(exclusion_id = fct_reorder(exclusion_id, resulting_length, .fun = "median")) %>% 
+ggplot() + 
+        geom_point(aes(x = exclusion_id, y = resulting_length, color =hprc_id)) +
+        coord_flip()  + 
+        theme_bw() + 
+        theme(legend.position = "bottom")
+```
+

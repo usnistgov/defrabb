@@ -91,22 +91,24 @@ get "DEFAULT" credentials ,e.g., `cat ~/.aws/credentials`\
 
 ## Starting a run on AWS instance that has been configured (see above)
 1. Set up `your-directory` using name specific to run, in S3 bucket `giab-tibanna-runs` for run output
-2. Make any necessary changes to `etc/run_on_tibanna_giab.sh`
+2. Setup `config/analyses.tsv`, see `schema/analyses-schema.yml` for description of fields in `analyses.tsv`
+3. Setup `config/resources.yml` with specifics for the run(s) outlined in `config/analyses.tsv`.  Make sure to review dipcall and hap.py resources at the bottom of file.
+4. Make any necessary changes to `etc/run_on_tibanna_giab.sh`
 	- DRYRUN = comment/uncomment, it is suggested you start with a dry run first
 	- ANALYSES = add path to file, e.g. `config/myfile.tsv`, if you want to overide use of `anslyses.tsv` defined in `resources.yml` 
 	- RUNDIR = `your-directory` in S3 bucket `giab-tibanna-runs` that outputs should go to
 	- JOBS and DISKMB = adjust as appropriate for your run requirements
 	- review snakemake command and options used by snakemake and tibanna to ensure they are appropriate for your run
-3. start tmux session. See [online tmux cheatsheet](https://tmuxcheatsheet.com) for helpful tmux commands [^3]\
-`tmux new-session -s my-session-name`
-4. activate defrabb environment\
+5. start tmux session. See [online tmux cheatsheet](https://tmuxcheatsheet.com) for helpful tmux commands [^3]\
+`tmux new-session -s my-session-name` multiple people can log in to the session using `tmux a -t my-session-name`
+6. activate defrabb environment\
 `conda activate defrabb`
-5. start run w/ tibanna\
+7. start run w/ tibanna\
 `sh etc/run_on_tibanna_giab.sh`
 
 ## Monitoring run on AWS instance
-1. Switch from tmux session running script to new tmux session
-`ctrl + b n`[^3]
+1. Switch from tmux session running script to new tmux session[^3]\
+`ctrl + b n` (n=next window) this switches between session windows and can be used to get back to your session.  If timeout occured and you need to log back in to EC2 you can re-attach session after login using `tmux a -t my-session-name` where `my-session-name` is the name of the session you started the run in.
 2. Viewing tibanna logs for each job.  This is helpful because job information in the job seesion window goes away as new jobs are started. This will allow you to see if jobs have completed or failed and hopefully gives you information on why they failed. 
 	- list the jobs, in this example 10\
 `tibanna stat -s tibanna_unicorn_giab_test3 -n 10`\
@@ -115,12 +117,19 @@ get "DEFAULT" credentials ,e.g., `cat ~/.aws/credentials`\
 3. To view snakemake output while the pipeline is running view snakemake log.  
 `cd less .snakemake/log/`\
 `less less YYYY-MM-DD<somenumber>.snakemake.log`
-4. You can go back to session runnign script using `ctrl + b n`
+4. You can go back to session running script using `ctrl + b n`
+5. Monitor memory usage with Tibanna `plot_metrics`.  Note: need newer version of Tibanna than what is available in conda pkg that is installed in defrabb env.  
+	a. start local terminal and run the following\
+	b. `mamba install pip`\
+	c. `pip install -U tibanna`\
+	d. `tibanna --version` (currently using tibanna 1.9.1 for this)\
+	e. `tibanna plot_metrics -j <insert tibanna jobID#>` this will pull up and html page in browser with metrics
 
 ## Notes / Gotchas for AWS instance
-- Tibanna and all jobs started with tibanna are run in docker containters.  There is a limit on how many docker containers can be started in a given time.
+- Tibanna and all jobs started with tibanna are run in docker containters.  There is a limit on how many docker containers can be started in a given time. For anonymous login (which we are currently using), limit is 100 pull/6hr, see [Docker pull limit documenation](https://www.docker.com/blog/checking-your-current-docker-pull-rate-limits-and-status/) for mor info on this.  
 - If you are downloading numerous large files and run into issues with downloads failing the instance might be out of storage and you might have to increase size of storage through EC2 console after stopping instance. 
 - Had a job that failed with no info in tibanna log. The issue was the spot instance was shut down and there wasn't another "reasonable" instance to use.  Users can control how Tibanna uses instances on AWS by adjusting the snakemake command in `etc/run_on_tibanna_giab.sh`. Simply restarting run if it fails migth resolve situation. 
+- If hap.py or dipcall fails its worth checking tibanna plot_metrics to make sure they are being given enough memory.  If not adjustments can be made in the `resources.yml`
 
 # General Execution and Documenting Analysis Runs
 1. Use snakedeploy to create run directory (future work)
