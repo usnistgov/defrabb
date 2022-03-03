@@ -1,3 +1,3 @@
-Variant callset summary statistics calculatd using `rtg vcfstats` from rtgtools_ for {{snakemake.wildcards.prefix}}.
+Variant callset summary statistics calculatd using `bcftools stats` from bcftools_ for {{snakemake.wildcards.prefix}}.
 
-.. _rtgtools: https://github.com/RealTimeGenomics/rtg-core
+.. _bcftools: https://https://samtools.github.io/bcftools/bcftools.html#stats

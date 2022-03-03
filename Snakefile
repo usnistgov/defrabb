@@ -6,12 +6,17 @@ from snakemake.utils import min_version, validate
 include: "rules/common.smk"
 include: "rules/exclusions.smk"
 include: "rules/report.smk"
+include: "rules/bench_vcf_processing.smk"
 
 
 # include: "rules/bench_vcf_processing.smk"
 
 
 min_version("6.0")
+
+
+## Rule ordering for ambiguous rules
+ruleorder: download_bed_gz > sort_bed
 
 
 ################################################################################
@@ -49,6 +54,7 @@ bench_ids = analyses[
 bench_tbl = pd.merge(bench_ids, bench_params, how="inner", on="bench_id").set_index(
     "bench_id"
 )
+bench_excluded_tbl = bench_tbl[bench_tbl.exclusion_set != "none"]
 
 ## Evaluation Runs
 eval_params = analyses.filter(regex="eval_").drop_duplicates()
@@ -99,17 +105,24 @@ wildcard_constraints:
 # main rule
 #
 
+
 ## Rules to run locally
 localrules:
     get_ref,
     get_assemblies,
     get_comparison_vcf,
     get_comparison_bed,
-    get_comparison_tbi,
     get_strats,
     download_bed_gz,
-    link_gaps,
     get_SVs_from_vcf,
+    subtract_exclusions,
+    add_flanks,
+    intersect_start_and_end,
+    intersect_SVs_and_homopolymers,
+    get_SVs_from_vcf,
+    postprocess_vcf,
+    postprocess_bed,
+    sort_bed,
 
 
 ## Snakemake Report
@@ -145,6 +158,24 @@ rule all:
             vc_param_id=bench_tbl["vc_param_id"].tolist(),
         ),
         expand(
+            "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi",
+            zip,
+            bench_id=bench_tbl.index.tolist(),
+            ref=bench_tbl["ref"].tolist(),
+            asm_id=bench_tbl["asm_id"].tolist(),
+            vc_cmd=bench_tbl["vc_cmd"].tolist(),
+            vc_param_id=bench_tbl["vc_param_id"].tolist(),
+        ),
+        expand(
+            "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed",
+            zip,
+            bench_id=bench_excluded_tbl.index.tolist(),
+            ref=bench_excluded_tbl["ref"].tolist(),
+            asm_id=bench_excluded_tbl["asm_id"].tolist(),
+            vc_cmd=bench_excluded_tbl["vc_cmd"].tolist(),
+            vc_param_id=bench_excluded_tbl["vc_param_id"].tolist(),
+        ),
+        expand(
             "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1.bam.bai",
             zip,
             vc_id=dipcall_tbl.index.tolist(),
@@ -162,18 +193,7 @@ rule all:
             vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
             vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
         ),
-        expand(
-            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
-            zip,
-            eval_id=happy_analyses.index.tolist(),
-            bench_id=happy_analyses["bench_id"].tolist(),
-            ref_id=happy_analyses["ref"].tolist(),
-            comp_id=happy_analyses["eval_comp_id"].tolist(),
-            asm_id=happy_analyses["asm_id"].tolist(),
-            vc_cmd=happy_analyses["vc_cmd"].tolist(),
-            vc_param_id=happy_analyses["vc_param_id"].tolist(),
-        ),
-        # rules for report
+        ## rules for report
         expand(
             "results/report/assemblies/{asm_id}_{haplotype}_stats.txt",
             asm_id=ASMIDS,
@@ -196,6 +216,17 @@ rule all:
             asm_id=dipcall_tbl["asm_id"].tolist(),
             vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
             vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
+        ),
+        expand(
+            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
+            zip,
+            eval_id=happy_analyses.index.tolist(),
+            bench_id=happy_analyses["bench_id"].tolist(),
+            ref_id=happy_analyses["ref"].tolist(),
+            comp_id=happy_analyses["eval_comp_id"].tolist(),
+            asm_id=happy_analyses["asm_id"].tolist(),
+            vc_cmd=happy_analyses["vc_cmd"].tolist(),
+            vc_param_id=happy_analyses["vc_param_id"].tolist(),
         ),
         expand(
             "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.extended.csv",
@@ -334,27 +365,18 @@ use rule get_comparison_vcf as get_comparison_bed with:
         "logs/get_comparisons/{comp_id}_bed.log",
 
 
-use rule get_comparison_vcf as get_comparison_tbi with:
+## General indexing rule for vcfs
+rule tabix:
+    input:
+        "{filename}.vcf.gz",
     output:
-        "resources/comparison_variant_callsets/{comp_id}.vcf.gz.tbi",
+        "{filename}.vcf.gz.tbi",
     params:
-        url=lambda wildcards: comp_config[wildcards.comp_id]["tbi_url"],
+        extra="-t",
     log:
-        "logs/get_comparisons/{comp_id}_vcfidx.log",
-
-
-## TODO - fix for when tbi url not provided
-# rule tabix:
-#     input:
-#         "{filename}.vcf.gz",
-#     output:
-#         "{filename}.vcf.gz.tbi",
-#     params:
-#         extra="-t",
-#     log:
-#         "logs/tabix/{filename}.log",
-#     wrapper:
-#         "v1.0.0/bio/bcftools/index"
+        "logs/tabix/{filename}.log",
+    wrapper:
+        "v1.0.0/bio/bcftools/index"
 
 
 ################################################################################
@@ -370,11 +392,11 @@ use rule get_comparison_vcf as get_comparison_tbi with:
 
 rule run_dipcall:
     input:
-        h1="resources/assemblies/{asm_id}/paternal.fa",
-        h2="resources/assemblies/{asm_id}/maternal.fa",
-        ref="resources/references/{ref_id}.fa",
-        ref_idx="resources/references/{ref_id}.fa.fai",
-        ref_mmi="resources/references/{ref_id}.mmi",
+        h1=ancient("resources/assemblies/{asm_id}/paternal.fa"),
+        h2=ancient("resources/assemblies/{asm_id}/maternal.fa"),
+        ref=ancient("resources/references/{ref_id}.fa"),
+        ref_idx=ancient("resources/references/{ref_id}.fa.fai"),
+        ref_mmi=ancient("resources/references/{ref_id}.mmi"),
     output:
         make="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.mak",
         vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
@@ -417,6 +439,21 @@ rule run_dipcall:
         """
 
 
+rule sort_bed:
+    input:
+        in_file="{prefix}.bed",
+        ## TODO remove hardcoding for genome file
+        genome="resources/exclusions/GRCh38.genome",
+    output:
+        "{prefix}_sorted.bed",
+    log:
+        "logs/sort_bed/{prefix}.log",
+    group:
+        "postprocess"
+    wrapper:
+        "0.74.0/bio/bedtools/sort"
+
+
 rule index_dip_bam:
     input:
         "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam",
@@ -436,23 +473,23 @@ rule index_dip_bam:
 ################################################################################
 ################################################################################
 
-
-rule postprocess_vcf:
-    input:
-        lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.vcf.gz",
-    output:
-        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
-    log:
-        "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
-    group:
-        "postprocess"
-    shell:
-        "cp {input} {output} &> {log}"
+## Moved to rules/bench_vcf_processing
+# rule postprocess_vcf:
+#     input:
+#         lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.vcf.gz",
+#     output:
+#         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
+#     log:
+#         "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+#     group:
+#         "postprocess"
+#     shell:
+#         "cp {input} {output} &> {log}"
 
 
 rule postprocess_bed:
     input:
-        lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.bed",
+        lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
     output:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed",
     log:
