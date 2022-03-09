@@ -110,6 +110,9 @@ def get_exclusion_inputs(wildcards):
         ## Adding slop - currently a 15kb hard coded buffer around excluded repeat regions
         if exclusion in config["exclusion_slop_regions"]:
             exc_path = f"{exc_path}_slop"
+        elif  exclusion in config["exclusion_asm_intersect"]:
+            ## Ensuring bed files are sorted before intersect
+            exc_path = f"{exc_path}_sorted"
 
         ## Defining which regions are excluded based on diploid assembly breaks
         if exclusion in config["exclusion_asm_intersect"]:
