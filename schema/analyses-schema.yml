@@ -66,7 +66,7 @@ properties:
       ./manual/target_regions); note the string must be a filename ending in
       ".bed." If 'false,' the evaluation tool will run in an untargetted mode.
     type: string
-    pattern: ^.*\.bed|(?i)true|(?i)false$
+    pattern: ^.*\.bed|(?i:true)|(?i:false)$
 
   bench_id:
     description: |
