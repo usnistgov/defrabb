@@ -1,9 +1,9 @@
 import pandas as pd
 from pathlib import Path
 from snakemake.utils import min_version, validate
+import rules.common
 
 
-include: "rules/common.smk"
 include: "rules/exclusions.smk"
 include: "rules/report.smk"
 include: "rules/bench_vcf_processing.smk"
