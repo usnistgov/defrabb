@@ -35,33 +35,18 @@ ref_config = config["references"]
 ################################################################################
 # init analyses
 ## TODO add checks for setting indecies - maybe move to function
-analyses = analyses = pd.read_table(
-    config["analyses"], dtype={"eval_target_regions": str}
-)
-validate(analyses, "schema/analyses-schema.yml")
+
+analyses = load_analyses(config, "schema/analyses-schema.yml")
+
 
 ## Generating seperate tables for individual framework components
 ## asm variant calls
-vc_params = analyses.filter(regex="vc_").drop_duplicates()
-vc_ids = analyses[["vc_id", "asm_id", "ref"]].drop_duplicates()
-vc_tbl = pd.merge(vc_ids, vc_params, how="inner", on="vc_id").set_index("vc_id")
+vc_params, vc_tbl = analyses_to_vc_tbl(analyses)
 
 ## draft benchmark set generation
-bench_params = analyses.filter(regex="bench_").drop_duplicates()
-bench_ids = analyses[
-    ["bench_id", "asm_id", "vc_id", "vc_cmd", "vc_param_id", "ref", "exclusion_set"]
-].drop_duplicates()
-bench_tbl = pd.merge(bench_ids, bench_params, how="inner", on="bench_id").set_index(
-    "bench_id"
-)
-bench_excluded_tbl = bench_tbl[bench_tbl.exclusion_set != "none"]
+bench_params, bench_tbl, bench_exclusion_tbl = analyses_to_bench_tbls(analyses)
 
-## Evaluation Runs
-eval_params = analyses.filter(regex="eval_").drop_duplicates()
-eval_ids = analyses[["eval_id", "bench_id", "ref"]].drop_duplicates()
-eval_tbl = pd.merge(eval_ids, eval_params, how="inner", on="eval_id").set_index(
-    "eval_id"
-)
+eval_params, eval_tbl = analyses_to_eval_tbl(analyses)
 
 ## Setting index for analysis run lookup
 analyses = analyses.set_index("eval_id")
