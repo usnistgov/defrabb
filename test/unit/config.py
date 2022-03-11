@@ -2,6 +2,7 @@ import unittest as ut
 import pandas as pd
 from snakemake.io import load_configfile
 from snakemake.utils import validate
+import rules.common
 
 
 def import_yaml(path, schema):
