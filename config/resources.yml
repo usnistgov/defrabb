@@ -44,7 +44,8 @@ stratifications:
       id: "v3.0-stratifications-GRCh38"
       url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/v3.0-stratifications-GRCh38.tar.gz"
       tarball: "v3.0-stratifications-GRCh38.tar.gz"
-      tsv: "v3.0-GRCh38-stratifications-all-except-genome-specific-stratifications.tsv"
+      tsv: "v3.0-GRCh38-all-stratifications.tsv"
+      # v3.0-GRCh38-stratifications-all-except-genome-specific-stratifications.tsv
       # tsv: "v3.0-GRCh38-all-stratifications.tsv"
     ## For testing
     GRCh38_chr21:
@@ -91,6 +92,11 @@ assemblies:
     maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2Tv2.7-CHM13v2_chrX/T2T-v2.7_HG2chrX.fa.gz
     paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2Tv2.7-CHM13v2_chrX/chm13v2.0_CHM13chrX.fa.gz
     is_male: false
+  ##latest assembly from HPRC
+  HG2-HPRC-20211005:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/21edcb42-02c4-4e9f-b226-6773e62484a4--RU-HG002-commons/assembly/curated_round2/HG002.mat.cur.20211005.fasta.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/21edcb42-02c4-4e9f-b226-6773e62484a4--RU-HG002-commons/assembly/curated_round2/HG002.pat.cur.20211005.fasta.gz
+    is_male: true
   ## HPRC 44 Genome Assemblies from pangenome work
   HPRC-HG00733:
     maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG00733/assemblies/year1_f1_assembly_v2_genbank/HG00733.maternal.f1_assembly_v2_genbank.fa.gz
