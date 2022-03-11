@@ -1,3 +1,53 @@
+import pandas as pd
+from snakemake.utils import validate
+
+################################################################################
+## Config processing functions
+
+
+def load_df(path, schema):
+    df = pd.read_table(path)
+    validate(df, schema)
+    return df
+
+
+def load_analyses(config, schema):
+    return load_df(config["analyses"], schema).astype(
+        dtype={"eval_target_regions": str}
+    )
+
+
+def _filter_subtable(df, filter_re, id_cols, new_index):
+    params = df.filter(regex=filter_re).drop_duplicates()
+    ids = df[id_cols].drop_duplicates()
+    tbl = pd.merge(ids, params, how="inner", on=new_index).set_index(new_index)
+    return (params, tbl)
+
+
+def analyses_to_vc_tbl(analyses):
+    return _filter_subtable(analyses, "vc_", ["vc_id", "asm_id", "ref"], "vc_id")
+
+
+def analyses_to_bench_tbls(analyses):
+    id_cols = [
+        "bench_id",
+        "asm_id",
+        "vc_id",
+        "vc_cmd",
+        "vc_param_id",
+        "ref",
+        "exclusion_set",
+    ]
+    (params, tbl) = _filter_subtable(analyses, "bench_", id_cols, "bench_id")
+    excluded_tbl = tbl[tbl.exclusion_set != "none"]
+    return (params, tbl, excluded_tbl)
+
+
+def analyses_to_eval_tbl(analyses):
+    id_cols = ["eval_id", "bench_id", "ref"]
+    return _filter_subtable(analyses, "eval_", id_cols, "eval_id")
+
+
 ################################################################################
 ## Utility Functions
 
@@ -110,7 +160,7 @@ def get_exclusion_inputs(wildcards):
         ## Adding slop - currently a 15kb hard coded buffer around excluded repeat regions
         if exclusion in config["exclusion_slop_regions"]:
             exc_path = f"{exc_path}_slop"
-        elif  exclusion in config["exclusion_asm_intersect"]:
+        elif exclusion in config["exclusion_asm_intersect"]:
             ## Ensuring bed files are sorted before intersect
             exc_path = f"{exc_path}_sorted"
 
