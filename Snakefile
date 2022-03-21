@@ -6,6 +6,7 @@ from snakemake.utils import min_version, validate
 include: "rules/common.smk"
 include: "rules/exclusions.smk"
 include: "rules/report.smk"
+include: "rules/bench_vcf_processing.smk"
 
 
 # include: "rules/bench_vcf_processing.smk"
@@ -363,6 +364,7 @@ use rule get_comparison_vcf as get_comparison_bed with:
     log:
         "logs/get_comparisons/{comp_id}_bed.log",
 
+
 ## General indexing rule for vcfs
 rule tabix:
     input:
@@ -471,18 +473,18 @@ rule index_dip_bam:
 ################################################################################
 ################################################################################
 
-
-rule postprocess_vcf:
-    input:
-        lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.vcf.gz",
-    output:
-        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
-    log:
-        "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
-    group:
-        "postprocess"
-    shell:
-        "cp {input} {output} &> {log}"
+## Moved to rules/bench_vcf_processing
+# rule postprocess_vcf:
+#     input:
+#         lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.vcf.gz",
+#     output:
+#         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
+#     log:
+#         "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+#     group:
+#         "postprocess"
+#     shell:
+#         "cp {input} {output} &> {log}"
 
 
 rule postprocess_bed:
