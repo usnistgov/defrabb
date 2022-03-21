@@ -1,0 +1,4 @@
+eval_id	bench_id	eval_cmd	eval_params	eval_comp_id	eval_comp_id_is_truth	eval_truth_regions	eval_target_regions	vc_id	bench_type	bench_vcf_processing	bench_bed_processing	exclusion_set	asm_id	ref	vc_cmd	vc_param_id	vc_params
+none_1	GRCh38_HPRC-HG002-dipz2k_smvar-excluded	unhappy	none	none	FALSE	FALSE	FALSE	GRCh38_HPRC-HG002_dipz2k	smvar	none	exclude	smvarall	HPRC-HG005	GRCh38	dipcall	z2k	"-z200000,10000"
+none_2	GRCh38_HPRC-HG005-dipz2k_smvar-excluded	unhappy	none	none	FALSE	FALSE	FALSE	GRCh38_HPRC-HG005_dipz2k	smvar	none	exclude	smvarall	HPRC-HG002	GRCh38	dipcall	z2k	"-z200000,10000"
+none_3	GRCh38_HPRC-NA19240-dipz2k_smvar-excluded	unhappy	none	none	FALSE	FALSE	FALSE	GRCh38_HPRC-NA19240_dipz2k	smvar	none	exclude	smvarall	HPRC-NA19240	GRCh38	dipcall	z2k	"-z200000,10000"
