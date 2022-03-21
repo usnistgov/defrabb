@@ -5,7 +5,7 @@ rule fix_XY_genotype:
     input:
         "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
     output:
-        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.halfcalltohomvar.vcf.gz",
+        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.fix_XY_genotype.vcf.gz",
     group:
         "make_bench"
     conda:
@@ -53,7 +53,7 @@ rule split_multiallelic_sites:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.split_multi.vcf.gz",
         vcf_tbi="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.split_multi.vcf.gz.tbi",
     conda:
-        "envs/bcftools.yml"
+        "../envs/bcftools.yml"
     log:
         "logs/split_multiallelic_sites/{bench_id}_{prefix}.log",
     shell:
@@ -77,19 +77,17 @@ rule move_asm_vcf_to_draft_bench:
 def get_processed_vcf(wildcards):
     vcf_suffix = bench_tbl.loc[wildcards.bench_id, "bench_vcf_processing"]
     if vcf_suffix == "none":
-        return (
-            f"results/draft_benchmarksets/{{bench_id}}/intermediates/{{prefix}}.vcf.gz"
-        )
+        return f"results/draft_benchmarksets/{{bench_id}}/intermediates/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.vcf.gz"
     else:
-        return f"results/draft_benchmarksets/{{bench_id}}/intermediates/{{prefix}}.{vcf_suffix}.vcf.gz"
+        return f"results/draft_benchmarksets/{{bench_id}}/intermediates/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.{vcf_suffix}.vcf.gz"
 
 
 rule move_processed_draft_bench_vcf:
     input:
         get_processed_vcf,
     output:
-        "results/draft_benchmarksets/{bench_id}/{prefix}.vcf.gz",
+        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
     log:
-        "logs/move_processed_draft_bench_vcf/{bench_id}_{prefix}.log",
+        "logs/move_processed_draft_bench_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     shell:
         "cp {input} {output}"
