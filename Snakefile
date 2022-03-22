@@ -12,7 +12,7 @@ include: "rules/bench_vcf_processing.smk"
 # include: "rules/bench_vcf_processing.smk"
 
 
-min_version("6.0")
+min_version("7.3.0")
 
 
 ## Rule ordering for ambiguous rules
