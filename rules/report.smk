@@ -27,8 +27,6 @@ rule run_assembly_stats:
         extra="-t",
     log:
         "logs/run_assembly_stats/{asm_id}_{haplotype}.assembly-stats.log",
-    group:
-        "report"
     threads: 1
     wrapper:
         "v0.86.0/bio/assembly-stats"
@@ -43,8 +41,6 @@ rule get_bed_size:
     # output: report("results/bed_size/{genomic_region}.txt", caption = "report/bed_size.rst", category = "Exclusion Stats")
     log:
         "logs/get_bed_size/{genomic_region}.log",
-    group:
-        "report"
     shell:
         """
         cat {input} \
@@ -64,8 +60,6 @@ rule get_number_of_variants:
         "logs/{prefix}_{genomic_region}_var_counts.tsv",
     conda:
         "../envs/bedtools.yml"
-    group:
-        "report"
     shell:
         """
         nvar=$(intersectBed \
@@ -88,8 +82,6 @@ rule get_bed_stats:
         "logs/get_bed/stats/{bed_dir}_{ref_id}_{genomic_region}.log",
     conda:
         "../envs/bedtools.yml"
-    group:
-        "report"
     shell:
         "bedtools summary -i {input.bed} -g {input.genome} 1> {output} 2> {log}"
 
@@ -104,8 +96,6 @@ rule get_exclusion_coverage:
         "logs/get_exclusion_coverage/{draft_bench}_{prefix}.log",
     conda:
         "../envs/bedtools.yml"
-    group:
-        "report"
     shell:
         """
         multiIntersectBed -header -i
@@ -127,8 +117,6 @@ rule get_bcftools_stats:
         "logs/get_bcftools_stats/{prefix}_stats.txt",
     conda:
         "../envs/bcftools.yml"
-    group:
-        "report"
     shell:
         " bcftools stats {input} > {output} "
 
@@ -147,8 +135,6 @@ rule get_rtg_vcf_stats:
         "logs/get_rtg_vcf_stats/{prefix}_stats.txt",
     conda:
         "../envs/rtgtools.yml"
-    group:
-        "report"
     shell:
         " rtg vcfstats {input} 1> {output} 2> {log}"
 
@@ -162,7 +148,5 @@ rule summarize_exclusions:
         "../envs/rmd.yml"
     log:
         "logs/summarise_exclusions/{bench_id}_{ref_id}_{vc_id}-{exclusion_set}.log",
-    group:
-        "report"
     script:
         "../scripts/reports/exclusions.Rmd"
