@@ -84,8 +84,8 @@ assemblies:
     is_male: true
   ## T2T XY assemblies (maternal=X and paternal=Y)
   T2T-XY-v2.7:
-    maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-v2.7_XY/chrX_v2.7.fa
-    paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-v2.7_XY/chrY_v2.7.fa
+    maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-v2.7_XY/chrX_v2.7.fa.gz
+    paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-v2.7_XY/chrY_v2.7.fa.gz
     is_male: true
   ## chr X from T2Tv2.7 and CHM13v2.  For use with AI work
   T2Tv2.7-CHM13v2_chrX:
