@@ -6,8 +6,6 @@ rule fix_XY_genotype:
         "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
     output:
         "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.fix_XY_genotype.vcf.gz",
-    group:
-        "make_bench"
     conda:
         "../envs/dipcall.yml"
     log:
@@ -29,8 +27,6 @@ rule dip_gap2homvarbutfiltered:
         "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
     output:
         "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.gap2homvarbutfiltered.vcf.gz",
-    group:
-        "make_bench"
     # bgzip is part of samtools, which is part of the dipcall env
     conda:
         "../envs/dipcall.yml"

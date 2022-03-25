@@ -26,8 +26,6 @@ rule get_SVs_from_vcf:
         "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.bed",
     log:
         "logs/exclusions/{bench_id}_div_SVs_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
-    group:
-        "exclude_SVs"
     shell:
         """
         gunzip -c {input} | \
@@ -50,8 +48,6 @@ rule intersect_SVs_and_homopolymers:
         "benchmark/exclusions/{bench_id}_SVs_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "../envs/bedtools.yml"
-    group:
-        "exclude_SVs"
     shell:
         """
         intersectBed -wa \
@@ -78,8 +74,6 @@ rule add_slop:
         slop=15000,
     conda:
         "../envs/bedtools.yml"
-    group:
-        "postprocess"
     shell:
         """
         bedtools sort -i {input.bed} -g {input.genome} |
@@ -103,8 +97,6 @@ rule intersect_start_and_end:
         "benchmark/exclusions/start_end_{bench_id}_{excluded_region}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "../envs/bedtools.yml"
-    group:
-        "start_end"
     shell:
         """
         awk '{{FS=OFS="\t"}} {{print $1, $2, $2+1}}' {input.dip} \
@@ -130,8 +122,6 @@ rule add_flanks:
         "logs/exclusions/{bench_id}_flanks_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     conda:
         "../envs/bedtools.yml"
-    group:
-        "postprocess"
     shell:
         "bedtools flank -i {input.bed} -g {input.genome} -b 15000 1> {output} 2> {log}"
 
