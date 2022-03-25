@@ -120,9 +120,11 @@ localrules:
     intersect_start_and_end,
     intersect_SVs_and_homopolymers,
     get_SVs_from_vcf,
-    postprocess_vcf,
     postprocess_bed,
     sort_bed,
+    add_slop,
+    tabix,
+    move_asm_vcf_to_draft_bench,
 
 
 ## Snakemake Report
@@ -287,8 +289,6 @@ rule index_ref:
         "logs/index_ref/{ref_id}.log",
     resources:
         mem_mb=16000,
-    group:
-        "indexing"
     wrapper:
         "0.79.0/bio/samtools/faidx"
 
@@ -305,8 +305,6 @@ rule index_ref_mmi:
         mem_mb=2400,
     conda:
         "envs/dipcall.yml"
-    group:
-        "indexing"
     shell:
         "minimap2 -x asm5 -d {output} {input}"
 
@@ -320,8 +318,6 @@ rule index_ref_sdf:
         "logs/index_ref_sdf/{ref_id}.log",
     conda:
         "envs/rtgtools.yml"
-    group:
-        "indexing"
     shell:
         "rtg format -o {output} {input}"
 
@@ -448,8 +444,6 @@ rule sort_bed:
         "{prefix}_sorted.bed",
     log:
         "logs/sort_bed/{prefix}.log",
-    group:
-        "postprocess"
     wrapper:
         "0.74.0/bio/bedtools/sort"
 
@@ -481,8 +475,6 @@ rule index_dip_bam:
 #         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
 #     log:
 #         "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
-#     group:
-#         "postprocess"
 #     shell:
 #         "cp {input} {output} &> {log}"
 
@@ -494,8 +486,6 @@ rule postprocess_bed:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed",
     log:
         "logs/process_benchmark_bed/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
-    group:
-        "postprocess"
     shell:
         "cp {input} {output} &> {log}"
 
