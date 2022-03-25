@@ -98,6 +98,23 @@ get "DEFAULT" credentials ,e.g., `cat ~/.aws/credentials`\
 	- ANALYSES = add path to file, e.g. `config/myfile.tsv`, if you want to overide use of `anslyses.tsv` defined in `resources.yml` 
 	- RUNDIR = `your-directory` in S3 bucket `giab-tibanna-runs` that outputs should go to
 	- JOBS and DISKMB = adjust as appropriate for your run requirements
+	- set tibanna unicorn  
+		If running on AWS from local terminal you can set/use unicorn two ways. Unicorn we are currently using for most work is "tibanna_unicorn_giab_test3"  
+		
+		**OPTION 1, use if going to consistenly use the same unicorn:**  
+		Add the following to your ~ /.bash_profile  
+			`export TIBANNA_DEFAULT_STEP_FUNCTION_NAME=<insert unicorn name>`  
+		In run_on_tibanna.sh change as follows such that default is used:  
+			`PROFILE="default"`  
+			`#UNICORN="<insert unicorn name>"`  
+			`#export TIBANNA_DEFAULT_STEP_FUNCTION_NAME=${UNICORN}`  
+		
+		**OPTION 2, set in shell script if you tend to use different unicorns or are running from AWS instance**  
+		In run_on_tibanna.sh change as follows such that unicorn is defined:  
+			`#PROFILE="default"`  
+			`UNICORN="<insert unicorn name>"`  
+			`export TIBANNA_DEFAULT_STEP_FUNCTION_NAME=${UNICORN}`  
+	
 	- review snakemake command and options used by snakemake and tibanna to ensure they are appropriate for your run
 5. start tmux session. See [online tmux cheatsheet](https://tmuxcheatsheet.com) for helpful tmux commands [^3]\
 `tmux new-session -s my-session-name` multiple people can log in to the session using `tmux a -t my-session-name`
