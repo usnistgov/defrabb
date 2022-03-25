@@ -1,3 +1,8 @@
+# Milestone v0.005 2022-03-25
+- Using Snakemake version 7.3 addresses issue with local runs, removed groups for local rules
+- Added documentation for running pipeline on AWS using Tibanna
+- Adding analyses.tsv tables for additional framework runs
+
 # Milestone v0.004 2022-02-28
 - Revising test dataset for easier local development
 - Adding basic report functionality
