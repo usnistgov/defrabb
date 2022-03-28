@@ -122,6 +122,9 @@ localrules:
     get_SVs_from_vcf,
     postprocess_bed,
     sort_bed,
+    add_slop,
+    tabix,
+    move_asm_vcf_to_draft_bench,
 
 
 ## Snakemake Report
@@ -472,8 +475,6 @@ rule index_dip_bam:
 #         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
 #     log:
 #         "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
-#     group:
-#         "postprocess"
 #     shell:
 #         "cp {input} {output} &> {log}"
 
