@@ -1,4 +1,5 @@
 import pandas as pd
+from pathlib import Path
 from snakemake.utils import validate
 
 ################################################################################
@@ -11,26 +12,23 @@ def load_df(path, schema):
     return df
 
 
-def load_analyses(config, schema):
-    return load_df(config["analyses"], schema).astype(
-        dtype={"eval_target_regions": str}
-    )
+def load_analyses(path, schema):
+    return load_df(path, schema).astype(dtype={"eval_target_regions": str})
 
 
 def _filter_subtable(df, filter_re, id_cols, new_index):
     params = df.filter(regex=filter_re).drop_duplicates()
-    ids = df[id_cols].drop_duplicates()
+    ids = df[[new_index] + id_cols].drop_duplicates()
     tbl = pd.merge(ids, params, how="inner", on=new_index).set_index(new_index)
     return (params, tbl)
 
 
 def analyses_to_vc_tbl(analyses):
-    return _filter_subtable(analyses, "vc_", ["vc_id", "asm_id", "ref"], "vc_id")
+    return _filter_subtable(analyses, "vc_", ["asm_id", "ref"], "vc_id")
 
 
 def analyses_to_bench_tbls(analyses):
     id_cols = [
-        "bench_id",
         "asm_id",
         "vc_id",
         "vc_cmd",
@@ -38,14 +36,9 @@ def analyses_to_bench_tbls(analyses):
         "ref",
         "exclusion_set",
     ]
-    (params, tbl) = _filter_subtable(analyses, "bench_", id_cols, "bench_id")
+    params, tbl = _filter_subtable(analyses, "bench_", id_cols, "bench_id")
     excluded_tbl = tbl[tbl.exclusion_set != "none"]
     return (params, tbl, excluded_tbl)
-
-
-def analyses_to_eval_tbl(analyses):
-    id_cols = ["eval_id", "bench_id", "ref"]
-    return _filter_subtable(analyses, "eval_", id_cols, "eval_id")
 
 
 ################################################################################
@@ -81,62 +74,52 @@ def get_male_bed(wildcards):
 
 
 ## Happy Inputs and Parameters
-def get_happy_inputs(wildcards):
-    ## Creating empty dictionary for storing inputs
-    inputs = {}
+def get_happy_inputs(analyses, config, wildcards):
+    return get_happy_inputs_inner(
+        wildcards.ref_id,
+        wildcards.eval_id,
+        analyses,
+        config,
+    )
 
-    ## Reference genome and stratifications
-    ref_id = analyses.loc[wildcards.eval_id, "ref"]
-    inputs["genome"] = f"resources/references/{ref_id}.fa"
-    inputs["genome_index"] = f"resources/references/{ref_id}.fa.fai"
-    strat_tb = config["stratifications"][wildcards.ref_id]["tarball"]
-    inputs["strat_tb"] = f"resources/strats/{ref_id}/{strat_tb}"
 
-    ## draft benchmark variant calls
+def get_happy_inputs_inner(ref_id, eval_id, analyses, config):
+    _analyses = analyses.set_index("eval_id")
+    ref_id = _analyses.loc[eval_id, "ref"]
+    strat_tb = config["stratifications"][ref_id]["tarball"]
+
     draft_bench_vcf = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz"
+    draft_bench_bed = (
+        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed"
+        if _analyses.loc[(eval_id, "exclusion_set")] == "none"
+        else "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed"
+    )
 
-    ## draft benchmark regions
-    if analyses.loc[(wildcards.eval_id, "exclusion_set")] == "none":
-        draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed"
-    else:
-        draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed"
-
-    ## comparison variant call paths
     comp_vcf = "resources/comparison_variant_callsets/{comp_id}.vcf.gz"
-    comp_vcfidx = "resources/comparison_variant_callsets/{comp_id}.vcf.gz.tbi"
     comp_bed = "resources/comparison_variant_callsets/{comp_id}.bed"
 
-    ## Determining which callsets and regions are used as truth
-    if analyses.loc[wildcards.eval_id, "eval_comp_id_is_truth"] == True:
-        query = "draft_bench"
-    else:
-        query = "comp"
+    comp_is_truth = _analyses.loc[eval_id, "eval_comp_id_is_truth"] == True
 
-    ## Defining truth calls and regions along with query calls
-    if query == "draft_bench":
-        inputs["query"] = draft_bench_vcf
-        inputs["truth"] = comp_vcf
-        inputs["truth_vcfidx"] = comp_vcfidx
-        inputs["truth_regions"] = comp_bed
-    else:
-        inputs["query"] = comp_vcf
-        inputs["query_vcfidx"] = comp_vcfidx
-        inputs["truth"] = draft_bench_vcf
-        inputs["truth_regions"] = draft_bench_bed
-
-    ## Determining Target regions
-    trs = eval_tbl.loc[wildcards.eval_id, "eval_target_regions"]
-    if trs.lower() != "false":
-        if trs.lower() == "true":
-            if query == "draft_bench":
-                inputs["target_regions"] = draft_bench_bed
+    def get_target_regions():
+        trs = _analyses.loc[eval_id, "eval_target_regions"]
+        if trs.lower() != "false":
+            if trs.lower() == "true":
+                return draft_bench_bed if comp_is_truth else comp_bed
             else:
-                inputs["target_regions"] = comp_bed
+                return f"resources/manual/target_regions/{trs}"
         else:
-            inputs["target_regions"] = f"resources/manual/target_regions/{trs}"
+            return None
 
-    ## Returning happy inputs
-    return inputs
+    return {
+        "genome": f"resources/references/{ref_id}.fa",
+        "genome_index": f"resources/references/{ref_id}.fa.fai",
+        "strat_tb": f"resources/strats/{ref_id}/{strat_tb}",
+        "comp_idx": "resources/comparison_variant_callsets/{comp_id}.vcf.gz.tbi",
+        "query": draft_bench_vcf if comp_is_truth else comp_vcf,
+        "truth": comp_vcf if comp_is_truth else draft_bench_vcf,
+        "truth_regions": comp_bed if comp_is_truth else draft_bench_bed,
+        "target_regions": get_target_regions(),
+    }
 
 
 ## Exclusions

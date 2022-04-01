@@ -1,13 +1,13 @@
 import pandas as pd
 from pathlib import Path
 from snakemake.utils import min_version, validate
-import rules.common
-
-
-include: "rules/exclusions.smk"
-include: "rules/report.smk"
-include: "rules/bench_vcf_processing.smk"
-
+from rules.common import (
+    load_analyses,
+    analyses_to_bench_tbls,
+    analyses_to_vc_tbl,
+    get_male_bed,
+    get_happy_inputs,
+)
 
 # include: "rules/bench_vcf_processing.smk"
 
@@ -36,7 +36,7 @@ ref_config = config["references"]
 # init analyses
 ## TODO add checks for setting indecies - maybe move to function
 
-analyses = load_analyses(config, "schema/analyses-schema.yml")
+analyses = load_analyses(config["analyses"], "schema/analyses-schema.yml")
 
 
 ## Generating seperate tables for individual framework components
@@ -44,12 +44,15 @@ analyses = load_analyses(config, "schema/analyses-schema.yml")
 vc_params, vc_tbl = analyses_to_vc_tbl(analyses)
 
 ## draft benchmark set generation
-bench_params, bench_tbl, bench_exclusion_tbl = analyses_to_bench_tbls(analyses)
-
-eval_params, eval_tbl = analyses_to_eval_tbl(analyses)
+bench_params, bench_tbl, bench_excluded_tbl = analyses_to_bench_tbls(analyses)
 
 ## Setting index for analysis run lookup
 analyses = analyses.set_index("eval_id")
+
+
+include: "rules/exclusions.smk"
+include: "rules/report.smk"
+include: "rules/bench_vcf_processing.smk"
 
 
 ################################################################################
@@ -69,8 +72,8 @@ BENCHIDS = set(bench_tbl.index.tolist())
 
 
 ## Evaluations
-EVALIDS = set(eval_tbl.index.tolist())
-EVALCOMPIDS = set(eval_tbl["eval_comp_id"].tolist())
+EVALIDS = set(analyses.index.tolist())
+EVALCOMPIDS = set(analyses["eval_comp_id"].tolist())
 
 
 # Only constrain the wildcards to match what is in the resources file. Anything
@@ -498,7 +501,7 @@ rule postprocess_bed:
 
 rule run_happy:
     input:
-        unpack(get_happy_inputs),
+        unpack(partial(get_happy_inputs, analyses, config)),
     output:
         multiext(
             "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
