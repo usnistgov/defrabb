@@ -1,4 +1,5 @@
 import pandas as pd
+from common import get_exclusion_inputs
 
 
 wildcard_constraints:
