@@ -304,6 +304,8 @@ exclusion_set:
     - self-chains
     - flanks
     - svs-and-homopolymers
+  smvartest:
+    - svs-and-homopolymers
   stvarall:
     - segdups
     - tandem-repeats
