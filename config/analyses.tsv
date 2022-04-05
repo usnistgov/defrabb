@@ -2,6 +2,6 @@ eval_id	bench_id	eval_cmd	eval_params	eval_comp_id	eval_comp_id_is_truth	eval_tr
 eval1	testA	happy	default	v4.2.1chr21	True	True	true	vc1	smvar	none	none	none	asm17aChr21	GRCh38_chr21	dipcall	default	default
 eval2	testA	happy	default	v4.2.1chr21	True	True	false	vc1	smvar	none	none	none	asm17aChr21	GRCh38_chr21	dipcall	default	default
 eval3	testA	happy	default	v4.2.1chr21	False	True	true	vc1	smvar	none	none	none	asm17aChr21	GRCh38_chr21	dipcall	default	default
-eval4	testB	happy	default	v4.2.1chr21	True	True	true	vc2	smvar	none	exclude	smvarall	asm17aChr21	GRCh38_chr21	dipcall	default	default
-eval5	testC	happy	default	HiFiDV-v4.2.1	True	True	GRCh38_chrXY.bed	vc3a	smvar	halfcalltohomvar	exclude	smvarall	HG2-hifiasm_v0.11	GRCh38	dipcall	z2k	-z200000,10000
-eval6	testD	truvari	default	v0.6chr21	True	True	false	vc4	stvar	halfcalltohomvar	exclude	stvarall	asm17aChr21	GRCh38_chr21	dipcall	z2k	-z200000,10000
+eval4	testB	happy	default	v4.2.1chr21	True	True	true	vc1	smvar	none	exclude	smvartest	asm17aChr21	GRCh38_chr21	dipcall	default	default
+eval5	testC	happy	default	HiFiDV-v4.2.1	True	True	GRCh38_chrXY.bed	vc2	smvar	fix_XY_genotype	exclude	smvarall	T2T-XY-v2.7	GRCh38	dipcall	z2k	-z200000,10000
+eval6	testD	truvari	default	v0.6chr21	True	True	false	vc3	stvar	none	exclude	stvarall	asm17aChr21	GRCh38_chr21	dipcall	z2k	-z200000,10000
