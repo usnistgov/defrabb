@@ -74,7 +74,7 @@ rule get_number_of_variants:
 rule get_bed_stats:
     input:
         bed="{bed_dir}/{ref_id}_{genomic_region}.bed",
-        genome="resouces/exclusions/{ref_id}.genome",
+        genome="resouces/references/{ref_id}.genome",
     output:
         "results/bed_stats/{bed_dir}_{ref_id}/{genomic_region}.tsv",
     # output: report("results/bed_stats/{bed_dir}_{ref_id}/{genomic_region}.tsv", caption = "report/bed_stats.rst", category = "Exclusion Stats")
