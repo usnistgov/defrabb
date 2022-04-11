@@ -15,44 +15,58 @@ analyses: "config/analyses.tsv"
 ################################################################################
 ## Reference Data Files
 # Reference Genomes
-#
+#   - Exclusions - ADD DESCRIPTION
+#   - Stratifications - set of genomic regions used to calculate genomic context 
+#   dependent variant calling performance
+
 references:
   GRCh37:
     ref_url: "ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz"
     par_bed: "hs37d5.PAR.bed"
+    exclusions:
+      homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh37/LowComplexity/GRCh37_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+      segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh37/SegmentalDuplications/GRCh37_segdups.bed.gz
+      tandem-repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/LowComplexity/GRCh37_AllTandemRepeats_gt10000bp_slop5.bed.gz
+      gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/OtherDifficult/GRCh37_gaps_slop15kb.bed.gz
+      self-chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/SegmentalDuplications/GRCh37_chainSelf.bed.gz
+      satellites: https://giab-data.s3.amazonaws.com/giab-test-data/ADDTOS3
+    stratifications:
+      id: "v3.0-stratifications-GRCh37"
+      url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/v3.0-stratifications-GRCh37.tar.gz"
+      tarball: "v3.0-stratifications-GRCh37.tar.gz"
+      tsv: "v3.0-GRCh37-all-stratifications.tsv"
   GRCh38:
     ref_url: "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz"
     par_bed: "hs38.PAR.bed"
-  ## For testing
-  GRCh38_chr21:
-    ref_url: "https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_chr21.fa.gz"
-    par_bed: "hs38.PAR.bed"
-
-## URL for excluded beds - will want to make reference genome specific at some point
-exclusion_beds:
-  homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
-  segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/SegmentalDuplications/GRCh38_segdups.bed.gz
-  tandem-repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeats_gt10000bp_slop5.bed.gz
-  gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/OtherDifficult/GRCh38_gaps_slop15kb.bed.gz
-  self-chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
-  satellites: https://giab-data.s3.amazonaws.com/giab-test-data/satellites.bed.gz
-
-# Stratifications - set of genomic regions used to calculate genomic context 
-#   dependent variant calling performance
-stratifications:
-    GRCh38:
+    exclusions:
+      homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+      segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/SegmentalDuplications/GRCh38_segdups.bed.gz
+      tandem-repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeats_gt10000bp_slop5.bed.gz
+      gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/OtherDifficult/GRCh38_gaps_slop15kb.bed.gz
+      self-chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
+      satellites: https://giab-data.s3.amazonaws.com/giab-test-data/satellites.bed.gz
+    stratifications:
       id: "v3.0-stratifications-GRCh38"
       url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/v3.0-stratifications-GRCh38.tar.gz"
       tarball: "v3.0-stratifications-GRCh38.tar.gz"
       tsv: "v3.0-GRCh38-all-stratifications.tsv"
-      # v3.0-GRCh38-stratifications-all-except-genome-specific-stratifications.tsv
-      # tsv: "v3.0-GRCh38-all-stratifications.tsv"
-    ## For testing
-    GRCh38_chr21:
+  ## For testing
+  GRCh38_chr21:
+    ref_url: "https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_chr21.fa.gz"
+    par_bed: "hs38.PAR.bed"
+    exclusions:
+      homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+      segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/SegmentalDuplications/GRCh38_segdups.bed.gz
+      tandem-repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeats_gt10000bp_slop5.bed.gz
+      gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/OtherDifficult/GRCh38_gaps_slop15kb.bed.gz
+      self-chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
+      satellites: https://giab-data.s3.amazonaws.com/giab-test-data/satellites.bed.gz
+    stratifications:
       id: "v3.0-stratifications-GRCh38_chr21"
       url: "https://giab-data.s3.amazonaws.com/giab-test-data/v3.0-stratifications-GRCh38_chr21.tar.gz"
       tarball: "v3.0-stratifications-GRCh38_chr21.tar.gz"
       tsv: "v3.0-GRCh38-test-stratifications.tsv"
+
 
 ################################################################################
 # Assemblies
@@ -304,6 +318,8 @@ exclusion_set:
     - self-chains
     - flanks
     - svs-and-homopolymers
+  smvartest:
+    - svs-and-homopolymers
   stvarall:
     - segdups
     - tandem-repeats
@@ -347,355 +363,363 @@ exclusion_ref_agnostic:
 #   bed_url: http://another.bed
 
 comparisons:
-  ## For testing
-  v4.2.1chr21:
-    vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/v4.2.1chr21.vcf.gz
-    bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/v4.2.1chr21.bed
-    tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/v4.2.1chr21.vcf.gz.tbi
-  ## GIAB Benchmark Sets
-  v4.2.1:
-    vcf_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz
-    bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
-    tbi_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz.tbi
-  ## HPRC callsets from dipcall
-  HG2-HPRC-20211005-XY:
-    vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip.vcf.gz
-    bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip.bed
-    tbi_url:
-  ## GIAB Variant Callsets for comparison
-  HiFiDV-v4.2.1:
-    vcf_url: https://nist-midas.s3.amazonaws.com/pdrsrv/mds2-2336/submission_vcfs/B1S5A/B1S5A_HG002.vcf.gz
-    bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
-    tbi_url:
-  ## HPRC 44 Genome DeepVariant Callsets
-  Hifi-DV-HG01123:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01123/HG01123.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01123/HG01123.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG01258:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01258/HG01258.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01258/HG01258.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG01358:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01358/HG01358.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01358/HG01358.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG01361:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01361/HG01361.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01361/HG01361.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG01891:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01891/HG01891.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01891/HG01891.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG02257:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02257/HG02257.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02257/HG02257.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG02486:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02486/HG02486.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02486/HG02486.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG02559:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02559/HG02559.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02559/HG02559.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG02572:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02572/HG02572.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02572/HG02572.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG03516:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03516/HG03516.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03516/HG03516.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG00438:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00438/HG00438.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00438/HG00438.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG00621:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00621/HG00621.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00621/HG00621.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG00673:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00673/HG00673.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00673/HG00673.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG00735:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00735/HG00735.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00735/HG00735.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG00741:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00741/HG00741.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00741/HG00741.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG01071:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01071/HG01071.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01071/HG01071.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG01106:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01106/HG01106.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01106/HG01106.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG01175:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01175/HG01175.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01175/HG01175.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG01928:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01928/HG01928.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01928/HG01928.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG01952:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01952/HG01952.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01952/HG01952.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG01978:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01978/HG01978.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01978/HG01978.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG02148:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02148/HG02148.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02148/HG02148.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG02622:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02622/HG02622.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02622/HG02622.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG02630:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02630/HG02630.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02630/HG02630.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG02717:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02717/HG02717.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02717/HG02717.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG02886:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02886/HG02886.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02886/HG02886.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG03453:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03453/HG03453.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03453/HG03453.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG03540:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03540/HG03540.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03540/HG03540.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG03579:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03579/HG03579.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03579/HG03579.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG00733:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00733/HG00733.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00733/HG00733.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG01109:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01109/HG01109.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01109/HG01109.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG01243:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01243/HG01243.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01243/HG01243.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG02080:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02080/HG02080.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02080/HG02080.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG02109:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02109/HG02109.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02109/HG02109.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG02145:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02145/HG02145.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02145/HG02145.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG02723:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02723/HG02723.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02723/HG02723.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG02818:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02818/HG02818.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02818/HG02818.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG03486:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03486/HG03486.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03486/HG03486.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG03492:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03492/HG03492.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03492/HG03492.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-NA18906:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/NA18906/NA18906.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/NA18906/NA18906.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-NA20129:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/NA20129/NA20129.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/NA20129/NA20129.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-NA21309:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/NA21309/NA21309.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/NA21309/NA21309.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG02055:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02055/HG02055.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02055/HG02055.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  Hifi-DV-HG03098:
-    vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03098/HG03098.GRCh38_no_alt.deepvariant.vcf.gz
-    bed_url: 
-    tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03098/HG03098.GRCh38_no_alt.deepvariant.vcf.gz.tbi
-  ILMN-DV-HG00438:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG00438.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG00621:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG00621.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG00673:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG00673.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG00733:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG00733.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG00735:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG00735.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG00741:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG00741.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG01071:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01071.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG01106:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01106.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG01109:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01109.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG01175:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01175.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG01243:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01243.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG01258:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01258.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG01358:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01358.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG01361:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01361.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG01891:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01891.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG01928:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01928.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG01952:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01952.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG01978:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01978.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG02055:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02055.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG02080:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02080.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG02145:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02145.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG02148:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02148.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG02257:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02257.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG02572:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02572.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG02622:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02622.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG02630:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02630.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG02717:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02717.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG02723:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02723.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG02818:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02818.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG02886:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02886.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG03098:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG03098.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG03453:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG03453.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG03486:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG03486.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG03492:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG03492.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG03516:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG03516.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG03540:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG03540.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-HG03579:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG03579.output.vcf.gz
-    bed_url: 
-    tbi_url: 
-  ILMN-DV-NA18906:
-    vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/NA18906.output.vcf.gz
-    bed_url: 
-    tbi_url: 
+  GRCh38_chr21:
+    ## For testing
+    v4.2.1chr21:
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/v4.2.1chr21.vcf.gz
+      bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/v4.2.1chr21.bed
+      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/v4.2.1chr21.vcf.gz.tbi
+  GRCh37:
+    ## GIAB Benchmark Sets
+    v4.2.1:
+      vcf_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh37/HG002_GRCh37_1_22_v4.2.1_benchmark.vcf.gz
+      bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh37/HG002_GRCh37_1_22_v4.2.1_benchmark_noinconsistent.bed
+      tbi_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh37/HG002_GRCh37_1_22_v4.2.1_benchmark.vcf.gz.tbi
+  GRCh38:
+    ## GIAB Benchmark Sets
+    v4.2.1:
+      vcf_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz
+      bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
+      tbi_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz.tbi
+    ## HPRC callsets from dipcall
+    HG2-HPRC-20211005-XY:
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip.vcf.gz
+      bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip.bed
+      tbi_url:
+    ## GIAB Variant Callsets for comparison
+    HiFiDV-v4.2.1:
+      vcf_url: https://nist-midas.s3.amazonaws.com/pdrsrv/mds2-2336/submission_vcfs/B1S5A/B1S5A_HG002.vcf.gz
+      bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
+      tbi_url:
+    ## HPRC 44 Genome DeepVariant Callsets All for GRCh38
+    Hifi-DV-HG01123:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01123/HG01123.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01123/HG01123.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG01258:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01258/HG01258.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01258/HG01258.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG01358:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01358/HG01358.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01358/HG01358.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG01361:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01361/HG01361.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01361/HG01361.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG01891:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01891/HG01891.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01891/HG01891.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG02257:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02257/HG02257.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02257/HG02257.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG02486:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02486/HG02486.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02486/HG02486.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG02559:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02559/HG02559.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02559/HG02559.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG02572:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02572/HG02572.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02572/HG02572.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG03516:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03516/HG03516.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03516/HG03516.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG00438:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00438/HG00438.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00438/HG00438.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG00621:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00621/HG00621.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00621/HG00621.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG00673:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00673/HG00673.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00673/HG00673.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG00735:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00735/HG00735.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00735/HG00735.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG00741:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00741/HG00741.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00741/HG00741.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG01071:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01071/HG01071.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01071/HG01071.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG01106:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01106/HG01106.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01106/HG01106.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG01175:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01175/HG01175.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01175/HG01175.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG01928:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01928/HG01928.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01928/HG01928.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG01952:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01952/HG01952.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01952/HG01952.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG01978:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01978/HG01978.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01978/HG01978.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG02148:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02148/HG02148.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02148/HG02148.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG02622:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02622/HG02622.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02622/HG02622.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG02630:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02630/HG02630.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02630/HG02630.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG02717:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02717/HG02717.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02717/HG02717.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG02886:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02886/HG02886.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02886/HG02886.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG03453:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03453/HG03453.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03453/HG03453.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG03540:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03540/HG03540.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03540/HG03540.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG03579:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03579/HG03579.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03579/HG03579.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG00733:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00733/HG00733.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG00733/HG00733.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG01109:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01109/HG01109.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01109/HG01109.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG01243:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01243/HG01243.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01243/HG01243.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG02080:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02080/HG02080.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02080/HG02080.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG02109:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02109/HG02109.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02109/HG02109.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG02145:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02145/HG02145.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02145/HG02145.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG02723:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02723/HG02723.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02723/HG02723.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG02818:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02818/HG02818.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02818/HG02818.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG03486:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03486/HG03486.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03486/HG03486.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG03492:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03492/HG03492.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03492/HG03492.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-NA18906:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/NA18906/NA18906.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/NA18906/NA18906.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-NA20129:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/NA20129/NA20129.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/NA20129/NA20129.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-NA21309:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/NA21309/NA21309.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/NA21309/NA21309.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG02055:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02055/HG02055.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG02055/HG02055.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    Hifi-DV-HG03098:
+      vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03098/HG03098.GRCh38_no_alt.deepvariant.vcf.gz
+      bed_url: 
+      tbi_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG03098/HG03098.GRCh38_no_alt.deepvariant.vcf.gz.tbi
+    ILMN-DV-HG00438:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG00438.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG00621:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG00621.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG00673:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG00673.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG00733:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG00733.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG00735:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG00735.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG00741:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG00741.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG01071:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01071.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG01106:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01106.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG01109:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01109.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG01175:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01175.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG01243:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01243.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG01258:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01258.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG01358:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01358.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG01361:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01361.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG01891:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01891.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG01928:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01928.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG01952:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01952.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG01978:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG01978.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG02055:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02055.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG02080:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02080.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG02145:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02145.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG02148:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02148.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG02257:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02257.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG02572:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02572.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG02622:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02622.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG02630:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02630.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG02717:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02717.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG02723:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02723.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG02818:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02818.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG02886:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG02886.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG03098:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG03098.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG03453:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG03453.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG03486:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG03486.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG03492:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG03492.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG03516:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG03516.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG03540:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG03540.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-HG03579:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/HG03579.output.vcf.gz
+      bed_url: 
+      tbi_url: 
+    ILMN-DV-NA18906:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/NA18906.output.vcf.gz
+      bed_url: 
+      tbi_url: 
 
 ################################################################################
 # Rule compute resource requirements and data dependencies
