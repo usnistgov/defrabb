@@ -330,7 +330,7 @@ rule get_strats:
     output:
         "resources/strats/{ref_id}/{strat_id}.tar.gz",
     params:
-        url=lambda wildcards: f"{config['stratifications'][wildcards.ref_id]['url']}",
+        url=lambda wildcards: f"{config['references'][wildcards.ref_id]['stratifications']['url']}",
     log:
         "logs/get_strats/{ref_id}_{strat_id}.log",
     shell:
@@ -343,22 +343,22 @@ rule get_strats:
 
 rule get_comparison_vcf:
     output:
-        "resources/comparison_variant_callsets/{comp_id}.vcf.gz",
+        "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz",
     params:
-        url=lambda wildcards: comp_config[wildcards.comp_id]["vcf_url"],
+        url=lambda wildcards: comp_config[wildcards.ref_id][wildcards.comp_id]["vcf_url"],
     log:
-        "logs/get_comparisons/{comp_id}_vcf.log",
+        "logs/get_comparisons/{ref_id}_{comp_id}_vcf.log",
     shell:
         "curl -f -L -o {output} {params.url} &> {log}"
 
 
 use rule get_comparison_vcf as get_comparison_bed with:
     output:
-        "resources/comparison_variant_callsets/{comp_id}.bed",
+        "resources/comparison_variant_callsets/{ref_id}_{comp_id}.bed",
     params:
-        url=lambda wildcards: comp_config[wildcards.comp_id]["bed_url"],
+        url=lambda wildcards: comp_config[wildcards.ref_id][wildcards.comp_id]["bed_url"],
     log:
-        "logs/get_comparisons/{comp_id}_bed.log",
+        "logs/get_comparisons/{ref_id}_{comp_id}_bed.log",
 
 
 ## General indexing rule for vcfs
@@ -434,12 +434,11 @@ rule run_dipcall:
         make -j{params.ts} -f {output.make}
         """
 
-
 rule sort_bed:
     input:
         in_file="{prefix}.bed",
         ## TODO remove hardcoding for genome file
-        genome="resources/exclusions/GRCh38.genome",
+        genome=get_genome_file,
     output:
         "{prefix}_sorted.bed",
     log:
@@ -523,7 +522,7 @@ rule run_happy:
         ),
     params:
         prefix="results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
-        strat_tsv=lambda wildcards: f"{wildcards.ref_id}/{config['stratifications'][wildcards.ref_id]['tsv']}",
+        strat_tsv=lambda wildcards: f"{wildcards.ref_id}/{config['references'][wildcards.ref_id]['stratifications']['tsv']}",
         threads=config["_happy_threads"],
         engine="vcfeval",
         engine_extra=lambda wildcards: f"--engine-vcfeval-template resources/references/{wildcards.ref_id}.sdf",

@@ -21,7 +21,12 @@ def format_constraint(xs):
 
 ################################################################################
 ## Rule parameters
-
+def get_genome_file(wildcards):
+    ## get ref_id from prefix
+    for id in REFIDS:
+        if id in wildcards.prefix:
+            return f"resources/references/{id}.genome"
+    print("ref_id not found in bed file prefix")
 
 def get_male_bed(wildcards):
     is_male = asm_config[wildcards.asm_id]["is_male"]
@@ -39,7 +44,7 @@ def get_happy_inputs(wildcards):
     ref_id = analyses.loc[wildcards.eval_id, "ref"]
     inputs["genome"] = f"resources/references/{ref_id}.fa"
     inputs["genome_index"] = f"resources/references/{ref_id}.fa.fai"
-    strat_tb = config["stratifications"][wildcards.ref_id]["tarball"]
+    strat_tb = config["references"][wildcards.ref_id]["stratifications"]["tarball"]
     inputs["strat_tb"] = f"resources/strats/{ref_id}/{strat_tb}"
 
     ## draft benchmark variant calls
@@ -52,9 +57,9 @@ def get_happy_inputs(wildcards):
         draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed"
 
     ## comparison variant call paths
-    comp_vcf = "resources/comparison_variant_callsets/{comp_id}.vcf.gz"
-    comp_vcfidx = "resources/comparison_variant_callsets/{comp_id}.vcf.gz.tbi"
-    comp_bed = "resources/comparison_variant_callsets/{comp_id}.bed"
+    comp_vcf = "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz"
+    comp_vcfidx = "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz.tbi"
+    comp_bed = "resources/comparison_variant_callsets/{ref_id}_{comp_id}.bed"
 
     ## Determining which callsets and regions are used as truth
     if analyses.loc[wildcards.eval_id, "eval_comp_id_is_truth"] == True:
