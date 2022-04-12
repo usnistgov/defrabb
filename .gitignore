@@ -10,6 +10,10 @@ benchmark/**
 .snakemake/**
 ## Resources - use -f to add 
 resources/**
+## Unzipped stratifications on workstation
+GRCh38/**
+GRCh37**
+CHM13v2/**
 ## Run archiving files
 *_v*.tar.gz
 v*-report.html
