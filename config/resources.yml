@@ -50,6 +50,21 @@ references:
       url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/v3.0-stratifications-GRCh38.tar.gz"
       tarball: "v3.0-stratifications-GRCh38.tar.gz"
       tsv: "v3.0-GRCh38-all-stratifications.tsv"
+  ## temporary location on S3 for chm13
+  CHM13v2.0:
+    ref_url: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/reference/chm13v2.0_masked_PAR-Y.fa.gz"
+    par_bed: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/PAR/chm13v2.0_PAR-X.bed"
+    exclusions:
+      homopoloymers: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/LowComplexity/CHM13v2.0_AllTandemRepeatsandHomopolymers_slop5.bed.gz"
+      segdups: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/SegmentalDuplicatons/CHM13v2.0_SegDups.bed.gz"
+      tandem-repeats: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/LowComplexity/CHM13v2.0_AllTandemRepeats_gt10000bp_slop5.bed.gz"
+      gaps: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/OtherDifficult/CHM13v1.1_rDNA.bed.gz"
+      satellites: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/LowComplexity/CHM13v2.0_satellites_slop5.bed.gz"
+    stratifications:
+      id: "stratifications-chm13v2.0"
+      url: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/strats/stratifications-chm13v2.0.tar.gz"
+      tarball: "stratifications-chm13v2.0.tar.gz"
+      tsv: "CHM13v2.0-all-stratifications.tsv"
   ## For testing
   GRCh38_chr21:
     ref_url: "https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_chr21.fa.gz"
@@ -390,6 +405,11 @@ comparisons:
     HiFiDV-v4.2.1:
       vcf_url: https://nist-midas.s3.amazonaws.com/pdrsrv/mds2-2336/submission_vcfs/B1S5A/B1S5A_HG002.vcf.gz
       bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
+      tbi_url:
+    ## Query callset HG002 PCR-Free Illumina 50x mapped to chmv2.0 using BWA from Andrew Carroll
+    HG2-ILMN-CHM13v2:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/giab/chm13.HG002.novaseq.pcr-free.50x.chm13.vcf.gz
+      bed_url:
       tbi_url:
     ## HPRC 44 Genome DeepVariant Callsets All for GRCh38
     Hifi-DV-HG01123:
