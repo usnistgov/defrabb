@@ -25,7 +25,7 @@ def get_genome_file(wildcards):
     ## get ref_id from prefix
     for id in REFIDS:
         if id in wildcards.prefix:
-            return f"resources/references/{id}.genome"
+            return f"resources/exclusions/{id}.genome"
     print("ref_id not found in bed file prefix")
 
 def get_male_bed(wildcards):
