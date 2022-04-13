@@ -333,6 +333,13 @@ exclusion_set:
     - self-chains
     - flanks
     - svs-and-homopolymers
+  smvarallCHM13:
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - flanks
+    - svs-and-homopolymers
   smvartest:
     - svs-and-homopolymers
   stvarall:
