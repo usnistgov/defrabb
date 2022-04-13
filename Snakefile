@@ -394,6 +394,9 @@ rule run_dipcall:
         ref_idx=ancient("resources/references/{ref_id}.fa.fai"),
         ref_mmi=ancient("resources/references/{ref_id}.mmi"),
     output:
+        multiext("results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
+                ".hap1.paf.gz.log",  ".hap2.paf.gz.log",
+                ".hap1.sam.gz.log",  ".hap2.sam.gz.log"),
         make="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.mak",
         vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
         bed="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.bed",
