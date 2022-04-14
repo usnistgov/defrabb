@@ -2,11 +2,11 @@ import unittest as ut
 import pandas as pd
 from snakemake.io import load_configfile
 from snakemake.utils import validate
-from rules.common import get_happy_inputs_inner, load_analyses
+from test.common import get_happy_inputs_inner, load_analyses
 
 
-RESOURCES_PATH = "test/unit/config/resources.yml"
-ANALYSES_PATH = "test/unit/config/analyses.tsv"
+RESOURCES_PATH = "config/resources.yml"
+ANALYSES_PATH = "config/analyses.tsv"
 
 R_SCHEMA_PATH = "schema/resources-schema.yml"
 A_SCHEMA_PATH = "schema/analyses-schema.yml"
