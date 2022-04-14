@@ -1,13 +1,13 @@
 import pandas as pd
 from pathlib import Path
 from snakemake.utils import min_version, validate
-from rules.common import (
-    load_analyses,
-    analyses_to_bench_tbls,
-    analyses_to_vc_tbl,
-    get_male_bed,
-    get_happy_inputs,
-)
+# from rules.common import (
+#     load_analyses,
+#     analyses_to_bench_tbls,
+#     analyses_to_vc_tbl,
+#     get_male_bed,
+#     get_happy_inputs,
+# )
 
 # include: "rules/bench_vcf_processing.smk"
 
@@ -53,7 +53,7 @@ analyses = analyses.set_index("eval_id")
 include: "rules/exclusions.smk"
 include: "rules/report.smk"
 include: "rules/bench_vcf_processing.smk"
-
+include: "rules/common.smk"
 
 ################################################################################
 # init wildcard constraints

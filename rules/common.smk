@@ -91,7 +91,7 @@ def get_happy_inputs(analyses, config, wildcards):
 def get_happy_inputs_inner(ref_id, eval_id, analyses, config):
     _analyses = analyses.set_index("eval_id")
     ref_id = _analyses.loc[eval_id, "ref"]
-    strat_tb = config["stratifications"][ref_id]["tarball"]
+    strat_tb = config["references"][ref_id]["stratifications"]["tarball"]
 
     draft_bench_vcf = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz"
     draft_bench_bed = (
