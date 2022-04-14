@@ -15,14 +15,9 @@ This is a Snakemake project template. The `Snakefile` is under `workflow`.
 
 <!-- Background -->
 The GIAB benchmark set development framework is a snakemake bioinformatic pipeline for the development of transparent and reproducible genome assembly based small and structural variant benchmark sets. 
-# Framework Structure
-## High Level Diagram
-
-<div style="width: 480px; height: 360px; margin: 10px; position: relative;"><iframe frameborder="0" style="width:480px; height:360px" src="https://lucid.app/documents/embeddedchart/aea8aae0-c550-420d-80df-95b73c0cc840" id=".Qc_nY5UeGjr"></iframe></div>
-
-## Detailed Diagram
-
-<div style="width: 640px; height: 480px; margin: 10px; position: relative;"><iframe frameborder="0" style="width:640px; height:480px" src="https://lucid.app/documents/embeddedchart/a1feb68c-838b-4851-8259-8289d8cd5c53" id="CPc_75xg9wL3"></iframe></div>
+# Framework Diagrams
+Detailed diagram by Jenny https://lucid.app/lucidchart/a1feb68c-838b-4851-8259-8289d8cd5c53/edit?invitationId=inv_977874a3-d753-4518-869d-3f0a8ca5eb2c&page=0_0#
+High-level diagram by Nate -https://lucid.app/lucidchart/aea8aae0-c550-420d-80df-95b73c0cc840/edit?page=0_0#
 
 <!-- Usage -->
 # Usage
