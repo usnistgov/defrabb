@@ -2,7 +2,7 @@ import pandas as pd
 
 
 wildcard_constraints:
-    ref_id="GRCh38|GRCh37|GRCh38_chr21|CHM13",
+    ref_id="GRCh38|GRCh37|GRCh38_chr21|CHM13v2.0",
     genomic_region="homopolymers|segdups|tandem-repeats|gaps|self-chains|satellites",
 
 
