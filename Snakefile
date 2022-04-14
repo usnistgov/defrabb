@@ -1,13 +1,6 @@
 import pandas as pd
 from pathlib import Path
 from snakemake.utils import min_version, validate
-# from rules.common import (
-#     load_analyses,
-#     analyses_to_bench_tbls,
-#     analyses_to_vc_tbl,
-#     get_male_bed,
-#     get_happy_inputs,
-# )
 
 # include: "rules/bench_vcf_processing.smk"
 
@@ -18,6 +11,11 @@ min_version("7.3.0")
 ## Rule ordering for ambiguous rules
 ruleorder: download_bed_gz > sort_bed
 
+## Loading external rules
+include: "rules/common.smk"
+include: "rules/exclusions.smk"
+include: "rules/report.smk"
+include: "rules/bench_vcf_processing.smk"
 
 ################################################################################
 # init resources
@@ -48,12 +46,6 @@ bench_params, bench_tbl, bench_excluded_tbl = analyses_to_bench_tbls(analyses)
 
 ## Setting index for analysis run lookup
 analyses = analyses.set_index("eval_id")
-
-
-include: "rules/exclusions.smk"
-include: "rules/report.smk"
-include: "rules/bench_vcf_processing.smk"
-include: "rules/common.smk"
 
 ################################################################################
 # init wildcard constraints
