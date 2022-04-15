@@ -368,6 +368,11 @@ rule tabix:
 
 rule run_dipcall:
     input:
+        h1="resources/assemblies/{asm_id}/paternal.fa",
+        h2="resources/assemblies/{asm_id}/maternal.fa",
+        ref="resources/references/{ref_id}.fa",
+        ref_idx="resources/references/{ref_id}.fa.fai",
+        ref_mmi="resources/references/{ref_id}.mmi",
         par=get_male_bed
     output:
         make="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.mak",
