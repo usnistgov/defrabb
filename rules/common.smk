@@ -7,7 +7,7 @@ from snakemake.utils import validate
 
 
 def load_df(path, schema):
-    df = pd.read_table(path)
+    df = pd.read_table(path, dtype={"eval_target_regions": str})
     validate(df, schema)
     return df
 
@@ -106,7 +106,6 @@ def get_happy_inputs_inner(ref_id, eval_id, analyses, config):
     draft_bench_vcfidx = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi"
 
     ## draft benchmark regions
-    print(analyses.loc[eval_id, "exclusion_set"])
     if analyses.loc[eval_id, "exclusion_set"] == "none":
         draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed"
     else:
