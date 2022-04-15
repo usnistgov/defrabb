@@ -7,7 +7,7 @@ from snakemake.utils import validate
 
 
 def load_df(path, schema):
-    df = pd.read_table(path)
+    df = pd.read_table(path, dtype={"eval_target_regions": str})
     validate(df, schema)
     return df
 
@@ -72,9 +72,12 @@ def get_genome_file(wildcards):
     print("ref_id not found in bed file prefix")
 
 def get_male_bed(wildcards):
-    is_male = asm_config[wildcards.asm_id]["is_male"]
     root = config["_par_bed_root"]
-    par_path = Path(root) / ref_config[wildcards.ref_id]["par_bed"]
+    return Path(root) / ref_config[wildcards.ref_id]["par_bed"]
+
+def get_dipcall_par_param(wildcards):
+    is_male = asm_config[wildcards.asm_id]["is_male"]
+    par_path=get_male_bed(wildcards)
     return f"-x {str(par_path)}" if is_male else ""
 
 
@@ -103,7 +106,6 @@ def get_happy_inputs_inner(ref_id, eval_id, analyses, config):
     draft_bench_vcfidx = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi"
 
     ## draft benchmark regions
-    print(analyses.loc[eval_id, "exclusion_set"])
     if analyses.loc[eval_id, "exclusion_set"] == "none":
         draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed"
     else:
