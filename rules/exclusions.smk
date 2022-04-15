@@ -136,6 +136,8 @@ rule subtract_exclusions:
     output:
         bed="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed",
         stats="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded_stats.txt",
+    params:
+        script=workflow.source_path("../scripts/subtract_exclusions.py")
     log:
         "logs/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
@@ -144,7 +146,7 @@ rule subtract_exclusions:
         "../envs/bedtools.yml"
     shell:
         """
-        python scripts/subtract_exclusions.py \
+        python {params.script} \
         {input.dip_bed} \
         {output.bed} \
         {output.stats} \

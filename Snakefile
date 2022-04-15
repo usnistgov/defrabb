@@ -520,7 +520,7 @@ rule run_happy:
     conda:
         "envs/happy.yml"
     script:
-        "scripts/run_happy.py"
+        workflow.source_path("scripts/run_happy.py")
 
 
 ################################################################################
