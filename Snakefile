@@ -1,13 +1,13 @@
 import pandas as pd
 from pathlib import Path
 from snakemake.utils import min_version, validate
-
-
-include: "rules/common.smk"
-include: "rules/exclusions.smk"
-include: "rules/report.smk"
-include: "rules/bench_vcf_processing.smk"
-
+# from rules.common import (
+#     load_analyses,
+#     analyses_to_bench_tbls,
+#     analyses_to_vc_tbl,
+#     get_male_bed,
+#     get_happy_inputs,
+# )
 
 # include: "rules/bench_vcf_processing.smk"
 
@@ -35,37 +35,25 @@ ref_config = config["references"]
 ################################################################################
 # init analyses
 ## TODO add checks for setting indecies - maybe move to function
-analyses = analyses = pd.read_table(
-    config["analyses"], dtype={"eval_target_regions": str}
-)
-validate(analyses, "schema/analyses-schema.yml")
+
+analyses = load_analyses(config["analyses"], "schema/analyses-schema.yml")
+
 
 ## Generating seperate tables for individual framework components
 ## asm variant calls
-vc_params = analyses.filter(regex="vc_").drop_duplicates()
-vc_ids = analyses[["vc_id", "asm_id", "ref"]].drop_duplicates()
-vc_tbl = pd.merge(vc_ids, vc_params, how="inner", on="vc_id").set_index("vc_id")
+vc_params, vc_tbl = analyses_to_vc_tbl(analyses)
 
 ## draft benchmark set generation
-bench_params = analyses.filter(regex="bench_").drop_duplicates()
-bench_ids = analyses[
-    ["bench_id", "asm_id", "vc_id", "vc_cmd", "vc_param_id", "ref", "exclusion_set"]
-].drop_duplicates()
-bench_tbl = pd.merge(bench_ids, bench_params, how="inner", on="bench_id").set_index(
-    "bench_id"
-)
-bench_excluded_tbl = bench_tbl[bench_tbl.exclusion_set != "none"]
-
-## Evaluation Runs
-eval_params = analyses.filter(regex="eval_").drop_duplicates()
-eval_ids = analyses[["eval_id", "bench_id", "ref"]].drop_duplicates()
-eval_tbl = pd.merge(eval_ids, eval_params, how="inner", on="eval_id").set_index(
-    "eval_id"
-)
+bench_params, bench_tbl, bench_excluded_tbl = analyses_to_bench_tbls(analyses)
 
 ## Setting index for analysis run lookup
 analyses = analyses.set_index("eval_id")
 
+
+include: "rules/exclusions.smk"
+include: "rules/report.smk"
+include: "rules/bench_vcf_processing.smk"
+include: "rules/common.smk"
 
 ################################################################################
 # init wildcard constraints
@@ -84,8 +72,8 @@ BENCHIDS = set(bench_tbl.index.tolist())
 
 
 ## Evaluations
-EVALIDS = set(eval_tbl.index.tolist())
-EVALCOMPIDS = set(eval_tbl["eval_comp_id"].tolist())
+EVALIDS = set(analyses.index.tolist())
+EVALCOMPIDS = set(analyses["eval_comp_id"].tolist())
 
 
 # Only constrain the wildcards to match what is in the resources file. Anything
@@ -505,7 +493,7 @@ rule postprocess_bed:
 
 rule run_happy:
     input:
-        unpack(get_happy_inputs),
+        unpack(partial(get_happy_inputs, analyses, config)),
     output:
         multiext(
             "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
