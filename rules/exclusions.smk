@@ -57,7 +57,7 @@ rule intersect_SVs_and_homopolymers:
             awk '{{FS=OFS="\\t"}} {{print $1,$2-50,$3+50}}' | \
             mergeBed -i stdin -d 1000 |
             sortBed -i stdin -g {input.genome} \
-            1> {output} 2>{log} 
+            1> {output} 2>{log}
         """
 
 
