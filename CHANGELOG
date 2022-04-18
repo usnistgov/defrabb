@@ -1,8 +1,8 @@
-# DRAFT: Milestone v0.006 2022-04-18
-- updated to allow for GRCh37 and CHM13 as references (yet to vet GRCh37 however) changes by JM, including modifications to schema's and rules as well as adding appropriate reference dependencies.
+# Milestone v0.006 2022-04-18
+- updated framework to allow for GRCh37 and CHM13 as references (yet to vet GRCh37 however) changes by JM, including modifications to schema's and rules as well as adding appropriate reference dependencies.
 - added chm13 exclusions set to resources.yml
 - moved .genome files to resources/references/
-- Fixed issuee with padding for rule `intersect_SVs_and_homopolymers` when adding slop resulted in a negative starting position.
+- Fixed issue with padding for rule `intersect_SVs_and_homopolymers` when adding slop resulted in a negative starting position.
 - Added initial set of python function and snakemake rule unit tests.
 
 # Milestone v0.005 2022-03-25
