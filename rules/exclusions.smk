@@ -1,5 +1,4 @@
 import pandas as pd
-from common import get_exclusion_inputs
 
 
 wildcard_constraints:
@@ -14,7 +13,9 @@ rule download_bed_gz:
     log:
         "logs/download_bed_gz/{ref_id}-{genomic_region}.log",
     params:
-        url=lambda wildcards: config['references'][wildcards.ref_id]["exclusions"][wildcards.genomic_region],
+        url=lambda wildcards: config["references"][wildcards.ref_id]["exclusions"][
+            wildcards.genomic_region
+        ],
     shell:
         "curl -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
 
