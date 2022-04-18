@@ -16,7 +16,9 @@ def test_intersect_SVs_and_homopolymers():
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
         data_path = PurePosixPath(".tests/unit/intersect_SVs_and_homopolymers/data")
-        expected_path = PurePosixPath(".tests/unit/intersect_SVs_and_homopolymers/expected")
+        expected_path = PurePosixPath(
+            ".tests/unit/intersect_SVs_and_homopolymers/expected"
+        )
         config_path = PurePosixPath("config")
 
         # Copy data to the temporary workdir.
@@ -24,25 +26,29 @@ def test_intersect_SVs_and_homopolymers():
         shutil.copytree(config_path, workdir / "config")
 
         # dbg
-        print("results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_svs-and-homopolymers_sorted.bed", file=sys.stderr)
+        print(
+            "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_svs-and-homopolymers_sorted.bed",
+            file=sys.stderr,
+        )
 
         # Run the test job.
-        sp.check_output([
-            "python",
-            "-m",
-            "snakemake", 
-            "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_svs-and-homopolymers_sorted.bed",
-            "-f", 
-            "-j1",
-            "--keep-target-files",
-    
-            "--use-conda",
-            "--directory",
-            workdir,
-        ])
+        sp.check_output(
+            [
+                "python",
+                "-m",
+                "snakemake",
+                "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_svs-and-homopolymers_sorted.bed",
+                "-f",
+                "-j1",
+                "--keep-target-files",
+                "--use-conda",
+                "--directory",
+                workdir,
+            ]
+        )
 
         # Check the output byte by byte using cmp.
         # To modify this behavior, you can inherit from common.OutputChecker in here
-        # and overwrite the method `compare_files(generated_file, expected_file), 
+        # and overwrite the method `compare_files(generated_file, expected_file),
         # also see common.py.
         common.OutputChecker(data_path, expected_path, workdir).check()
