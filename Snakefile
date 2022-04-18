@@ -11,11 +11,13 @@ min_version("7.3.0")
 ## Rule ordering for ambiguous rules
 ruleorder: download_bed_gz > sort_bed
 
+
 ## Loading external rules
 include: "rules/common.smk"
 include: "rules/exclusions.smk"
 include: "rules/report.smk"
 include: "rules/bench_vcf_processing.smk"
+
 
 ################################################################################
 # init resources
@@ -325,7 +327,9 @@ rule get_comparison_vcf:
     output:
         "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz",
     params:
-        url=lambda wildcards: comp_config[wildcards.ref_id][wildcards.comp_id]["vcf_url"],
+        url=lambda wildcards: comp_config[wildcards.ref_id][wildcards.comp_id][
+            "vcf_url"
+        ],
     log:
         "logs/get_comparisons/{ref_id}_{comp_id}_vcf.log",
     shell:
@@ -336,7 +340,9 @@ use rule get_comparison_vcf as get_comparison_bed with:
     output:
         "resources/comparison_variant_callsets/{ref_id}_{comp_id}.bed",
     params:
-        url=lambda wildcards: comp_config[wildcards.ref_id][wildcards.comp_id]["bed_url"],
+        url=lambda wildcards: comp_config[wildcards.ref_id][wildcards.comp_id][
+            "bed_url"
+        ],
     log:
         "logs/get_comparisons/{ref_id}_{comp_id}_bed.log",
 
@@ -417,6 +423,7 @@ rule run_dipcall:
         echo "Running dipcall pipeline"
         make -j{params.ts} -f {output.make}
         """
+
 
 rule sort_bed:
     input:
