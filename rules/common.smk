@@ -71,6 +71,7 @@ def get_genome_file(wildcards):
             return f"resources/references/{id}.genome"
     print("ref_id not found in bed file prefix")
 
+
 def get_male_bed(wildcards):
     root = config["_par_bed_root"]
     return Path(root) / ref_config[wildcards.ref_id]["par_bed"]
@@ -151,7 +152,6 @@ def get_happy_inputs_inner(ref_id, eval_id, analyses, config):
     return inputs
 
 
-
 ## Exclusions
 def get_exclusion_inputs(wildcards):
 
@@ -189,3 +189,12 @@ def get_exclusion_inputs(wildcards):
 
     ## Returning list of bed paths for exclusion
     return exclusion_paths
+
+
+## Benchmark VCF generation
+def get_processed_vcf(wildcards):
+    vcf_suffix = bench_tbl.loc[wildcards.bench_id, "bench_vcf_processing"]
+    if vcf_suffix == "none":
+        return f"results/draft_benchmarksets/{{bench_id}}/intermediates/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.vcf.gz"
+    else:
+        return f"results/draft_benchmarksets/{{bench_id}}/intermediates/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.{vcf_suffix}.vcf.gz"

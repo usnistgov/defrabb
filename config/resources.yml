@@ -61,9 +61,9 @@ references:
       gaps: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/OtherDifficult/CHM13v1.1_rDNA.bed.gz"
       satellites: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/LowComplexity/CHM13v2.0_satellites_slop5.bed.gz"
     stratifications:
-      id: "stratifications-chm13v2.0"
-      url: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/strats/stratifications-chm13v2.0.tar.gz"
-      tarball: "stratifications-chm13v2.0.tar.gz"
+      id: "stratifications-CHM13v2.0"
+      url: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/strats/stratifications-CHM13v2.0.tar.gz"
+      tarball: "stratifications-CHM13v2.0.tar.gz"
       tsv: "CHM13v2.0-all-stratifications.tsv"
   ## For testing
   GRCh38_chr21:
@@ -413,11 +413,6 @@ comparisons:
       vcf_url: https://nist-midas.s3.amazonaws.com/pdrsrv/mds2-2336/submission_vcfs/B1S5A/B1S5A_HG002.vcf.gz
       bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
       tbi_url:
-    ## Query callset HG002 PCR-Free Illumina 50x mapped to chmv2.0 using BWA from Andrew Carroll
-    HG2-ILMN-CHM13v2:
-      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/giab/chm13.HG002.novaseq.pcr-free.50x.chm13.vcf.gz
-      bed_url:
-      tbi_url:
     ## HPRC 44 Genome DeepVariant Callsets All for GRCh38
     Hifi-DV-HG01123:
       vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01123/HG01123.GRCh38_no_alt.deepvariant.vcf.gz
@@ -747,6 +742,13 @@ comparisons:
       vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/hprc-1kg-dv/NA18906.output.vcf.gz
       bed_url: 
       tbi_url: 
+  CHM13v2.0:
+        ## Query callset HG002 PCR-Free Illumina 50x mapped to chmv2.0 using BWA from Andrew Carroll
+    HG2-ILMN-CHM13v2:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/giab/chm13.HG002.novaseq.pcr-free.50x.chm13.vcf.gz
+      bed_url:
+      tbi_url:
+
 
 ################################################################################
 # Rule compute resource requirements and data dependencies

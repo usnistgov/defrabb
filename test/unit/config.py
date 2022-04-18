@@ -37,7 +37,9 @@ def assert_happy(self, truth, eval_id, ref_id):
     actual = get_happy_inputs_inner(ref_id, eval_id, analyses, config)
     for k in keys:
         assert k in actual, "Key '{}' not present".format(k)
-        assert truth[k] == actual[k], f"Key {k} mismatch, expect {truth[k]} got {actual[k]}"
+        assert (
+            truth[k] == actual[k]
+        ), f"Key {k} mismatch, expect {truth[k]} got {actual[k]}"
 
 
 class TestConfig(ut.TestCase):

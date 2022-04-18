@@ -70,14 +70,6 @@ rule move_asm_vcf_to_draft_bench:
         "cp {input} {output} &> {log}"
 
 
-def get_processed_vcf(wildcards):
-    vcf_suffix = bench_tbl.loc[wildcards.bench_id, "bench_vcf_processing"]
-    if vcf_suffix == "none":
-        return f"results/draft_benchmarksets/{{bench_id}}/intermediates/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.vcf.gz"
-    else:
-        return f"results/draft_benchmarksets/{{bench_id}}/intermediates/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.{vcf_suffix}.vcf.gz"
-
-
 rule move_processed_draft_bench_vcf:
     input:
         get_processed_vcf,
