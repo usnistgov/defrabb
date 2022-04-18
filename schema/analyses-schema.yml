@@ -66,7 +66,7 @@ properties:
       ./manual/target_regions); note the string must be a filename ending in
       ".bed." If 'false,' the evaluation tool will run in an untargetted mode.
     type: string
-    pattern: ^.*\.bed|(?i)true|(?i)false$
+    pattern: ^.*\.bed|(?i:true)|(?i:false)$
 
   bench_id:
     description: |
@@ -105,7 +105,7 @@ properties:
   ref:
     description: the identifier of the reference to use in resources.yml
     type: string
-    pattern: ^GRCh3[7,8]|GRCh38_chr21$
+    pattern: ^GRCh3[7,8]|GRCh38_chr21|CHM13v[0-9].[0-9]$
 
   vc_cmd:
     description: the variant caller to use
