@@ -1,0 +1,2 @@
+filename	total_length	number	mean_length	longest	shortest	N_count	Gaps	N50	N50n	N70	N70n	N90	N90n
+resources/assemblies/asm17aChr21/maternal.fa	643961	1	643961.00	643961	643961	0	0	643961	1	643961	1	643961	1

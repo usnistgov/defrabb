@@ -1,0 +1,19 @@
+Location                     : results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.dip.vcf.gz
+Failed Filters               : 0
+Passed Filters               : 2653
+SNPs                         : 2325
+MNPs                         : 0
+Insertions                   : 146
+Deletions                    : 171
+Indels                       : 4
+Same as reference            : 0
+Phased Genotypes             : 100.3% (2653/2646)
+SNP Transitions/Transversions: 1.63 (1853/1140)
+Total Het/Hom ratio          : 2.50 (1895/758)
+SNP Het/Hom ratio            : 2.49 (1659/666)
+MNP Het/Hom ratio            : - (0/0)
+Insertion Het/Hom ratio      : 1.98 (97/49)
+Deletion Het/Hom ratio       : 2.98 (128/43)
+Indel Het/Hom ratio          : - (4/0)
+Insertion/Deletion ratio     : 0.85 (146/171)
+Indel/SNP+MNP ratio          : 0.14 (321/2325)
