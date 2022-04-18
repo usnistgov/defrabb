@@ -191,6 +191,19 @@ The functions need to be in a .py file.
 - Tests assume `GRCh38_chr21.fa` and `GRCh38_chr21.fa.fai` are in `.tests/integration/resources/references`. 
 Not including these files in the repository for now to avoid including large data files in repo, therefore these files might need to be downloaded before running tests.
 
+## Testing Process
+```
+## unittest
+cp rules/common.smk test/common.py
+python -m unittest test/common.py test/unit/config.py 
+rm test/common.py
+
+## pytest
+pytest .tests
+
+## Snakemake pipeline
+snakemake --use-conda -j 1 --forceall
+```
 
 
 <!-- Resources/ Citations -->
