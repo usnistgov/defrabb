@@ -71,6 +71,7 @@ def get_genome_file(wildcards):
             return f"resources/references/{id}.genome"
     print("ref_id not found in bed file prefix")
 
+
 def get_male_bed(wildcards):
     root = config["_par_bed_root"]
     return Path(root) / ref_config[wildcards.ref_id]["par_bed"]
@@ -149,7 +150,6 @@ def get_happy_inputs_inner(ref_id, eval_id, analyses, config):
 
     ## Returning happy inputs
     return inputs
-
 
 
 ## Exclusions
