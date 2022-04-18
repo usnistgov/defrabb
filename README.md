@@ -183,11 +183,14 @@ Additional modifications were made for bam and vcf comparisons, specifically ign
 
 ## Python Function Unit Tests
 The functions need to be in a .py file.
-1. Copy `rules/common.smk` to `rules/common.py` for running tests.
+1. Copy `rules/common.smk` to `test/common.py` for running tests.
 2. Run tests using `python -m unittest rules/common.py test/unit/config.py`
 
 ## Pytest Snakemake Rule Unit Tests
-Tests are run using `pytest .tests`
+- Tests are run using `pytest .tests`
+- Tests assume `GRCh38_chr21.fa` and `GRCh38_chr21.fa.fai` are in `.tests/integration/resources/references`. 
+Not including these files in the repository for now to avoid including large data files in repo, therefore these files might need to be downloaded before running tests.
+
 
 
 <!-- Resources/ Citations -->
