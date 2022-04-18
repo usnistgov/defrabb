@@ -174,6 +174,22 @@ get "DEFAULT" credentials ,e.g., `cat ~/.aws/credentials`\
 
 Automating - copy output and config files to directory for archiving, script to automate archiving with call for report, updating analysis run log google sheet
 
+# Development Testing Framework
+Unit tests for individual python functions and snakemake rules are implemented with python unittest and pytest respectively. 
+The pytest unit tests were initially generated using snakemakes `--generate-unit-tests` functionality. 
+The test scripts were modifed as needed;
+removing unnecessary tests, including config directory, modifying commands for appropriate inputs, and limiting the number of test data files for smaller tests.
+Additional modifications were made for bam and vcf comparisons, specifically ignoring file headers as the metadata for the test and expected files are not consistent.
+
+## Python Function Unit Tests
+The functions need to be in a .py file.
+1. Copy `rules/common.smk` to `rules/common.py` for running tests.
+2. Run tests using `python -m unittest rules/common.py test/unit/config.py`
+
+## Pytest Snakemake Rule Unit Tests
+Tests are run using `pytest .tests`
+
+
 <!-- Resources/ Citations -->
 
 # Footnotes
