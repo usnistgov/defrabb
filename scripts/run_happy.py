@@ -22,7 +22,7 @@ if target_regions:
 ## Extracting stratification tarball
 ## Can add if statement with eval_params to see if starts are used
 ref_id = snakemake.wildcards.ref_id
-strat_id = snakemake.config['references'][ref_id]["stratifications"]["id"]
+strat_id = snakemake.config["references"][ref_id]["stratifications"]["id"]
 strat_tsv = f"{snakemake.params.strat_tsv}"
 
 print("Extracting Stratifications")
