@@ -2,13 +2,6 @@ import pandas as pd
 from pathlib import Path
 from snakemake.utils import min_version, validate
 
-
-include: "rules/common.smk"
-include: "rules/exclusions.smk"
-include: "rules/report.smk"
-include: "rules/bench_vcf_processing.smk"
-
-
 # include: "rules/bench_vcf_processing.smk"
 
 
@@ -17,6 +10,13 @@ min_version("7.3.0")
 
 ## Rule ordering for ambiguous rules
 ruleorder: download_bed_gz > sort_bed
+
+
+## Loading external rules
+include: "rules/common.smk"
+include: "rules/exclusions.smk"
+include: "rules/report.smk"
+include: "rules/bench_vcf_processing.smk"
 
 
 ################################################################################
@@ -35,37 +35,19 @@ ref_config = config["references"]
 ################################################################################
 # init analyses
 ## TODO add checks for setting indecies - maybe move to function
-analyses = analyses = pd.read_table(
-    config["analyses"], dtype={"eval_target_regions": str}
-)
-validate(analyses, "schema/analyses-schema.yml")
+
+analyses = load_analyses(config["analyses"], "schema/analyses-schema.yml")
+
 
 ## Generating seperate tables for individual framework components
 ## asm variant calls
-vc_params = analyses.filter(regex="vc_").drop_duplicates()
-vc_ids = analyses[["vc_id", "asm_id", "ref"]].drop_duplicates()
-vc_tbl = pd.merge(vc_ids, vc_params, how="inner", on="vc_id").set_index("vc_id")
+vc_params, vc_tbl = analyses_to_vc_tbl(analyses)
 
 ## draft benchmark set generation
-bench_params = analyses.filter(regex="bench_").drop_duplicates()
-bench_ids = analyses[
-    ["bench_id", "asm_id", "vc_id", "vc_cmd", "vc_param_id", "ref", "exclusion_set"]
-].drop_duplicates()
-bench_tbl = pd.merge(bench_ids, bench_params, how="inner", on="bench_id").set_index(
-    "bench_id"
-)
-bench_excluded_tbl = bench_tbl[bench_tbl.exclusion_set != "none"]
-
-## Evaluation Runs
-eval_params = analyses.filter(regex="eval_").drop_duplicates()
-eval_ids = analyses[["eval_id", "bench_id", "ref"]].drop_duplicates()
-eval_tbl = pd.merge(eval_ids, eval_params, how="inner", on="eval_id").set_index(
-    "eval_id"
-)
+bench_params, bench_tbl, bench_excluded_tbl = analyses_to_bench_tbls(analyses)
 
 ## Setting index for analysis run lookup
 analyses = analyses.set_index("eval_id")
-
 
 ################################################################################
 # init wildcard constraints
@@ -84,8 +66,8 @@ BENCHIDS = set(bench_tbl.index.tolist())
 
 
 ## Evaluations
-EVALIDS = set(eval_tbl.index.tolist())
-EVALCOMPIDS = set(eval_tbl["eval_comp_id"].tolist())
+EVALIDS = set(analyses.index.tolist())
+EVALCOMPIDS = set(analyses["eval_comp_id"].tolist())
 
 
 # Only constrain the wildcards to match what is in the resources file. Anything
@@ -330,7 +312,7 @@ rule get_strats:
     output:
         "resources/strats/{ref_id}/{strat_id}.tar.gz",
     params:
-        url=lambda wildcards: f"{config['stratifications'][wildcards.ref_id]['url']}",
+        url=lambda wildcards: f"{config['references'][wildcards.ref_id]['stratifications']['url']}",
     log:
         "logs/get_strats/{ref_id}_{strat_id}.log",
     shell:
@@ -343,22 +325,26 @@ rule get_strats:
 
 rule get_comparison_vcf:
     output:
-        "resources/comparison_variant_callsets/{comp_id}.vcf.gz",
+        "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz",
     params:
-        url=lambda wildcards: comp_config[wildcards.comp_id]["vcf_url"],
+        url=lambda wildcards: comp_config[wildcards.ref_id][wildcards.comp_id][
+            "vcf_url"
+        ],
     log:
-        "logs/get_comparisons/{comp_id}_vcf.log",
+        "logs/get_comparisons/{ref_id}_{comp_id}_vcf.log",
     shell:
         "curl -f -L -o {output} {params.url} &> {log}"
 
 
 use rule get_comparison_vcf as get_comparison_bed with:
     output:
-        "resources/comparison_variant_callsets/{comp_id}.bed",
+        "resources/comparison_variant_callsets/{ref_id}_{comp_id}.bed",
     params:
-        url=lambda wildcards: comp_config[wildcards.comp_id]["bed_url"],
+        url=lambda wildcards: comp_config[wildcards.ref_id][wildcards.comp_id][
+            "bed_url"
+        ],
     log:
-        "logs/get_comparisons/{comp_id}_bed.log",
+        "logs/get_comparisons/{ref_id}_{comp_id}_bed.log",
 
 
 ## General indexing rule for vcfs
@@ -388,11 +374,12 @@ rule tabix:
 
 rule run_dipcall:
     input:
-        h1=ancient("resources/assemblies/{asm_id}/paternal.fa"),
-        h2=ancient("resources/assemblies/{asm_id}/maternal.fa"),
-        ref=ancient("resources/references/{ref_id}.fa"),
-        ref_idx=ancient("resources/references/{ref_id}.fa.fai"),
-        ref_mmi=ancient("resources/references/{ref_id}.mmi"),
+        h1="resources/assemblies/{asm_id}/paternal.fa",
+        h2="resources/assemblies/{asm_id}/maternal.fa",
+        ref="resources/references/{ref_id}.fa",
+        ref_idx="resources/references/{ref_id}.fa.fai",
+        ref_mmi="resources/references/{ref_id}.mmi",
+        par=get_male_bed,
     output:
         make="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.mak",
         vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
@@ -403,14 +390,21 @@ rule run_dipcall:
         "envs/dipcall.yml"
     params:
         prefix="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
-        male_bed=get_male_bed,
+        male_bed=get_dipcall_par_param,
         ts=config["_dipcall_threads"],
         make_jobs=config["_dipcall_jobs"],
         extra=lambda wildcards: ""
         if vc_tbl.loc[wildcards.vc_id]["vc_params"] == "default"
         else vc_tbl.loc[wildcards.vc_id]["vc_params"],
     log:
-        "logs/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        multiext(
+            "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
+            ".hap1.paf.gz.log",
+            ".hap2.paf.gz.log",
+            ".hap1.sam.gz.log",
+            ".hap2.sam.gz.log",
+        ),
+        rulelog="logs/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
         "benchmark/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     resources:
@@ -439,7 +433,7 @@ rule sort_bed:
     input:
         in_file="{prefix}.bed",
         ## TODO remove hardcoding for genome file
-        genome="resources/exclusions/GRCh38.genome",
+        genome=get_genome_file,
     output:
         "{prefix}_sorted.bed",
     log:
@@ -503,7 +497,7 @@ rule postprocess_bed:
 
 rule run_happy:
     input:
-        unpack(get_happy_inputs),
+        unpack(partial(get_happy_inputs, analyses, config)),
     output:
         multiext(
             "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
@@ -523,7 +517,7 @@ rule run_happy:
         ),
     params:
         prefix="results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
-        strat_tsv=lambda wildcards: f"{wildcards.ref_id}/{config['stratifications'][wildcards.ref_id]['tsv']}",
+        strat_tsv=lambda wildcards: f"{wildcards.ref_id}/{config['references'][wildcards.ref_id]['stratifications']['tsv']}",
         threads=config["_happy_threads"],
         engine="vcfeval",
         engine_extra=lambda wildcards: f"--engine-vcfeval-template resources/references/{wildcards.ref_id}.sdf",
@@ -538,6 +532,7 @@ rule run_happy:
         "envs/happy.yml"
     script:
         "scripts/run_happy.py"
+        # workflow.source_path("scripts/run_happy.py")
 
 
 ################################################################################
