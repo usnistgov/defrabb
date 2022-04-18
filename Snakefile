@@ -1,13 +1,6 @@
 import pandas as pd
 from pathlib import Path
 from snakemake.utils import min_version, validate
-# from rules.common import (
-#     load_analyses,
-#     analyses_to_bench_tbls,
-#     analyses_to_vc_tbl,
-#     get_male_bed,
-#     get_happy_inputs,
-# )
 
 # include: "rules/bench_vcf_processing.smk"
 
@@ -17,6 +10,13 @@ min_version("7.3.0")
 
 ## Rule ordering for ambiguous rules
 ruleorder: download_bed_gz > sort_bed
+
+
+## Loading external rules
+include: "rules/common.smk"
+include: "rules/exclusions.smk"
+include: "rules/report.smk"
+include: "rules/bench_vcf_processing.smk"
 
 
 ################################################################################
@@ -48,12 +48,6 @@ bench_params, bench_tbl, bench_excluded_tbl = analyses_to_bench_tbls(analyses)
 
 ## Setting index for analysis run lookup
 analyses = analyses.set_index("eval_id")
-
-
-include: "rules/exclusions.smk"
-include: "rules/report.smk"
-include: "rules/bench_vcf_processing.smk"
-include: "rules/common.smk"
 
 ################################################################################
 # init wildcard constraints
@@ -333,7 +327,9 @@ rule get_comparison_vcf:
     output:
         "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz",
     params:
-        url=lambda wildcards: comp_config[wildcards.ref_id][wildcards.comp_id]["vcf_url"],
+        url=lambda wildcards: comp_config[wildcards.ref_id][wildcards.comp_id][
+            "vcf_url"
+        ],
     log:
         "logs/get_comparisons/{ref_id}_{comp_id}_vcf.log",
     shell:
@@ -344,7 +340,9 @@ use rule get_comparison_vcf as get_comparison_bed with:
     output:
         "resources/comparison_variant_callsets/{ref_id}_{comp_id}.bed",
     params:
-        url=lambda wildcards: comp_config[wildcards.ref_id][wildcards.comp_id]["bed_url"],
+        url=lambda wildcards: comp_config[wildcards.ref_id][wildcards.comp_id][
+            "bed_url"
+        ],
     log:
         "logs/get_comparisons/{ref_id}_{comp_id}_bed.log",
 
@@ -382,9 +380,13 @@ rule run_dipcall:
         ref_idx=ancient("resources/references/{ref_id}.fa.fai"),
         ref_mmi=ancient("resources/references/{ref_id}.mmi"),
     output:
-        multiext("results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
-                ".hap1.paf.gz.log",  ".hap2.paf.gz.log",
-                ".hap1.sam.gz.log",  ".hap2.sam.gz.log"),
+        multiext(
+            "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
+            ".hap1.paf.gz.log",
+            ".hap2.paf.gz.log",
+            ".hap1.sam.gz.log",
+            ".hap2.sam.gz.log",
+        ),
         make="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.mak",
         vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
         bed="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.bed",
@@ -424,6 +426,7 @@ rule run_dipcall:
         echo "Running dipcall pipeline"
         make -j{params.ts} -f {output.make}
         """
+
 
 rule sort_bed:
     input:
