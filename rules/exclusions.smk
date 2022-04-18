@@ -52,14 +52,6 @@ rule intersect_SVs_and_homopolymers:
         "../envs/bedtools.yml"
     shell:
         """
-#        intersectBed -wa \
-#                -a {input.homopoly_bed} \
-#                -b {input.sv_bed} | \
-#            multiIntersectBed -i stdin {input.sv_bed} | \
-#            awk '{{FS=OFS="\\t"}} {{print $1,$2-50,$3+50}}' | \
-#            mergeBed -i stdin -d 1000 |
-#            sortBed -i stdin -g {input.genome} \
-#            1> {output} 2>{log}
         intersectBed -wa \
                 -a {input.homopoly_bed} \
                 -b {input.sv_bed} | \
@@ -68,7 +60,6 @@ rule intersect_SVs_and_homopolymers:
             mergeBed -i stdin -d 1000 |
             sortBed -i stdin -g {input.genome} \
             1> {output} 2>{log}
-
         """
 
 
