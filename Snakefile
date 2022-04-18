@@ -374,19 +374,13 @@ rule tabix:
 
 rule run_dipcall:
     input:
-        h1=ancient("resources/assemblies/{asm_id}/paternal.fa"),
-        h2=ancient("resources/assemblies/{asm_id}/maternal.fa"),
-        ref=ancient("resources/references/{ref_id}.fa"),
-        ref_idx=ancient("resources/references/{ref_id}.fa.fai"),
-        ref_mmi=ancient("resources/references/{ref_id}.mmi"),
+        h1="resources/assemblies/{asm_id}/paternal.fa",
+        h2="resources/assemblies/{asm_id}/maternal.fa",
+        ref="resources/references/{ref_id}.fa",
+        ref_idx="resources/references/{ref_id}.fa.fai",
+        ref_mmi="resources/references/{ref_id}.mmi",
+        par=get_male_bed
     output:
-        multiext(
-            "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
-            ".hap1.paf.gz.log",
-            ".hap2.paf.gz.log",
-            ".hap1.sam.gz.log",
-            ".hap2.sam.gz.log",
-        ),
         make="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.mak",
         vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
         bed="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.bed",
@@ -396,14 +390,17 @@ rule run_dipcall:
         "envs/dipcall.yml"
     params:
         prefix="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
-        male_bed=get_male_bed,
+        male_bed=get_dipcall_par_param,
         ts=config["_dipcall_threads"],
         make_jobs=config["_dipcall_jobs"],
         extra=lambda wildcards: ""
         if vc_tbl.loc[wildcards.vc_id]["vc_params"] == "default"
         else vc_tbl.loc[wildcards.vc_id]["vc_params"],
     log:
-        "logs/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        multiext("results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
+            ".hap1.paf.gz.log",  ".hap2.paf.gz.log",
+            ".hap1.sam.gz.log",  ".hap2.sam.gz.log"),
+        rulelog="logs/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
         "benchmark/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     resources:
@@ -531,6 +528,7 @@ rule run_happy:
         "envs/happy.yml"
     script:
         "scripts/run_happy.py"
+        # workflow.source_path("scripts/run_happy.py")
 
 
 ################################################################################
