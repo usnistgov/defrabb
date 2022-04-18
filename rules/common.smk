@@ -187,3 +187,11 @@ def get_exclusion_inputs(wildcards):
 
     ## Returning list of bed paths for exclusion
     return exclusion_paths
+
+## Benchmark VCF generation
+def get_processed_vcf(wildcards):
+    vcf_suffix = bench_tbl.loc[wildcards.bench_id, "bench_vcf_processing"]
+    if vcf_suffix == "none":
+        return f"results/draft_benchmarksets/{{bench_id}}/intermediates/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.vcf.gz"
+    else:
+        return f"results/draft_benchmarksets/{{bench_id}}/intermediates/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.{vcf_suffix}.vcf.gz"
