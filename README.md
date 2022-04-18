@@ -15,6 +15,9 @@ This is a Snakemake project template. The `Snakefile` is under `workflow`.
 
 <!-- Background -->
 The GIAB benchmark set development framework is a snakemake bioinformatic pipeline for the development of transparent and reproducible genome assembly based small and structural variant benchmark sets. 
+# Framework Diagrams
+Detailed diagram by Jenny https://lucid.app/lucidchart/a1feb68c-838b-4851-8259-8289d8cd5c53/edit?invitationId=inv_977874a3-d753-4518-869d-3f0a8ca5eb2c&page=0_0#
+High-level diagram by Nate -https://lucid.app/lucidchart/aea8aae0-c550-420d-80df-95b73c0cc840/edit?page=0_0#
 
 <!-- Usage -->
 # Usage
@@ -170,6 +173,25 @@ get "DEFAULT" credentials ,e.g., `cat ~/.aws/credentials`\
 1. If run on CTCMS, copy run archive to local directory `rsync -rv --progress ctcms:/working/geneteam/defrabb-runs ~/Desktop` for upload to google drive and storage on NAS in `giab/analyses/defrabb-runs`. Directory set to automatically sync with `BBD_Human_Genomics/defrabb_runs` team google drive directory.  
 
 Automating - copy output and config files to directory for archiving, script to automate archiving with call for report, updating analysis run log google sheet
+
+# Development Testing Framework
+Unit tests for individual python functions and snakemake rules are implemented with python unittest and pytest respectively. 
+The pytest unit tests were initially generated using snakemakes `--generate-unit-tests` functionality. 
+The test scripts were modifed as needed;
+removing unnecessary tests, including config directory, modifying commands for appropriate inputs, and limiting the number of test data files for smaller tests.
+Additional modifications were made for bam and vcf comparisons, specifically ignoring file headers as the metadata for the test and expected files are not consistent.
+
+## Python Function Unit Tests
+The functions need to be in a .py file.
+1. Copy `rules/common.smk` to `test/common.py` for running tests.
+2. Run tests using `python -m unittest rules/common.py test/unit/config.py`
+
+## Pytest Snakemake Rule Unit Tests
+- Tests are run using `pytest .tests`
+- Tests assume `GRCh38_chr21.fa` and `GRCh38_chr21.fa.fai` are in `.tests/integration/resources/references`. 
+Not including these files in the repository for now to avoid including large data files in repo, therefore these files might need to be downloaded before running tests.
+
+
 
 <!-- Resources/ Citations -->
 

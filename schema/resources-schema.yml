@@ -4,13 +4,11 @@ required:
   - references
   - assemblies
   - comparisons
-  - exclusion_beds
   - exclusion_set
   - exclusion_slop_regions
   - exclusion_asm_intersect
   - exclusion_asm_agnostic
   - exclusion_ref_agnostic
-  - stratifications
   - _dipcall_threads
   - _dipcall_jobs
   - _dipcall_mem
@@ -34,7 +32,7 @@ properties:
     additionalProperties: false
     patternProperties:
 
-      ^GRCh3[7,8]|GRCh38_chr21$:
+      ^GRCh3[7,8]|GRCh38_chr21|CHM13v[0-9].[0-9]$:
         type: object
         description: metadata for reference genomes
         properties:
@@ -48,6 +46,32 @@ properties:
             description: |
               File name of the PAR.bed file used for the -x flag in
               'run-dipcall'; will be prefixed with the value of 'par_bed_root'
+
+          exclusions:
+            description: The beds to use when generating the exclusions
+            additionalProperties: false
+            patternProperties:
+              ^homopolymers|segdups|tandem-repeat|gaps|self-chains|satellites$:
+                type: string
+                format: uri
+
+          stratifications:
+            description: |
+              The stratification set to be used.
+            required: [id, url, tarball, tsv]
+            properties:
+              id:
+                format: string
+                description: stratification set id
+              url:
+                format: uri
+                description: the url to the tarball with the stratification files
+              tarball:
+                format: string
+                description: name of the stratification tarball file
+              tsv:
+                format: string
+                description: name of the stratification tsv file used by happy
 
         required: [ref_url, par_bed]
 
@@ -85,34 +109,31 @@ properties:
     additionalProperties: false
     patternProperties:
 
-      ^[\w\.\-]*$:
+      ^GRCh3[7,8]|GRCh38_chr21|CHM13v[0-9].[0-9]$:
         type: object
-        additionalProperties: false
-        description: metadata for each benchmark
-        required: [vcf_url]
+        description: refernece genome id
+
         properties:
+          ^[\w\.\-]*$:
+            type: object
+            additionalProperties: false
+            description: metadata for comparison variant callset
+            required: [vcf_url]
+            properties:
 
-          vcf_url:
-            format: uri
-            description: the url to the comparison vcf file
+              vcf_url:
+                format: uri
+                description: the url to the comparison vcf file
 
-          bed_url:
-            format: uri
-            description: |
-              the url to the comparison bed file, 
-              e.g. benchmark regions for benchmark sets.
+              bed_url:
+                format: uri
+                description: |
+                  the url to the comparison bed file, 
+                  e.g. benchmark regions for benchmark sets.
 
-          tbi_url:
-            format: uri
-            description: the url to the comparison vcf index file
-
-  exclusion_beds:
-    description: The beds to use when generating the exclusions
-    additionalProperties: false
-    patternProperties:
-      ^homopolymers|segdups|tandem-repeat|gaps|self-chains|satellites$:
-        type: string
-        format: uri
+              tbi_url:
+                format: uri
+                description: the url to the comparison vcf index file
 
   exclusion_set:
     description: |
@@ -181,31 +202,6 @@ properties:
         items:
           type: string
           format: ^.*$
-
-  stratifications:
-    description: |
-      The stratification set to be used.
-    additionalProperties: false
-    patternProperties:
-      ^[\w\.\-]*$:
-        type: object
-        additionalProperties: false
-        description: metadata for stratification sets
-        required: [id, url, tarball, tsv]
-        properties:
-
-          id:
-            format: string
-            description: stratification set id
-          url:
-            format: uri
-            description: the url to the tarball with the stratification files
-          tarball:
-            format: string
-            description: name of the stratification tarball file
-          tsv:
-            format: string
-            description: name of the stratification tsv file used by happy
 
 ################################################################################
 # Rule Resource Requirements
