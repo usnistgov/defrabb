@@ -8,8 +8,9 @@ import os
 import hashlib
 import gzip
 
+
 class OutputChecker:
-    def __init__(self, data_path, expected_path, workdir, ignore_unexpected = False):
+    def __init__(self, data_path, expected_path, workdir, ignore_unexpected=False):
         self.data_path = data_path
         self.expected_path = expected_path
         self.workdir = workdir
@@ -56,7 +57,7 @@ class OutputChecker:
                 else:
                     unexpected_files.add(f)
         if unexpected_files:
-            if self.ignore_unexpected: 
+            if self.ignore_unexpected:
                 "Ignoring unexpected files:\n{}".format(
                     "\n".join(sorted(map(str, unexpected_files)))
                 )
@@ -73,19 +74,20 @@ class OutputChecker:
 
 ## Comparison rules from https://github.com/nikostr/dna-seq-deepvariant-glnexus-variant-calling
 def calc_md5sum(file, comment_char):
-    with gzip.open(file, mode = "rt", encoding="latin_1") as f:
-        file_string="".join([l for l in f if not l.startswith(comment_char)]).encode('utf-8')
-        return hashlib.md5(
-           
-        ).hexdigest()
+    with gzip.open(file, mode="rt", encoding="latin_1") as f:
+        file_string = "".join([l for l in f if not l.startswith(comment_char)]).encode(
+            "utf-8"
+        )
+        return hashlib.md5().hexdigest()
 
 
 def compare_vcfs(generated_file, expected_file):
-    assert calc_md5sum(generated_file, comment_char = "##") == calc_md5sum(
-        expected_file, comment_char = "##"
+    assert calc_md5sum(generated_file, comment_char="##") == calc_md5sum(
+        expected_file, comment_char="##"
     ), "md5sum of vcfs do not match"
 
+
 def compare_bams(generated_file, expected_file):
-    assert calc_md5sum(generated_file, comment_char = "@") == calc_md5sum(
-        expected_file, comment_char = "@"
+    assert calc_md5sum(generated_file, comment_char="@") == calc_md5sum(
+        expected_file, comment_char="@"
     ), "md5sum of vcfs do not match"

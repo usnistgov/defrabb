@@ -379,7 +379,7 @@ rule run_dipcall:
         ref="resources/references/{ref_id}.fa",
         ref_idx="resources/references/{ref_id}.fa.fai",
         ref_mmi="resources/references/{ref_id}.mmi",
-        par=get_male_bed
+        par=get_male_bed,
     output:
         make="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.mak",
         vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
@@ -397,9 +397,13 @@ rule run_dipcall:
         if vc_tbl.loc[wildcards.vc_id]["vc_params"] == "default"
         else vc_tbl.loc[wildcards.vc_id]["vc_params"],
     log:
-        multiext("results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
-            ".hap1.paf.gz.log",  ".hap2.paf.gz.log",
-            ".hap1.sam.gz.log",  ".hap2.sam.gz.log"),
+        multiext(
+            "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
+            ".hap1.paf.gz.log",
+            ".hap2.paf.gz.log",
+            ".hap1.sam.gz.log",
+            ".hap2.sam.gz.log",
+        ),
         rulelog="logs/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
         "benchmark/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
