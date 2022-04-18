@@ -76,9 +76,10 @@ def get_male_bed(wildcards):
     root = config["_par_bed_root"]
     return Path(root) / ref_config[wildcards.ref_id]["par_bed"]
 
+
 def get_dipcall_par_param(wildcards):
     is_male = asm_config[wildcards.asm_id]["is_male"]
-    par_path=get_male_bed(wildcards)
+    par_path = get_male_bed(wildcards)
     return f"-x {str(par_path)}" if is_male else ""
 
 

@@ -24,25 +24,29 @@ def test_get_comparison_vcf():
         shutil.copytree(config_path, workdir / "config")
 
         # dbg
-        print("resources/comparison_variant_callsets/GRCh38_chr21_v4.2.1chr21.vcf.gz", file=sys.stderr)
+        print(
+            "resources/comparison_variant_callsets/GRCh38_chr21_v4.2.1chr21.vcf.gz",
+            file=sys.stderr,
+        )
 
         # Run the test job.
-        sp.check_output([
-            "python",
-            "-m",
-            "snakemake", 
-            "resources/comparison_variant_callsets/GRCh38_chr21_v4.2.1chr21.vcf.gz",
-            "-f", 
-            "-j1",
-            "--keep-target-files",
-    
-            "--use-conda",
-            "--directory",
-            workdir,
-        ])
+        sp.check_output(
+            [
+                "python",
+                "-m",
+                "snakemake",
+                "resources/comparison_variant_callsets/GRCh38_chr21_v4.2.1chr21.vcf.gz",
+                "-f",
+                "-j1",
+                "--keep-target-files",
+                "--use-conda",
+                "--directory",
+                workdir,
+            ]
+        )
 
         # Check the output byte by byte using cmp.
         # To modify this behavior, you can inherit from common.OutputChecker in here
-        # and overwrite the method `compare_files(generated_file, expected_file), 
+        # and overwrite the method `compare_files(generated_file, expected_file),
         # also see common.py.
         common.OutputChecker(data_path, expected_path, workdir).check()
