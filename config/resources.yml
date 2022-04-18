@@ -61,9 +61,9 @@ references:
       gaps: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/OtherDifficult/CHM13v1.1_rDNA.bed.gz"
       satellites: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/LowComplexity/CHM13v2.0_satellites_slop5.bed.gz"
     stratifications:
-      id: "stratifications-chm13v2.0"
-      url: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/strats/stratifications-chm13v2.0.tar.gz"
-      tarball: "stratifications-chm13v2.0.tar.gz"
+      id: "stratifications-CHM13v2.0"
+      url: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/strats/stratifications-CHM13v2.0.tar.gz"
+      tarball: "stratifications-CHM13v2.0.tar.gz"
       tsv: "CHM13v2.0-all-stratifications.tsv"
   ## For testing
   GRCh38_chr21:

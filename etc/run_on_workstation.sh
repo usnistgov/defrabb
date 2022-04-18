@@ -3,8 +3,8 @@
 #script to run defrabb on workstation
 
 # SET VARIABLES WITH EACH RUN
-#DRYRUN=""
-DRYRUN="-n"
+DRYRUN=""
+#DRYRUN="-n"
 ANALYSES="config/analyses_20220413_v0.006-HG002-HPRC-CHM13v2.tsv"
 JOBS="-j 12"
 REPORTNAME="20220413_v0.006-HG002-HPRC-CHM13v2.report.zip"
