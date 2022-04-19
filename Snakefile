@@ -531,7 +531,8 @@ rule run_happy:
         "benchmark/run_happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "envs/happy.yml"
-    shadow: "shallow"
+    shadow:
+        "shallow"
     script:
         "scripts/run_happy.py"
 
