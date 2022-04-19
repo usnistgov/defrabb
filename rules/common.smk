@@ -65,16 +65,22 @@ def format_constraint(xs):
 ################################################################################
 ## Rule parameters
 def get_genome_file(wildcards):
+    ## Getting genome path from wildcard.ref_id
+    ref_id = wildcards.get("ref_id", "")
+    if ref_id:
+        return workflow.source_path(f"../resources/references/{ref_id}.genome")
     ## get ref_id from prefix
+    prefix = wildcards.get("prefix", "")
     for id in REFIDS:
-        if id in wildcards.prefix:
-            return f"resources/references/{id}.genome"
+        if id in prefix:
+            return workflow.source_path(f"../resources/references/{id}.genome")
     print("ref_id not found in bed file prefix")
 
 
 def get_male_bed(wildcards):
     root = config["_par_bed_root"]
-    return Path(root) / ref_config[wildcards.ref_id]["par_bed"]
+    filename = ref_config[wildcards.ref_id]["par_bed"]
+    return workflow.source_path(f"../{root}/{filename}")
 
 
 def get_dipcall_par_param(wildcards):
@@ -147,7 +153,8 @@ def get_happy_inputs_inner(ref_id, eval_id, analyses, config):
             else:
                 inputs["target_regions"] = comp_bed
         else:
-            inputs["target_regions"] = f"resources/manual/target_regions/{trs}"
+            tr_dir = "resources/manual/target_regions"
+            inputs["target_regions"] = workflow.source_path(f"../{tr_dir}/{trs}")
 
     ## Returning happy inputs
     return inputs
