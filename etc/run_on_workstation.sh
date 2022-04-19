@@ -7,7 +7,8 @@ DRYRUN=""
 # DRYRUN="-n"
 ANALYSES="config/analyses.tsv"
 JOBS=12
-RUNDIR="../defrabb_test"
+RUNID="defrabb_test"
+RUNDIR="../${RUNID}"
 REPORTNAME="defrabb_test.report.zip"
 ARCHIVENAME="defrabb_test.archive.tar.gz"
 
@@ -30,3 +31,10 @@ snakemake --use-conda -p --verbose \
 # 	--config analyses=${ANALYSES} \
 # 	--directory ${RUNDIR} \
 # 	--archive ${ARCHIVENAME}
+
+## Archiving run - syncing run directory with NAS
+# rsync -rv \
+# 	--exclude=.snakemake \
+# 	--exclude=resources \
+# 	${RUNDIR} \
+# 	/mnt/bbdhg-nas/analysis/defrabb-runs/
