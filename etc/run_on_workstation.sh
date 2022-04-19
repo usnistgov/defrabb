@@ -4,15 +4,29 @@
 
 # SET VARIABLES WITH EACH RUN
 DRYRUN=""
-#DRYRUN="-n"
-ANALYSES="config/analyses_20220413_v0.006-HG002-HPRC-CHM13v2.tsv"
-JOBS="-j 12"
-REPORTNAME="20220413_v0.006-HG002-HPRC-CHM13v2.report.zip"
-ARCHIVENAME="20220413_v0.006-HG002-HPRC-CHM13v2.archive.tar.gz"
+# DRYRUN="-n"
+ANALYSES="config/analyses.tsv"
+JOBS=12
+RUNDIR="../defrabb_test"
+REPORTNAME="defrabb_test.report.zip"
+ARCHIVENAME="defrabb_test.archive.tar.gz"
 
 ## CHOOSE WHICH SNAKEMAKE COMMNAD TO USE
-snakemake --use-conda -p --verbose --config analyses=${ANALYSES} _dipcall_threads=3 ${DRYRUN} ${JOBS} --rerun-incomplete --keep-going 
+snakemake --use-conda -p --verbose \
+	--config analyses=${ANALYSES} \
+	${DRYRUN} \
+	--jobs ${JOBS} \
+	--directory ${RUNDIR}
 
-#snakemake --report ${REPORTNAME} --config analyses=${ANALYSES}
+## Generating Report
+# snakemake \
+# 	--config analyses=${ANALYSES} \
+# 	--directory ${RUNDIR} \
+# 	--report ${REPORTNAME}
 
-#snakemake --archive ${ARCHIVENAME} --config analyses=${ANALYSES}
+## Making snakemake archive
+# snakemake \
+# 	--use-conda \
+# 	--config analyses=${ANALYSES} \
+# 	--directory ${RUNDIR} \
+# 	--archive ${ARCHIVENAME}
