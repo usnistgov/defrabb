@@ -5,14 +5,15 @@
 # SET VARIABLES WITH EACH RUN
 DRYRUN=""
 # DRYRUN="-n"
-ANALYSES="config/analyses.tsv"
 JOBS=12
 RUNID="defrabb_test"
+ANALYSES="config/analyses_${RUNID}.tsv"
 RUNDIR="../${RUNID}"
-REPORTNAME="defrabb_test.report.zip"
-ARCHIVENAME="defrabb_test.archive.tar.gz"
+REPORTNAME="${RUNID}.report.zip"
+ARCHIVENAME="${RUNID}.archive.tar.gz"
 
-## CHOOSE WHICH SNAKEMAKE COMMNAD TO USE
+## CHOOSE WHICH SNAKEMAKE COMMNAD TO USE #######################################
+## Run Pipeline 
 snakemake --use-conda -p --verbose \
 	--config analyses=${ANALYSES} \
 	${DRYRUN} \
