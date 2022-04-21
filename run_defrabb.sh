@@ -58,8 +58,15 @@ else
    run_dir="${out_dir}/${run_id}"
 fi
 
+## setting report name
 report_name="${runid}.report.zip"
-archive_name="${runid}.archive.tar.gz"
+
+## setting archive path
+if [ -z "${out_dir}" ]; then
+   smk_archive_path="../${runid}.archive.tar.gz"
+else
+   smk_archive_path="${out_dir}/${runid}.archive.tar.gz"
+fi
 
 ### Directory on NAS used for archiving runs
 archive_dir="/mnt/bbdhg-nas/analysis/defrabb-runs/"
@@ -101,7 +108,7 @@ log "Done Generating Report"
 snakemake \
   --use-conda \
   --config analyses=${analyses_file} \
-  --archive ${archive_name} \
+  --archive ${smk_archive_path} \
   ${dry_run};
 
 log "Done Making Snakemake Archive"
