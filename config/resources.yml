@@ -24,8 +24,8 @@ references:
     ref_url: "ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz"
     par_bed: "hs37d5.PAR.bed"
     exclusions:
-      homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/LowComplexity/GRCh37_AllTandemRepeatsandHomopolymers_slop5.bed.gz
-      segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/SegmentalDuplications/GRCh37_segdups.bed.gz
+      homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh37/LowComplexity/GRCh37_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+      segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh37/SegmentalDuplications/GRCh37_segdups.bed.gz
       tandem-repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/LowComplexity/GRCh37_AllTandemRepeats_gt10000bp_slop5.bed.gz
       gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/OtherDifficult/GRCh37_gaps_slop15kb.bed.gz
       self-chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/SegmentalDuplications/GRCh37_chainSelf.bed.gz
@@ -39,8 +39,8 @@ references:
     ref_url: "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz"
     par_bed: "hs38.PAR.bed"
     exclusions:
-      homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
-      segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_segdups.bed.gz
+      homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+      segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/SegmentalDuplications/GRCh38_segdups.bed.gz
       tandem-repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeats_gt10000bp_slop5.bed.gz
       gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/OtherDifficult/GRCh38_gaps_slop15kb.bed.gz
       self-chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
@@ -52,8 +52,8 @@ references:
       tsv: "v3.0-GRCh38-all-stratifications.tsv"
   ## temporary location on S3 for chm13
   CHM13v2.0:
-    ref_url: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/reference/chm13v2.0_masked_PAR-Y.fa.gz"
-    par_bed: "chm13v2_PAR_X.bed"
+    ref_url: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/reference/chm13v2.0_maskedY.fa.gz"
+    par_bed: "chm13v2.0_PAR-X.bed"
     exclusions:
       homopolymers: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/LowComplexity/CHM13v2.0_AllTandemRepeatsandHomopolymers_slop5.bed.gz"
       segdups: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/SegmentalDuplicatons/CHM13v2.0_SegDups.bed.gz"
@@ -743,7 +743,12 @@ comparisons:
       bed_url: 
       tbi_url: 
   CHM13v2.0:
-        ## Query callset HG002 PCR-Free Illumina 50x mapped to chmv2.0 using BWA from Andrew Carroll
+    ## draft-benchmark dipcall output from defrabb run 20220413_v0.006-HG002-HPRC-CHM13v2
+    HG2-HPRC-20211005-XY-CHM13v2:
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0_HG2-HPRC-20211005/dipcall/CHM13v2.0_HG2-HPRC-20211005_dipcall-z2k.dip.vcf.gz
+      bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0_HG2-HPRC-20211005/dipcall/CHM13v2.0_HG2-HPRC-20211005_dipcall-z2k.dip.bed
+      tbi_url:
+    ## Query callset HG002 PCR-Free Illumina 50x mapped to chmv2.0 using BWA and variant calling w/ DV from Andrew Carroll
     HG2-ILMN-CHM13v2:
       vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/giab/chm13.HG002.novaseq.pcr-free.50x.chm13.vcf.gz
       bed_url:
