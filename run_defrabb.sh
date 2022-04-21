@@ -10,9 +10,9 @@ Required:
     -r STRING   Analysis RUN ID, please use following naming convention YYYYMMDD_milestone_brief-id
 
 Optional:
-    -a FILE   defrabb run analysis table, if not provided assumes at config/analyses_[RUN ID].tsv
-    -o DIR    output directory for framework run, pipeline will create a named directory [RUN ID] at defined location, default is "../"
-    -n        Run snakemake in dry run mode
+    -a FILE     defrabb run analysis table, if not provided assumes at config/analyses_[RUN ID].tsv
+    -o DIR      output directory for framework run, pipeline will create a named directory [RUN ID] at defined location, default is "../"
+    -n          Run snakemake in dry run mode
 EOF
 >&2;
     echo -e "\n$err" >&2;
@@ -39,7 +39,7 @@ if [ -z "${runid}" ]; then
 fi
 
 ## Getting system resource information
-source $(dirname $0)/common.sh
+source etc/common.sh
 cores=$(find_core_limit)
 mem_gb=$(find_mem_limit_gb)
 log "Number of cores: $cores"
@@ -61,6 +61,9 @@ fi
 report_name="${runid}.report.zip"
 archive_name="${runid}.archive.tar.gz"
 
+### Directory on NAS used for archiving runs
+archive_dir="/mnt/bbdhg-nas/analysis/defrabb-runs/"
+
 ## Activating mamba environment
 ##   TODO add check to see if 
 
@@ -70,7 +73,6 @@ set -euo pipefail
 snakemake \
   --printshellcmds \
   --reason \
-  --keep-going \
   --rerun-incomplete \
   --jobs "${cores}" \
   --resources "mem_gb=${mem_gb}" \
@@ -83,6 +85,8 @@ snakemake \
 
 log "Done Executing DeFrABB"
 
+## TODO
+### - add conditional exit for dry run
 
 ## Generating Report
 snakemake \
@@ -97,8 +101,7 @@ log "Done Generating Report"
 snakemake \
   --use-conda \
   --config analyses=${analyses_file} \
-  --directory ${run_dir} \
-  --report ${archive_name} \
+  --archive ${archive_name} \
   ${dry_run};
 
 log "Done Making Snakemake Archive"
@@ -107,8 +110,8 @@ log "Done Making Snakemake Archive"
 rsync -rv \
 	--exclude=.snakemake \
 	--exclude=resources \
-	${RUNDIR} \
-	/mnt/bbdhg-nas/analysis/defrabb-runs/;
+	${run_dir} \
+	${archive_dir};
 
 log "Done Archiving Run"
 
