@@ -743,21 +743,12 @@ comparisons:
       bed_url: 
       tbi_url: 
   CHM13v2.0:
-<<<<<<< HEAD
         ## Query callset HG002 PCR-Free Illumina 50x mapped to chmv2.0 using BWA and variant calling w/ DV from Andrew Carroll
-=======
-    ## draft-benchmark dipcall output from defrabb run 20220413_v0.006-HG002-HPRC-CHM13v2
-    HG2-HPRC-20211005-XY-CHM13v2:
-      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0_HG2-HPRC-20211005/dipcall/CHM13v2.0_HG2-HPRC-20211005_dipcall-z2k.dip.vcf.gz
-      bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0_HG2-HPRC-20211005/dipcall/CHM13v2.0_HG2-HPRC-20211005_dipcall-z2k.dip.bed
-      tbi_url:
-    ## Query callset HG002 PCR-Free Illumina 50x mapped to chmv2.0 using BWA and variant calling w/ DV from Andrew Carroll
->>>>>>> f99b9089c1fb20bca6724ea0ff97939907d32fb5
     HG2-ILMN-CHM13v2:
       vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/giab/chm13.HG002.novaseq.pcr-free.50x.chm13.vcf.gz
       bed_url:
       tbi_url:
-        ## draft-benchmark dipcall output from defrabb run 20220413_v0.006-HG002-HPRC-CHM13v2
+        ## draft-benchmark dipcall output from defrabb run 2022XXXX_v0.00X-HG002-HPRC-CHM13v2
     HG2-HPRC-20211005-XY-CHM13v2:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0_HG2-HPRC-20211005/dipcall/CHM13v2.0_HG2-HPRC-20211005_dipcall-z2k.dip.vcf.gz
       bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0_HG2-HPRC-20211005/dipcall/CHM13v2.0_HG2-HPRC-20211005_dipcall-z2k.dip.bed
