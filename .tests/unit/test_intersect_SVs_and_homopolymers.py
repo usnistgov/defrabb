@@ -27,7 +27,7 @@ def test_intersect_SVs_and_homopolymers():
 
         # dbg
         print(
-            "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_svs-and-homopolymers_sorted.bed",
+            "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_svs-and-homopolymers.bed",
             file=sys.stderr,
         )
 
@@ -37,7 +37,7 @@ def test_intersect_SVs_and_homopolymers():
                 "python",
                 "-m",
                 "snakemake",
-                "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_svs-and-homopolymers_sorted.bed",
+                "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_svs-and-homopolymers.bed",
                 "-f",
                 "-j1",
                 "--keep-target-files",

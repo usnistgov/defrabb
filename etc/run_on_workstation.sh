@@ -4,15 +4,38 @@
 
 # SET VARIABLES WITH EACH RUN
 DRYRUN=""
-#DRYRUN="-n"
-ANALYSES="config/analyses_20220413_v0.006-HG002-HPRC-CHM13v2.tsv"
-JOBS="-j 12"
-REPORTNAME="20220413_v0.006-HG002-HPRC-CHM13v2.report.zip"
-ARCHIVENAME="20220413_v0.006-HG002-HPRC-CHM13v2.archive.tar.gz"
+# DRYRUN="-n"
+JOBS=12
+RUNID="defrabb_test"
+ANALYSES="config/analyses_${RUNID}.tsv"
+RUNDIR="../${RUNID}"
+REPORTNAME="${RUNID}.report.zip"
+ARCHIVENAME="${RUNID}.archive.tar.gz"
 
-## CHOOSE WHICH SNAKEMAKE COMMNAD TO USE
-snakemake --use-conda -p --verbose --config analyses=${ANALYSES} _dipcall_threads=3 ${DRYRUN} ${JOBS} --rerun-incomplete --keep-going 
+## CHOOSE WHICH SNAKEMAKE COMMNAD TO USE #######################################
+## Run Pipeline 
+snakemake --use-conda -p --verbose \
+	--config analyses=${ANALYSES} \
+	${DRYRUN} \
+	--jobs ${JOBS} \
+	--directory ${RUNDIR}
 
-#snakemake --report ${REPORTNAME} --config analyses=${ANALYSES}
+## Generating Report
+# snakemake \
+# 	--config analyses=${ANALYSES} \
+# 	--directory ${RUNDIR} \
+# 	--report ${REPORTNAME}
 
-#snakemake --archive ${ARCHIVENAME} --config analyses=${ANALYSES}
+## Making snakemake archive
+# snakemake \
+# 	--use-conda \
+# 	--config analyses=${ANALYSES} \
+# 	--directory ${RUNDIR} \
+# 	--archive ${ARCHIVENAME}
+
+## Archiving run - syncing run directory with NAS
+# rsync -rv \
+# 	--exclude=.snakemake \
+# 	--exclude=resources \
+# 	${RUNDIR} \
+# 	/mnt/bbdhg-nas/analysis/defrabb-runs/
