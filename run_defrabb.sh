@@ -62,11 +62,7 @@ fi
 report_name="${runid}.report.zip"
 
 ## setting archive path
-if [ -z "${out_dir}" ]; then
-   smk_archive_path="../${runid}.archive.tar.gz"
-else
-   smk_archive_path="${out_dir}/${runid}.archive.tar.gz"
-fi
+smk_archive_path="${run_dir}/${runid}.archive.tar.gz"
 
 ### Directory on NAS used for archiving runs
 archive_dir="/mnt/bbdhg-nas/analysis/defrabb-runs/"
