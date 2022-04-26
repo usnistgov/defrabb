@@ -51,6 +51,9 @@ if [ -z "${analyses_file}" ]; then
    analyses_file="config/analyses_${runid}.tsv"
 fi
 
+## Stating analysis table path
+echo "Analysis Table Path: ${analysis_file}"
+
 ### setting run directory path
 if [ -z "${out_dir}" ]; then
    run_dir="../${runid}"
@@ -104,8 +107,7 @@ log "Done Generating Report"
 snakemake \
   --use-conda \
   --config analyses=${analyses_file} \
-  --archive ${smk_archive_path} \
-  ${dry_run};
+  --archive ${smk_archive_path};
 
 log "Done Making Snakemake Archive"
 
