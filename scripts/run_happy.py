@@ -26,8 +26,7 @@ strat_id = snakemake.config["references"][ref_id]["stratifications"]["id"]
 strat_tsv = f"{snakemake.params.strat_tsv}"
 
 print("Extracting Stratifications")
-strat_dir = f"{snakemake.params.prefix}/{ref_id}"
-shell("tar -xf {snakemake.input.strat_tb}" f" -C {strat_dir}", "{log}")
+shell("tar -xf {snakemake.input.strat_tb}", "{log}")
 
 if path.isfile(strat_tsv):
     print("Stratification tsv file present")
@@ -51,6 +50,3 @@ shell(
     "    {snakemake.input.query} )"
     "{log}"
 )
-
-## Cleaning up extracted strat tarball
-shell(f"rm -r {strat_dir}")
