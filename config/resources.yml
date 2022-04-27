@@ -748,8 +748,8 @@ comparisons:
       vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/giab/chm13.HG002.novaseq.pcr-free.50x.chm13.vcf.gz
       bed_url:
       tbi_url:
-        ## draft-benchmark dipcall output from defrabb run 2022XXXX_v0.00X-HG002-HPRC-CHM13v2
-    HG2-HPRC-20211005-XY-CHM13v2:
+        ## draft-benchmark dipcall output from defrabb run 20220426_v0.007-HG002-HPRC-CHM13v2
+    HG2-HPRC-20211005-CHM13v2:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0_HG2-HPRC-20211005/dipcall/CHM13v2.0_HG2-HPRC-20211005_dipcall-z2k.dip.vcf.gz
       bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0_HG2-HPRC-20211005/dipcall/CHM13v2.0_HG2-HPRC-20211005_dipcall-z2k.dip.bed
       tbi_url:
