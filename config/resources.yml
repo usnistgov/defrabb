@@ -753,7 +753,11 @@ comparisons:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0_HG2-HPRC-20211005/dipcall/CHM13v2.0_HG2-HPRC-20211005_dipcall-z2k.dip.vcf.gz
       bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0_HG2-HPRC-20211005/dipcall/CHM13v2.0_HG2-HPRC-20211005_dipcall-z2k.dip.bed
       tbi_url:
-
+      ## Query callset HG002 HiFi DV mapping to CHM13v2.0 from Andrew Carroll
+    HG2-Hifi-DV-CHM13v2:
+      vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/giab/HG002.pacbio.chm13.vcf.gz
+      bed_url:
+      tbi_url:
 
 ################################################################################
 # Rule compute resource requirements and data dependencies
