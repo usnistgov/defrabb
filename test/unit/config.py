@@ -51,15 +51,6 @@ def assert_happy(self, truth, eval_id, ref_id):
         eval_id,
         ref_id,
     )
-    # config = import_yaml(RESOURCES_PATH, R_SCHEMA_PATH)
-    # analyses = load_analyses(ANALYSES_PATH, A_SCHEMA_PATH)
-    # analyses = analyses.set_index("eval_id")
-    # actual = get_happy_inputs_inner(ref_id, eval_id, analyses, config)
-    # for k in keys:
-    #     assert k in actual, "Key '{}' not present".format(k)
-    #     assert (
-    #         truth[k] == actual[k]
-    #     ), f"Key {k} mismatch, expect {truth[k]} got {actual[k]}"
 
 
 def assert_truvari(self, truth, eval_id, ref_id):
