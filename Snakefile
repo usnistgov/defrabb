@@ -229,7 +229,7 @@ rule all:
         expand(
             "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/summary.txt",
             zip,
-            eval_id=truvari_analyses.index.tolist(),
+            eval_id=happy_analyses.index.tolist(),
             bench_id=truvari_analyses["bench_id"].tolist(),
             ref_id=truvari_analyses["ref"].tolist(),
             comp_id=truvari_analyses["eval_comp_id"].tolist(),
@@ -555,16 +555,17 @@ rule run_truvari:
     output:
         "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/summary.txt",
     log:
-        "logs/run_travari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/run_travari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/truvari.log",
     # TODO this tmp thing is a workaround for the fact that snakemake
     # over-zealously makes output directories when tools like truvari expect
     # them to not exist. Also, /tmp is only a thing on Linux (if that matters).
     # Also^2, certain cluster admins (such as those that run Nisaba) don't like
     # it when we use /tmp
     params:
-        # extra=lambda wildcards: analyses.loc[(wildcards.bench_id, "bench_params")],
-        prefix="results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
-        tmpdir="truvari_{eval_id}",
+        dir=lambda wildcards, output: Path(output[0]).parent,
+        tmpdir=lambda wildcards: expand(
+            "/tmp/truvari_{eval_id}", eval_id=wildcards.eval_id
+        ),
     conda:
         "envs/truvari.yml"
     shell:
@@ -576,7 +577,10 @@ rule run_truvari:
             -c {input.query} \
             -o {params.tmpdir} \
             -f {input.genome} \
-            --includebed {input.truth_regions} 
-        mv {params.tmpdir}/* {params.prefix}
+            --includebed {input.truth_regions} \
+        2> {log}
+
+        echo {params.dir}
+        mv {params.tmpdir}/* {params.dir}
         rm -r {params.tmpdir}
         """
