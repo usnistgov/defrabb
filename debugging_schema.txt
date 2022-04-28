@@ -1,0 +1,363 @@
+Building DAG of jobs...
+Job stats:
+job                               count    min threads    max threads
+------------------------------  -------  -------------  -------------
+all                                   1              1              1
+get_assemblies                        2              1              1
+get_bcftools_stats                    1              1              1
+get_comparison_bed                    2              1              1
+get_comparison_vcf                    2              1              1
+get_ref                               1              1              1
+get_rtg_vcf_stats                     1              1              1
+get_strats                            1              1              1
+index_dip_bam                         2              1              1
+index_ref                             1              1              1
+index_ref_mmi                         1              1              1
+move_asm_vcf_to_draft_bench           4              1              1
+move_processed_draft_bench_vcf        4              1              1
+normalize_for_svwiden                 1              1              1
+postprocess_bed                       1              1              1
+run_assembly_stats                    2              1              1
+run_dipcall                           1              1              1
+run_happy                             4              1              1
+run_svwiden                           1              1              1
+run_truvari                           2              1              1
+sort_bed                              1              1              1
+tabix                                 6              1              1
+total                                42              1              1
+
+
+[Wed Jul 27 12:07:41 2022]
+localrule get_assemblies:
+    output: resources/assemblies/asm17aChr21/paternal.fa
+    log: logs/get_assemblies/asm17aChr21_paternal.log
+    jobid: 2
+    wildcards: asm_id=asm17aChr21, haplotype=paternal
+    resources: tmpdir=/tmp
+
+
+[Wed Jul 27 12:07:41 2022]
+localrule get_ref:
+    output: resources/references/GRCh38_chr21.fa
+    log: logs/get_ref/GRCh38_chr21.log
+    jobid: 4
+    wildcards: ref_id=GRCh38_chr21
+    resources: tmpdir=/tmp
+
+
+[Wed Jul 27 12:07:41 2022]
+localrule get_comparison_vcf:
+    output: resources/comparison_variant_callsets/GRCh38_chr21_v4.2.1chr21.vcf.gz
+    log: logs/get_comparisons/GRCh38_chr21_v4.2.1chr21_vcf.log
+    jobid: 30
+    wildcards: ref_id=GRCh38_chr21, comp_id=v4.2.1chr21
+    resources: tmpdir=/tmp
+
+
+[Wed Jul 27 12:07:41 2022]
+localrule get_comparison_bed:
+    output: resources/comparison_variant_callsets/GRCh38_chr21_v4.2.1chr21.bed
+    log: logs/get_comparisons/GRCh38_chr21_v4.2.1chr21_bed.log
+    jobid: 32
+    wildcards: ref_id=GRCh38_chr21, comp_id=v4.2.1chr21
+    resources: tmpdir=/tmp
+
+
+[Wed Jul 27 12:07:41 2022]
+localrule get_comparison_vcf:
+    output: resources/comparison_variant_callsets/GRCh38_chr21_CMRGv1.00-stvar.vcf.gz
+    log: logs/get_comparisons/GRCh38_chr21_CMRGv1.00-stvar_vcf.log
+    jobid: 38
+    wildcards: ref_id=GRCh38_chr21, comp_id=CMRGv1.00-stvar
+    resources: tmpdir=/tmp
+
+
+[Wed Jul 27 12:07:41 2022]
+localrule get_comparison_bed:
+    output: resources/comparison_variant_callsets/GRCh38_chr21_CMRGv1.00-stvar.bed
+    log: logs/get_comparisons/GRCh38_chr21_CMRGv1.00-stvar_bed.log
+    jobid: 40
+    wildcards: ref_id=GRCh38_chr21, comp_id=CMRGv1.00-stvar
+    resources: tmpdir=/tmp
+
+
+[Wed Jul 27 12:07:41 2022]
+localrule get_assemblies:
+    output: resources/assemblies/asm17aChr21/maternal.fa
+    log: logs/get_assemblies/asm17aChr21_maternal.log
+    jobid: 3
+    wildcards: asm_id=asm17aChr21, haplotype=maternal
+    resources: tmpdir=/tmp
+
+
+[Wed Jul 27 12:07:41 2022]
+localrule get_strats:
+    output: resources/strats/GRCh38_chr21/v3.0-stratifications-GRCh38_chr21.tar.gz
+    log: logs/get_strats/GRCh38_chr21_v3.0-stratifications-GRCh38_chr21.log
+    jobid: 29
+    wildcards: ref_id=GRCh38_chr21, strat_id=v3.0-stratifications-GRCh38_chr21
+    resources: tmpdir=/tmp
+
+
+[Wed Jul 27 12:07:41 2022]
+localrule tabix:
+    input: resources/comparison_variant_callsets/GRCh38_chr21_CMRGv1.00-stvar.vcf.gz
+    output: resources/comparison_variant_callsets/GRCh38_chr21_CMRGv1.00-stvar.vcf.gz.tbi
+    log: logs/tabix/resources/comparison_variant_callsets/GRCh38_chr21_CMRGv1.00-stvar.log
+    jobid: 39
+    wildcards: filename=resources/comparison_variant_callsets/GRCh38_chr21_CMRGv1.00-stvar
+    resources: tmpdir=/tmp
+
+[Wed Jul 27 12:07:41 2022]
+localrule tabix:
+    input: resources/comparison_variant_callsets/GRCh38_chr21_v4.2.1chr21.vcf.gz
+    output: resources/comparison_variant_callsets/GRCh38_chr21_v4.2.1chr21.vcf.gz.tbi
+    log: logs/tabix/resources/comparison_variant_callsets/GRCh38_chr21_v4.2.1chr21.log
+    jobid: 31
+    wildcards: filename=resources/comparison_variant_callsets/GRCh38_chr21_v4.2.1chr21
+    resources: tmpdir=/tmp
+
+[Wed Jul 27 12:07:41 2022]
+rule run_assembly_stats:
+    input: resources/assemblies/asm17aChr21/maternal.fa
+    output: results/report/assemblies/asm17aChr21_maternal_stats.txt
+    log: logs/run_assembly_stats/asm17aChr21_maternal.assembly-stats.log
+    jobid: 24
+    wildcards: asm_id=asm17aChr21, haplotype=maternal
+    resources: tmpdir=/tmp
+
+[Wed Jul 27 12:07:41 2022]
+rule run_assembly_stats:
+    input: resources/assemblies/asm17aChr21/paternal.fa
+    output: results/report/assemblies/asm17aChr21_paternal_stats.txt
+    log: logs/run_assembly_stats/asm17aChr21_paternal.assembly-stats.log
+    jobid: 25
+    wildcards: asm_id=asm17aChr21, haplotype=paternal
+    resources: tmpdir=/tmp
+
+[Wed Jul 27 12:07:41 2022]
+rule index_ref:
+    input: resources/references/GRCh38_chr21.fa
+    output: resources/references/GRCh38_chr21.fa.fai
+    log: logs/index_ref/GRCh38_chr21.log
+    jobid: 5
+    wildcards: ref_id=GRCh38_chr21
+    resources: tmpdir=/tmp, mem_mb=16000
+
+[Wed Jul 27 12:07:41 2022]
+rule index_ref_mmi:
+    input: resources/references/GRCh38_chr21.fa
+    output: resources/references/GRCh38_chr21.mmi
+    log: logs/index_ref_mmi/GRCh38_chr21.log
+    jobid: 6
+    wildcards: ref_id=GRCh38_chr21
+    resources: tmpdir=/tmp, mem_mb=2400
+
+
+[Wed Jul 27 12:07:41 2022]
+rule run_dipcall:
+    input: resources/assemblies/asm17aChr21/paternal.fa, resources/assemblies/asm17aChr21/maternal.fa, resources/references/GRCh38_chr21.fa, resources/references/GRCh38_chr21.fa.fai, resources/references/GRCh38_chr21.mmi, /home/nolson/.cache/snakemake/snakemake/source-cache/runtime-cache/tmp57zjeppasnakemake-runtime-source-cache/e547d33601bb56630bd2903a2419fb446b05ef2503eef50eb24d9e7ca3893e2d
+    output: results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.mak, results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.dip.vcf.gz, results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.dip.bed, results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.hap1.bam, results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.hap2.bam
+    log: results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.hap1.paf.gz.log, results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.hap2.paf.gz.log, results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.hap1.sam.gz.log, results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.hap2.sam.gz.log, logs/asm_varcalls/vc1_GRCh38_chr21_asm17aChr21_dipcall-default.log
+    jobid: 1
+    benchmark: benchmark/asm_varcalls/vc1_GRCh38_chr21_asm17aChr21_dipcall-default.tsv
+    wildcards: vc_id=vc1, ref_id=GRCh38_chr21, asm_id=asm17aChr21, vc_cmd=dipcall, vc_param_id=default
+    resources: tmpdir=/tmp, mem_mb=128000
+
+
+[Wed Jul 27 12:07:41 2022]
+localrule move_asm_vcf_to_draft_bench:
+    input: results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.dip.vcf.gz
+    output: results/draft_benchmarksets/testA/intermediates/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz
+    log: logs/process_benchmark_vcf/testA_GRCh38_chr21_asm17aChr21_dipcall-default.log
+    jobid: 8
+    wildcards: bench_id=testA, prefix=GRCh38_chr21_asm17aChr21_dipcall-default
+    resources: tmpdir=/tmp
+
+
+[Wed Jul 27 12:07:41 2022]
+localrule move_asm_vcf_to_draft_bench:
+    input: results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.dip.vcf.gz
+    output: results/draft_benchmarksets/testB/intermediates/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz
+    log: logs/process_benchmark_vcf/testB_GRCh38_chr21_asm17aChr21_dipcall-default.log
+    jobid: 10
+    wildcards: bench_id=testB, prefix=GRCh38_chr21_asm17aChr21_dipcall-default
+    resources: tmpdir=/tmp
+
+
+[Wed Jul 27 12:07:41 2022]
+localrule move_asm_vcf_to_draft_bench:
+    input: results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.dip.vcf.gz
+    output: results/draft_benchmarksets/testC/intermediates/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz
+    log: logs/process_benchmark_vcf/testC_GRCh38_chr21_asm17aChr21_dipcall-default.log
+    jobid: 12
+    wildcards: bench_id=testC, prefix=GRCh38_chr21_asm17aChr21_dipcall-default
+    resources: tmpdir=/tmp
+
+
+[Wed Jul 27 12:07:41 2022]
+localrule move_asm_vcf_to_draft_bench:
+    input: results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.dip.vcf.gz
+    output: results/draft_benchmarksets/testD/intermediates/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz
+    log: logs/process_benchmark_vcf/testD_GRCh38_chr21_asm17aChr21_dipcall-default.log
+    jobid: 16
+    wildcards: bench_id=testD, prefix=GRCh38_chr21_asm17aChr21_dipcall-default
+    resources: tmpdir=/tmp
+
+
+[Wed Jul 27 12:07:41 2022]
+localrule sort_bed:
+    input: results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.dip.bed, /home/nolson/.cache/snakemake/snakemake/source-cache/runtime-cache/tmp57zjeppasnakemake-runtime-source-cache/e557165348e869401e1f7ee194894c3216e9edf68e4229b7d892d5e69315992f
+    output: results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.dip_sorted.bed
+    log: logs/sort_bed/results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.dip.log
+    jobid: 21
+    wildcards: prefix=results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.dip
+    resources: tmpdir=/tmp
+
+[Wed Jul 27 12:07:41 2022]
+rule index_dip_bam:
+    input: results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.hap1.bam
+    output: results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.hap1.bam.bai
+    log: logs/asm_varcalls/vc1_GRCh38_chr21_asm17aChr21_dipcall-default.hap1.bam.bai.log
+    jobid: 22
+    wildcards: vc_id=vc1, ref_id=GRCh38_chr21, asm_id=asm17aChr21, vc_cmd=dipcall, vc_param_id=default, hap=hap1
+    resources: tmpdir=/tmp
+
+[Wed Jul 27 12:07:41 2022]
+rule get_bcftools_stats:
+    input: results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.dip.vcf.gz
+    output: results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.dip_bcftools_stats.txt
+    log: logs/get_bcftools_stats/results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.dip_stats.txt
+    jobid: 26
+    wildcards: prefix=results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.dip
+    resources: tmpdir=/tmp
+
+
+[Wed Jul 27 12:07:41 2022]
+rule index_dip_bam:
+    input: results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.hap2.bam
+    output: results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.hap2.bam.bai
+    log: logs/asm_varcalls/vc1_GRCh38_chr21_asm17aChr21_dipcall-default.hap2.bam.bai.log
+    jobid: 23
+    wildcards: vc_id=vc1, ref_id=GRCh38_chr21, asm_id=asm17aChr21, vc_cmd=dipcall, vc_param_id=default, hap=hap2
+    resources: tmpdir=/tmp
+
+[Wed Jul 27 12:07:41 2022]
+rule get_rtg_vcf_stats:
+    input: results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.dip.vcf.gz
+    output: results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.dip_rtg_stats.txt
+    log: logs/get_rtg_vcf_stats/results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.dip_stats.txt
+    jobid: 27
+    wildcards: prefix=results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.dip
+    resources: tmpdir=/tmp
+
+
+[Wed Jul 27 12:07:41 2022]
+localrule postprocess_bed:
+    input: results/asm_varcalls/vc1/GRCh38_chr21_asm17aChr21_dipcall-default.dip_sorted.bed
+    output: results/draft_benchmarksets/testA/GRCh38_chr21_asm17aChr21_dipcall-default.bed
+    log: logs/process_benchmark_bed/testA_GRCh38_chr21_asm17aChr21_dipcall-default.log
+    jobid: 33
+    wildcards: bench_id=testA, ref_id=GRCh38_chr21, asm_id=asm17aChr21, vc_cmd=dipcall, vc_param_id=default
+    resources: tmpdir=/tmp
+
+
+[Wed Jul 27 12:07:41 2022]
+rule normalize_for_svwiden:
+    input: results/draft_benchmarksets/testD/intermediates/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz, resources/references/GRCh38_chr21.fa
+    output: results/draft_benchmarksets/testD/intermediates/GRCh38_chr21_asm17aChr21_dipcall-default.gt19_norm.vcf.gz
+    log: logs/gt19_norm/testD_GRCh38_chr21_asm17aChr21_dipcall-default.log
+    jobid: 15
+    wildcards: bench_id=testD, prefix=GRCh38_chr21_asm17aChr21_dipcall-default
+    resources: tmpdir=/tmp, mem_mb=8000
+
+
+[Wed Jul 27 12:07:41 2022]
+rule move_processed_draft_bench_vcf:
+    input: results/draft_benchmarksets/testA/intermediates/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz
+    output: results/draft_benchmarksets/testA/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz
+    log: logs/move_processed_draft_bench_vcf/testA_GRCh38_chr21_asm17aChr21_dipcall-default.log
+    jobid: 7
+    wildcards: bench_id=testA, ref_id=GRCh38_chr21, asm_id=asm17aChr21, vc_cmd=dipcall, vc_param_id=default
+    resources: tmpdir=/tmp
+
+
+[Wed Jul 27 12:07:41 2022]
+rule move_processed_draft_bench_vcf:
+    input: results/draft_benchmarksets/testB/intermediates/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz
+    output: results/draft_benchmarksets/testB/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz
+    log: logs/move_processed_draft_bench_vcf/testB_GRCh38_chr21_asm17aChr21_dipcall-default.log
+    jobid: 9
+    wildcards: bench_id=testB, ref_id=GRCh38_chr21, asm_id=asm17aChr21, vc_cmd=dipcall, vc_param_id=default
+    resources: tmpdir=/tmp
+
+
+[Wed Jul 27 12:07:41 2022]
+rule move_processed_draft_bench_vcf:
+    input: results/draft_benchmarksets/testC/intermediates/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz
+    output: results/draft_benchmarksets/testC/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz
+    log: logs/move_processed_draft_bench_vcf/testC_GRCh38_chr21_asm17aChr21_dipcall-default.log
+    jobid: 11
+    wildcards: bench_id=testC, ref_id=GRCh38_chr21, asm_id=asm17aChr21, vc_cmd=dipcall, vc_param_id=default
+    resources: tmpdir=/tmp
+
+
+[Wed Jul 27 12:07:41 2022]
+localrule tabix:
+    input: results/draft_benchmarksets/testA/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz
+    output: results/draft_benchmarksets/testA/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz.tbi
+    log: logs/tabix/results/draft_benchmarksets/testA/GRCh38_chr21_asm17aChr21_dipcall-default.log
+    jobid: 17
+    wildcards: filename=results/draft_benchmarksets/testA/GRCh38_chr21_asm17aChr21_dipcall-default
+    resources: tmpdir=/tmp
+
+[Wed Jul 27 12:07:41 2022]
+localrule tabix:
+    input: results/draft_benchmarksets/testB/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz
+    output: results/draft_benchmarksets/testB/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz.tbi
+    log: logs/tabix/results/draft_benchmarksets/testB/GRCh38_chr21_asm17aChr21_dipcall-default.log
+    jobid: 18
+    wildcards: filename=results/draft_benchmarksets/testB/GRCh38_chr21_asm17aChr21_dipcall-default
+    resources: tmpdir=/tmp
+
+[Wed Jul 27 12:07:41 2022]
+localrule tabix:
+    input: results/draft_benchmarksets/testC/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz
+    output: results/draft_benchmarksets/testC/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz.tbi
+    log: logs/tabix/results/draft_benchmarksets/testC/GRCh38_chr21_asm17aChr21_dipcall-default.log
+    jobid: 19
+    wildcards: filename=results/draft_benchmarksets/testC/GRCh38_chr21_asm17aChr21_dipcall-default
+    resources: tmpdir=/tmp
+
+[Wed Jul 27 12:07:41 2022]
+rule run_svwiden:
+    input: results/draft_benchmarksets/testD/intermediates/GRCh38_chr21_asm17aChr21_dipcall-default.gt19_norm.vcf.gz, resources/references/GRCh38_chr21.fa
+    output: results/draft_benchmarksets/testD/intermediates/GRCh38_chr21_asm17aChr21_dipcall-default.svwiden.vcf.gz
+    log: logs/svwiden/testD_GRCh38_chr21_asm17aChr21_dipcall-default.log
+    jobid: 14
+    wildcards: bench_id=testD, prefix=GRCh38_chr21_asm17aChr21_dipcall-default
+    resources: tmpdir=/tmp
+
+
+[Wed Jul 27 12:07:41 2022]
+rule run_truvari:
+    input: results/draft_benchmarksets/testC/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz, results/draft_benchmarksets/testC/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz.tbi, resources/comparison_variant_callsets/GRCh38_chr21_CMRGv1.00-stvar.vcf.gz, resources/comparison_variant_callsets/GRCh38_chr21_CMRGv1.00-stvar.vcf.gz.tbi, resources/comparison_variant_callsets/GRCh38_chr21_CMRGv1.00-stvar.bed, resources/references/GRCh38_chr21.fa, resources/references/GRCh38_chr21.fa.fai
+    output: results/evaluations/truvari/eval5_testC/GRCh38_chr21_CMRGv1.00-stvar_asm17aChr21_dipcall-default/summary.txt
+    log: logs/run_travari/eval5_testC/GRCh38_chr21_CMRGv1.00-stvar_asm17aChr21_dipcall-default.log
+    jobid: 37
+    wildcards: eval_id=eval5, bench_id=testC, ref_id=GRCh38_chr21, comp_id=CMRGv1.00-stvar, asm_id=asm17aChr21, vc_cmd=dipcall, vc_param_id=default
+    resources: tmpdir=/tmp
+
+InputFunctionException in line 552 of /defrabb_runs/code_base/defrabb/Snakefile:
+Error:
+  AttributeError: 'Wildcards' object has no attribute 'bmk_prefix'
+Wildcards:
+  eval_id=eval5
+  bench_id=testC
+  ref_id=GRCh38_chr21
+  comp_id=CMRGv1.00-stvar
+  asm_id=asm17aChr21
+  vc_cmd=dipcall
+  vc_param_id=default
+Traceback:
+  File "/defrabb_runs/code_base/defrabb/Snakefile", line 565, in <lambda>
