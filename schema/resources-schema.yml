@@ -12,6 +12,7 @@ required:
   - _dipcall_threads
   - _dipcall_jobs
   - _dipcall_mem
+  - _dipcall_params
   - _happy_threads
   - _happy_mem
   - _par_bed_root
@@ -51,7 +52,7 @@ properties:
             description: The beds to use when generating the exclusions
             additionalProperties: false
             patternProperties:
-              ^homopolymers|segdups|tandem-repeat|gaps|self-chains|satellites$:
+              ^homopolymers|all-tr-and-homopolymers|segdups|tandem-repeats|gaps|self-chains|satellites|hifi-pacbioDV-XY-discrep|imperfecthomopol-gt30|imperfecthomopol-gt20|homopolymers-gt20$:
                 type: string
                 format: uri
 
@@ -220,6 +221,10 @@ properties:
     description: memory required per dipcall job, in mbs i.e. 1000 ~ 1Gb of ram
     exclusiveMinimum: 0
     type: integer
+
+  _dipcall_params:
+    description: command line parameters used for dipcall run
+    type: object
 
   _happy_threads:
     description: the number of threads for happy runs
