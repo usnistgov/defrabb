@@ -64,16 +64,16 @@ rule split_multiallelic_sites:
 # isn't done, svwiden will choke on commas and star characters
 rule normalize_for_svwiden:
     input:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
-        ref=lambda wildcards: f"resources/references/{bench_tbl.loc[wildcards.bench_id, 'ref']}.fa",
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
+        ref=get_ref_file,
     output:
-        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.gt19_norm.vcf.gz",
+        "results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz",
     resources:
         mem_mb=8000
     conda:
         "../envs/bcftools.yml"
     log:
-        "logs/gt19_norm/{bench_id}_{prefix}.log",
+        "logs/gt19_norm/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     shell:
         """
         bcftools norm -m- -Ou {input.vcf} \
@@ -86,18 +86,18 @@ rule normalize_for_svwiden:
 
 rule run_svwiden:
     input:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.gt19_norm.vcf.gz",
-        ref=lambda wildcards: f"resources/references/{bench_tbl.loc[wildcards.bench_id, 'ref']}.fa",
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz",
+        ref=get_ref_file,
     output:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.svwiden.vcf.gz",
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.vcf.gz",
     log:
-        "logs/svwiden/{bench_id}_{prefix}.log",
+        "logs/svwiden/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     conda:
         "../envs/svanalyzer.yml"
     shadow:
         "minimal"
     params:
-        prefix="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.svwiden",
+        prefix="results/draft_benchmarksets/{prefix}.svwiden",
     shell:
         """
         svanalyzer widen \
