@@ -1,0 +1,1 @@
+/home/ndwar/Dvl/pro/nist/gabp/giab-asm-bench-whole-genome/rules/common.smk
