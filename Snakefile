@@ -537,35 +537,35 @@ rule run_happy:
 
 ################################################################################
 ## Run Truvari
-# rule run_truvari:
-#     input:
-#         query="results/dipcall/{bench_id}/{ref_prefix}_{asm_prefix}_{varcaller}-{vc_param_id}_dipcall.dip.split_multi.vcf.gz",
-#         truth=lambda wildcards: f"resources/benchmarks/{analyses.loc[wildcards.bmk_prefix, 'compare_var_id']}.vcf.gz",
-#         truth_regions=lambda wildcards: f"resources/benchmarks/{analyses.loc[wildcards.bmk_prefix, 'compare_var_id']}.bed",
-#         truth_tbi=lambda wildcards: f"resources/benchmarks/{analyses.loc[wildcards.bmk_prefix, 'compare_var_id']}.vcf.gz.tbi",
-#         genome="resources/references/{ref_prefix}.fa",
-#         genome_index="resources/references/{ref_prefix}.fa.fai",
-#     output:
-#         "results/bench/truvari/{bmk_prefix}/summary.txt",
-#     log: "logs/run_truvari_{comp_prefix}/truvari.log",
-#     params:
-#         extra=lambda wildcards: analyses.loc[(wildcards.bmk_prefix, "bench_params")],
-#         prefix="results/bench/truvari/{comp_prefix}/",
-#         tmpdir="tmp/truvari",
-#     conda:
-#         "envs/truvari.yml"
-#     # TODO this tmp thing is a workaround for the fact that snakemake
-#     # over-zealously makes output directories when tools like truvari expect
-#     # them to not exist. Also, /tmp is only a thing on Linux (if that matters)
-#     shell:
-#         """
-#         truvari bench \
-#             -b {input.truth} \
-#             -c {input.query} \
-#             -o {params.tmpdir} \
-#             -f {input.genome} \
-#             --includebed {input.truth_regions} \
-#             {params.extra}
-#         mv {params.tmpdir}/* {params.prefix}
-#         rm -r {params.tmpdir}
-#         """
+
+
+rule run_truvari:
+    input:
+        unpack(partial(get_truvari_inputs, analyses, config)),
+    output:
+        "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/summary.txt",
+    log:
+        "logs/run_travari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    # TODO this tmp thing is a workaround for the fact that snakemake
+    # over-zealously makes output directories when tools like truvari expect
+    # them to not exist. Also, /tmp is only a thing on Linux (if that matters).
+    # Also^2, certain cluster admins (such as those that run Nisaba) don't like
+    # it when we use /tmp
+    params:
+        extra=lambda wildcards: analyses.loc[(wildcards.bmk_prefix, "bench_params")],
+        prefix="results/bench/truvari/{comp_prefix}/",
+        tmpdir=lambda wildcards: "tmp/truvari_{eval_id}",
+    conda:
+        "envs/truvari.yml"
+    shell:
+        """
+        truvari bench \
+            -b {input.truth} \
+            -c {input.query} \
+            -o {params.tmpdir} \
+            -f {input.genome} \
+            --includebed {input.truth_regions} \
+            {params.extra}
+        mv {params.tmpdir}/* {params.prefix}
+        rm -r {params.tmpdir}
+        """
