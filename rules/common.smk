@@ -43,17 +43,31 @@ def analyses_to_bench_tbls(analyses):
 
 ################################################################################
 ## Rule parameters
+def get_ref_id(wildcards):
+    ref = wildcards.get("ref", "")
+    if ref:
+        ref_id = ref
+    else:
+        ref_id = wildcards.get("ref_id", "")
+        if not ref_id:
+            prefix = wildcards.get("prefix", "")
+            for id in REFIDS:
+                if id in prefix:
+                    ref_id = id
+    if not ref_id:
+        print(f"ref_id could not be determined from wildcards or {prefix}")
+
+    return ref_id
+
+
+def get_ref_file(wildcards):
+    ref_id = get_ref_id(wildcards)
+    return workflow.source_path(f"../resources/references/{ref_id}.fa")
+
+
 def get_genome_file(wildcards):
-    ## Getting genome path from wildcard.ref_id
-    ref_id = wildcards.get("ref_id", "")
-    if ref_id:
-        return workflow.source_path(f"../resources/references/{ref_id}.genome")
-    ## get ref_id from prefix
-    prefix = wildcards.get("prefix", "")
-    for id in REFIDS:
-        if id in prefix:
-            return workflow.source_path(f"../resources/references/{id}.genome")
-    print("ref_id not found in bed file prefix")
+    ref_id = get_ref_id(wildcards)
+    return workflow.source_path(f"../resources/references/{ref_id}.genome")
 
 
 def get_male_bed(wildcards):
