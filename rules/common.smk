@@ -186,7 +186,7 @@ def get_truvari_inputs_inner(ref_id, eval_id, analyses, config):
 
     return {
         "query": draft_bench_vcf if draft_is_query else comp_vcf,
-        "query_vcfidx": draft_bench_vcfids if draft_is_query else comp_vcfidx,
+        "query_vcfidx": draft_bench_vcfidx if draft_is_query else comp_vcfidx,
         "truth": comp_vcf if draft_is_query else draft_bench_vcf,
         "truth_vcfidx": comp_vcfidx if draft_is_query else draft_bench_vcfidx,
         "truth_regions": comp_bed if draft_is_query else draft_bench_bed,
