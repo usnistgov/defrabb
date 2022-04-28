@@ -3,7 +3,7 @@ import pandas as pd
 
 wildcard_constraints:
     ref_id="GRCh38|GRCh37|GRCh38_chr21|CHM13v2.0",
-    genomic_region="all-tr-and-homopolymers|segdups|tandem-repeats|gaps|self-chains|satellites",
+    genomic_region="all-tr-and-homopolymers|segdups|tandem-repeats|gaps|self-chains|satellites|hifi-pacbioDV-XY-discrep|imperfecthomopol-gt30",
 
 
 # downloading beds used for exclusion
