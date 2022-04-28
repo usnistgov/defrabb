@@ -119,6 +119,7 @@ report: "report/workflow.rst"
 
 # defining variables for cleaner rule all
 happy_analyses = analyses[analyses["eval_cmd"] == "happy"]
+truvari_analyses = analyses[analyses["eval_cmd"] == "truvari"]
 dipcall_tbl = vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]
 
 
@@ -216,16 +217,25 @@ rule all:
         ),
         expand(
             "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.extended.csv",
-        zip,
-        eval_id=analyses[analyses["eval_cmd"] == "happy"].index.tolist(),
-        bench_id=analyses[analyses["eval_cmd"] == "happy"]["bench_id"].tolist(),
-        ref_id=analyses[analyses["eval_cmd"] == "happy"]["ref"].tolist(),
-        comp_id=analyses[analyses["eval_cmd"] == "happy"]["eval_comp_id"].tolist(),
-        asm_id=analyses[analyses["eval_cmd"] == "happy"]["asm_id"].tolist(),
-        vc_cmd=analyses[analyses["eval_cmd"] == "happy"]["vc_cmd"].tolist(),
-        vc_param_id=analyses[analyses["eval_cmd"] == "happy"][
-        "vc_param_id"
-            ].tolist(),
+            zip,
+            eval_id=happy_analyses.index.tolist(),
+            bench_id=happy_analyses["bench_id"].tolist(),
+            ref_id=happy_analyses["ref"].tolist(),
+            comp_id=happy_analyses["eval_comp_id"].tolist(),
+            asm_id=happy_analyses["asm_id"].tolist(),
+            vc_cmd=happy_analyses["vc_cmd"].tolist(),
+            vc_param_id=happy_analyses["vc_param_id"].tolist(),
+        ),
+        expand(
+            "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/summary.txt",
+            zip,
+            eval_id=happy_analyses.index.tolist(),
+            bench_id=truvari_analyses["bench_id"].tolist(),
+            ref_id=truvari_analyses["ref"].tolist(),
+            comp_id=truvari_analyses["eval_comp_id"].tolist(),
+            asm_id=truvari_analyses["asm_id"].tolist(),
+            vc_cmd=truvari_analyses["vc_cmd"].tolist(),
+            vc_param_id=truvari_analyses["vc_param_id"].tolist(),
         ),
 
 
@@ -545,16 +555,17 @@ rule run_truvari:
     output:
         "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/summary.txt",
     log:
-        "logs/run_travari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/run_travari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/truvari.log",
     # TODO this tmp thing is a workaround for the fact that snakemake
     # over-zealously makes output directories when tools like truvari expect
     # them to not exist. Also, /tmp is only a thing on Linux (if that matters).
     # Also^2, certain cluster admins (such as those that run Nisaba) don't like
     # it when we use /tmp
     params:
-        extra=lambda wildcards: analyses.loc[(wildcards.bmk_prefix, "bench_params")],
-        prefix="results/bench/truvari/{comp_prefix}/",
-        tmpdir=lambda wildcards: "tmp/truvari_{eval_id}",
+        dir=lambda wildcards, output: Path(output[0]).parent,
+        tmpdir=lambda wildcards: expand(
+            "/tmp/truvari_{eval_id}", eval_id=wildcards.eval_id
+        ),
     conda:
         "envs/truvari.yml"
     shell:
@@ -565,7 +576,9 @@ rule run_truvari:
             -o {params.tmpdir} \
             -f {input.genome} \
             --includebed {input.truth_regions} \
-            {params.extra}
-        mv {params.tmpdir}/* {params.prefix}
+        2> {log}
+
+        echo {params.dir}
+        mv {params.tmpdir}/* {params.dir}
         rm -r {params.tmpdir}
         """
