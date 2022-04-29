@@ -112,7 +112,7 @@ snakemake \
 log "Done Making Snakemake Archive"
 
 ## Archiving run - syncing run directory with NAS
-rsync -rv \
+rsync -arv \
 	--exclude=.snakemake \
 	--exclude=resources \
 	${run_dir} \
