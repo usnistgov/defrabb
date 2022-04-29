@@ -2,7 +2,7 @@ import unittest as ut
 import pandas as pd
 from snakemake.io import load_configfile
 from snakemake.utils import validate
-from rules.common import get_happy_inputs_inner, get_truvari_inputs_inner, load_analyses
+from test.common import get_happy_inputs_inner, get_truvari_inputs_inner, load_analyses
 
 
 RESOURCES_PATH = "config/resources.yml"
