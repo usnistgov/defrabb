@@ -12,5 +12,6 @@
     "TP-call_FP-gt": 0,
     "TP-base_TP-gt": 0,
     "TP-base_FP-gt": 0,
-    "gt_concordance": 0
+    "gt_concordance": 0,
+    "gt_matrix": {}
 }
