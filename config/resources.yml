@@ -15,9 +15,10 @@ analyses: "config/analyses.tsv"
 ################################################################################
 ## Reference Data Files
 # Reference Genomes
-#   - Exclusions - ADD DESCRIPTION
+#   - Exclusions - subset of GIAB genome-stratifications (see below)
 #   - Stratifications - set of genomic regions used to calculate genomic context 
-#   dependent variant calling performance
+#   dependent variant calling performance, 
+#   see https://github.com/genome-in-a-bottle/genome-stratifications for description
 
 references:
   GRCh37:
@@ -322,8 +323,32 @@ assemblies:
 # to convert them into vcf and bed files for use in benchmarking variant 
 # callsets and training variant calling algorithms.
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Defined sets of Genomic Regions to exclude from draft benchmark regions.
-
+#
+# Description and justification
+# - Exclusion: segdup, self-chains, tandem-repeats, and satellites
+#    - Description: segdup, selfchain, tandem repeat longer than 10kb, or satellite DNA, 
+#          if there are any breaks in the dip.bed in the repeat region +15kb flanking 
+#          sequence on each side. 
+#    - Justification: The rationale is that breaks in the dip.bed are generally caused 
+#          by missing sequence or errors in the assembly or reference, or by large SVs 
+#          or CNVs where we don't have tools to benchmark small variants in these regions
+# - Exclusion: gaps
+#    - Description: We exclude 15kb around all gaps in reference
+#    - Justification: alignments are unreliable
+# - Exclusion: flanks
+#    - Description: We exclude 15kb around all breaks in the dip.bed 
+#    - Justification: The rationale is that breaks in the dip.bed are generally caused 
+#          by missing sequence or errors in the assembly or reference, or by large SVs 
+#          or CNVs where we don't have tools to benchmark small variants in these regions
+# - Exclusion: svs-and-homopolymers
+#    - Exclusion: Homopolymers
+#     - Description: excluded homopolymers and imperfect homopolymers greater 20 bp 
+#     - Justification: Sequencing errors in PacBio hifi
+#   - Exclusion: SVs and tandem repeats overlapping SVs
+#      - Description: We exclude variants >49bp in the dip.vcf, as well as any  tandem repeats overlapping SVs +50bp on each side.
+#      - Justification: Current small variant benchmarking tools are unable to consistently make correct comparisons.
 exclusion_set:
   smvarall:
     - segdups
