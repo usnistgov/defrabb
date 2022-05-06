@@ -1,6 +1,7 @@
 # Milestone v0.007 TBD
 - Modified framework and `run_on_workstation.sh` to allow for use of run specific directories with documentation for run execution and archiving.
 - Cleaned up issues related to running things on tibanna/ AWS
+- Using Truvari v3.2.0 with Bioconda package Issue #15
 
 # Milestone v0.006 2022-04-18
 - updated framework to allow for GRCh37 and CHM13 as references (yet to vet GRCh37 however) changes by JM, including modifications to schema's and rules as well as adding appropriate reference dependencies.
