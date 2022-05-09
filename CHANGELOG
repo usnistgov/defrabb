@@ -1,6 +1,6 @@
-# Milestone v0.007 TBD
+# Milestone v0.007 2022-05-09
 - Draft benchmark sets for HG002 whole genome and XY only against CHM13v2
-- Modified framework and `run_on_workstation.sh` to allow for use of run specific directories with documentation for run execution and archiving.
+- Created wrapper script for running and archiving analysis runs.
 - Added documentation for different stratification types
 - Cleaned up issues related to running things on tibanna/ AWS
 
