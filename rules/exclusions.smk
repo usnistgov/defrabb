@@ -41,9 +41,9 @@ rule intersect_SVs_and_homopolymers:
     input:
         sv_bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs_sorted.bed",
         homopoly_bed="resources/exclusions/{ref_id}/homopolymers_sorted.bed",
-        genome="resources/references/{ref_id}.genome",
+        genome=get_genome_file,
     output:
-        "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_svs-and-homopolymers_sorted.bed",
+        "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_svs-and-homopolymers.bed",
     log:
         "logs/exclusions/{bench_id}_SVs_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
@@ -57,8 +57,7 @@ rule intersect_SVs_and_homopolymers:
                 -b {input.sv_bed} | \
             multiIntersectBed -i stdin {input.sv_bed} | \
             bedtools slop -i stdin -g {input.genome} -b 50 | \
-            mergeBed -i stdin -d 1000 |
-            sortBed -i stdin -g {input.genome} \
+            mergeBed -i stdin -d 1000 \
             1> {output} 2>{log}
         """
 
@@ -67,7 +66,7 @@ rule intersect_SVs_and_homopolymers:
 rule add_slop:
     input:
         bed="resources/exclusions/{ref_id}/{genomic_region}.bed",
-        genome="resources/references/{ref_id}.genome",
+        genome=get_genome_file,
     output:
         "resources/exclusions/{ref_id}/{genomic_region}_slop.bed",
     log:
@@ -89,7 +88,7 @@ rule intersect_start_and_end:
     input:
         dip=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
         xregions="resources/exclusions/{ref_id}/{excluded_region}.bed",
-        genome="resources/references/{ref_id}.genome",
+        genome=get_genome_file,
     output:
         start="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_{excluded_region}_start_sorted.bed",
         end="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_{excluded_region}_end_sorted.bed",
@@ -117,7 +116,7 @@ rule intersect_start_and_end:
 rule add_flanks:
     input:
         bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
-        genome="resources/references/{ref_id}.genome",
+        genome=get_genome_file,
     output:
         "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_flanks.bed",
     log:
@@ -135,8 +134,8 @@ rule subtract_exclusions:
         dip_bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
         other_beds=get_exclusion_inputs,
     output:
-        bed="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed",
-        stats="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded_stats.txt",
+        bed="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.benchmark.bed",
+        stats="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.exclusion_stats.txt",
     params:
         script=workflow.source_path("../scripts/subtract_exclusions.py"),
     log:
