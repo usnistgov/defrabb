@@ -23,7 +23,7 @@ include: "rules/bench_vcf_processing.smk"
 # init resources
 
 
-configfile: "config/resources.yml"
+configfile: workflow.source_path("config/resources.yml")
 
 
 validate(config, "schema/resources-schema.yml")
@@ -36,7 +36,9 @@ ref_config = config["references"]
 # init analyses
 ## TODO add checks for setting indecies - maybe move to function
 
-analyses = load_analyses(config["analyses"], "schema/analyses-schema.yml")
+analyses = load_analyses(
+    workflow.source_path(config["analyses"]), "schema/analyses-schema.yml"
+)
 
 
 ## Generating seperate tables for individual framework components
@@ -151,7 +153,7 @@ rule all:
             vc_param_id=bench_tbl["vc_param_id"].tolist(),
         ),
         expand(
-            "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed",
+            "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.benchmark.bed",
             zip,
             bench_id=bench_excluded_tbl.index.tolist(),
             ref=bench_excluded_tbl["ref"].tolist(),
@@ -432,7 +434,6 @@ rule run_dipcall:
 rule sort_bed:
     input:
         in_file="{prefix}.bed",
-        ## TODO remove hardcoding for genome file
         genome=get_genome_file,
     output:
         "{prefix}_sorted.bed",
@@ -532,7 +533,6 @@ rule run_happy:
         "envs/happy.yml"
     script:
         "scripts/run_happy.py"
-        # workflow.source_path("scripts/run_happy.py")
 
 
 ################################################################################

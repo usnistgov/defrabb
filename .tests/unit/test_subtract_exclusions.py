@@ -25,7 +25,7 @@ def test_subtract_exclusions():
 
         # dbg
         print(
-            "results/draft_benchmarksets/testB/GRCh38_chr21_asm17aChr21_dipcall-default.excluded.bed results/draft_benchmarksets/testB/GRCh38_chr21_asm17aChr21_dipcall-default.excluded_stats.txt",
+            "results/draft_benchmarksets/testB/GRCh38_chr21_asm17aChr21_dipcall-default.benchmark.bed results/draft_benchmarksets/testB/GRCh38_chr21_asm17aChr21_dipcall-default.exclusion_stats.txt",
             file=sys.stderr,
         )
 
@@ -35,7 +35,7 @@ def test_subtract_exclusions():
                 "python",
                 "-m",
                 "snakemake",
-                "results/draft_benchmarksets/testB/GRCh38_chr21_asm17aChr21_dipcall-default.excluded.bed",
+                "results/draft_benchmarksets/testB/GRCh38_chr21_asm17aChr21_dipcall-default.benchmark.bed",
                 "-f",
                 "-j1",
                 "--keep-target-files",
