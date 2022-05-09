@@ -153,7 +153,7 @@ rule all:
             vc_param_id=bench_tbl["vc_param_id"].tolist(),
         ),
         expand(
-            "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed",
+            "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.benchmark.bed",
             zip,
             bench_id=bench_excluded_tbl.index.tolist(),
             ref=bench_excluded_tbl["ref"].tolist(),
