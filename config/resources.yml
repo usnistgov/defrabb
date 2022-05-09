@@ -326,29 +326,89 @@ assemblies:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Defined sets of Genomic Regions to exclude from draft benchmark regions.
 #
-# Description and justification
-# - Exclusion: segdup, self-chains, tandem-repeats, and satellites
-#    - Description: segdup, selfchain, tandem repeat longer than 10kb, or satellite DNA, 
-#          if there are any breaks in the dip.bed in the repeat region +15kb flanking 
-#          sequence on each side. 
-#    - Justification: The rationale is that breaks in the dip.bed are generally caused 
-#          by missing sequence or errors in the assembly or reference, or by large SVs 
-#          or CNVs where we don't have tools to benchmark small variants in these regions
-# - Exclusion: gaps
-#    - Description: We exclude 15kb around all gaps in reference
-#    - Justification: alignments are unreliable
-# - Exclusion: flanks
-#    - Description: We exclude 15kb around all breaks in the dip.bed 
-#    - Justification: The rationale is that breaks in the dip.bed are generally caused 
-#          by missing sequence or errors in the assembly or reference, or by large SVs 
-#          or CNVs where we don't have tools to benchmark small variants in these regions
-# - Exclusion: svs-and-homopolymers
-#    - Exclusion: Homopolymers
-#     - Description: excluded homopolymers and imperfect homopolymers greater 20 bp 
-#     - Justification: Sequencing errors in PacBio hifi
-#   - Exclusion: SVs and tandem repeats overlapping SVs
-#      - Description: We exclude variants >49bp in the dip.vcf, as well as any  tandem repeats overlapping SVs +50bp on each side.
-#      - Justification: Current small variant benchmarking tools are unable to consistently make correct comparisons.
+## Detailed description and justification - will want to integrate for documentation
+# exclusions:
+#   segdups:
+#     bed:
+#       file:
+#       md5:
+#       slop: 15000
+#       asm_intersect: true
+#     description: |
+#       breaks in the dip.bed in the repeat region including 15kb flanking regions
+#     justification: |
+#       The rationale is that breaks in the dip.bed are generally caused 
+#       by missing sequence or errors in the assembly or reference, or by large SVs 
+#       or CNVs where we don't have tools to benchmark small variants in these regions
+#   self-chains:
+#     bed:
+#       file:
+#       md5:
+#       slop: 15000
+#       asm_intersect: true
+#     description: |
+#       breaks in the dip.bed in the repeat region including 15kb flanking regions
+#     justification: |
+#       The rationale is that breaks in the dip.bed are generally caused 
+#       by missing sequence or errors in the assembly or reference, or by large SVs 
+#       or CNVs where we don't have tools to benchmark small variants in these regions
+#   tandem-repeats:
+#     bed:
+#       file:
+#       md5:
+#       slop: 15000
+#       asm_intersect: true
+#     description: |
+#       partially covered tandem repeats longer than 10kb + 15kb slop on each side
+#     justification: |
+#       The rationale is that breaks in the dip.bed are generally caused 
+#       by missing sequence or errors in the assembly or reference, or by large SVs 
+#       or CNVs where we don't have tools to benchmark small variants in these regions
+#   satellites:
+#     bed:
+#       file:
+#       md5:
+#       asm_intersect: true
+#     description: |
+#       breaks in the dip.bed in the repeat region including 15kb flanking regions
+#     justification: |
+#       The rationale is that breaks in the dip.bed are generally caused 
+#       by missing sequence or errors in the assembly or reference, or by large SVs 
+#       or CNVs where we don't have tools to benchmark small variants in these regions
+#   gaps:
+#     bed:
+#       file:
+#       md5:
+#       slop: 15000
+#       asm_agnostic: true
+#     description: Exclude 15kb around all gaps in reference genome
+#     justification: |
+#       There are often SVs and other alignment issues around breaks in the 
+#       reference assembly.
+#   flanks:
+#     bed:
+#       file:
+#       md5:
+#       ref_agnostic: true
+#     description: Exclude 15kb around all breaks in the dip.bed
+#     justification: |
+#       Breaks in the dip.bed are generally caused by missing sequence or errors 
+#       in the assembly or reference, or by large SVs or CNVs where we don't have 
+#       tools to benchmark small variants in these regions.
+#   svs:
+#     bed:
+#       file:
+#       md5:
+#       ref_agnostic: true
+#     description: |
+#       SVs and homopolymers and tandem repeats overlapping SVs.
+#       We exclude variants >49bp in the dip.vcf, as well as any 
+#       homopolymers or tandem repeats overlapping SVs +50bp on each side.
+#     justification: |
+#       Current small variant benchmarking tools are unable to robustly compare 
+#       different representations of small variants in and near SVs.
+
+
 exclusion_set:
   smvarall:
     - segdups
@@ -803,50 +863,3 @@ _par_bed_root: data/par_bed
 ## Happy Resources ################
 _happy_threads: 4
 _happy_mem: 32000
-
-################################################################################
-## Extra - will want to incorporate information into pipeline documentation/ reporting later
-
-# exclusions:
-#   exclude_SVs:
-#     bedfile: HG002v11-align2-GRCh38.dip_SVsgt49bp.bed
-#     # md5: 
-#     description: |
-#       SVs and overlapping tandem repeats and hompolymers
-#     justification: |
-#       Because hap.py+vcfeval doesn't currently handle different representations
-#       of small variants around SVs
-
-#   exclude_segdups:
-#     bedfile(s): GRCh38_segdups_intersecting_dip_start_slop15kb.bed and GRCh38_segdups_intersecting_dip_end_slop15kb.bed 
-#     # md5: 
-#     description: |
-#       partially covered segmental duplications + 15kb slop on each side
-#     justification: |
-#       Because breaks in aligning the assembly to segmental duplications
-#       indicate potential assembly errors and/or large SVs or CNVs where small
-#       variants can't be benchmarked accurately
-
-#   exclude_TR_gt10000bp:
-#     bedfile(s): GRCh38_AllTandemRepeats_gt10000bp_intersecting_dip_start_slop15kb.bed and GRCh38_AllTandemRepeats_gt10000bp_intersecting_dip_end_slop15kb.bed 
-#     # md5: 
-#     description: |
-#       partially covered tandem repeats longer than 10kb + 15kb slop on each side
-#     justification: Because breaks in aligning the assembly to long tandem repeats indicate potential assembly errors and/or large SVs or CNVs where small variants can't be benchmarked accurately
-
-#   exclude_gaps:
-#     bedfile: GRCh38_gaps_slop15kb.bed.gz
-#     # md5: 
-#     description: gaps in GRCh38 + 15kb slop
-#     justification: |
-#       Because there are often SVs and other alignment issues around gaps in
-#       the reference, exclude all gaps in GRCh38 + 15kb slop
-
-#   exclude_self_chains:
-#     bedfile(s): GRCh38_chainSelf_intersecting_dip_start_slop15kb.bed and GRCh38_chainSelf_intersecting_dip_end_slop15kb.bed
-#     # md5: 
-#     description: self chains with potential assembly errors
-#     justification: |
-#       Because breaks in aligning the assembly to self chains indicate potential
-#       assembly errors and/or large SVs or CNVs where small variants can't
-#       be benchmarked accurately
