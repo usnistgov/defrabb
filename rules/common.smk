@@ -42,27 +42,6 @@ def analyses_to_bench_tbls(analyses):
 
 
 ################################################################################
-## Utility Functions
-
-## Loading and validating analysis tables
-def get_analyses(path):
-    # target_regions must be a string even though it might only contain
-    # 'boolean' values
-    analyses = pd.read_table(path, dtype={"eval_target_regions": str})
-    validate(analyses, "schema/analyses-schema.yml")
-
-    try:
-        return analyses.set_index("eval_id", verify_integrity=True)
-    except ValueError:
-        print("All keys in column 'eval_id' must by unique")
-
-
-## Generating concatenated string for wildcard constraints
-def format_constraint(xs):
-    return "|".join(set(xs))
-
-
-################################################################################
 ## Rule parameters
 def get_genome_file(wildcards):
     ## Getting genome path from wildcard.ref_id
