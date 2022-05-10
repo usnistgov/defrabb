@@ -4,4 +4,4 @@ eval2	testA	happy	default	v4.2.1chr21	True	True	false	vc1	smvar	none	none	none	a
 eval3	testA	happy	default	v4.2.1chr21	False	True	true	vc1	smvar	none	none	none	asm17aChr21	GRCh38_chr21	dipcall	default	default
 eval4	testB	happy	default	v4.2.1chr21	True	True	true	vc1	smvar	none	exclude	smvartest	asm17aChr21	GRCh38_chr21	dipcall	default	default
 eval5	testC	happy	default	HiFiDV-v4.2.1	False	True	GRCh38_chrXY.bed	vc2	smvar	fix_XY_genotype	exclude	smvarall	T2T-XY-v2.7	GRCh38	dipcall	z2k	-z200000,10000
-eval6	testD	truvari	default	v0.6chr21	True	True	false	vc3	stvar	none	exclude	stvarall	asm17aChr21	GRCh38_chr21	dipcall	z2k	-z200000,10000
+eval6	testD	truvari	default	v0.6	True	True	false	vc3	stvar	none	exclude	stvarall	asm17aChr21	GRCh37	dipcall	z2k	-z200000,10000

@@ -42,6 +42,7 @@ def test_intersect_SVs_and_homopolymers():
                 "-j1",
                 "--keep-target-files",
                 "--use-conda",
+                "--touch",
                 "--directory",
                 workdir,
             ]
