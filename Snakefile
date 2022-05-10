@@ -34,8 +34,8 @@ ref_config = config["references"]
 
 ################################################################################
 # init analyses
-## TODO add checks for setting indecies - maybe move to function
 
+## Loading analysis table with run information
 analyses = load_analyses(
     workflow.source_path(config["analyses"]), "schema/analyses-schema.yml"
 )
