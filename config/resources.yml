@@ -524,9 +524,9 @@ comparisons:
       bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/v4.2.1chr21.bed
       tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/v4.2.1chr21.vcf.gz.tbi
     CMRGv1.00-stvar:
-      vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/StructuralVariant/HG002_GRCh38_CMRG_SV_v1.00.vcf.gz
-      bed_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/StructuralVariant/HG002_GRCh38_CMRG_SV_v1.00.bed
-      tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/StructuralVariant/HG002_GRCh38_CMRG_SV_v1.00.vcf.gz.tbi
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/GRCh38_chr21_CMRGv1.00-stvar.vcf.gz
+      bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/GRCh38_chr21_CMRGv1.00-stvar.bed
+      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/GRCh38_chr21_CMRGv1.00-stvar.vcf.gz.tbi
   GRCh37:
     ## GIAB Benchmark Sets
     v4.2.1:
