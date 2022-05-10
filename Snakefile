@@ -563,9 +563,7 @@ rule run_truvari:
     # it when we use /tmp
     params:
         dir=lambda wildcards, output: Path(output[0]).parent,
-        tmpdir=lambda wildcards: expand(
-            "truvari_{eval_id}", eval_id=wildcards.eval_id
-        ),
+        tmpdir=lambda wildcards: expand("truvari_{eval_id}", eval_id=wildcards.eval_id),
     conda:
         "envs/truvari.yml"
     shell:
