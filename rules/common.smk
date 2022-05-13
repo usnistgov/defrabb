@@ -43,7 +43,6 @@ def analyses_to_bench_tbls(analyses):
 
 ################################################################################
 ## Rule parameters
-<<<<<<< HEAD
 def get_ref_id(wildcards):
     ref = wildcards.get("ref", "")
     if ref:
@@ -66,8 +65,6 @@ def get_ref_file(wildcards):
     return workflow.source_path(f"../resources/references/{ref_id}.fa")
 
 
-=======
->>>>>>> 58022f8... Merge branch '50-simplify-sample-table-loading' into 'master'
 def get_genome_file(wildcards):
     ref_id = get_ref_id(wildcards)
     return workflow.source_path(f"../resources/references/{ref_id}.genome")
