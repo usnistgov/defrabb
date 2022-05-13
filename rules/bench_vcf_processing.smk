@@ -90,9 +90,9 @@ rule run_svwiden:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.svwiden.vcf.gz",
     log:
         "logs/svwiden/{bench_id}_{prefix}.log",
-    conda: 
+    conda:
         "../envs/svanalyzer.yml"
-    shadow: 
+    shadow:
         "minimal"
     params:
         prefix="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.svwiden",
