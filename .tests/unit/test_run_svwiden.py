@@ -43,7 +43,10 @@ def test_run_truvari():
                 "-j1",
                 "--keep-target-files",
                 "--use-conda",
+<<<<<<< HEAD
                 "--touch",
+=======
+>>>>>>> c5d7be7... adding unit tests
                 "--directory",
                 workdir,
             ]
