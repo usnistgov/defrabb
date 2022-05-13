@@ -68,15 +68,17 @@ rule normalize_for_svwiden:
         ref=lambda wildcards: f"resources/references/{bench_tbl.loc[wildcards.bench_id, 'ref']}.fa",
     output:
         "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.gt19_norm.vcf.gz",
+    conda:
+        "../envs/bcftools.yml"
     log:
         "logs/gt19_norm/{bench_id}_{prefix}.log",
     shell:
         """
-        bcftools norm -m- {input.vcf} | \
-        bcftools norm -f {input.ref} | \
-        bcftools norm -d none | \
-        awk '($4!="*" && $5!="*" && (length($4)>20 || length($5)>20)) || $1~/^#/' \
-        > test.vcf 2> log.txt
+        bcftools norm -m- {input.vcf} \
+            | bcftools norm -f {input.ref} \
+            | bcftools norm -d none \
+            | awk '($4!="*" && $5!="*" && (length($4)>20 || length($5)>20)) || $1~/^#/' \
+            | bcftools view -o {output} -Oz - > {log}
         """
 
 
@@ -85,19 +87,23 @@ rule run_svwiden:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.gt19_norm.vcf.gz",
         ref=lambda wildcards: f"resources/references/{bench_tbl.loc[wildcards.bench_id, 'ref']}.fa",
     output:
-        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.svwiden.vcf.gz",
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.svwiden.vcf.gz",
     log:
         "logs/svwiden/{bench_id}_{prefix}.log",
-    shadow:
+    conda: 
+        "../envs/svanalyzer.yml"
+    shadow: 
         "minimal"
     params:
-        prefix=lambda wildcards, output: Path(output[0]).name.with_suffix(""),
+        prefix="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.svwiden",
     shell:
         """
         svanalyzer widen \
         --variants {input.vcf} \
         --ref {input.ref} \
-        --prefix {params.prefix}
+        --prefix {params.prefix} &> {log} 
+
+        bgzip {params.prefix}.vcf
         """
 
 
