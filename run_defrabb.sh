@@ -44,8 +44,8 @@ while getopts "r:a:o:s:nF" flag; do
 done
 shift $((OPTIND-1))
 #extra_args="$*" ## WIP: Capturing extra arguments 
-#echo ${extra_args}
-
+extra_args="" ## setting as empty string for now
+ 
 if [ -z "${runid}" ]; then
     usage "Missing required parameter -r";
 fi
@@ -80,7 +80,12 @@ else
    run_dir="../${runid}"
 fi
 
+mkdir -p ${run_dir}
+
 echo "Run output directory: ${run_dir}"
+
+## path to workflow run log file
+run_log="${run_dir}/run.log"
 
 ## Only run pipeline if -n used
 if [[ ${dry_run} == "-n" ]]; then steps="pipe"; fi
@@ -99,6 +104,20 @@ archive_dir="/mnt/bbdhg-nas/analysis/defrabb-runs/"
 ## Activating mamba environment
 ##   TODO add check to see if defrabb env activated
 
+################################################################################
+## System Configuration
+
+log "Saving mamba runtime environment"
+mamba env export --file ${run_dir}/defrabb_environment.yml -n defrabb
+
+## Run info 
+gitcommit=$(git rev-parse HEAD)
+echo "DeFrABB repo last commit: ${gitcommit}" > ${run_log}
+
+echo "Repo Status"
+git status >> ${run_log}
+
+################################################################################
 # Run Snakemake pipeline
 set -euo pipefail
 
