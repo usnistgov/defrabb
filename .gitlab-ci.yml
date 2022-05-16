@@ -1,7 +1,7 @@
 before_script:
   - echo "Installing pipeline dependencies"
   - conda --version
-  - conda install -c bioconda -c conda-forge snakemake==6.12.3-0 black
+  - conda install -c bioconda -c conda-forge snakemake==7.3.0 black
   - snakemake --version
   - black --version
 
