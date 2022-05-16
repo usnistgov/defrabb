@@ -43,6 +43,8 @@ while getopts "r:a:o:s:nF" flag; do
     esac
 done
 shift $((OPTIND-1))
+#extra_args="$*" ## WIP: Capturing extra arguments 
+#echo ${extra_args}
 
 if [ -z "${runid}" ]; then
     usage "Missing required parameter -r";
@@ -113,7 +115,8 @@ if [ ${steps}  == "all" ] || [ ${steps} == "pipe" ]; then
             --config analyses=${analyses_file} \
             --directory ${run_dir} \
             ${dry_run} \
-            ${force};
+            ${force} \
+            ${extra_args}
 
     log "Done Executing DeFrABB"
 
