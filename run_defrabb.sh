@@ -151,7 +151,7 @@ fi
 if [ ${steps}  == "all" ] || [ ${steps} == "release" ]; then
     log "Releasing Run"
 
-    time rsync -arv \
+    time rsync -rlptoDv \
         --exclude=.snakemake \
         --exclude=resources \
         ${run_dir} \
