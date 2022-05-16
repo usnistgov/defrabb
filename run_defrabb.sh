@@ -157,6 +157,10 @@ if [ ${steps}  == "all" ] || [ ${steps} == "release" ]; then
     time rsync -rlptoDv \
         --exclude=.snakemake \
         --exclude=resources \
+        --exclude=GRCh38_chr21 \
+        --exclude=GRCh38 \
+        --exclude=GRCh37 \
+        --exclude=CHM13v2.0 \
         ${run_dir} \
         ${archive_dir};
 
