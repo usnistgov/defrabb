@@ -34,11 +34,19 @@ High-level diagram by Nate -https://lucid.app/lucidchart/aea8aae0-c550-420d-80df
 
 ## Executing and Archiving DeFrABB Analysis Runs
 Steps below assume running defrabb on workstation with team NAS mounted.
-1. Create new branch from master noting release tag for master, use the following naming convention for branchnames [YYYYMMDD_milestone_brief-id]. 
 1. Fill out `config/analyses_[YYYYMMDD_milestone_brief-id]` and update `config/resources.yml` if necessary.
-1. Define RUNID in `run_on_workstation.sh` as [YYYYMMDD_milestone_brief-id]
-1. Run pipeline using `sh etc/run_on_workstation.sh`, commenting out report and archiving generation as well as run archiving step.
-1. Generate report and snakemake archive using `sh etc/run_on_workstation.sh`, commenting out running the pipeline and run archiving.
+1. Run pipeline using `./run_defrabb.sh` providing run in using the defined format (i.e. `-r [YYYYMMDD_milestone_brief-id]`) or `-r` along with `-a`.
+
+```
+Usage: ./run_defrabb.sh [options] 
+Required:
+    -r STRING   Analysis RUN ID, please use following naming convention YYYYMMDD_milestone_brief-id
+
+Optional:
+    -a FILE     defrabb run analysis table, if not provided assumes at config/analyses_[RUN ID].tsv
+    -o DIR      output directory for framework run, pipeline will create a named directory [RUN ID] at defined location, default is "../"
+    -n          Run snakemake in dry run mode
+```
 1. Fill out README with relevant run information - framework repo info - [milestone] tag (with some potential - hopefully minor-differences), who ran the framework and where/ how, justification / reasoning for analyses, JZ notes (what did we learn), use [defrabb run README template](https://docs.google.com/document/d/1yTXP-3OQxXfGl7kIyXWMTac-USMgiMNPhz10GXwBro0/edit?usp=sharing).
 1. Add run information to the [defrabb run log spreadsheet](https://docs.google.com/spreadsheets/d/183LuUat1VCJo2dL7fu0LFMOy8CBA5FTo4WyOVsx4U6o/edit?usp=sharing)
 
