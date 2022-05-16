@@ -76,7 +76,7 @@ archive_dir="/mnt/bbdhg-nas/analysis/defrabb-runs/"
 # Run Snakemake pipeline
 set -euo pipefail
 
-snakemake \
+time snakemake \
   --printshellcmds \
   --reason \
   --rerun-incomplete \
@@ -95,7 +95,7 @@ log "Done Executing DeFrABB"
 ### - add conditional exit for dry run
 
 ## Generating Report
-snakemake \
+time snakemake \
 	--config analyses=${analyses_file} \
 	--directory ${run_dir} \
 	--report ${report_name} \
@@ -104,7 +104,7 @@ snakemake \
 log "Done Generating Report"
 
 ## Making snakemake archive
-snakemake \
+time snakemake \
   --use-conda \
   --config analyses=${analyses_file} \
   --archive ${smk_archive_path};
@@ -112,7 +112,7 @@ snakemake \
 log "Done Making Snakemake Archive"
 
 ## Archiving run - syncing run directory with NAS
-rsync -arv \
+time rsync -arv \
 	--exclude=.snakemake \
 	--exclude=resources \
 	${run_dir} \
