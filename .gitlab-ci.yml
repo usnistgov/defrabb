@@ -14,7 +14,7 @@ smklint:
     paths: 
         - lint
   script:
-    - snakemake --use-conda --lint
+    - snakemake --lint
 
 black:
   script:
