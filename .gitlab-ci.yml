@@ -14,7 +14,7 @@ smklint:
     paths: 
         - lint
   script:
-    - snakemake --cores 1 --lint --verbose
+    - snakemake --use-conda --lint
 
 black:
   script:
@@ -22,6 +22,9 @@ black:
     - black . --check
 
 test:
+  artifacts:
+    paths: 
+        - smalltest
   script:
     - snakemake --version
-    - snakemake -p --use-conda --cores 1 --verbose --dryrun
+    - snakemake -p --use-conda --cores 1 --verbose
