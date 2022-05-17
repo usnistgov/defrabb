@@ -1,7 +1,7 @@
 before_script:
   - echo "Installing pipeline dependencies"
   - conda --version
-  - conda install -c bioconda -c conda-forge snakemake==6.12.3-0 black
+  - conda install -c bioconda -c conda-forge snakemake==7.3.0 snakefmt
   - snakemake --version
   - black --version
 
@@ -14,14 +14,16 @@ smklint:
     paths: 
         - lint
   script:
-    - snakemake --cores 1 --lint --verbose
+    - snakemake --lint
 
-black:
+smkformat:
   script:
-    - echo "Running python linter"
-    - black . --check
+    - echo "Running snakefmt"
+    - snakefmt .
 
 test:
+  artifacts:
+    paths: 
+        - smalltest
   script:
-    - snakemake --version
-    - snakemake -p --use-conda --cores 1 --verbose --dryrun
+    - snakemake -p --use-conda --cores 1 --verbose
