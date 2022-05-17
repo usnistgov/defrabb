@@ -75,7 +75,7 @@ rule normalize_for_svwiden:
     shell:
         """
         bcftools norm -m- -Ou {input.vcf} \
-            | bcftools norm -f -Ou {input.ref} \
+            | bcftools norm -Ou -f {input.ref} \
             | bcftools norm -d exact -Ov \
             | awk '($4!="*" && $5!="*" && (length($4)>20 || length($5)>20)) || $1~/^#/' \
             | bcftools view -o {output} -Oz - > {log}
