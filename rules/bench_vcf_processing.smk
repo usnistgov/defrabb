@@ -74,9 +74,9 @@ rule normalize_for_svwiden:
         "logs/gt19_norm/{bench_id}_{prefix}.log",
     shell:
         """
-        bcftools norm -m- {input.vcf} \
-            | bcftools norm -f {input.ref} \
-            | bcftools norm -d none \
+        bcftools norm -m- -Ou {input.vcf} \
+            | bcftools norm -f -Ou {input.ref} \
+            | bcftools norm -d exact -Ov \
             | awk '($4!="*" && $5!="*" && (length($4)>20 || length($5)>20)) || $1~/^#/' \
             | bcftools view -o {output} -Oz - > {log}
         """
