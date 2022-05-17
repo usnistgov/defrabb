@@ -1,7 +1,7 @@
 before_script:
   - echo "Installing pipeline dependencies"
-  - conda --version
-  - conda install -c bioconda -c conda-forge snakemake==7.3.0 black
+  - mamba --version
+  - mamba install -c bioconda -c conda-forge snakemake==7.3.0 snakefmt
   - snakemake --version
   - black --version
 
@@ -9,7 +9,7 @@ before_script:
 #   - echo "After script section"
 #   - echo "For example you might do some cleanup here"
 
-smklint:
+lint-test:
   artifacts:
     paths: 
         - lint
@@ -21,7 +21,11 @@ black:
     - echo "Running python linter"
     - black . --check
 
-test:
+unit-test:
+  script:
+    - pytest .tests
+
+run-test:
   artifacts:
     paths: 
         - smalltest
