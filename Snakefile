@@ -568,11 +568,17 @@ rule run_truvari:
         "envs/truvari.yml"
     shell:
         """
+        ## Removing temp directory if present before run
+        rm -r {params.tmpdir}
+
         truvari bench \
             -b {input.truth} \
             -c {input.query} \
             -o {params.tmpdir} \
             -f {input.genome} \
+            --giabreport \
+            --debug \
+            --prog \
             --includebed {input.truth_regions} \
         2> {log}
 
