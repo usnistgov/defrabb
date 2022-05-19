@@ -78,7 +78,7 @@ rule normalize_for_svwiden:
             | bcftools norm -d exact -Ou \
             | bcftools norm -cs -f {input.ref} -Ov\
             | awk '($4!="*" && $5!="*" && (length($4)>20 || length($5)>20)) || $1~/^#/' \
-            | bgzip -c > {output} 2> {log}
+            | bcftools sort -m{params.mem} -Oz > {output} 2> {log}
         """
 
 
