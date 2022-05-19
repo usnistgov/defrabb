@@ -569,16 +569,14 @@ rule run_truvari:
     shell:
         """
         ## Removing temp directory if present before run
-        rm -r {params.tmpdir}
+        rm -rf {params.tmpdir}
 
         truvari bench \
             -b {input.truth} \
             -c {input.query} \
             -o {params.tmpdir} \
             -f {input.genome} \
-            --giabreport \
-            --debug \
-            --prog \
+            --passonly \
             --includebed {input.truth_regions} \
         2> {log}
 
