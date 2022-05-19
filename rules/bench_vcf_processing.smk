@@ -75,10 +75,10 @@ rule normalize_for_svwiden:
     shell:
         """
         bcftools norm -m- -Ou {input.vcf} \
-            | bcftools norm -Ou -f {input.ref} \
-            | bcftools norm -d exact -Ov \
+            | bcftools norm -d exact -Ou \
+            | bcftools norm -cs -f {input.ref} -Ov\
             | awk '($4!="*" && $5!="*" && (length($4)>20 || length($5)>20)) || $1~/^#/' \
-            | bcftools view -o {output} -Oz - > {log}
+            | bgzip -c > {output} 2> {log}
         """
 
 
@@ -103,7 +103,9 @@ rule run_svwiden:
         --ref {input.ref} \
         --prefix {params.prefix} &> {log} 
 
-        bgzip {params.prefix}.vcf
+        # Removing ".;" at beginning of INFO field introduced by SVwiden
+        sed 's/\.;REPTYPE/REPTYPE/' {params.prefix}.vcf \
+            | bgzip -c > {params.prefix}.vcf.gz 2>> {log}
         """
 
 
