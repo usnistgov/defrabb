@@ -68,6 +68,8 @@ rule normalize_for_svwiden:
         ref=lambda wildcards: f"resources/references/{bench_tbl.loc[wildcards.bench_id, 'ref']}.fa",
     output:
         "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.gt19_norm.vcf.gz",
+    resources:
+        mem_mb=8000
     conda:
         "../envs/bcftools.yml"
     log:
@@ -78,7 +80,7 @@ rule normalize_for_svwiden:
             | bcftools norm -d exact -Ou \
             | bcftools norm -cs -f {input.ref} -Ov\
             | awk '($4!="*" && $5!="*" && (length($4)>20 || length($5)>20)) || $1~/^#/' \
-            | bcftools sort -m{params.mem} -Oz > {output} 2> {log}
+            | bcftools sort -m{resources.mem_mb}m -Oz > {output} 2> {log}
         """
 
 
