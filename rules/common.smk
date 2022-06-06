@@ -139,6 +139,41 @@ def get_happy_inputs_inner(ref_id, eval_id, analyses, config):
     return inputs
 
 
+def get_truvari_inputs(analyses, config, wildcards):
+    return get_truvari_inputs_inner(
+        wildcards.ref_id,
+        wildcards.eval_id,
+        analyses,
+        config,
+    )
+
+
+def get_truvari_inputs_inner(ref_id, eval_id, analyses, config):
+    draft_bench_vcf = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz"
+    draft_bench_vcfidx = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi"
+
+    if analyses.loc[eval_id, "exclusion_set"] == "none":
+        draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed"
+    else:
+        draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed"
+
+    comp_vcf = "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz"
+    comp_vcfidx = "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz.tbi"
+    comp_bed = "resources/comparison_variant_callsets/{ref_id}_{comp_id}.bed"
+
+    draft_is_query = analyses.loc[eval_id, "eval_comp_id_is_truth"] == True
+
+    return {
+        "query": draft_bench_vcf if draft_is_query else comp_vcf,
+        "query_vcfidx": draft_bench_vcfidx if draft_is_query else comp_vcfidx,
+        "truth": comp_vcf if draft_is_query else draft_bench_vcf,
+        "truth_vcfidx": comp_vcfidx if draft_is_query else draft_bench_vcfidx,
+        "truth_regions": comp_bed if draft_is_query else draft_bench_bed,
+        "genome": f"resources/references/{ref_id}.fa",
+        "genome_index": f"resources/references/{ref_id}.fa.fai",
+    }
+
+
 ## Exclusions
 def get_exclusion_inputs(wildcards):
 
@@ -179,6 +214,8 @@ def get_exclusion_inputs(wildcards):
 
 
 ## Benchmark VCF generation
+
+
 def get_processed_vcf(wildcards):
     vcf_suffix = bench_tbl.loc[wildcards.bench_id, "bench_vcf_processing"]
     if vcf_suffix == "none":

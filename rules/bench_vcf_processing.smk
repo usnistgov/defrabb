@@ -59,6 +59,58 @@ rule split_multiallelic_sites:
         """
 
 
+# Split multi-allelic variants, left-align/normalize, remove duplicates, and
+# filter all lines that have REF or ALT > 20bp and no '*' characters. If this
+# isn't done, svwiden will choke on commas and star characters
+rule normalize_for_svwiden:
+    input:
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
+        ref=lambda wildcards: f"resources/references/{bench_tbl.loc[wildcards.bench_id, 'ref']}.fa",
+    output:
+        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.gt19_norm.vcf.gz",
+    resources:
+        mem_mb=8000
+    conda:
+        "../envs/bcftools.yml"
+    log:
+        "logs/gt19_norm/{bench_id}_{prefix}.log",
+    shell:
+        """
+        bcftools norm -m- -Ou {input.vcf} \
+            | bcftools norm -d exact -Ou \
+            | bcftools norm -cs -f {input.ref} -Ov\
+            | awk '($4!="*" && $5!="*" && (length($4)>20 || length($5)>20)) || $1~/^#/' \
+            | bcftools sort -m{resources.mem_mb}m -Oz > {output} 2> {log}
+        """
+
+
+rule run_svwiden:
+    input:
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.gt19_norm.vcf.gz",
+        ref=lambda wildcards: f"resources/references/{bench_tbl.loc[wildcards.bench_id, 'ref']}.fa",
+    output:
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.svwiden.vcf.gz",
+    log:
+        "logs/svwiden/{bench_id}_{prefix}.log",
+    conda:
+        "../envs/svanalyzer.yml"
+    shadow:
+        "minimal"
+    params:
+        prefix="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.svwiden",
+    shell:
+        """
+        svanalyzer widen \
+        --variants {input.vcf} \
+        --ref {input.ref} \
+        --prefix {params.prefix} &> {log} 
+
+        # Removing ".;" at beginning of INFO field introduced by SVwiden
+        sed 's/\.;REPTYPE/REPTYPE/' {params.prefix}.vcf \
+            | bgzip -c > {params.prefix}.vcf.gz 2>> {log}
+        """
+
+
 rule move_asm_vcf_to_draft_bench:
     input:
         lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{prefix}}.dip.vcf.gz",
