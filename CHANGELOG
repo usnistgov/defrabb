@@ -1,4 +1,4 @@
-# Milestone v0.008 TBD
+# Milestone v0.008 2022-06-06
 - incorporating truvari for evaluating structural variant benchmarks
 - Using Truvari v3.2.0 with Bioconda package Issue #15
 
