@@ -10,9 +10,16 @@ Required:
     -r STRING   Analysis RUN ID, please use following naming convention YYYYMMDD_milestone_brief-id
 
 Optional:
-    -a FILE     defrabb run analysis table, if not provided assumes at config/analyses_[RUN ID].tsv
+    -a FILE     defrabb run analyses table, if not provided assumes at config/analyses_[RUN ID].tsv
     -o DIR      output directory for framework run, pipeline will create a named directory [RUN ID] at defined location, default is "../"
-    -n          Run snakemake in dry run mode
+    -s all|pipe|report|archive|release  Defining which workflow steps are run
+                                    all: pipe, report, and archive (default)
+                                    pipe: just the snakemake pipeline
+                                    report: generating the snakemake run report
+                                    archive: generating snakemake archive tarball
+                                    release: copy run output to NAS for upload to Google Drive
+    -n          Run snakemake in dry run mode, only runs pipe step
+    -F          Force rerunning all steps, includes downloading resouces
 EOF
 >&2;
     echo -e "\n$err" >&2;
@@ -21,19 +28,24 @@ EOF
 
 ## Parsing command line arguments
 dry_run=""
+force=""
+steps="all"
 
-while getopts "r:a:o:n" flag; do
+while getopts "r:a:o:s:nF" flag; do
     case "${flag}" in
         r) runid=${OPTARG};;
-        a) analysis_file=${OPTARG};;
+        a) analyses_file=${OPTARG};;
         o) out_dir=${OPTARG};;
+        s) steps=${OPTARG};;
         n) dry_run="-n";;
+        F) force="-F";;
         *) usage;;
     esac
 done
 shift $((OPTIND-1))
-
-extra_args=""
+#extra_args="$*" ## WIP: Capturing extra arguments 
+extra_args="" ## setting as empty string for now
+ 
 if [ -z "${runid}" ]; then
     usage "Missing required parameter -r";
 fi
@@ -47,19 +59,37 @@ log "Memory limit: $mem_gb GB"
 
 # SET VARIABLES WITH EACH RUN
 ### setting run analyses table path
-if [ -z "${analyses_file}" ]; then
-   analyses_file="config/analyses_${runid}.tsv"
+echo "${analyses_file}"
+
+if [[ -z ${analyses_file} ]]; then
+    analyses_file="config/analyses_${runid}.tsv"
 fi
 
-## Stating analysis table path
-echo "Analysis Table Path: ${analysis_file}"
+### Making sure analyses table exists
+if [[ -f "${analyses_file}" ]]; then
+    echo "Analyses Table Path: ${analyses_file}"
+else
+    echo "analyses table file not present at: ${analyses_file}"
+fi
+
 
 ### setting run directory path
-if [ -z "${out_dir}" ]; then
-   run_dir="../${runid}"
+if [[ -n "${out_dir}" ]]; then
+   run_dir="${out_dir}/${runid}"
 else
-   run_dir="${out_dir}/${run_id}"
+   run_dir="../${runid}"
 fi
+
+mkdir -p ${run_dir}
+
+echo "Run output directory: ${run_dir}"
+
+## path to workflow run log file
+run_log="${run_dir}/run.log"
+
+## Only run pipeline if -n used
+if [[ ${dry_run} == "-n" ]]; then steps="pipe"; fi
+
 
 ## setting report name
 report_name="${runid}.report.zip"
@@ -70,57 +100,94 @@ smk_archive_path="${run_dir}/${runid}.archive.tar.gz"
 ### Directory on NAS used for archiving runs
 archive_dir="/mnt/bbdhg-nas/analysis/defrabb-runs/"
 
-## Activating mamba environment
-##   TODO add check to see if 
 
+## Activating mamba environment
+##   TODO add check to see if defrabb env activated
+
+################################################################################
+## System Configuration
+
+log "Saving mamba runtime environment"
+mamba env export --file ${run_dir}/defrabb_environment.yml -n defrabb
+
+## Run info 
+gitcommit=$(git rev-parse HEAD)
+echo "DeFrABB repo last commit: ${gitcommit}" > ${run_log}
+
+echo "Repo Status"
+git status >> ${run_log}
+
+################################################################################
 # Run Snakemake pipeline
 set -euo pipefail
 
-snakemake \
-  --printshellcmds \
-  --reason \
-  --rerun-incomplete \
-  --jobs "${cores}" \
-  --resources "mem_gb=${mem_gb}" \
-  --use-conda \
-  --config analyses=${analyses_file} \
-  --directory ${run_dir} \
-  ${dry_run} \
-  ${extra_args};
+if [ ${steps}  == "all" ] || [ ${steps} == "pipe" ]; then
+    log "Running DeFrABB snakemake pipeline";
 
+    snakemake \
+            --printshellcmds \
+            --reason \
+            --rerun-incomplete \
+            --jobs "${cores}" \
+            --resources "mem_gb=${mem_gb}" \
+            --use-conda \
+            --config analyses=${analyses_file} \
+            --directory ${run_dir} \
+            ${dry_run} \
+            ${force} \
+            ${extra_args}
 
-log "Done Executing DeFrABB"
+    log "Done Executing DeFrABB"
 
-## TODO
-### - add conditional exit for dry run
+fi
+
 
 ## Generating Report
-snakemake \
-	--config analyses=${analyses_file} \
-	--directory ${run_dir} \
-	--report ${report_name} \
-	${dry_run};
+if [ ${steps}  == "all" ] || [ ${steps} == "report" ]; then
+    log "Generating Snakemake Report"
 
-log "Done Generating Report"
+    time snakemake \
+            --config analyses=${analyses_file} \
+            --directory ${run_dir} \
+            --report ${report_name};
+
+    log "Done Generating Report"
+
+fi
+
 
 ## Making snakemake archive
-snakemake \
-  --use-conda \
-  --config analyses=${analyses_file} \
-  --archive ${smk_archive_path};
+if [ ${steps}  == "all" ] || [ ${steps} == "archive" ]; then
+    log "Generating Snakemake Archive"
 
-log "Done Making Snakemake Archive"
+    time snakemake \
+    --use-conda \
+    --config analyses=${analyses_file} \
+    --archive ${smk_archive_path};
+
+    log "Done Making Snakemake Archive"
+
+fi
 
 ## Archiving run - syncing run directory with NAS
-rsync -arv \
-	--exclude=.snakemake \
-	--exclude=resources \
-	${run_dir} \
-	${archive_dir};
+if [ ${steps}  == "all" ] || [ ${steps} == "release" ]; then
+    log "Releasing Run"
 
-log "Done Archiving Run"
+    time rsync -rlptoDv \
+        --exclude=.snakemake \
+        --exclude=resources \
+        --exclude=GRCh38_chr21 \
+        --exclude=GRCh38 \
+        --exclude=GRCh37 \
+        --exclude=CHM13v2.0 \
+        ${run_dir} \
+        ${archive_dir};
 
-log "DeFrABB run execution and archiving complete!"
+    log "Done Releasing Run"
+
+fi
+
+log "DeFrABB execution complete!"
 
 ### Resources for bash scripting and snakemake wrappers
 ## Example snakemake pipeline wrapper script
