@@ -16,10 +16,10 @@ lint-test:
   script:
     - snakemake --lint
 
-black:
+smkformat:
   script:
-    - echo "Running python linter"
-    - black . --check
+    - echo "Running snakefmt"
+    - snakefmt .
 
 unit-test:
   script:
@@ -30,5 +30,4 @@ run-test:
     paths: 
         - smalltest
   script:
-    - snakemake --version
     - snakemake -p --use-conda --cores 1 --verbose

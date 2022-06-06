@@ -1,3 +1,7 @@
+# Milestone v0.008 2022-06-06
+- incorporating truvari for evaluating structural variant benchmarks
+- Using Truvari v3.2.0 with Bioconda package Issue #15
+
 # Milestone v0.007 2022-05-09
 - Draft benchmark sets for HG002 whole genome and XY only against CHM13v2
 - Created wrapper script for running and archiving analysis runs.

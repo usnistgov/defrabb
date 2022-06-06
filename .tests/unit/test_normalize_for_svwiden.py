@@ -11,23 +11,24 @@ sys.path.insert(0, os.path.dirname(__file__))
 import common
 
 
-def test_intersect_SVs_and_homopolymers():
+def test_run_normalize_for_svwiden():
 
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
-        data_path = PurePosixPath(".tests/unit/intersect_SVs_and_homopolymers/data")
-        expected_path = PurePosixPath(
-            ".tests/unit/intersect_SVs_and_homopolymers/expected"
-        )
+        data_path = PurePosixPath(".tests/unit/normalize_for_svwiden/data")
+        expected_path = PurePosixPath(".tests/unit/normalize_for_svwiden/expected")
         config_path = PurePosixPath("config")
+        references_path = PurePosixPath(".tests/integration/resources/references")
 
         # Copy data to the temporary workdir.
         shutil.copytree(data_path, workdir)
         shutil.copytree(config_path, workdir / "config")
+        shutil.copytree(references_path, workdir / "resources" / "references")
 
         # dbg
+        output = "results/draft_benchmarksets/testC/intermediates/GRCh38_chr21_asm17aChr21_dipcall-default.gt19_norm.vcf.gz"
         print(
-            "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_svs-and-homopolymers.bed",
+            output,
             file=sys.stderr,
         )
 
@@ -37,13 +38,11 @@ def test_intersect_SVs_and_homopolymers():
                 "python",
                 "-m",
                 "snakemake",
-                "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_svs-and-homopolymers.bed",
+                output,
                 "-f",
                 "-j1",
                 "--keep-target-files",
-                "--touch",
                 "--use-conda",
-                "--touch",
                 "--directory",
                 workdir,
             ]
@@ -53,4 +52,6 @@ def test_intersect_SVs_and_homopolymers():
         # To modify this behavior, you can inherit from common.OutputChecker in here
         # and overwrite the method `compare_files(generated_file, expected_file),
         # also see common.py.
-        common.OutputChecker(data_path, expected_path, workdir).check()
+        common.OutputChecker(
+            data_path, expected_path, workdir, ignore_unexpected=True
+        ).check()
