@@ -21,6 +21,10 @@ smkformat:
     - echo "Running snakefmt"
     - snakefmt .
 
+unit-test:
+  script:
+    - pytest .tests
+
 test:
   artifacts:
     paths: 
