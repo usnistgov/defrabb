@@ -1,33 +1,111 @@
-before_script:
-  - echo "Installing pipeline dependencies"
-  - conda --version
-  - conda install -c bioconda -c conda-forge snakemake==7.3.0 snakefmt
-  - snakemake --version
-  - black --version
+################################################################################
+# global pipeline config
 
-# after_script:
-#   - echo "After script section"
-#   - echo "For example you might do some cleanup here"
+stages:
+  - snakemake_global
+  - snakemake_conda
+  - test
 
-smklint:
-  artifacts:
-    paths: 
-        - lint
+variables:
+  ENV_DIR: ./this-env
+  TESTCONF: config/analyses_defrabb_test.tsv
+  # speed up cache compression
+  FF_USE_FASTZIP: "true"
+  ARTIFACT_COMPRESSION_LEVEL: "fast"
+  CACHE_COMPRESSION_LEVEL: "fast"
+
+# TODO figure out on what branches the pipeline should run
+# workflow:
+#   rules:
+#     - if: $CI_COMMIT_BRANCH =~ /^surf_squid_warfare*/
+#       when: never
+
+image: condaforge/mambaforge:4.12.0-0
+
+################################################################################
+# reusable object to permit lazy coder syndrome
+
+.smk_global_cache: &smk_global_cache
+  paths:
+    - this-env
+  key:
+    files:
+      - envs/env.yml
+
+.smk_envs_cache: &smk_envs_cache
+  paths:
+    - .snakemake/conda
+  key:
+    files:
+      - workflow/envs
+
+.activate_smk: &activate_smk
+  before_script:
+    # silly hacky eval thing since the docker image we are using doesn't have
+    # this set up yet (oh well)
+    - eval "$(${CONDA_DIR}/bin/conda shell.bash hook 2> /dev/null)"
+    - conda activate $ENV_DIR
+
+################################################################################
+# set up global conda environment
+
+# - ASSUME the cache will track any changes to env.yml and will force an update
+#   if this changes
+install_global_env:
+  stage: snakemake_global
   script:
-    - snakemake --lint
+    - >
+      test -d $ENV_DIR
+      && echo "Env already created"
+      || mamba env create -f envs/env.yml -p $ENV_DIR
+  cache: 
+    - <<: *smk_global_cache
 
-smkformat:
-  script:
-    - echo "Running snakefmt"
-    - snakefmt .
+################################################################################
+# set up snakemake rule conda environments
 
-unit-test:
+install_smk_conda_envs:
+  stage: snakemake_conda
+  <<: *activate_smk
   script:
-    - pytest .tests
+    - snakemake --use-conda -c 1 --configfile=$TESTCONF --conda-create-envs-only
+  cache:
+    - <<: *smk_global_cache
+      policy: pull
+    - <<: *smk_envs_cache
 
-test:
-  artifacts:
-    paths: 
-        - smalltest
+################################################################################
+# test snakemake things
+
+snakemake_dry:
+  needs: [install_global_env]
+  stage: test
+  <<: *activate_smk
   script:
-    - snakemake -p --use-conda --cores 1 --verbose
+    - snakemake --use-conda -c 1 --configfile=$TESTCONF --dryrun
+  cache:
+    - <<: *smk_global_cache
+      policy: pull
+
+# smklint:
+#   artifacts:
+#     paths: 
+#         - lint
+#   script:
+#     - snakemake --lint
+
+# smkformat:
+#   script:
+#     - echo "Running snakefmt"
+#     - snakefmt .
+
+# unit-test:
+#   script:
+#     - pytest .tests
+
+# test:
+#   artifacts:
+#     paths: 
+#         - smalltest
+#   script:
+#     - snakemake -p --use-conda --cores 1 --verbose
