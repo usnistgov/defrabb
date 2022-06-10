@@ -8,7 +8,7 @@ stages:
 
 variables:
   ENV_DIR: ./this-env
-  TESTCONF: config/analyses_defrabb_test.tsv
+  TESTCONF: config/analyses_fulltest.tsv
   # speed up cache compression
   FF_USE_FASTZIP: "true"
   ARTIFACT_COMPRESSION_LEVEL: "fast"
@@ -68,7 +68,7 @@ install_smk_conda_envs:
   stage: snakemake_conda
   <<: *activate_smk
   script:
-    - snakemake --use-conda -c 1 --configfile=$TESTCONF --conda-create-envs-only
+    - snakemake --use-conda -c 1 --config analyses=$TESTCONF --conda-create-envs-only
   cache:
     - <<: *smk_global_cache
       policy: pull
@@ -82,7 +82,7 @@ snakemake_dry:
   stage: test
   <<: *activate_smk
   script:
-    - snakemake --use-conda -c 1 --configfile=$TESTCONF --dryrun
+    - snakemake --use-conda -c 1 --config analyses=$TESTCONF --dryrun
   cache:
     - <<: *smk_global_cache
       policy: pull
