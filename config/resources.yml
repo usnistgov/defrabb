@@ -32,10 +32,10 @@ references:
       self-chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/SegmentalDuplications/GRCh37_chainSelf.bed.gz
       satellites: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_satellites_slop5.bed.gz
     stratifications:
-      id: "v3.0-stratifications-GRCh37"
-      url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/v3.0-stratifications-GRCh37.tar.gz"
-      tarball: "v3.0-stratifications-GRCh37.tar.gz"
-      tsv: "v3.0-GRCh37-all-stratifications.tsv"
+      id: "v3.1-stratifications-GRCh37"
+      url: "https://giab-data.s3.amazonaws.com/giab-test-data/v3.1-stratifications-GRCh37.tar.gz"
+      tarball: "v3.1-stratifications-GRCh37.tar.gz"
+      tsv: "v3.1-GRCh37-all-stratifications.tsv"
   GRCh38:
     ref_url: "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz"
     par_bed: "hs38.PAR.bed"
@@ -47,10 +47,10 @@ references:
       self-chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
       satellites: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/GRCh38_satellites_slop5.bed.gz
     stratifications:
-      id: "v3.0-stratifications-GRCh38"
-      url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/v3.0-stratifications-GRCh38.tar.gz"
-      tarball: "v3.0-stratifications-GRCh38.tar.gz"
-      tsv: "v3.0-GRCh38-all-stratifications.tsv"
+      id: "v3.1-stratifications-GRCh38"
+      url: "https://giab-data.s3.amazonaws.com/giab-test-data/v3.1-stratifications-GRCh38.tar.gz"
+      tarball: "v3.1-stratifications-GRCh38.tar.gz"
+      tsv: "v3.1-GRCh38-all-stratifications.tsv"
   ## temporary location on S3 for chm13
   CHM13v2.0:
     ref_url: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/reference/chm13v2.0_maskedY.fa.gz"
@@ -62,10 +62,10 @@ references:
       gaps: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/OtherDifficult/CHM13v2.0_rDNA.bed.gz"
       satellites: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/LowComplexity/CHM13v2.0_satellites_slop5.bed.gz"
     stratifications:
-      id: "stratifications-CHM13v2.0"
-      url: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/strats/stratifications-CHM13v2.0.tar.gz"
-      tarball: "stratifications-CHM13v2.0.tar.gz"
-      tsv: "CHM13v2.0-all-stratifications.tsv"
+      id: "v3.1-stratifications-CHM13v2.0"
+      url: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/strats/v3.1-stratifications-CHM13v2.0.tar.gz"
+      tarball: "v3.1-stratifications-CHM13v2.0.tar.gz"
+      tsv: "v3.1-CHM13v2.0-all-stratifications.tsv"
   ## For testing
   GRCh38_chr21:
     ref_url: "https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_chr21.fa.gz"
