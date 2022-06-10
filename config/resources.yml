@@ -127,6 +127,11 @@ assemblies:
     maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/21edcb42-02c4-4e9f-b226-6773e62484a4--RU-HG002-commons/assembly/curated_round2/HG002.mat.cur.20211005.fasta.gz
     paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/21edcb42-02c4-4e9f-b226-6773e62484a4--RU-HG002-commons/assembly/curated_round2/HG002.pat.cur.20211005.fasta.gz
     is_male: true
+  ##verkko assembly for HG002, 170x HiFi and all available ONT data including new UCSC sequences
+  HG2-verkko-053122:
+    maternal: https://giab-data.s3.amazonaws.com/giab-test-data/verkko-assembly/v1.0-updated-053122/assembly.updated_layout-haplotype1.fasta
+    paternal: https://giab-data.s3.amazonaws.com/giab-test-data/verkko-assembly/v1.0-updated-053122/assembly.updated_layout-haplotype2.fasta
+    is_male: true
   ## HPRC 44 Genome Assemblies from pangenome work
   HPRC-HG00733:
     maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG00733/assemblies/year1_f1_assembly_v2_genbank/HG00733.maternal.f1_assembly_v2_genbank.fa.gz
