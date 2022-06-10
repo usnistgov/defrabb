@@ -510,6 +510,11 @@ comparisons:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip.vcf.gz
       bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip.bed
       tbi_url:
+    ## HG2 HPRC draft benchmark from 20220610_v0.008_HG002-HPRC-GRCh38 used for comparisons with verkko
+    HG2-HPRCcur.20211005-DB:
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/draft-benchmarks/20220610_v0.008_HG002-HPRC-GRCh38/GRCh38_HG2-HPRC-20211005_dipcall-z2k.vcf.gz
+      bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/draft-benchmarks/20220610_v0.008_HG002-HPRC-GRCh38/GRCh38_HG2-HPRC-20211005_dipcall-z2k.benchmark.bed
+      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/draft-benchmarks/20220610_v0.008_HG002-HPRC-GRCh38/GRCh38_HG2-HPRC-20211005_dipcall-z2k.vcf.gz.tbi 
     ## GIAB Variant Callsets for comparison
     HiFiDV-v4.2.1:
       vcf_url: https://nist-midas.s3.amazonaws.com/pdrsrv/mds2-2336/submission_vcfs/B1S5A/B1S5A_HG002.vcf.gz
