@@ -96,7 +96,7 @@ def get_happy_inputs_inner(ref_id, eval_id, analyses, config):
     if analyses.loc[eval_id, "exclusion_set"] == "none":
         draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed"
     else:
-        draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed"
+        draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.benchmark.bed"
 
     ## comparison variant call paths
     comp_vcf = "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz"
