@@ -4,6 +4,7 @@
 stages:
   - snakemake_global
   - snakemake_conda
+  - lint
   - test
 
 variables:
@@ -75,7 +76,40 @@ install_smk_conda_envs:
     - <<: *smk_envs_cache
 
 ################################################################################
-# test snakemake things
+# snakemake formatting and lintign
+
+snakemake_lint:
+  needs: [install_global_env]
+  stage: lint
+  <<: *activate_smk
+  artifacts:
+    paths: 
+        - lint
+  script:
+    - snakemake --lint
+
+snakemake_fmt:
+  needs: [install_global_env]
+  stage: lint
+  <<: *activate_smk
+  artifacts:
+    paths: 
+        - fmt
+  script:
+    - echo "Running snakefmt"
+    - snakefmt .
+
+################################################################################
+# unit and pipeline tests
+unit_test:
+  needs: [install_global_env]
+  stage: test
+  <<: *activate_smk
+  script:
+    - pytest .tests
+  cache:
+    - <<: *smk_global_cache
+      policy: pull
 
 snakemake_dry:
   needs: [install_global_env]
@@ -87,25 +121,15 @@ snakemake_dry:
     - <<: *smk_global_cache
       policy: pull
 
-# smklint:
-#   artifacts:
-#     paths: 
-#         - lint
-#   script:
-#     - snakemake --lint
-
-# smkformat:
-#   script:
-#     - echo "Running snakefmt"
-#     - snakefmt .
-
-# unit-test:
-#   script:
-#     - pytest .tests
-
-# test:
-#   artifacts:
-#     paths: 
-#         - smalltest
-#   script:
-#     - snakemake -p --use-conda --cores 1 --verbose
+snakemake_smtest:
+  needs: [install_global_env]
+  stage: test
+  <<: *activate_smk
+  artifacts:
+    paths: 
+      - smalltest
+  script:
+    - snakemake -p --use-conda --cores 1 --verbose
+  cache:
+    - <<: *smk_global_cache
+      policy: pull
