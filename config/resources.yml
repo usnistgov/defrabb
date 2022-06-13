@@ -15,41 +15,42 @@ analyses: "config/analyses.tsv"
 ################################################################################
 ## Reference Data Files
 # Reference Genomes
-#   - Exclusions - ADD DESCRIPTION
+#   - Exclusions - subset of GIAB genome-stratifications (see below)
 #   - Stratifications - set of genomic regions used to calculate genomic context 
-#   dependent variant calling performance
+#   dependent variant calling performance, 
+#   see https://github.com/genome-in-a-bottle/genome-stratifications for description
 
 references:
   GRCh37:
     ref_url: "ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz"
     par_bed: "hs37d5.PAR.bed"
     exclusions:
-      homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/LowComplexity/GRCh37_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+      homopolymers: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_AllTandemRepeatsandHomopolymers_slop5.bed.gz
       segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/SegmentalDuplications/GRCh37_segdups.bed.gz
-      tandem-repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/LowComplexity/GRCh37_AllTandemRepeats_gt10000bp_slop5.bed.gz
+      tandem-repeats: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_AllTandemRepeats_gt10000bp_slop5.bed.gz
       gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/OtherDifficult/GRCh37_gaps_slop15kb.bed.gz
       self-chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/SegmentalDuplications/GRCh37_chainSelf.bed.gz
       satellites: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_satellites_slop5.bed.gz
     stratifications:
-      id: "v3.0-stratifications-GRCh37"
-      url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/v3.0-stratifications-GRCh37.tar.gz"
-      tarball: "v3.0-stratifications-GRCh37.tar.gz"
-      tsv: "v3.0-GRCh37-all-stratifications.tsv"
+      id: "v3.1-stratifications-GRCh37"
+      url: "https://giab-data.s3.amazonaws.com/giab-test-data/v3.1-stratifications-GRCh37.tar.gz"
+      tarball: "v3.1-stratifications-GRCh37.tar.gz"
+      tsv: "v3.1-GRCh37-all-stratifications.tsv"
   GRCh38:
     ref_url: "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz"
     par_bed: "hs38.PAR.bed"
     exclusions:
-      homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+      homopolymers: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
       segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_segdups.bed.gz
-      tandem-repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeats_gt10000bp_slop5.bed.gz
+      tandem-repeats: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/GRCh38_AllTandemRepeats_gt10000bp_slop5.bed.gz
       gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/OtherDifficult/GRCh38_gaps_slop15kb.bed.gz
       self-chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
       satellites: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/GRCh38_satellites_slop5.bed.gz
     stratifications:
-      id: "v3.0-stratifications-GRCh38"
-      url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/v3.0-stratifications-GRCh38.tar.gz"
-      tarball: "v3.0-stratifications-GRCh38.tar.gz"
-      tsv: "v3.0-GRCh38-all-stratifications.tsv"
+      id: "v3.1-stratifications-GRCh38"
+      url: "https://giab-data.s3.amazonaws.com/giab-test-data/v3.1-stratifications-GRCh38.tar.gz"
+      tarball: "v3.1-stratifications-GRCh38.tar.gz"
+      tsv: "v3.1-GRCh38-all-stratifications.tsv"
   ## temporary location on S3 for chm13
   CHM13v2.0:
     ref_url: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/reference/chm13v2.0_maskedY.fa.gz"
@@ -58,13 +59,13 @@ references:
       homopolymers: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/LowComplexity/CHM13v2.0_AllTandemRepeatsandHomopolymers_slop5.bed.gz"
       segdups: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/SegmentalDuplicatons/CHM13v2.0_SegDups.bed.gz"
       tandem-repeats: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/LowComplexity/CHM13v2.0_AllTandemRepeats_gt10000bp_slop5.bed.gz"
-      gaps: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/OtherDifficult/CHM13v1.1_rDNA.bed.gz"
+      gaps: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/OtherDifficult/CHM13v2.0_rDNA.bed.gz"
       satellites: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/LowComplexity/CHM13v2.0_satellites_slop5.bed.gz"
     stratifications:
-      id: "stratifications-CHM13v2.0"
-      url: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/strats/stratifications-CHM13v2.0.tar.gz"
-      tarball: "stratifications-CHM13v2.0.tar.gz"
-      tsv: "CHM13v2.0-all-stratifications.tsv"
+      id: "v3.1-stratifications-CHM13v2.0"
+      url: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/strats/v3.1-stratifications-CHM13v2.0.tar.gz"
+      tarball: "v3.1-stratifications-CHM13v2.0.tar.gz"
+      tsv: "v3.1-CHM13v2.0-all-stratifications.tsv"
   ## For testing
   GRCh38_chr21:
     ref_url: "https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_chr21.fa.gz"
@@ -125,6 +126,11 @@ assemblies:
   HG2-HPRC-20211005:
     maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/21edcb42-02c4-4e9f-b226-6773e62484a4--RU-HG002-commons/assembly/curated_round2/HG002.mat.cur.20211005.fasta.gz
     paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/21edcb42-02c4-4e9f-b226-6773e62484a4--RU-HG002-commons/assembly/curated_round2/HG002.pat.cur.20211005.fasta.gz
+    is_male: true
+  ##verkko assembly for HG002, 170x HiFi and all available ONT data including new UCSC sequences
+  HG2-verkko-053122:
+    maternal: https://giab-data.s3.amazonaws.com/giab-test-data/verkko-assembly/v1.0-updated-053122/assembly.updated_layout-haplotype1.fasta
+    paternal: https://giab-data.s3.amazonaws.com/giab-test-data/verkko-assembly/v1.0-updated-053122/assembly.updated_layout-haplotype2.fasta
     is_male: true
   ## HPRC 44 Genome Assemblies from pangenome work
   HPRC-HG00733:
@@ -322,7 +328,91 @@ assemblies:
 # to convert them into vcf and bed files for use in benchmarking variant 
 # callsets and training variant calling algorithms.
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Defined sets of Genomic Regions to exclude from draft benchmark regions.
+#
+## Detailed description and justification - will want to integrate for documentation
+# exclusions:
+#   segdups:
+#     bed:
+#       file:
+#       md5:
+#       slop: 15000
+#       asm_intersect: true
+#     description: |
+#       breaks in the dip.bed in the repeat region including 15kb flanking regions
+#     justification: |
+#       The rationale is that breaks in the dip.bed are generally caused 
+#       by missing sequence or errors in the assembly or reference, or by large SVs 
+#       or CNVs where we don't have tools to benchmark small variants in these regions
+#   self-chains:
+#     bed:
+#       file:
+#       md5:
+#       slop: 15000
+#       asm_intersect: true
+#     description: |
+#       breaks in the dip.bed in the repeat region including 15kb flanking regions
+#     justification: |
+#       The rationale is that breaks in the dip.bed are generally caused 
+#       by missing sequence or errors in the assembly or reference, or by large SVs 
+#       or CNVs where we don't have tools to benchmark small variants in these regions
+#   tandem-repeats:
+#     bed:
+#       file:
+#       md5:
+#       slop: 15000
+#       asm_intersect: true
+#     description: |
+#       partially covered tandem repeats longer than 10kb + 15kb slop on each side
+#     justification: |
+#       The rationale is that breaks in the dip.bed are generally caused 
+#       by missing sequence or errors in the assembly or reference, or by large SVs 
+#       or CNVs where we don't have tools to benchmark small variants in these regions
+#   satellites:
+#     bed:
+#       file:
+#       md5:
+#       asm_intersect: true
+#     description: |
+#       breaks in the dip.bed in the repeat region including 15kb flanking regions
+#     justification: |
+#       The rationale is that breaks in the dip.bed are generally caused 
+#       by missing sequence or errors in the assembly or reference, or by large SVs 
+#       or CNVs where we don't have tools to benchmark small variants in these regions
+#   gaps:
+#     bed:
+#       file:
+#       md5:
+#       slop: 15000
+#       asm_agnostic: true
+#     description: Exclude 15kb around all gaps in reference genome
+#     justification: |
+#       There are often SVs and other alignment issues around breaks in the 
+#       reference assembly.
+#   flanks:
+#     bed:
+#       file:
+#       md5:
+#       ref_agnostic: true
+#     description: Exclude 15kb around all breaks in the dip.bed
+#     justification: |
+#       Breaks in the dip.bed are generally caused by missing sequence or errors 
+#       in the assembly or reference, or by large SVs or CNVs where we don't have 
+#       tools to benchmark small variants in these regions.
+#   svs:
+#     bed:
+#       file:
+#       md5:
+#       ref_agnostic: true
+#     description: |
+#       SVs and homopolymers and tandem repeats overlapping SVs.
+#       We exclude variants >49bp in the dip.vcf, as well as any 
+#       homopolymers or tandem repeats overlapping SVs +50bp on each side.
+#     justification: |
+#       Current small variant benchmarking tools are unable to robustly compare 
+#       different representations of small variants in and near SVs.
+
 
 exclusion_set:
   smvarall:
@@ -420,6 +510,11 @@ comparisons:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip.vcf.gz
       bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip.bed
       tbi_url:
+    ## HG2 HPRC draft benchmark from 20220610_v0.008_HG002-HPRC-GRCh38 used for comparisons with verkko
+    HG2-HPRCcur.20211005-DB:
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/draft-benchmarks/20220610_v0.008_HG002-HPRC-GRCh38/GRCh38_HG2-HPRC-20211005_dipcall-z2k.vcf.gz
+      bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/draft-benchmarks/20220610_v0.008_HG002-HPRC-GRCh38/GRCh38_HG2-HPRC-20211005_dipcall-z2k.benchmark.bed
+      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/draft-benchmarks/20220610_v0.008_HG002-HPRC-GRCh38/GRCh38_HG2-HPRC-20211005_dipcall-z2k.vcf.gz.tbi 
     ## GIAB Variant Callsets for comparison
     HiFiDV-v4.2.1:
       vcf_url: https://nist-midas.s3.amazonaws.com/pdrsrv/mds2-2336/submission_vcfs/B1S5A/B1S5A_HG002.vcf.gz
@@ -798,50 +893,3 @@ _par_bed_root: data/par_bed
 ## Happy Resources ################
 _happy_threads: 4
 _happy_mem: 32000
-
-################################################################################
-## Extra - will want to incorporate information into pipeline documentation/ reporting later
-
-# exclusions:
-#   exclude_SVs:
-#     bedfile: HG002v11-align2-GRCh38.dip_SVsgt49bp.bed
-#     # md5: 
-#     description: |
-#       SVs and overlapping tandem repeats and hompolymers
-#     justification: |
-#       Because hap.py+vcfeval doesn't currently handle different representations
-#       of small variants around SVs
-
-#   exclude_segdups:
-#     bedfile(s): GRCh38_segdups_intersecting_dip_start_slop15kb.bed and GRCh38_segdups_intersecting_dip_end_slop15kb.bed 
-#     # md5: 
-#     description: |
-#       partially covered segmental duplications + 15kb slop on each side
-#     justification: |
-#       Because breaks in aligning the assembly to segmental duplications
-#       indicate potential assembly errors and/or large SVs or CNVs where small
-#       variants can't be benchmarked accurately
-
-#   exclude_TR_gt10000bp:
-#     bedfile(s): GRCh38_AllTandemRepeats_gt10000bp_intersecting_dip_start_slop15kb.bed and GRCh38_AllTandemRepeats_gt10000bp_intersecting_dip_end_slop15kb.bed 
-#     # md5: 
-#     description: |
-#       partially covered tandem repeats longer than 10kb + 15kb slop on each side
-#     justification: Because breaks in aligning the assembly to long tandem repeats indicate potential assembly errors and/or large SVs or CNVs where small variants can't be benchmarked accurately
-
-#   exclude_gaps:
-#     bedfile: GRCh38_gaps_slop15kb.bed.gz
-#     # md5: 
-#     description: gaps in GRCh38 + 15kb slop
-#     justification: |
-#       Because there are often SVs and other alignment issues around gaps in
-#       the reference, exclude all gaps in GRCh38 + 15kb slop
-
-#   exclude_self_chains:
-#     bedfile(s): GRCh38_chainSelf_intersecting_dip_start_slop15kb.bed and GRCh38_chainSelf_intersecting_dip_end_slop15kb.bed
-#     # md5: 
-#     description: self chains with potential assembly errors
-#     justification: |
-#       Because breaks in aligning the assembly to self chains indicate potential
-#       assembly errors and/or large SVs or CNVs where small variants can't
-#       be benchmarked accurately
