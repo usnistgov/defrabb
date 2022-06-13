@@ -101,6 +101,18 @@ snakemake_fmt:
 
 ################################################################################
 # unit and pipeline tests
+param_contig_test:
+  need: [install_global_env]
+  state: test
+  <<: *activate_smk
+  script:
+    - cp rules/common.smk test/common.py
+    - python -m unittest test/common.py test/unit/config.py 
+    - rm test/common.py
+  cache:
+    - <<: *smk_global_cache
+      policy: pull  
+
 unit_test:
   needs: [install_global_env]
   stage: test
