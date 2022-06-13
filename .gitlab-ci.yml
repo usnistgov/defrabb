@@ -82,22 +82,22 @@ snakemake_lint:
   needs: [install_global_env]
   stage: lint
   <<: *activate_smk
-  artifacts:
-    paths: 
-        - lint
   script:
     - snakemake --lint
+  cache:
+    - <<: *smk_global_cache
+      policy: pull
 
 snakemake_fmt:
   needs: [install_global_env]
   stage: lint
   <<: *activate_smk
-  artifacts:
-    paths: 
-        - fmt
   script:
     - echo "Running snakefmt"
     - snakefmt .
+  cache:
+    - <<: *smk_global_cache
+      policy: pull
 
 ################################################################################
 # unit and pipeline tests
