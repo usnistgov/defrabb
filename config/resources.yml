@@ -57,7 +57,7 @@ references:
     par_bed: "chm13v2.0_PAR-X.bed"
     exclusions:
       homopolymers: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/LowComplexity/CHM13v2.0_AllTandemRepeatsandHomopolymers_slop5.bed.gz"
-      segdups: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/SegmentalDuplicatons/CHM13v2.0_SegDups.bed.gz"
+      segdups: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/SegmentalDuplications/CHM13v2.0_SegDups.bed.gz"
       tandem-repeats: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/LowComplexity/CHM13v2.0_AllTandemRepeats_gt10000bp_slop5.bed.gz"
       gaps: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/OtherDifficult/CHM13v2.0_rDNA.bed.gz"
       satellites: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/LowComplexity/CHM13v2.0_satellites_slop5.bed.gz"
