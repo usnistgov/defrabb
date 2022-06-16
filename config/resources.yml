@@ -533,6 +533,15 @@ comparisons:
       vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/StructuralVariant/HG002_GRCh38_CMRG_SV_v1.00.vcf.gz
       bed_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/StructuralVariant/HG002_GRCh38_CMRG_SV_v1.00.bed
       tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/StructuralVariant/HG002_GRCh38_CMRG_SV_v1.00.vcf.gz.tbi
+    ## HG002 Hifi-DV contributed callsets
+    HG2-HifiDV-38:
+      vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/analysis/PacBio_CCS_15kb_20kb_chemistry2_10312019/GRCh38/deepvariant_HG002_GRCh38_15kb_20kb_53X_SequelII.vcf.gz
+      bed_url: 
+      tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/analysis/PacBio_CCS_15kb_20kb_chemistry2_10312019/GRCh38/deepvariant_HG002_GRCh38_15kb_20kb_53X_SequelII.vcf.gz.tbi
+    HG2-HifiDV-37:
+      vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/analysis/PacBio_CCS_15kb_20kb_chemistry2_10312019/GRCh37/deepvariant_HG002_15kb_20kb_52X_SequelII.vcf.gz
+      bed_url:
+      tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/analysis/PacBio_CCS_15kb_20kb_chemistry2_10312019/GRCh37/deepvariant_HG002_15kb_20kb_52X_SequelII.vcf.gz.tbi
     ## HPRC 44 Genome DeepVariant Callsets All for GRCh38
     Hifi-DV-HG01123:
       vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01123/HG01123.GRCh38_no_alt.deepvariant.vcf.gz
