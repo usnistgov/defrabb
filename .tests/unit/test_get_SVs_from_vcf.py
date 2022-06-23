@@ -39,6 +39,7 @@ def test_get_SVs_from_vcf():
                 "-f",
                 "-j1",
                 "--keep-target-files",
+                "--touch",
                 "--use-conda",
                 "--directory",
                 workdir,
