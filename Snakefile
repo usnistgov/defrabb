@@ -1,5 +1,6 @@
 import pandas as pd
 from pathlib import Path
+import hashlib
 from snakemake.utils import min_version, validate
 from snakemake.utils import Paramspace
 
@@ -8,7 +9,7 @@ min_version("7.3.0")
 
 
 ## Rule ordering for ambiguous rules
-ruleorder: download_bed_gz > sort_bed
+ruleorder: download_bed_gz > sort_bed >postprocess_bed > normalize_for_svwiden > run_svwiden > fix_XY_genotype > move_asm_vcf_to_draft_bench
 
 
 ## Loading external rules
@@ -39,17 +40,60 @@ analyses = load_analyses(
     workflow.source_path(config["analyses"]), "schema/analyses-schema.yml"
 )
 
-vc_params, vc_tbl=analyses_to_vc_tbl(analyses)
+vc_params, vc_tbl = analyses_to_vc_tbl(analyses)
 
-print(vc_tbl)
-ASMIDS = set(vc_tbl['asm_id'])
-print(ASMIDS)
+ASMIDS = set(vc_tbl["asm_id"])
 REFIDS = set(vc_tbl["ref"])
-print(REFIDS)
 
-################################################################################
-# main rule
-#
+## Wildcard variables and ids
+
+## Variables for assembly based variant calling
+REFIDS = set(vc_tbl["ref"].tolist())
+ASMIDS = set(vc_tbl["asm_id"].tolist())
+VCCMDS = set(vc_tbl["vc_cmd"].tolist())
+VCPARAMIDS = set(vc_tbl["vc_param_id"].tolist())
+BENCHVCFPROC = set(analyses["bench_vcf_processing"])
+BENCHBEDPROC = set(analyses["bench_bed_processing"])
+COMPIDS = set(analyses["eval_query"].tolist() + analyses["eval_truth"].tolist())
+
+# Only constrain the wildcards to match what is in the resources file. Anything
+# else that can be defined on the command line or in the analyses.tsv can is
+# unconstrained (for now).
+wildcard_constraints:
+    asm_id="|".join(ASMIDS),
+    ref_id="|".join(REFIDS),
+    bench_vcf_processing="|".join(BENCHVCFPROC),
+    bench_bed_processing="|".join(BENCHBEDPROC),
+    comp_dir="asm_varcalls|draft_benchmarksets|evaluations|report",
+    comp_id="|".join(COMPIDS)
+
+
+## Using Paramspace for file paths
+happy_space = Paramspace(analyses[analyses["eval_cmd"] == "happy"])
+truvari_space = Paramspace(analyses[analyses["eval_cmd"] == "truvari"])
+
+dipcall_space = Paramspace(
+    analyses.loc[
+        analyses["vc_cmd"] == "dipcall",
+        ["asm_id", "ref", "vc_cmd", "vc_param_id", "vc_params"],
+    ].drop_duplicates()
+)
+
+bench_space = Paramspace(
+    analyses[
+        [
+            "ref",
+            "asm_id",
+            "vc_cmd",
+            "vc_params",
+            "vc_param_id",
+            "bench_type",
+            "bench_vcf_processing",
+            "bench_bed_processing",
+            "bench_exclusion_set",
+        ]
+    ].drop_duplicates()
+)
 
 
 ## Rules to run locally
@@ -77,25 +121,13 @@ localrules:
 report: "report/workflow.rst"
 
 
-# defining variables for cleaner rule all
-happy_analyses = analyses[analyses["eval_cmd"] == "happy"]
-truvari_analyses = analyses[analyses["eval_cmd"] == "truvari"]
-dipcall_tbl = vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]
-
-
-happy_space = Paramspace(analyses[analyses["eval_cmd"] == "happy"], filename_params="*")
-truvari_space = Paramspace(analyses[analyses["eval_cmd"] == "truvari"], filename_params="*")
-dipcall_space = Paramspace(analyses.loc[analyses["vc_cmd"] == "dipcall", 
-                                     ['asm_id','ref','vc_cmd','vc_param_id']],
-                                      filename_params="*")
-bench_space = Paramspace(
-    analyses[['bench_type','bench_vcf_processing','bench_bed_processing',
-               'bench_exclusion_set','asm_id','ref','vc_cmd','vc_param_id']], 
-    filename_params="*")
+################################################################################
+# main rule
+#
 
 
 rule all:
-    input: 
+    input:
         ## Asm based variant calls
         expand(
             "results/asm_varcalls/{params}.dip.vcf.gz",
@@ -111,20 +143,20 @@ rule all:
         ),
         ## Bench VCF Processing
         expand(
-            "results/draft_benchmarksets/{params}.vcf.gz",
+            "results/draft_benchmarksets/{params}.processed.vcf.gz",
             params=bench_space.instance_patterns,
         ),
-        expand(
-            "results/draft_benchmarksets/{params}.vcf.gz.tbi",
-            params=bench_space.instance_patterns,
-        ),
+        # expand(
+        #     "results/draft_benchmarksets/{params}.processed.vcf.gz.tbi",
+        #     params=bench_space.instance_patterns,
+        # ),
         expand(
             "results/draft_benchmarksets/{params}.bed",
             params=bench_space.instance_patterns,
         ),
         ## Evaluations
         expand(
-            "results/evaluations/happy/{params}.smmary.csv",
+            "results/evaluations/happy/{params}.summary.csv",
             params=happy_space.instance_patterns,
         ),
         expand(
@@ -272,9 +304,9 @@ use rule get_comparison_vcf as get_comparison_bed with:
 ## General indexing rule for vcfs
 rule tabix:
     input:
-        "results/{filename}.vcf.gz",
+        "{filename}.vcf.gz",
     output:
-        "resullts/{filename}.vcf.gz.tbi",
+        "{filename}.vcf.gz.tbi",
     params:
         extra="-t",
     log:
@@ -353,12 +385,12 @@ rule run_dipcall:
 
 rule sort_bed:
     input:
-        in_file="results/{prefix}.bed",
+        in_file="results/{comp_dir}/{prefix}.bed",
         genome=get_genome_file,
     output:
-        "results/{prefix}_sorted.bed",
+        "results/{comp_dir}/{prefix}.sorted.bed",
     log:
-        "logs/sort_bed/{prefix}.log",
+        "logs/sort_bed/{comp_dir}/{prefix}.log",
     wrapper:
         "0.74.0/bio/bedtools/sort"
 
@@ -382,11 +414,12 @@ rule index_dip_bam:
 ################################################################################
 ################################################################################
 
+
 rule move_asm_vcf_to_draft_bench:
     input:
         f"results/asm_varcalls/{dipcall_space.wildcard_pattern}.dip.vcf.gz",
     output:
-        f"results/draft_benchmarksets/{bench_space.wildcard_pattern}.raw.vcf.gz",
+        f"results/draft_benchmarksets/intermediates/{bench_space.wildcard_pattern}.vcf.gz",
     log:
         f"logs/process_benchmark_vcf/{bench_space.wildcard_pattern}.log",
     shell:
@@ -406,7 +439,7 @@ rule move_processed_draft_bench_vcf:
 
 rule postprocess_bed:
     input:
-        f"results/asm_varcalls/{dipcall_space.wildcard_pattern}.dip_sorted.bed",
+        f"results/asm_varcalls/{dipcall_space.wildcard_pattern}.dip.bed",
     output:
         f"results/draft_benchmarksets/{bench_space.wildcard_pattern}.bed",
     log:
@@ -423,7 +456,7 @@ rule postprocess_bed:
 ################################################################################
 ################################################################################
 
-## Run happy
+## hap.py small variant benchmarking tool
 
 
 rule run_happy:
@@ -448,10 +481,10 @@ rule run_happy:
         ),
     params:
         prefix=f"results/evaluations/happy/{happy_space.wildcard_pattern}",
-        strat_tsv=lambda wildcards: f"{wildcards.ref}/{config['stratifications'][wildcards.ref]['tsv']}",
+        strat_tsv=lambda wildcards: f"{wildcards.ref}/{ref_config[wildcards.ref]['stratifications']['tsv']}",
         threads=config["_happy_threads"],
         engine="vcfeval",
-        engine_extra=lambda wildcards: f"--engine-vcfeval-template resources/references/{wildcards.ref}.sdf",
+        engine_extra=lambda wildcards: "--engine-vcfeval-template resources/references/{wildcards.ref}.sdf",
     resources:
         mem_mb=config["_happy_mem"],
     threads: config["_happy_threads"]
@@ -483,24 +516,24 @@ rule run_truvari:
     # it when we use /tmp
     params:
         dir=lambda wildcards, output: Path(output[0]).parent,
-        tmpdir=lambda wildcards: expand("truvari_{eval_id}", eval_id=wildcards.eval_id),
+        tmpdir=f"tmp_truvari",
     conda:
         "envs/truvari.yml"
     shell:
         """
         ## Removing temp directory if present before run
-        rm -rf {params.tmpdir}
+        rm -rf {params.dir}
 
         truvari bench \
             -b {input.truth} \
             -c {input.query} \
-            -o {params.tmpdir} \
+            -o {params.dir} \
             -f {input.genome} \
             --passonly \
             --includebed {input.truth_regions} \
         2> {log}
 
         echo {params.dir}
-        mv {params.tmpdir}/* {params.dir}
-        rm -r {params.tmpdir}
+        # mv {params.tmpdir}/* {params.dir}
+        # rm -r {params.tmpdir}
         """
