@@ -1,4 +1,3 @@
-
 # process T2TXY_v2.7.dip.vcf to match hifiDV GT using JZ sed command `
 rule fix_XY_genotype:
     input:
@@ -42,7 +41,8 @@ rule dip_gap2homvarbutfiltered:
 
 ## Primarily for SVs
 rule split_multiallelic_sites:
-    input: "results/{prefix}.vcf.gz",
+    input:
+        "results/{prefix}.vcf.gz",
     output:
         vcf="results/{prefix}.split_multi.vcf.gz",
         vcf_tbi="results/{prefix}.split_multi.vcf.gz.tbi",
@@ -62,17 +62,16 @@ rule split_multiallelic_sites:
 # isn't done, svwiden will choke on commas and star characters
 rule normalize_for_svwiden:
     input:
-        vcf="results/{prefix}.vcf.gz",
-        ## TODO - schema changes break this
-        ref=lambda wildcards: f"resources/references/{bench_tbl.loc[wildcards.bench_id, 'ref']}.fa",
+        vcf="results/{component_dir}/intermediates/{prefix}.vcf.gz",
+        ref=get_ref_file,
     output:
-        "results/{prefix}.gt19_norm.vcf.gz",
+        "results/{component_dir}/intermediates/{prefix}.gt19_norm.vcf.gz",
     resources:
         mem_mb=8000,
     conda:
         "../envs/bcftools.yml"
     log:
-        "logs/gt19_norm/{prefix}.log",
+        "logs/gt19_norm/{component_dir}/{prefix}.log",
     shell:
         """
         bcftools norm -m- -Ou {input.vcf} \
@@ -86,8 +85,7 @@ rule normalize_for_svwiden:
 rule run_svwiden:
     input:
         vcf="results/{prefix}.gt19_norm.vcf.gz",
-        ## TODO - using paramspace breaks this   
-        ref=lambda wildcards: f"resources/references/{bench_tbl.loc[wildcards.bench_id, 'ref']}.fa",
+        ref=get_ref_file,
     output:
         vcf="results/{prefix}.svwiden.vcf.gz",
     log:
@@ -98,7 +96,8 @@ rule run_svwiden:
         "minimal"
     params:
         prefix="results/{prefix}.svwiden",
-    shell: """
+    shell:
+        """
         svanalyzer widen \
             --variants {input.vcf} \
             --ref {input.ref} \
@@ -107,4 +106,4 @@ rule run_svwiden:
         # Removing ".;" at beginning of INFO field introduced by SVwiden
         sed 's/\.;REPTYPE/REPTYPE/' {params.prefix}.vcf \
             | bgzip -c > {params.prefix}.vcf.gz 2>> {log}
-    """
+        """
