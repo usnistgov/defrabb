@@ -16,28 +16,26 @@ def load_analyses(path, schema):
     return load_df(path, schema).astype(dtype={"eval_target_regions": str})
 
 
-def _filter_subtable(df, filter_re, id_cols, new_index):
-    params = df.filter(regex=filter_re).drop_duplicates()
-    ids = df[[new_index] + id_cols].drop_duplicates()
-    tbl = pd.merge(ids, params, how="inner", on=new_index).set_index(new_index)
+def _filter_subtable(df, filter_re, id_cols):
+    params = df.filter(regex=filter_re)
+    tbl = params.join(df[id_cols]).drop_duplicates()
     return (params, tbl)
 
 
 def analyses_to_vc_tbl(analyses):
-    return _filter_subtable(analyses, "vc_", ["asm_id", "ref"], "vc_id")
+    return _filter_subtable(analyses, "vc_", ["asm_id", "ref"])
 
 
 def analyses_to_bench_tbls(analyses):
     id_cols = [
         "asm_id",
-        "vc_id",
         "vc_cmd",
         "vc_param_id",
         "ref",
-        "exclusion_set",
+        "bench_exclusion_set",
     ]
-    params, tbl = _filter_subtable(analyses, "bench_", id_cols, "bench_id")
-    excluded_tbl = tbl[tbl.exclusion_set != "none"]
+    params, tbl = _filter_subtable(analyses, "bench_", id_cols)
+    excluded_tbl = tbl[tbl.bench_exclusion_set != "none"]
     return (params, tbl, excluded_tbl)
 
 
@@ -45,7 +43,7 @@ def analyses_to_bench_tbls(analyses):
 ## Rule parameters
 def get_genome_file(wildcards):
     ## Getting genome path from wildcard.ref_id
-    ref_id = wildcards.get("ref_id", "")
+    ref_id = wildcards.get("ref", "")
     if ref_id:
         return workflow.source_path(f"../resources/references/{ref_id}.genome")
     ## get ref_id from prefix
@@ -58,7 +56,7 @@ def get_genome_file(wildcards):
 
 def get_male_bed(wildcards):
     root = config["_par_bed_root"]
-    filename = ref_config[wildcards.ref_id]["par_bed"]
+    filename = ref_config[wildcards.ref]["par_bed"]
     return workflow.source_path(f"../{root}/{filename}")
 
 
@@ -68,110 +66,110 @@ def get_dipcall_par_param(wildcards):
     return f"-x {str(par_path)}" if is_male else ""
 
 
-## Happy Inputs and Parameters
-def get_happy_inputs(analyses, config, wildcards):
-    return get_happy_inputs_inner(
-        wildcards.ref_id,
-        wildcards.eval_id,
-        analyses,
-        config,
+## Evaluation Inputs and Parameters (Generic method for happy and truvari)
+def get_eval_inputs(analyses, config, wildcards):
+    return get_eval_inputs_inner(
+        eval_cmd =  wildcards.eval_cmd,
+        ref_id = wildcards.ref,
+        eval_query = wildcards.eval_query,
+        eval_truth = wildcards.eval_truth,
+        eval_truth_regions = wildcards.eval_truth_regions,
+        eval_target_regions = wildcards.eval_target_regions,
+        exclusion_set = wildcards.bench_exclusion_set,
+        bench_space = bench_space,
+        config = config,
     )
 
-
-def get_happy_inputs_inner(ref_id, eval_id, analyses, config):
+def get_eval_inputs_inner(
+    eval_cmd,
+    ref_id,
+    eval_query,
+    eval_truth,
+    eval_truth_regions,
+    eval_target_regions,
+    exclusion_set,
+    bench_space,
+    config,
+):
+    print(eval_query)
+    print("HERE")
     ## Creating empty dictionary for storing inputs
     inputs = {}
-
+    # print(analyses["comparisons"][ref_id][eval_query])
     ## Reference genome and stratifications
     inputs["genome"] = f"resources/references/{ref_id}.fa"
     inputs["genome_index"] = f"resources/references/{ref_id}.fa.fai"
-    strat_tb = config["references"][ref_id]["stratifications"]["tarball"]
-    inputs["strat_tb"] = f"resources/strats/{ref_id}/{strat_tb}"
+    if eval_cmd == "happy":
+        ## Only defining stratifications for happy
+        strat_tb = config["references"][ref_id]["stratifications"]["tarball"]
+        inputs["strat_tb"] = f"resources/strats/{ref_id}/{strat_tb}"
 
-    ## draft benchmark variant calls
-    draft_bench_vcf = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz"
-    draft_bench_vcfidx = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi"
-
-    ## draft benchmark regions
-    if analyses.loc[eval_id, "exclusion_set"] == "none":
-        draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed"
-    else:
-        draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.benchmark.bed"
-
-    ## comparison variant call paths
-    comp_vcf = "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz"
-    comp_vcfidx = "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz.tbi"
-    comp_bed = "resources/comparison_variant_callsets/{ref_id}_{comp_id}.bed"
-
-    ## Determining which callsets and regions are used as truth
-    if analyses.loc[eval_id, "eval_comp_id_is_truth"] == True:
-        query = "draft_bench"
-    else:
-        query = "comp"
-
-    ## Defining truth calls and regions along with query calls
-    if query == "draft_bench":
-        inputs["query"] = draft_bench_vcf
-        inputs["query_vcfidx"] = draft_bench_vcfidx
-        inputs["truth"] = comp_vcf
-        inputs["truth_vcfidx"] = comp_vcfidx
-        inputs["truth_regions"] = comp_bed
-    else:
-        inputs["query"] = comp_vcf
-        inputs["query_vcfidx"] = comp_vcfidx
-        inputs["truth"] = draft_bench_vcf
-        inputs["truth_vcfidx"] = draft_bench_vcfidx
-        inputs["truth_regions"] = draft_bench_bed
-
-    ## Determining Target regions
-    trs = analyses.loc[eval_id, "eval_target_regions"]
-    if trs.lower() != "false":
-        if trs.lower() == "true":
-            if query == "draft_bench":
-                inputs["target_regions"] = draft_bench_bed
-            else:
-                inputs["target_regions"] = comp_bed
+    ## Getting input vcf, vcf idx, and bed files for query and  truth
+    def get_comp_files(eval_id, ref_id, eval_regions, exclusion_set):
+        ## Getting VCFs
+        ## ~~~~~ using draft bench vcf ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if eval_id == "this_row":
+            vcf = f"results/draft_benchmarksets/{bench_space.wildcard_pattern}.vcf.gz"
+            vcfidx = (
+                f"results/draft_benchmarksets/{bench_space.wildcard_pattern}.vcf.gz.tbi"
+            )
+        ## ~~~~~ using comparison callset defined in resources.yml ~~~~~~~~~~~~~~~~~~~~~~~~~~
         else:
+            try:
+                eval_id in analyses["comparisons"][ref_id][eval_query]
+            except:
+                print(
+                    "eval_query in analyses table should be this_row, a comparison id in resources,",
+                    "or reference another benchmark (WIP)",
+                )
+
+            ## defining vcf paths for comparisons listed in resources
+            vcf = f"resources/comparison_variant_callsets/{ref_id}_{eval_id}.vcf.gz"
+            vcfidx = (
+                f"resources/comparison_variant_callsets/{ref_id}_{eval_id}.vcf.gz.tbi"
+            )
+
+        ## Getting evaluation regions paths
+        ## ~~~~~~~~~~ target and truth region schema values should be true, false, or a bed file
+
+        ## Using predefined bed file
+        if eval_regions.lower().endswith("bed"):
             tr_dir = "resources/manual/target_regions"
-            inputs["target_regions"] = workflow.source_path(f"../{tr_dir}/{trs}")
+            bed = workflow.source_path(f"../{tr_dir}/{eval_regions}")
+        elif eval_regions == "yes":
+            ### using draft benchmark regions
+            if eval_id == "this_row":
+                if exclusion_set == "none":
+                    bed = f"results/draft_benchmarksets/{bench_space.wildcard_pattern}.bed"
+                else:
+                    bed = f"results/draft_benchmarksets/{bench_space.wildcard_pattern}.excluded.bed"
+            ### using comparison regions
+            else:
+                bed = f"resources/comparison_variant_callsets/{ref_id}_{eval_id}.bed"
+        elif eval_regions == "none":
+            bed = ""
+        else:
+            print(
+                f"regions not properly defined {eval_regions}, should be true, false, or a bed file"
+            )
+            
+        return {"vcf": vcf, "vcfidx": vcfidx, "bed": bed}
 
-    ## Returning happy inputs
+    ## ~~~~~~~~~~~~~~~~~~~~~~~~~ QUERY ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    query_inputs = get_comp_files(eval_query, ref_id, eval_target_regions, exclusion_set)
+    inputs["query"] = query_inputs["vcf"]
+    inputs["query_vcfidx"] = query_inputs["vcfidx"]
+    inputs["target_regions"] = query_inputs["bed"]
+
+    ## ~~~~~~~~~~~~~~~~~~~~~~~~~ TRUTH ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    truth_inputs = get_comp_files(eval_truth, ref_id, eval_truth_regions, exclusion_set)
+
+    inputs["truth"] = truth_inputs["vcf"]
+    inputs["truth_vcfidx"] = truth_inputs["vcfidx"]
+    inputs["truth_regions"] = truth_inputs["bed"]
+
+    ## Returning evaluation inputs
     return inputs
-
-
-def get_truvari_inputs(analyses, config, wildcards):
-    return get_truvari_inputs_inner(
-        wildcards.ref_id,
-        wildcards.eval_id,
-        analyses,
-        config,
-    )
-
-
-def get_truvari_inputs_inner(ref_id, eval_id, analyses, config):
-    draft_bench_vcf = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz"
-    draft_bench_vcfidx = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi"
-
-    if analyses.loc[eval_id, "exclusion_set"] == "none":
-        draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed"
-    else:
-        draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.excluded.bed"
-
-    comp_vcf = "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz"
-    comp_vcfidx = "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz.tbi"
-    comp_bed = "resources/comparison_variant_callsets/{ref_id}_{comp_id}.bed"
-
-    draft_is_query = analyses.loc[eval_id, "eval_comp_id_is_truth"] == True
-
-    return {
-        "query": draft_bench_vcf if draft_is_query else comp_vcf,
-        "query_vcfidx": draft_bench_vcfidx if draft_is_query else comp_vcfidx,
-        "truth": comp_vcf if draft_is_query else draft_bench_vcf,
-        "truth_vcfidx": comp_vcfidx if draft_is_query else draft_bench_vcfidx,
-        "truth_regions": comp_bed if draft_is_query else draft_bench_bed,
-        "genome": f"resources/references/{ref_id}.fa",
-        "genome_index": f"resources/references/{ref_id}.fa.fai",
-    }
 
 
 ## Exclusions
@@ -188,7 +186,7 @@ def get_exclusion_inputs(wildcards):
 
         ## Determining path for asm specific exclusions and asm agnostic exclusions
         if exclusion in config["exclusion_asm_agnostic"]:
-            exc_path = f"resources/exclusions/{{ref_id}}/{exclusion}"
+            exc_path = f"resources/exclusions/{ref_id}/{exclusion}"
         else:
             exc_path = f"results/draft_benchmarksets/{{bench_id}}/exclusions/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}_{exclusion}"
 
@@ -219,6 +217,6 @@ def get_exclusion_inputs(wildcards):
 def get_processed_vcf(wildcards):
     vcf_suffix = bench_tbl.loc[wildcards.bench_id, "bench_vcf_processing"]
     if vcf_suffix == "none":
-        return f"results/draft_benchmarksets/{{bench_id}}/intermediates/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.vcf.gz"
+        return f"results/draft_benchmarksets/{bench_space.wildcard_params}.raw.vcf.gz"
     else:
-        return f"results/draft_benchmarksets/{{bench_id}}/intermediates/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.{vcf_suffix}.vcf.gz"
+        return f"results/draft_benchmarksets/{bench_space.wildcard_params}.{vcf_suffix}.vcf.gz"
