@@ -9,7 +9,7 @@ min_version("7.3.0")
 
 
 ## Rule ordering for ambiguous rules
-ruleorder: download_bed_gz > sort_bed >postprocess_bed > normalize_for_svwiden > run_svwiden > fix_XY_genotype > move_asm_vcf_to_draft_bench
+ruleorder: download_bed_gz > sort_bed > postprocess_bed > normalize_for_svwiden > run_svwiden > fix_XY_genotype > move_asm_vcf_to_draft_bench
 
 
 ## Loading external rules
@@ -56,6 +56,7 @@ BENCHVCFPROC = set(analyses["bench_vcf_processing"])
 BENCHBEDPROC = set(analyses["bench_bed_processing"])
 COMPIDS = set(analyses["eval_query"].tolist() + analyses["eval_truth"].tolist())
 
+
 # Only constrain the wildcards to match what is in the resources file. Anything
 # else that can be defined on the command line or in the analyses.tsv can is
 # unconstrained (for now).
@@ -65,7 +66,7 @@ wildcard_constraints:
     bench_vcf_processing="|".join(BENCHVCFPROC),
     bench_bed_processing="|".join(BENCHBEDPROC),
     comp_dir="asm_varcalls|draft_benchmarksets|evaluations|report",
-    comp_id="|".join(COMPIDS)
+    comp_id="|".join(COMPIDS),
 
 
 ## Using Paramspace for file paths
