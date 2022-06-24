@@ -131,23 +131,24 @@ rule add_flanks:
 ## for draft benchmark regions
 rule subtract_exclusions:
     input:
-        dip_bed="results/{prefix}.dip_sorted.bed",
+        dip_bed="results/{comp_dir}/intermediates/exclusions/{prefix}bench_exclusion_set~{bench_exclusion_set}.sorted.bed",
         other_beds=get_exclusion_inputs,
     output:
-        bed="results/{prefix}.excluded.bed",
-        stats="results/{prefix}.excluded_stats.txt",
+        bed="results/{comp_dir}/{prefix}bench_exclusion_set~{bench_exclusion_set}.excluded.bed",
+        stats="results/{comp_dir}/{prefix}bench_exclusion_set~{bench_exclusion_set}.excluded_stats.txt",
     params:
         script=workflow.source_path("../scripts/subtract_exclusions.py"),
     log:
-        "logs/exclusions/subtract_{prefix}.log",
+        "logs/exclusions/{comp_dir}_subtract_{prefix}bench_exclusion_set~{bench_exclusion_set}.log",
     benchmark:
-        "benchmark/exclusions/subtract_{prefix}.benchmark"
+        "benchmark/exclusions/{comp_dir}_subtract_{prefix}bench_exclusion_set~{bench_exclusion_set}.benchmark"
     conda:
         "../envs/bedtools.yml"
-    shell: """
+    shell:
+        """
         python {params.script} \
             {input.dip_bed} \
             {output.bed} \
             {output.stats} \
             {input.other_beds}
-    """
+        """
