@@ -1,8 +1,7 @@
 import pandas as pd
 from pathlib import Path
 from snakemake.utils import min_version, validate
-
-# include: "rules/bench_vcf_processing.smk"
+from snakemake.utils import Paramspace
 
 
 min_version("7.3.0")
@@ -40,50 +39,13 @@ analyses = load_analyses(
     workflow.source_path(config["analyses"]), "schema/analyses-schema.yml"
 )
 
+vc_params, vc_tbl=analyses_to_vc_tbl(analyses)
 
-## Generating seperate tables for individual framework components
-## asm variant calls
-vc_params, vc_tbl = analyses_to_vc_tbl(analyses)
-
-## draft benchmark set generation
-bench_params, bench_tbl, bench_excluded_tbl = analyses_to_bench_tbls(analyses)
-
-## Setting index for analysis run lookup
-analyses = analyses.set_index("eval_id")
-
-################################################################################
-# init wildcard constraints
-
-## Wildcard variables and ids
-
-## Variables for assembly based variant calling
-VCIDS = set(vc_tbl.index.tolist())
-REFIDS = set(vc_tbl["ref"].tolist())
-ASMIDS = set(vc_tbl["asm_id"].tolist())
-VCCMDS = set(vc_tbl["vc_cmd"].tolist())
-VCPARAMIDS = set(vc_tbl["vc_param_id"].tolist())
-
-## Draft benchmark set generation variables
-BENCHIDS = set(bench_tbl.index.tolist())
-
-
-## Evaluations
-EVALIDS = set(analyses.index.tolist())
-EVALCOMPIDS = set(analyses["eval_comp_id"].tolist())
-
-
-# Only constrain the wildcards to match what is in the resources file. Anything
-# else that can be defined on the command line or in the analyses.tsv can is
-# unconstrained (for now).
-wildcard_constraints:
-    asm_id="|".join(ASMIDS),
-    comp_id="|".join(EVALCOMPIDS),
-    ref_id="|".join(REFIDS),
-    bench_id="|".join(BENCHIDS),
-    eval_id="|".join(EVALIDS),
-    vc_id="|".join(VCIDS),
-    vc_param_id="|".join(VCPARAMIDS),
-
+print(vc_tbl)
+ASMIDS = set(vc_tbl['asm_id'])
+print(ASMIDS)
+REFIDS = set(vc_tbl["ref"])
+print(REFIDS)
 
 ################################################################################
 # main rule
@@ -115,131 +77,79 @@ localrules:
 report: "report/workflow.rst"
 
 
-## Using zip in rule all to get config sets by config table rows
-
 # defining variables for cleaner rule all
 happy_analyses = analyses[analyses["eval_cmd"] == "happy"]
 truvari_analyses = analyses[analyses["eval_cmd"] == "truvari"]
 dipcall_tbl = vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]
 
 
+happy_space = Paramspace(analyses[analyses["eval_cmd"] == "happy"], filename_params="*")
+truvari_space = Paramspace(analyses[analyses["eval_cmd"] == "truvari"], filename_params="*")
+dipcall_space = Paramspace(analyses.loc[analyses["vc_cmd"] == "dipcall", 
+                                     ['asm_id','ref','vc_cmd','vc_param_id']],
+                                      filename_params="*")
+bench_space = Paramspace(
+    analyses[['bench_type','bench_vcf_processing','bench_bed_processing',
+               'bench_exclusion_set','asm_id','ref','vc_cmd','vc_param_id']], 
+    filename_params="*")
+
+
 rule all:
-    input:
+    input: 
+        ## Asm based variant calls
         expand(
-            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
-            zip,
-            vc_id=dipcall_tbl.index.tolist(),
-            ref=dipcall_tbl["ref"].tolist(),
-            asm_id=dipcall_tbl["asm_id"].tolist(),
-            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
-            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
+            "results/asm_varcalls/{params}.dip.vcf.gz",
+            params=dipcall_space.instance_patterns,
+        ),
+        expand(
+            "results/asm_varcalls/{params}.hap1.bam.bai",
+            params=dipcall_space.instance_patterns,
+        ),
+        expand(
+            "results/asm_varcalls/{params}.hap2.bam.bai",
+            params=dipcall_space.instance_patterns,
         ),
         ## Bench VCF Processing
         expand(
-            "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
-            zip,
-            bench_id=bench_tbl.index.tolist(),
-            ref=bench_tbl["ref"].tolist(),
-            asm_id=bench_tbl["asm_id"].tolist(),
-            vc_cmd=bench_tbl["vc_cmd"].tolist(),
-            vc_param_id=bench_tbl["vc_param_id"].tolist(),
+            "results/draft_benchmarksets/{params}.vcf.gz",
+            params=bench_space.instance_patterns,
         ),
         expand(
-            "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi",
-            zip,
-            bench_id=bench_tbl.index.tolist(),
-            ref=bench_tbl["ref"].tolist(),
-            asm_id=bench_tbl["asm_id"].tolist(),
-            vc_cmd=bench_tbl["vc_cmd"].tolist(),
-            vc_param_id=bench_tbl["vc_param_id"].tolist(),
+            "results/draft_benchmarksets/{params}.vcf.gz.tbi",
+            params=bench_space.instance_patterns,
         ),
         expand(
-            "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.benchmark.bed",
-            zip,
-            bench_id=bench_excluded_tbl.index.tolist(),
-            ref=bench_excluded_tbl["ref"].tolist(),
-            asm_id=bench_excluded_tbl["asm_id"].tolist(),
-            vc_cmd=bench_excluded_tbl["vc_cmd"].tolist(),
-            vc_param_id=bench_excluded_tbl["vc_param_id"].tolist(),
+            "results/draft_benchmarksets/{params}.bed",
+            params=bench_space.instance_patterns,
+        ),
+        ## Evaluations
+        expand(
+            "results/evaluations/happy/{params}.smmary.csv",
+            params=happy_space.instance_patterns,
         ),
         expand(
-            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1.bam.bai",
-            zip,
-            vc_id=dipcall_tbl.index.tolist(),
-            ref=dipcall_tbl["ref"].tolist(),
-            asm_id=dipcall_tbl["asm_id"].tolist(),
-            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
-            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
+            "results/evaluations/happy/{params}.extended.csv",
+            params=happy_space.instance_patterns,
         ),
         expand(
-            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap2.bam.bai",
-            zip,
-            vc_id=dipcall_tbl.index.tolist(),
-            ref=dipcall_tbl["ref"].tolist(),
-            asm_id=dipcall_tbl["asm_id"].tolist(),
-            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
-            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
+            "results/evaluations/truvari/{params}/summary.txt",
+            params=truvari_space.instance_patterns,
         ),
-        ## rules for report
+        ## Summary Stats/ Reports
         expand(
             "results/report/assemblies/{asm_id}_{haplotype}_stats.txt",
             asm_id=ASMIDS,
             haplotype=["maternal", "paternal"],
         ),
         expand(
-            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.dip_bcftools_stats.txt",
-            zip,
-            vc_id=dipcall_tbl.index.tolist(),
-            ref=dipcall_tbl["ref"].tolist(),
-            asm_id=dipcall_tbl["asm_id"].tolist(),
-            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
-            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
+            "results/asm_varcalls/{params}.dip_bcftools_stats.txt",
+            params=dipcall_space.instance_patterns,
         ),
         expand(
-            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.dip_rtg_stats.txt",
-            zip,
-            vc_id=dipcall_tbl.index.tolist(),
-            ref=dipcall_tbl["ref"].tolist(),
-            asm_id=dipcall_tbl["asm_id"].tolist(),
-            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
-            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
-        ),
-        expand(
-            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
-            zip,
-            eval_id=happy_analyses.index.tolist(),
-            bench_id=happy_analyses["bench_id"].tolist(),
-            ref_id=happy_analyses["ref"].tolist(),
-            comp_id=happy_analyses["eval_comp_id"].tolist(),
-            asm_id=happy_analyses["asm_id"].tolist(),
-            vc_cmd=happy_analyses["vc_cmd"].tolist(),
-            vc_param_id=happy_analyses["vc_param_id"].tolist(),
-        ),
-        expand(
-            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.extended.csv",
-            zip,
-            eval_id=happy_analyses.index.tolist(),
-            bench_id=happy_analyses["bench_id"].tolist(),
-            ref_id=happy_analyses["ref"].tolist(),
-            comp_id=happy_analyses["eval_comp_id"].tolist(),
-            asm_id=happy_analyses["asm_id"].tolist(),
-            vc_cmd=happy_analyses["vc_cmd"].tolist(),
-            vc_param_id=happy_analyses["vc_param_id"].tolist(),
-        ),
-        expand(
-            "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/summary.txt",
-            zip,
-            eval_id=truvari_analyses.index.tolist(),
-            bench_id=truvari_analyses["bench_id"].tolist(),
-            ref_id=truvari_analyses["ref"].tolist(),
-            comp_id=truvari_analyses["eval_comp_id"].tolist(),
-            asm_id=truvari_analyses["asm_id"].tolist(),
-            vc_cmd=truvari_analyses["vc_cmd"].tolist(),
-            vc_param_id=truvari_analyses["vc_param_id"].tolist(),
+            "results/asm_varcalls/{params}.dip_rtg_stats.txt",
+            params=dipcall_space.instance_patterns,
         ),
 
-
-#       expand("results/bench/truvari/{tvi_bench}.extended.csv", tvi_bench = analyses[analyses["bench_cmd"] == "truvari"].index.tolist()), ## Not yet used
 
 ################################################################################
 ################################################################################
@@ -362,9 +272,9 @@ use rule get_comparison_vcf as get_comparison_bed with:
 ## General indexing rule for vcfs
 rule tabix:
     input:
-        "{filename}.vcf.gz",
+        "results/{filename}.vcf.gz",
     output:
-        "{filename}.vcf.gz.tbi",
+        "resullts/{filename}.vcf.gz.tbi",
     params:
         extra="-t",
     log:
@@ -388,37 +298,37 @@ rule run_dipcall:
     input:
         h1="resources/assemblies/{asm_id}/paternal.fa",
         h2="resources/assemblies/{asm_id}/maternal.fa",
-        ref="resources/references/{ref_id}.fa",
-        ref_idx="resources/references/{ref_id}.fa.fai",
-        ref_mmi="resources/references/{ref_id}.mmi",
+        ref="resources/references/{ref}.fa",
+        ref_idx="resources/references/{ref}.fa.fai",
+        ref_mmi="resources/references/{ref}.mmi",
         par=get_male_bed,
     output:
-        make="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.mak",
-        vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
-        bed="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.bed",
-        bam1="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1.bam",
-        bam2="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.hap2.bam",
+        make=f"results/asm_varcalls/{dipcall_space.wildcard_pattern}.mak",
+        vcf=f"results/asm_varcalls/{dipcall_space.wildcard_pattern}.dip.vcf.gz",
+        bed=f"results/asm_varcalls/{dipcall_space.wildcard_pattern}.dip.bed",
+        bam1=f"results/asm_varcalls/{dipcall_space.wildcard_pattern}.hap1.bam",
+        bam2=f"results/asm_varcalls/{dipcall_space.wildcard_pattern}.hap2.bam",
     conda:
         "envs/dipcall.yml"
     params:
-        prefix="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
+        prefix=f"results/asm_varcalls/{dipcall_space.wildcard_pattern}",
         male_bed=get_dipcall_par_param,
         ts=config["_dipcall_threads"],
         make_jobs=config["_dipcall_jobs"],
         extra=lambda wildcards: ""
-        if vc_tbl.loc[wildcards.vc_id]["vc_params"] == "default"
-        else vc_tbl.loc[wildcards.vc_id]["vc_params"],
+        if wildcards.vc_params == "default"
+        else wildcards.vc_params,
     log:
         multiext(
-            "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
+            f"results/asm_varcalls/{dipcall_space.wildcard_pattern}",
             ".hap1.paf.gz.log",
             ".hap2.paf.gz.log",
             ".hap1.sam.gz.log",
             ".hap2.sam.gz.log",
         ),
-        rulelog="logs/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        rulelog=f"logs/asm_varcalls/{dipcall_space.wildcard_pattern}.log",
     benchmark:
-        "benchmark/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
+        f"benchmark/asm_varcalls/{dipcall_space.wildcard_pattern}.tsv"
     resources:
         mem_mb=config["_dipcall_jobs"] * config["_dipcall_mem"],  ## GB per make job run in parallel
     threads: config["_dipcall_threads"] * config["_dipcall_jobs"]
@@ -443,10 +353,10 @@ rule run_dipcall:
 
 rule sort_bed:
     input:
-        in_file="{prefix}.bed",
+        in_file="results/{prefix}.bed",
         genome=get_genome_file,
     output:
-        "{prefix}_sorted.bed",
+        "results/{prefix}_sorted.bed",
     log:
         "logs/sort_bed/{prefix}.log",
     wrapper:
@@ -455,11 +365,11 @@ rule sort_bed:
 
 rule index_dip_bam:
     input:
-        "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam",
+        f"results/asm_varcalls/{dipcall_space.wildcard_pattern}.{{hap}}.bam",
     output:
-        "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam.bai",
+        f"results/asm_varcalls/{dipcall_space.wildcard_pattern}.{{hap}}.bam.bai",
     log:
-        "logs/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam.bai.log",
+        f"logs/asm_varcalls/{dipcall_space.wildcard_pattern}.{{hap}}.bam.bai.log",
     wrapper:
         "v1.1.0/bio/samtools/index"
 
@@ -472,25 +382,35 @@ rule index_dip_bam:
 ################################################################################
 ################################################################################
 
-## Moved to rules/bench_vcf_processing
-# rule postprocess_vcf:
-#     input:
-#         lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.vcf.gz",
-#     output:
-#         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
-#     log:
-#         "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
-#     shell:
-#         "cp {input} {output} &> {log}"
+rule move_asm_vcf_to_draft_bench:
+    input:
+        f"results/asm_varcalls/{dipcall_space.wildcard_pattern}.dip.vcf.gz",
+    output:
+        f"results/draft_benchmarksets/{bench_space.wildcard_pattern}.raw.vcf.gz",
+    log:
+        f"logs/process_benchmark_vcf/{bench_space.wildcard_pattern}.log",
+    shell:
+        "cp {input} {output} &> {log}"
+
+
+rule move_processed_draft_bench_vcf:
+    input:
+        get_processed_vcf,
+    output:
+        f"results/draft_benchmarksets/{bench_space.wildcard_pattern}.processed.vcf.gz",
+    log:
+        f"logs/move_processed_draft_bench_vcf/{bench_space.wildcard_pattern}.log",
+    shell:
+        "cp {input} {output}"
 
 
 rule postprocess_bed:
     input:
-        lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
+        f"results/asm_varcalls/{dipcall_space.wildcard_pattern}.dip_sorted.bed",
     output:
-        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed",
+        f"results/draft_benchmarksets/{bench_space.wildcard_pattern}.bed",
     log:
-        "logs/process_benchmark_bed/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        f"logs/process_benchmark_bed/{bench_space.wildcard_pattern}.log",
     shell:
         "cp {input} {output} &> {log}"
 
@@ -508,10 +428,10 @@ rule postprocess_bed:
 
 rule run_happy:
     input:
-        unpack(partial(get_happy_inputs, analyses, config)),
+        unpack(partial(get_eval_inputs, analyses, config)),
     output:
         multiext(
-            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
+            f"results/evaluations/happy/{happy_space.wildcard_pattern}",
             ".runinfo.json",
             ".vcf.gz",
             ".extended.csv",
@@ -522,23 +442,23 @@ rule run_happy:
             ".roc.Locations.SNP.csv.gz",
         ),
         report(
-            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
+            f"results/evaluations/happy/{happy_space.wildcard_pattern}.summary.csv",
             caption="report/happy_summary.rst",
             category="Happy",
         ),
     params:
-        prefix="results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
-        strat_tsv=lambda wildcards: f"{wildcards.ref_id}/{config['references'][wildcards.ref_id]['stratifications']['tsv']}",
+        prefix=f"results/evaluations/happy/{happy_space.wildcard_pattern}",
+        strat_tsv=lambda wildcards: f"{wildcards.ref}/{config['stratifications'][wildcards.ref]['tsv']}",
         threads=config["_happy_threads"],
         engine="vcfeval",
-        engine_extra=lambda wildcards: f"--engine-vcfeval-template resources/references/{wildcards.ref_id}.sdf",
+        engine_extra=lambda wildcards: f"--engine-vcfeval-template resources/references/{wildcards.ref}.sdf",
     resources:
         mem_mb=config["_happy_mem"],
     threads: config["_happy_threads"]
     log:
-        "logs/run_happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        f"logs/run_happy/{happy_space.wildcard_pattern}.log",
     benchmark:
-        "benchmark/run_happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
+        f"benchmark/run_happy/{happy_space.wildcard_pattern}.tsv"
     conda:
         "envs/happy.yml"
     script:
@@ -551,11 +471,11 @@ rule run_happy:
 
 rule run_truvari:
     input:
-        unpack(partial(get_truvari_inputs, analyses, config)),
+        unpack(partial(get_eval_inputs, analyses, config)),
     output:
-        "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/summary.txt",
+        f"results/evaluations/truvari/{truvari_space.wildcard_pattern}/summary.txt",
     log:
-        "logs/run_travari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/truvari.log",
+        f"logs/run_travari/{truvari_space.wildcard_pattern}/truvari.log",
     # TODO this tmp thing is a workaround for the fact that snakemake
     # over-zealously makes output directories when tools like truvari expect
     # them to not exist. Also, /tmp is only a thing on Linux (if that matters).
