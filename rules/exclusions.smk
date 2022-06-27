@@ -23,16 +23,23 @@ rule download_bed_gz:
 # structural variants - using asm varcalls vcf to identify structural variants for exclusion
 rule get_SVs_from_vcf:
     input:
-        lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.vcf.gz",
+        "results/{prefix}.svwiden.vcf.gz",
     output:
-        "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.bed",
+        bed="results/{prefix}_SVs.bed",
+        tbl="results/{prefix}_SVs.tsv",
     log:
         "logs/exclusions/{bench_id}_div_SVs_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     shell:
         """
-        gunzip -c {input} | \
-            awk 'length($4)>49 || length($5)>49' | \
-            awk '{{FS=OFS="\\t"}} {{print $1,$2-1,$2+length($4)}}' \
+        ## Generating table with SV information and refwiden coordinates
+        bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\%INFO\REFWIDENED\t%INFO\REPTYPE\n'  - > {output.tbl}
+
+        ## Creating bed with SVs for use in defining excluded regions
+        # ---- excluding SVs less than 50 bps and reformatting as 0 base tab sep bed file (CHROM\tSTART\tSTOP)
+        awk 'length($3)>49 || length($4)>49' {output.tbl} \
+            cut -f 5 \
+            | sed 's/[:,-]/\t/g'
+            awk '{{FS=OFS="\\t"}} {{print $1,$2-1,$3-1}}' \
             1> {output} 2> {log}
         """
 
