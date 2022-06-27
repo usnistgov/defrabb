@@ -25,7 +25,8 @@ rule get_SVs_from_vcf:
     input:
         "results/{prefix}.vcf.gz",
     output:
-        "results/{prefix}_SVs.bed",
+        bed="results/{prefix}_SVs.bed",
+        tbl="results/{prefix}_SVs.tsv",
     log:
         "logs/exclusions/vc_SVs_{prefix}.log",
     shell:
