@@ -23,12 +23,11 @@ rule download_bed_gz:
 # structural variants - using asm varcalls vcf to identify structural variants for exclusion
 rule get_SVs_from_vcf:
     input:
-        "results/{prefix}.svwiden.vcf.gz",
+        "results/{prefix}.vcf.gz",
     output:
-        bed="results/{prefix}_SVs.bed",
-        tbl="results/{prefix}_SVs.tsv",
+        "results/{prefix}_SVs.bed",
     log:
-        "logs/exclusions/{bench_id}_div_SVs_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/exclusions/vc_SVs_{prefix}.log",
     shell:
         """
         ## Generating table with SV information and refwiden coordinates
@@ -46,15 +45,15 @@ rule get_SVs_from_vcf:
 
 rule intersect_SVs_and_homopolymers:
     input:
-        sv_bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs_sorted.bed",
+        sv_bed="results/{prefix}_SV_sorted.bed",
         homopoly_bed="resources/exclusions/{ref_id}/homopolymers_sorted.bed",
         genome=get_genome_file,
     output:
-        "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_svs-and-homopolymers.bed",
+        "results/{prefix}_svs-and-homopolymers.bed",
     log:
-        "logs/exclusions/{bench_id}_SVs_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/exclusions/int_SVs_{prefix}.log",
     benchmark:
-        "benchmark/exclusions/{bench_id}_SVs_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
+        "benchmark/exclusions/{prefix}.tsv"
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -93,16 +92,16 @@ rule add_slop:
 ## Finding breaks in assemblies for excluded regions
 rule intersect_start_and_end:
     input:
-        dip=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
+        dip="results/{prefix}.dip_sorted.bed",
         xregions="resources/exclusions/{ref_id}/{excluded_region}.bed",
         genome=get_genome_file,
     output:
-        start="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_{excluded_region}_start_sorted.bed",
-        end="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_{excluded_region}_end_sorted.bed",
+        start="results/{prefix}/exclusions/{excluded_region}_start_sorted.bed",
+        end="results/{prefix}/exclusions/{excluded_region}_end_sorted.bed",
     log:
-        "logs/exclusions/start_end_{bench_id}_{excluded_region}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/exclusions/start_end_{excluded_region}_{prefix}.log",
     benchmark:
-        "benchmark/exclusions/start_end_{bench_id}_{excluded_region}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
+        "benchmark/exclusions/start_end_{excluded_region}_{prefix}.tsv"
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -122,12 +121,12 @@ rule intersect_start_and_end:
 # flanks
 rule add_flanks:
     input:
-        bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
+        bed="results/{prefix}.dip_sorted.bed",
         genome=get_genome_file,
     output:
-        "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_flanks.bed",
+        "results/{prefix}_flanks.bed",
     log:
-        "logs/exclusions/{bench_id}_flanks_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/exclusions/add_flanks)_{prefix}.log",
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -138,24 +137,24 @@ rule add_flanks:
 ## for draft benchmark regions
 rule subtract_exclusions:
     input:
-        dip_bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
+        dip_bed="results/{comp_dir}/intermediates/exclusions/{prefix}bench_exclusion_set~{bench_exclusion_set}.sorted.bed",
         other_beds=get_exclusion_inputs,
     output:
-        bed="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.benchmark.bed",
-        stats="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.exclusion_stats.txt",
+        bed="results/{comp_dir}/{prefix}bench_exclusion_set~{bench_exclusion_set}.excluded.bed",
+        stats="results/{comp_dir}/{prefix}bench_exclusion_set~{bench_exclusion_set}.excluded_stats.txt",
     params:
         script=workflow.source_path("../scripts/subtract_exclusions.py"),
     log:
-        "logs/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/exclusions/{comp_dir}_subtract_{prefix}bench_exclusion_set~{bench_exclusion_set}.log",
     benchmark:
-        "benchmark/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.benchmark"
+        "benchmark/exclusions/{comp_dir}_subtract_{prefix}bench_exclusion_set~{bench_exclusion_set}.benchmark"
     conda:
         "../envs/bedtools.yml"
     shell:
         """
         python {params.script} \
-        {input.dip_bed} \
-        {output.bed} \
-        {output.stats} \
-        {input.other_beds}
+            {input.dip_bed} \
+            {output.bed} \
+            {output.stats} \
+            {input.other_beds}
         """
