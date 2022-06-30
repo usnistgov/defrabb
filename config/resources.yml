@@ -25,11 +25,11 @@ references:
     ref_url: "ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz"
     par_bed: "hs37d5.PAR.bed"
     exclusions:
-      homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/LowComplexity/GRCh37_AllTandemRepeatsandHomopolymers_slop5.bed.gz
-      segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/SegmentalDuplications/GRCh37_segdups.bed.gz
-      tandem-repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/LowComplexity/GRCh37_AllTandemRepeats_gt10000bp_slop5.bed.gz
+      homopolymers: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+      segdups: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_segdups.bed.gz
+      tandem-repeats: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_AllTandemRepeats_gt10000bp_slop5.bed.gz
       gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/OtherDifficult/GRCh37_gaps_slop15kb.bed.gz
-      self-chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/SegmentalDuplications/GRCh37_chainSelf.bed.gz
+      self-chains: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_chainSelf.bed.gz
       satellites: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_satellites_slop5.bed.gz
     stratifications:
       id: "v3.0-stratifications-GRCh37"
@@ -44,7 +44,7 @@ references:
       segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_segdups.bed.gz
       tandem-repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeats_gt10000bp_slop5.bed.gz
       gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/OtherDifficult/GRCh38_gaps_slop15kb.bed.gz
-      self-chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
+      self-chains: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/GRCh38_chainSelf.bed.gz
       satellites: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/GRCh38_satellites_slop5.bed.gz
     stratifications:
       id: "v3.0-stratifications-GRCh38"
