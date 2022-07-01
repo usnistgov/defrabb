@@ -1,6 +1,8 @@
 import pandas as pd
 from pathlib import Path
 from snakemake.utils import min_version, validate
+from snakemake.remote import AUTO
+import gzip
 
 # include: "rules/bench_vcf_processing.smk"
 
@@ -83,6 +85,7 @@ wildcard_constraints:
     eval_id="|".join(EVALIDS),
     vc_id="|".join(VCIDS),
     vc_param_id="|".join(VCPARAMIDS),
+    comp_ext="vcf.gz|vcf|bed|bed.gz"
 
 
 ################################################################################
@@ -255,25 +258,28 @@ rule get_assemblies:
     output:
         "resources/assemblies/{asm_id}/{haplotype}.fa",
     params:
-        url=lambda wildcards: asm_config[wildcards.asm_id][wildcards.haplotype],
+        source_uri=get_asm_uri,
+        source_hash=get_asm_checksum,
+        hash_algo=get_asm_checksum_algo,
+        outfmt="decompressed",
     log:
         "logs/get_assemblies/{asm_id}_{haplotype}.log",
-    shell:
-        "curl -f -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
-
+    script: "scripts/download_resources.py"
 
 # Get and prepare reference
 rule get_ref:
     output:
         "resources/references/{ref_id}.fa",
     params:
-        url=lambda wildcards: ref_config[wildcards.ref_id]["ref_url"],
+        source_uri=get_ref_uri,
+        source_hash=get_ref_checksum,
+        hash_algo=get_ref_checksum_algo,
+        outfmt="decompressed",
     log:
         "logs/get_ref/{ref_id}.log",
-    shell:
-        "curl -f --connect-timeout 120 -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
+    script: "scripts/download_resources.py"
 
-
+            
 rule index_ref:
     input:
         "resources/references/{ref_id}.fa",
@@ -324,40 +330,32 @@ rule get_strats:
     output:
         "resources/strats/{ref_id}/{strat_id}.tar.gz",
     params:
-        url=lambda wildcards: f"{config['references'][wildcards.ref_id]['stratifications']['url']}",
+        source_uri=get_strats_uri,
+        source_hash=get_strats_checksum,
+        hash_algo=get_strats_checksum_algo,
+        outfmt="gzip",
     log:
         "logs/get_strats/{ref_id}_{strat_id}.log",
-    shell:
-        "curl -f -L -o {output} {params.url} &> {log}"
+    script: "scripts/download_resources.py"
+
 
 
 ################################################################################
 # Get vcf and bed files used in draft benchmark set evaluations
 
 
-rule get_comparison_vcf:
+rule get_comparison:
     output:
-        "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz",
+        "resources/comparison_variant_callsets/{ref_id}_{comp_id}.{comp_ext}",
     params:
-        url=lambda wildcards: comp_config[wildcards.ref_id][wildcards.comp_id][
-            "vcf_url"
-        ],
+        source_uri=get_comp_uri,
+        source_hash=get_comp_checksum,
+        hash_algo=get_comp_checksum_algo,
+        outfmt="gzip",
     log:
-        "logs/get_comparisons/{ref_id}_{comp_id}_vcf.log",
+        "logs/get_comparisons/{ref_id}_{comp_id}_{comp_ext}.log",
     shell:
-        "curl -f -L -o {output} {params.url} &> {log}"
-
-
-use rule get_comparison_vcf as get_comparison_bed with:
-    output:
-        "resources/comparison_variant_callsets/{ref_id}_{comp_id}.bed",
-    params:
-        url=lambda wildcards: comp_config[wildcards.ref_id][wildcards.comp_id][
-            "bed_url"
-        ],
-    log:
-        "logs/get_comparisons/{ref_id}_{comp_id}_bed.log",
-
+        "scripts/download_resources.py"
 
 ## General indexing rule for vcfs
 rule tabix:
