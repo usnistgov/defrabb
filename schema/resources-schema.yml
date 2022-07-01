@@ -58,11 +58,22 @@ properties:
 
           exclusions:
             description: The beds to use when generating the exclusions
-            additionalProperties: false
+            additionalProperties: true
             patternProperties:
               ^homopolymers|segdups|tandem-repeat|gaps|self-chains|satellites$:
-                type: string
-                format: uri
+                type: object 
+                description: file source and checksum information
+                properties:
+                  uri: 
+                    type: string
+                    format: uri
+                    description: uri for remote file
+                  checksum:
+                    type: string
+                    description: checksum hash for validating integrity of downloaded remote file
+                  checksum_algo: 
+                    type: string
+                    description: algorithm used to compute checksum
 
           stratifications:
             description: |
