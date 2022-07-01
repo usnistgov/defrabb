@@ -85,7 +85,7 @@ wildcard_constraints:
     eval_id="|".join(EVALIDS),
     vc_id="|".join(VCIDS),
     vc_param_id="|".join(VCPARAMIDS),
-    comp_ext="vcf.gz|vcf|bed|bed.gz"
+    comp_ext="vcf.gz|vcf|bed|bed.gz",
 
 
 ################################################################################
@@ -97,8 +97,7 @@ wildcard_constraints:
 localrules:
     get_ref,
     get_assemblies,
-    get_comparison_vcf,
-    get_comparison_bed,
+    get_comparisons,
     get_strats,
     download_bed_gz,
     get_SVs_from_vcf,
@@ -257,6 +256,8 @@ rule all:
 rule get_assemblies:
     output:
         "resources/assemblies/{asm_id}/{haplotype}.fa",
+    conda:
+        "envs/get_remotes.yml"
     params:
         source_uri=get_asm_uri,
         source_hash=get_asm_checksum,
@@ -264,12 +265,16 @@ rule get_assemblies:
         outfmt="decompressed",
     log:
         "logs/get_assemblies/{asm_id}_{haplotype}.log",
-    script: "scripts/download_resources.py"
+    script:
+        "scripts/download_resources.py"
+
 
 # Get and prepare reference
 rule get_ref:
     output:
         "resources/references/{ref_id}.fa",
+    conda:
+        "envs/get_remotes.yml"
     params:
         source_uri=get_ref_uri,
         source_hash=get_ref_checksum,
@@ -277,9 +282,10 @@ rule get_ref:
         outfmt="decompressed",
     log:
         "logs/get_ref/{ref_id}.log",
-    script: "scripts/download_resources.py"
+    script:
+        "scripts/download_resources.py"
 
-            
+
 rule index_ref:
     input:
         "resources/references/{ref_id}.fa",
@@ -329,6 +335,8 @@ rule index_ref_sdf:
 rule get_strats:
     output:
         "resources/strats/{ref_id}/{strat_id}.tar.gz",
+    conda:
+        "envs/get_remotes.yml"
     params:
         source_uri=get_strats_uri,
         source_hash=get_strats_checksum,
@@ -336,17 +344,19 @@ rule get_strats:
         outfmt="gzip",
     log:
         "logs/get_strats/{ref_id}_{strat_id}.log",
-    script: "scripts/download_resources.py"
-
+    script:
+        "scripts/download_resources.py"
 
 
 ################################################################################
 # Get vcf and bed files used in draft benchmark set evaluations
 
 
-rule get_comparison:
+rule get_comparisons:
     output:
         "resources/comparison_variant_callsets/{ref_id}_{comp_id}.{comp_ext}",
+    conda:
+        "envs/get_remotes.yml"
     params:
         source_uri=get_comp_uri,
         source_hash=get_comp_checksum,
@@ -354,8 +364,9 @@ rule get_comparison:
         outfmt="gzip",
     log:
         "logs/get_comparisons/{ref_id}_{comp_id}_{comp_ext}.log",
-    shell:
+    script:
         "scripts/download_resources.py"
+
 
 ## General indexing rule for vcfs
 rule tabix:
