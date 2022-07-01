@@ -1,6 +1,12 @@
 import pandas as pd
 from pathlib import Path
+from warnings import WarningMessage
+from snakemake.common import parse_uri
 from snakemake.utils import validate
+from snakemake.remote import AUTO
+from snakemake.remote.S3 import RemoteProvider as S3RemoteProvider
+
+S3 = S3RemoteProvider(keep_local=True)
 
 ################################################################################
 ## Config processing functions
@@ -58,7 +64,118 @@ def get_ref_file(wildcards):
     ref_id = get_ref_id(wildcards)
     return workflow.source_path(f"../resources/references/{ref_id}.fa")
 
+## Helper functions for downloading and validating remote files
+def get_remote_key(remote, key):
+    try:
+        return remote[key]
+    except KeyError:
+        raise ValueError(f"No {key} provided for external source {remote}")
 
+## ~~~~~ reference genomes
+def get_ref_config(ref_id):
+    return ref_config[ref_id]["ref"]
+
+
+def get_ref_uri(wildcards):
+    remote = get_ref_config(wildcards.ref_id)
+    return get_remote_key(remote, "uri")
+
+
+def get_ref_checksum(wildcards):
+    remote = get_ref_config(wildcards.ref_id)
+    return get_remote_key(remote, "checksum")
+
+
+def get_ref_checksum_algo(wildcards):
+    remote = get_ref_config(wildcards.ref_id)
+    return get_remote_key(remote, "checksum_algo")
+
+
+## ~~~~~ assemblies
+def get_asm_config(asm_id, haplotype):
+    return asm_config[asm_id][haplotype]
+
+
+def get_asm_uri(wildcards):
+    remote = get_asm_config(wildcards.asm_id, wildcards.haplotype)
+    return get_remote_key(remote, "uri")
+
+
+def get_asm_checksum(wildcards):
+    remote = get_asm_config(wildcards.asm_id, wildcards.haplotype)
+    return get_remote_key(remote, "checksum")
+
+
+def get_asm_checksum_algo(wildcards):
+    remote = get_asm_config(wildcards.asm_id, wildcards.haplotype)
+    return get_remote_key(remote, "checksum_algo")
+
+
+## ~~~~~ stratifications
+def get_strats_config(ref_id):
+    return config["references"][ref_id]["stratifications"]
+
+
+def get_strats_uri(wildcards):
+    remote = get_strats_config(wildcards.ref_id)
+    return get_remote_key(remote, "uri")
+
+
+def get_strats_checksum(wildcards):
+    remote = get_strats_config(wildcards.ref_id)
+    return get_remote_key(remote, "checksum")
+
+
+def get_strats_checksum_algo(wildcards):
+    remote = get_strats_config(wildcards.ref_id)
+    return get_remote_key(remote, "checksum_algo")
+
+
+## ~~~~~ comparison callsets
+def get_comp_config(ref_id, comp_id, comp_ext):
+    if comp_ext == "vcf.gz":
+        comp_ext = "vcf"
+    if comp_ext == "bed.gz":
+        comp_ext = "bed"
+    return comp_config[ref_id][comp_id][comp_ext]
+
+
+def get_comp_uri(wildcards):
+    remote = get_comp_config(wildcards.ref_id, wildcards.comp_id, wildcards.comp_ext)
+    return get_remote_key(remote, "uri")
+
+
+def get_comp_checksum(wildcards):
+    remote = get_comp_config(wildcards.ref_id, wildcards.comp_id, wildcards.comp_ext)
+    return get_remote_key(remote, "checksum")
+
+
+def get_comp_checksum_algo(wildcards):
+    remote = get_comp_config(wildcards.ref_id, wildcards.comp_id, wildcards.comp_ext)
+    return get_remote_key(remote, "checksum_algo")
+
+
+## ~~~~~ bed files used for exclusion
+def get_exclusion_config(ref_id, genomic_region):
+    return ref_config[ref_id]["exclusions"][genomic_region]
+
+
+def get_exclusion_uri(wildcards):
+    remote = get_exclusion_config(wildcards.ref_id, wildcards.genomic_region)
+    return get_remote_key(remote, "uri")
+
+
+def get_exclusion_checksum(wildcards):
+    remote = get_exclusion_config(wildcards.ref_id, wildcards.genomic_region)
+    return get_remote_key(remote, "checksum")
+
+
+def get_exclusion_checksum_algo(wildcards):
+    remote = get_exclusion_config(wildcards.ref_id, wildcards.genomic_region)
+    return get_remote_key(remote, "checksum_algo")
+
+
+## Helper functions for other resource files
 def get_genome_file(wildcards):
     ## Getting genome path from wildcard.ref_id
     ref_id = get_ref_id(wildcards)

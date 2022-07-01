@@ -9,7 +9,7 @@ min_version("7.3.0")
 
 
 ## Rule ordering for ambiguous rules
-ruleorder: download_bed_gz > sort_bed > postprocess_bed > normalize_for_svwiden > run_svwiden > fix_XY_genotype > move_asm_vcf_to_draft_bench
+ruleorder: get_beds_for_exclusions > sort_bed > postprocess_bed > normalize_for_svwiden > run_svwiden > fix_XY_genotype > move_asm_vcf_to_draft_bench
 
 
 ## Loading external rules
@@ -67,6 +67,8 @@ wildcard_constraints:
     bench_bed_processing="|".join(BENCHBEDPROC),
     comp_dir="asm_varcalls|draft_benchmarksets|evaluations|report",
     comp_id="|".join(COMPIDS),
+    vc_param_id="|".join(VCPARAMIDS),
+    comp_ext="vcf.gz|vcf|bed|bed.gz",
 
 
 ## Using Paramspace for file paths
@@ -101,10 +103,9 @@ bench_space = Paramspace(
 localrules:
     get_ref,
     get_assemblies,
-    get_comparison_vcf,
-    get_comparison_bed,
+    get_comparisons,
     get_strats,
-    download_bed_gz,
+    get_beds_for_exclusions,
     get_SVs_from_vcf,
     subtract_exclusions,
     add_flanks,
@@ -197,24 +198,34 @@ rule all:
 rule get_assemblies:
     output:
         "resources/assemblies/{asm_id}/{haplotype}.fa",
+    conda:
+        "envs/get_remotes.yml"
     params:
-        url=lambda wildcards: asm_config[wildcards.asm_id][wildcards.haplotype],
+        source_uri=get_asm_uri,
+        source_hash=get_asm_checksum,
+        hash_algo=get_asm_checksum_algo,
+        outfmt="decompressed",
     log:
         "logs/get_assemblies/{asm_id}_{haplotype}.log",
-    shell:
-        "curl -f -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
+    script:
+        "scripts/download_resources.py"
 
 
 # Get and prepare reference
 rule get_ref:
     output:
         "resources/references/{ref_id}.fa",
+    conda:
+        "envs/get_remotes.yml"
     params:
-        url=lambda wildcards: ref_config[wildcards.ref_id]["ref_url"],
+        source_uri=get_ref_uri,
+        source_hash=get_ref_checksum,
+        hash_algo=get_ref_checksum_algo,
+        outfmt="decompressed",
     log:
         "logs/get_ref/{ref_id}.log",
-    shell:
-        "curl -f --connect-timeout 120 -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
+    script:
+        "scripts/download_resources.py"
 
 
 rule index_ref:
@@ -266,40 +277,37 @@ rule index_ref_sdf:
 rule get_strats:
     output:
         "resources/strats/{ref_id}/{strat_id}.tar.gz",
+    conda:
+        "envs/get_remotes.yml"
     params:
-        url=lambda wildcards: f"{config['references'][wildcards.ref_id]['stratifications']['url']}",
+        source_uri=get_strats_uri,
+        source_hash=get_strats_checksum,
+        hash_algo=get_strats_checksum_algo,
+        outfmt="gzip",
     log:
         "logs/get_strats/{ref_id}_{strat_id}.log",
-    shell:
-        "curl -f -L -o {output} {params.url} &> {log}"
+    script:
+        "scripts/download_resources.py"
 
 
 ################################################################################
 # Get vcf and bed files used in draft benchmark set evaluations
 
 
-rule get_comparison_vcf:
+rule get_comparisons:
     output:
-        "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz",
+        "resources/comparison_variant_callsets/{ref_id}_{comp_id}.{comp_ext}",
+    conda:
+        "envs/get_remotes.yml"
     params:
-        url=lambda wildcards: comp_config[wildcards.ref_id][wildcards.comp_id][
-            "vcf_url"
-        ],
+        source_uri=get_comp_uri,
+        source_hash=get_comp_checksum,
+        hash_algo=get_comp_checksum_algo,
+        outfmt="gzip",
     log:
-        "logs/get_comparisons/{ref_id}_{comp_id}_vcf.log",
-    shell:
-        "curl -f -L -o {output} {params.url} &> {log}"
-
-
-use rule get_comparison_vcf as get_comparison_bed with:
-    output:
-        "resources/comparison_variant_callsets/{ref_id}_{comp_id}.bed",
-    params:
-        url=lambda wildcards: comp_config[wildcards.ref_id][wildcards.comp_id][
-            "bed_url"
-        ],
-    log:
-        "logs/get_comparisons/{ref_id}_{comp_id}_bed.log",
+        "logs/get_comparisons/{ref_id}_{comp_id}_{comp_ext}.log",
+    script:
+        "scripts/download_resources.py"
 
 
 ## General indexing rule for vcfs
@@ -436,6 +444,23 @@ rule move_processed_draft_bench_vcf:
         f"logs/move_processed_draft_bench_vcf/{bench_space.wildcard_pattern}.log",
     shell:
         "cp {input} {output}"
+
+
+# downloading beds used for exclusion
+rule get_beds_for_exclusions:
+    output:
+        "resources/exclusions/{ref_id}/{genomic_region}.bed",
+    conda:
+        "envs/get_remotes.yml"
+    log:
+        "logs/download_bed_gz/{ref_id}-{genomic_region}.log",
+    params:
+        source_uri=get_exclusion_uri,
+        source_hash=get_exclusion_checksum,
+        hash_algo=get_exclusion_checksum_algo,
+        outfmt="decompressed",
+    script:
+        "scripts/download_resources.py"
 
 
 rule postprocess_bed:
