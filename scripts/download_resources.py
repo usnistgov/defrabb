@@ -1,7 +1,9 @@
+from email.message import Message
 from logging import warning
 import os
 import pathlib
 import tempfile
+from re import sub
 from warnings import WarningMessage
 from snakemake.common import get_file_hash
 from snakemake.utils import makedirs
@@ -26,8 +28,20 @@ infile=in_path.name
 infile_ext = in_path.suffix
 
 tmpremote = tempfile.mktemp(suffix=infile_ext)
-shell("curl --insecure -L {source_uri} > {tmpremote}")
-
+### Determining download protocol
+if "s3://" in source_uri:
+    shell("aws s3 cp {source_uri} {tmpremote}")
+elif "s3.amazonaws.com" in source_uri:
+    print(source_uri)
+    source_uri=sub(r'https.*.s3.amazonaws.com/', 's3://', source_uri)
+    print(source_uri)
+    shell("aws s3 cp {source_uri} {tmpremote}")
+elif "https://" in source_uri or "ftp://" in source_uri:
+    shell("curl --insecure -L {source_uri} > {tmpremote}")
+else:
+    print("Assuming remote from S3, ftp, or https.",
+            "URI does not contain expected protocol.",
+            f"Downloading using {source_uri} curl.")
 
 ## MD5 check ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ## - getting md5 of remote file
