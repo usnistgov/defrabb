@@ -120,7 +120,7 @@ unit_test:
   script:
     - pytest .tests
   cache:
-    - <<: *smk_global_cache
+    - <<: *smk_envs_cache
       policy: pull
 
 snakemake_dry:
@@ -130,11 +130,11 @@ snakemake_dry:
   script:
     - snakemake --use-conda -c 1 --config analyses=$TESTCONF --dryrun
   cache:
-    - <<: *smk_global_cache
+    - <<: *smk_envs_cache
       policy: pull
 
 snakemake_smtest:
-  needs: [install_global_env]
+  needs: [install_envs_env]
   stage: test
   <<: *activate_smk
   artifacts:
@@ -143,5 +143,5 @@ snakemake_smtest:
   script:
     - snakemake -p --use-conda --cores 1 --verbose
   cache:
-    - <<: *smk_global_cache
+    - <<: *smk_envs_cache
       policy: pull
