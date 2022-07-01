@@ -1,4 +1,5 @@
 # Milestone v0.009 TBD
+- Modified analyses table api so that it is more intuitive
 - Common script for downloading files including md5 checksum
 
 # Milestone v0.008 2022-06-06
