@@ -1,23 +1,9 @@
-import pandas as pd
+# import pandas as pd
 
 
-wildcard_constraints:
-    ref_id="GRCh38|GRCh37|GRCh38_chr21|CHM13v2.0",
-    genomic_region="homopolymers|segdups|tandem-repeats|gaps|self-chains|satellites",
-
-
-# downloading beds used for exclusion
-rule download_bed_gz:
-    output:
-        "resources/exclusions/{ref_id}/{genomic_region}.bed",
-    log:
-        "logs/download_bed_gz/{ref_id}-{genomic_region}.log",
-    params:
-        url=lambda wildcards: config["references"][wildcards.ref_id]["exclusions"][
-            wildcards.genomic_region
-        ],
-    shell:
-        "curl -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
+# wildcard_constraints:
+#     ref_id="GRCh38|GRCh37|GRCh38_chr21|CHM13v2.0",
+#     genomic_region="homopolymers|segdups|tandem-repeats|gaps|self-chains|satellites",
 
 
 # structural variants - using asm varcalls vcf to identify structural variants for exclusion

@@ -153,6 +153,26 @@ def get_comp_checksum_algo(wildcards):
     return get_remote_key(remote, "checksum_algo")
 
 
+## Helper functions for downloading and validating bed files used for exclusion
+def get_exclusion_config(ref_id, genomic_region):
+    return ref_config[ref_id]["exclusions"][genomic_region]
+
+
+def get_exclusion_uri(wildcards):
+    remote = get_exclusion_config(wildcards.ref_id, wildcards.genomic_region)
+    return get_remote_key(remote, "uri")
+
+
+def get_exclusion_checksum(wildcards):
+    remote = get_exclusion_config(wildcards.ref_id, wildcards.genomic_region)
+    return get_remote_key(remote, "checksum")
+
+
+def get_exclusion_checksum_algo(wildcards):
+    remote = get_exclusion_config(wildcards.ref_id, wildcards.genomic_region)
+    return get_remote_key(remote, "checksum_algo")
+
+
 ## Helper functions for other resource files
 def get_genome_file(wildcards):
     ## Getting genome path from wildcard.ref_id
