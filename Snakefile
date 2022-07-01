@@ -11,7 +11,7 @@ min_version("7.3.0")
 
 
 ## Rule ordering for ambiguous rules
-ruleorder: download_bed_gz > sort_bed
+ruleorder: get_beds_for_exclusions > sort_bed
 
 
 ## Loading external rules
@@ -99,7 +99,7 @@ localrules:
     get_assemblies,
     get_comparisons,
     get_strats,
-    download_bed_gz,
+    get_beds_for_exclusions,
     get_SVs_from_vcf,
     subtract_exclusions,
     add_flanks,
@@ -491,6 +491,23 @@ rule index_dip_bam:
 #         "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
 #     shell:
 #         "cp {input} {output} &> {log}"
+
+
+# downloading beds used for exclusion
+rule get_beds_for_exclusions:
+    output:
+        "resources/exclusions/{ref_id}/{genomic_region}.bed",
+    conda:
+        "envs/get_remotes.yml"
+    log:
+        "logs/download_bed_gz/{ref_id}-{genomic_region}.log",
+    params:
+        source_uri=get_exclusion_uri,
+        source_hash=get_exclusion_checksum,
+        hash_algo=get_exclusion_checksum_algo,
+        outfmt="decompressed",
+    script:
+        "scripts/download_resources.py"
 
 
 rule postprocess_bed:
