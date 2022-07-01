@@ -114,7 +114,7 @@ param_contig_test:
       policy: pull  
 
 unit_test:
-  needs: [install_global_env]
+  needs: [install_smk_conda_envs]
   stage: test
   <<: *activate_smk
   script:
@@ -134,7 +134,7 @@ snakemake_dry:
       policy: pull
 
 snakemake_smtest:
-  needs: [install_envs_env]
+  needs: [install_smk_conda_envs]
   stage: test
   <<: *activate_smk
   artifacts:
