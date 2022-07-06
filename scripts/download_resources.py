@@ -30,12 +30,12 @@ infile_ext = in_path.suffix
 tmpremote = tempfile.mktemp(suffix=infile_ext)
 ### Determining download protocol
 if "s3://" in source_uri:
+    ## Issue with aws s3 command on workstation, using curl only for now
     shell("aws s3 cp {source_uri} {tmpremote}")
 elif "s3.amazonaws.com" in source_uri:
-    print(source_uri)
-    source_uri=sub(r'https.*.s3.amazonaws.com/', 's3://', source_uri)
-    print(source_uri)
-    shell("aws s3 cp {source_uri} {tmpremote}")
+    # shell("aws s3 cp {source_uri} {tmpremote}")
+    ## Issue with aws s3 command on workstation, using curl only for now
+    shell("curl --insecure -L {source_uri} > {tmpremote}")
 elif "https://" in source_uri or "ftp://" in source_uri:
     shell("curl --insecure -L {source_uri} > {tmpremote}")
 else:
@@ -49,18 +49,15 @@ local_hash = get_file_hash(tmpremote, algorithm = hash_algorithm)
 
 ## - Verifying checksum
 if local_hash != source_hash:
-    print(f"Checksum for {infile} not match the expected hash, please verify {hash_algorithm} was used to compute digest")
+    print(f"Checksum for {infile} not match the expected hash, please verify {hash_algorithm} was used to compute digest\n")
 
 
 ## Decompressing or compressing file as appropriate ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Output directory
-makedirs(pathlib.Path(source_uri).parents)
-
 if infile_ext == ".gz" and ( outfmt == "bgzip" or outfmt == "gzip"):
     print("moving compressed file to output")
     ## Keeping file compressed and moving file to output path
-    shell("mv {tmpremote} {outfile}")
-elif infile_ext != ".gz" and outfmt == "decompressed":
+    shell("cp {tmpremote} {outfile}")
+elif infile_ext != ".gz" and outfmt == "decompress":
     print("moving uncompressed file to output")
     ## Keeping file uncompressed
     shell("mv {tmpremote} {outfile}")
@@ -72,3 +69,9 @@ elif infile_ext != ".gz" and  outfmt == "bgzip":
     print("compressing file and moving to output")
     ## bgzip compressing file and moving to specified output directory
     shell("bgzip -fc {tmpremote} > {outfile}")
+elif infile_ext == ".bed" and  outfmt == "decompressed":
+    print("moving uncompressed file to output")
+    ## bgzip compressing file and moving to specified output directory
+    shell("cp {tmpremote} {outfile}")
+else:
+    print(f"no rename step applied, bug in code for downloading {outfile}")

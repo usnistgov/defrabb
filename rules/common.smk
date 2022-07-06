@@ -1,5 +1,6 @@
 import pandas as pd
 from pathlib import Path
+import pprint
 from warnings import WarningMessage
 from snakemake.common import parse_uri
 from snakemake.utils import validate
@@ -154,6 +155,17 @@ def get_comp_checksum_algo(wildcards):
     remote = get_comp_config(wildcards.ref_id, wildcards.comp_id, wildcards.comp_ext)
     return get_remote_key(remote, "checksum_algo")
 
+
+def get_comp_outfmt(wildcards):
+    remote = get_comp_config(wildcards.ref_id, wildcards.comp_id, wildcards.comp_ext)
+
+    comp_ext = wildcards.comp_ext
+    if comp_ext == "vcf.gz" or comp_ext == "bed.gz":
+        return("bgzip")
+    elif comp_ext == "vcf" or comp_ext == "bed" or comp_ext == "fa":    
+        return ("decompressed")
+    else:
+        return("comp outfmt not found")
 
 ## ~~~~~ bed files used for exclusion
 def get_exclusion_config(ref_id, genomic_region):
