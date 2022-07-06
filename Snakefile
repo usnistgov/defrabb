@@ -303,7 +303,7 @@ rule get_comparisons:
         source_uri=get_comp_uri,
         source_hash=get_comp_checksum,
         hash_algo=get_comp_checksum_algo,
-        outfmt="gzip",
+        outfmt=get_comp_outfmt,
     log:
         "logs/get_comparisons/{ref_id}_{comp_id}_{comp_ext}.log",
     script:
