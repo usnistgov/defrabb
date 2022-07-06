@@ -72,19 +72,11 @@ wildcard_constraints:
 
 
 ## Using Paramspace for file paths
-happy_space = Paramspace(analyses[analyses["eval_cmd"] == "happy"])
-truvari_space = Paramspace(analyses[analyses["eval_cmd"] == "truvari"])
+## - preparing tables for output naming
+run_tbl = analyses
+run_tbl['run_id'] = [f"r{idx}" for idx in run_tbl.index] 
 
-dipcall_space = Paramspace(
-    analyses.loc[
-        analyses["vc_cmd"] == "dipcall",
-        ["asm_id", "ref", "vc_cmd", "vc_param_id", "vc_params"],
-    ].drop_duplicates()
-)
-
-bench_space = Paramspace(
-    analyses[
-        [
+bench_cols = [
             "ref",
             "asm_id",
             "vc_cmd",
@@ -95,8 +87,32 @@ bench_space = Paramspace(
             "bench_bed_processing",
             "bench_exclusion_set",
         ]
-    ].drop_duplicates()
+
+bench_tbl = analyses[ bench_cols ].drop_duplicates()
+
+bench_tbl['bench_id'] = [f"b{idx}" for idx in bench_tbl.index] 
+## Creating analyses table with run and bench ids.
+analyses_wids = run_tbl.merge(bench_tbl)
+
+happy_space = Paramspace(analyses_wids[analyses_wids["eval_cmd"] == "happy"],
+    filename_params = ["run_id","bench_id", "asm_id","ref","vc_cmd", "bench_type",
+                        "eval_query", "eval_truth","eval_truth_regions","eval_target_regions"])
+truvari_space = Paramspace(analyses_wids[analyses_wids["eval_cmd"] == "truvari"])
+
+dipcall_space = Paramspace(
+    analyses.loc[
+        analyses["vc_cmd"] == "dipcall",
+        ["asm_id", "ref", "vc_cmd", "vc_param_id", "vc_params"],
+    ].drop_duplicates(),
+    filename_params = ["asm_id","ref","vc_cmd" ]
 )
+
+
+
+
+
+bench_space = Paramspace( bench_tbl, 
+    filename_params = ["bench_id", "asm_id","ref","vc_cmd", "bench_type"])
 
 
 ## Rules to run locally
@@ -157,6 +173,7 @@ rule all:
             params=bench_space.instance_patterns,
         ),
         ## Evaluations
+        # [f"results/evaluations/happy/{i.run_id}/" for i in happy_tbl.iterrows]
         expand(
             "results/evaluations/happy/{params}.summary.csv",
             params=happy_space.instance_patterns,
@@ -530,7 +547,7 @@ rule run_happy:
 
 rule run_truvari:
     input:
-        unpack(partial(get_eval_inputs, analyses, config)),
+        unpack(partial(get_eval_inputs, analyses_wids, config)),
     output:
         f"results/evaluations/truvari/{truvari_space.wildcard_pattern}/summary.txt",
     log:
