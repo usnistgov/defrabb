@@ -136,7 +136,7 @@ references:
   ## For testing
   GRCh38_chr21:
     ref:
-      uri: "https://giab-data.s3.amazonaws.com/giab-data/giab-test-data/GRCh38_chr21.fa.gz"
+      uri: "https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_chr21.fa.gz"
       checksum: ""
       checksum_algo: "md5"
     par_bed: "hs38.PAR.bed"
