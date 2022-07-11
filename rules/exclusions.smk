@@ -30,13 +30,13 @@ rule get_SVs_from_vcf:
         """
 
 
-rule intersect_SVs_and_homopolymers:
+rule intersect_SVs_and_simple_repeats:
     input:
         sv_bed="results/{prefix}_SV_sorted.bed",
-        homopoly_bed="resources/exclusions/{ref_id}/homopolymers_sorted.bed",
+        simple_repeat_bed="resources/exclusions/{ref_id}/all-tr-and-homopolymers_sorted.bed",
         genome=get_genome_file,
     output:
-        "results/{prefix}_svs-and-homopolymers.bed",
+        "results/{prefix}_svs-and-simple-repeats.bed",
     log:
         "logs/exclusions/int_SVs_{prefix}.log",
     benchmark:
@@ -46,7 +46,7 @@ rule intersect_SVs_and_homopolymers:
     shell:
         """
         intersectBed -wa \
-                -a {input.homopoly_bed} \
+                -a {input.simple_repeat_bed} \
                 -b {input.sv_bed} | \
             multiIntersectBed -i stdin {input.sv_bed} | \
             bedtools slop -i stdin -g {input.genome} -b 50 | \

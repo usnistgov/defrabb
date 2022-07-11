@@ -29,8 +29,16 @@ references:
       checksum_algo: "md5"
     par_bed: "hs37d5.PAR.bed"
     exclusions:
-      homopolymers: 
+      all-tr-and-homopolymers: 
         uri: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+        checksum: ""
+        checksum_algo: "md5"
+      homopolymers-gt20:
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/LowComplexity/GRCh37_SimpleRepeat_homopolymer_gt20_slop5.bed.gz
+        checksum: ""
+        checksum_algo: "md5"
+      imperfecthomopol-gt20:
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/LowComplexity/GRCh37_SimpleRepeat_imperfecthomopolgt20_slop5.bed.gz
         checksum: ""
         checksum_algo: "md5"
       segdups: 
@@ -67,8 +75,16 @@ references:
       checksum_algo: "md5"
     par_bed: "hs38.PAR.bed"
     exclusions:
-      homopolymers: 
+      all-tr-and-homopolymers: 
         uri: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+        checksum: ""
+        checksum_algo: "md5"
+      homopolymers-gt20:
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_SimpleRepeat_homopolymer_gt20_slop5.bed.gz
+        checksum: ""
+        checksum_algo: "md5"
+      imperfecthomopol-gt20:
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_SimpleRepeat_imperfecthomopolgt20_slop5.bed.gz
         checksum: ""
         checksum_algo: "md5"
       segdups: 
@@ -106,8 +122,16 @@ references:
       checksum_algo: "md5"
     par_bed: "chm13v2.0_PAR-X.bed"
     exclusions:
-      homopolymers: 
+      all-tr-and-homopolymers: 
         uri: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/LowComplexity/CHM13v2.0_AllTandemRepeatsandHomopolymers_slop5.bed.gz"
+        checksum: ""
+        checksum_algo: "md5"
+      homopolymers-gt20:
+        uri: TODO-ADD
+        checksum: ""
+        checksum_algo: "md5"
+      imperfecthomopol-gt20:
+        uri: TODO-ADD
         checksum: ""
         checksum_algo: "md5"
       segdups: 
@@ -141,8 +165,16 @@ references:
       checksum_algo: "md5"
     par_bed: "hs38.PAR.bed"
     exclusions:
-      homopolymers: 
-        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+      all-tr-and-homopolymers: 
+        uri: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+        checksum: ""
+        checksum_algo: "md5"
+      homopolymers-gt20:
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_SimpleRepeat_homopolymer_gt20_slop5.bed.gz
+        checksum: ""
+        checksum_algo: "md5"
+      imperfecthomopol-gt20:
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_SimpleRepeat_imperfecthomopolgt20_slop5.bed.gz
         checksum: ""
         checksum_algo: "md5"
       segdups: 
@@ -743,23 +775,31 @@ assemblies:
 
 exclusion_set:
   smvarall:
+    - homopolymers-gt20
+    - imperfecthomopol-gt20
     - segdups
     - tandem-repeats
     - satellites
     - gaps
     - self-chains
     - flanks
-    - svs-and-homopolymers
+    - svs-and-simple-repeats
   smvarallCHM13:
+    - homopolymers-gt20
+    - imperfecthomopol-gt20
     - segdups
     - tandem-repeats
     - satellites
     - gaps
     - flanks
-    - svs-and-homopolymers
+    - svs-and-simple-repeats
   smvartest:
-    - svs-and-homopolymers
+    - homopolymers-gt20
+    - imperfecthomopol-gt20
+    - svs-and-simple-repeats
   stvarall:
+    - homopolymers-gt20
+    - imperfecthomopol-gt20
     - segdups
     - tandem-repeats
     - satellites
@@ -782,10 +822,12 @@ exclusion_asm_intersect:
 
 exclusion_asm_agnostic:
   - gaps
+  - homopolymers-gt20
+  - imperfecthomopol-gt20
 
 exclusion_ref_agnostic:
   - flanks
-  - svs-and-homopolymers
+  - svs-and-simple-repeats
 
 ################################################################################
 # Comparisons
