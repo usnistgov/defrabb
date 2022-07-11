@@ -65,12 +65,14 @@ def get_ref_file(wildcards):
     ref_id = get_ref_id(wildcards)
     return workflow.source_path(f"../resources/references/{ref_id}.fa")
 
+
 ## Helper functions for downloading and validating remote files
 def get_remote_key(remote, key):
     try:
         return remote[key]
     except KeyError:
         raise ValueError(f"No {key} provided for external source {remote}")
+
 
 ## ~~~~~ reference genomes
 def get_ref_config(ref_id):
@@ -161,11 +163,12 @@ def get_comp_outfmt(wildcards):
 
     comp_ext = wildcards.comp_ext
     if comp_ext == "vcf.gz" or comp_ext == "bed.gz":
-        return("bgzip")
+        return "bgzip"
     elif comp_ext == "vcf" or comp_ext == "bed" or comp_ext == "fa":    
-        return ("decompressed")
+        return "decompressed"
     else:
-        return("comp outfmt not found")
+        return "comp outfmt not found"
+
 
 ## ~~~~~ bed files used for exclusion
 def get_exclusion_config(ref_id, genomic_region):
