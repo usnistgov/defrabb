@@ -58,6 +58,8 @@ COMPIDS = set(analyses["eval_query"].tolist() + analyses["eval_truth"].tolist())
 EVALIDS = set(
     analyses["eval_query"].tolist() + analyses["eval_truth"].tolist() + ["this_row"]
 )
+EVALTRUTHREGIONS = set(analyses['eval_truth_regions'].tolist())
+EVALTARGETREGIONS = set(analyses['eval_target_regions'].tolist())
 
 # Only constrain the wildcards to match what is in the resources file. Anything
 # else that can be defined on the command line or in the analyses.tsv can is
@@ -75,8 +77,8 @@ wildcard_constraints:
     comp_ext="vcf.gz|vcf|bed|bed.gz",
     eval_truth="|".join(EVALIDS),
     eval_query="|".join(EVALIDS),
-    eval_truth_regions="yes|none",
-    eval_target_regions="yes|none",
+    eval_truth_regions="|".join(EVALTRUTHREGIONS),
+    eval_target_regions="|".join(EVALTARGETREGIONS)
 
 
 ## Using Paramspace for file paths
@@ -103,6 +105,7 @@ bench_tbl["bench_id"] = [f"b{idx}" for idx in bench_tbl.index]
 analyses_wids = run_tbl.merge(bench_tbl)
 
 happy_tbl = analyses_wids[analyses_wids["eval_cmd"] == "happy"]
+
 happy_space = Paramspace(
     happy_tbl,
     filename_params=[
@@ -149,7 +152,7 @@ localrules:
     subtract_exclusions,
     add_flanks,
     intersect_start_and_end,
-    intersect_SVs_and_simple_repeats
+    intersect_SVs_and_simple_repeats,
     get_SVs_from_vcf,
     postprocess_bed,
     sort_bed,
@@ -190,29 +193,17 @@ rule all:
             "results/draft_benchmarksets/{params}.processed.vcf.gz",
             params=bench_space.instance_patterns,
         ),
-        # expand(
-        #     "results/draft_benchmarksets/{params}.processed.vcf.gz.tbi",
-        #     params=bench_space.instance_patterns,
-        # ),
         expand(
             "results/draft_benchmarksets/{params}.bed",
             params=bench_space.instance_patterns,
         ),
         ## Evaluations
-        # [
-        #     f"results/evaluations/happy/defrabb-{defrabb_version}_eval_{sample_id}_{r.ref}_{r.eval_cmd}_T~{r.eval_truth}_TR~{r.eval_truth_regions}_Q~{r.eval_query}_QR~{r.eval_target_regions}.summary.csv"
-        #     for r in happy_tbl.itertuples()
-        # ],
         expand(
-            "results/evaluations/happy/{params}.extended.csv",
+            "results/evaluations/{params}.extended.csv",
             params=happy_space.instance_patterns,
         ),
-        # [
-        #     f"results/evaluations/happy/{r.bench_id}/{r.bench_exclusiondefrabb-{defrabb_version}_eval_{sample_id}_{r.ref}_{r.eval_cmd}_T~{r.eval_truth}_TR~{r.eval_truth_regions}_Q~{r.eval_query}_QR~{r.eval_target_regions}.extended.csv"
-        #     for r in happy_tbl.itertuples()
-        # ],
         expand(
-            "results/evaluations/truvari/{params}/summary.txt",
+            "results/evaluations/{params}/summary.txt",
             params=truvari_space.instance_patterns,
         ),
         ## Summary Stats/ Reports
@@ -536,7 +527,7 @@ rule run_happy:
         unpack(partial(get_eval_inputs, analyses, config)),
     output:
         multiext(
-            f"results/evaluations/happy/{happy_space.wildcard_pattern}",
+            f"results/evaluations/{happy_space.wildcard_pattern}",
             ".runinfo.json",
             ".vcf.gz",
             ".extended.csv",
@@ -546,19 +537,13 @@ rule run_happy:
             ".roc.Locations.INDEL.PASS.csv.gz",
             ".roc.Locations.SNP.csv.gz",
         ),
-        # report(
-        #     "results/evaluations/happy/defrabb-0.008_eval_HG002_{ref}_{eval_cmd}_T~{eval_truth}_TR~{eval_truth_regions}_Q~{eval_query}_QR~{eval_target_regions}.summary.csv",
-        #     caption="report/happy_summary.rst",
-        #     category="Happy",
-        # ),
         report(
-            f"results/evaluations/happy/{happy_space.wildcard_pattern}.summary.csv",
+            f"results/evaluations/{happy_space.wildcard_pattern}.summary.csv",
             caption="report/happy_summary.rst",
             category="Happy",
         ),
     params:
-        # prefix="results/evaluations/happy/defrabb-0.008_eval_HG002_{ref}_{eval_cmd}_T~{eval_truth}_TR~{eval_truth_regions}_Q~{eval_query}_QR~{eval_target_regions}",
-        prefix=f"results/evaluations/happy/{happy_space.wildcard_pattern}",
+        prefix=f"results/evaluations/{happy_space.wildcard_pattern}",
         strat_tsv=lambda wildcards: f"{wildcards.ref}/{ref_config[wildcards.ref]['stratifications']['tsv']}",
         threads=config["_happy_threads"],
         engine="vcfeval",
@@ -566,11 +551,11 @@ rule run_happy:
     resources:
         mem_mb=config["_happy_mem"],
     threads: config["_happy_threads"]
-    log:
-        f"logs/run_happy/{happy_space.wildcard_pattern}.log",
+#    log:
+ #       f"logs/run_happy/{happy_space.wildcard_pattern}.log",
         # "logs/run_happy/defrabb-0.008_eval_HG002_{ref}_{eval_cmd}_T~{eval_truth}_TR~{eval_truth_regions}_Q~{eval_query}_QR~{eval_target_regions}.log",
-    benchmark:
-        f"benchmark/run_happy/{happy_space.wildcard_pattern}.tsv"
+#    benchmark:
+ #       f"benchmark/run_happy/{happy_space.wildcard_pattern}.tsv"
         # "benchmark/run_happy/defrabb-0.008_eval_HG002_{ref}_{eval_cmd}_T~{eval_truth}_TR~{eval_truth_regions}_Q~{eval_query}_QR~{eval_target_regions}.tsv"
     conda:
         "envs/happy.yml"
@@ -586,7 +571,7 @@ rule run_truvari:
     input:
         unpack(partial(get_eval_inputs, analyses_wids, config)),
     output:
-        f"results/evaluations/truvari/{truvari_space.wildcard_pattern}/summary.txt",
+        f"results/evaluations/{truvari_space.wildcard_pattern}/summary.txt",
     log:
         f"logs/run_travari/{truvari_space.wildcard_pattern}/truvari.log",
     # TODO this tmp thing is a workaround for the fact that snakemake

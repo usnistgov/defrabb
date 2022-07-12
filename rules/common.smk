@@ -164,7 +164,7 @@ def get_comp_outfmt(wildcards):
     comp_ext = wildcards.comp_ext
     if comp_ext == "vcf.gz" or comp_ext == "bed.gz":
         return "bgzip"
-    elif comp_ext == "vcf" or comp_ext == "bed" or comp_ext == "fa":    
+    elif comp_ext == "vcf" or comp_ext == "bed" or comp_ext == "fa":
         return "decompressed"
     else:
         return "comp outfmt not found"
