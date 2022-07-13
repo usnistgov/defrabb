@@ -19,7 +19,6 @@ required:
   - ref
   - vc_cmd
   - vc_param_id
-  - vc_params
 
 additionalProperties: false
 properties:
