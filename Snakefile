@@ -521,7 +521,7 @@ rule postprocess_bed:
 
 rule run_happy:
     input:
-        unpack(partial(get_eval_inputs, analyses, config)),
+        unpack(partial(get_eval_inputs, analyses, config, bench_space)),
     output:
         multiext(
             f"results/evaluations/{happy_space.wildcard_pattern}",
@@ -566,7 +566,7 @@ rule run_happy:
 
 rule run_truvari:
     input:
-        unpack(partial(get_eval_inputs, analyses_wids, config)),
+        unpack(partial(get_eval_inputs, analyses_wids, config, bench_space)),
     output:
         f"results/evaluations/{truvari_space.wildcard_pattern}/summary.txt",
     log:
