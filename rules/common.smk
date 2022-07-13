@@ -210,7 +210,7 @@ def get_dipcall_par_param(wildcards):
 
 
 ## Evaluation Inputs and Parameters (Generic method for happy and truvari)
-def get_eval_inputs(analyses, config, wildcards):
+def get_eval_inputs(analyses, config, bench_space, wildcards):
     return get_eval_inputs_inner(
         eval_cmd=wildcards.eval_cmd,
         ref_id=wildcards.ref,
