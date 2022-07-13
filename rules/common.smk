@@ -219,6 +219,7 @@ def get_eval_inputs(analyses, config, bench_space, wildcards):
         eval_truth_regions=wildcards.eval_truth_regions,
         eval_target_regions=wildcards.eval_target_regions,
         exclusion_set=wildcards.bench_exclusion_set,
+        bench_bed_processing=wildcards.bench_bed_processing,
         bench_space=bench_space,
         config=config,
     )
@@ -232,6 +233,7 @@ def get_eval_inputs_inner(
     eval_truth_regions,
     eval_target_regions,
     exclusion_set,
+    bench_bed_processing,
     bench_space,
     config,
 ):
@@ -277,14 +279,24 @@ def get_eval_inputs_inner(
         elif eval_regions == "yes":
             ### using draft benchmark regions
             if eval_id == "this_row":
-                if exclusion_set == "none":
+                if bench_bed_processing == "manual":
+                    comp_file_dict[
+                        "bed"
+                    ] = f"results/draft_benchmarksets/{bench_space.wildcard_pattern}.manual.bed"
+                elif bench_bed_processing == "none":
                     comp_file_dict[
                         "bed"
                     ] = f"results/draft_benchmarksets/{bench_space.wildcard_pattern}.bed"
+                elif bench_bed_processing == "exclude":
+                        comp_file_dict[
+                            "bed"
+                        ] = f"results/draft_benchmarksets/{bench_space.wildcard_pattern}.excluded.bed"
+                        print("in exclude")
                 else:
+                    print("bench_bed_processing should be either none, manual, or exclude")
                     comp_file_dict[
                         "bed"
-                    ] = f"results/draft_benchmarksets/{bench_space.wildcard_pattern}.excluded.bed"
+                    ] = f"results/draft_benchmarksets/{bench_space.wildcard_pattern}.FIXME.bed"
             ### using comparison regions
             else:
                 comp_file_dict[
@@ -319,7 +331,7 @@ def get_eval_inputs_inner(
 
 
 ## Exclusions
-def get_exclusion_inputs(wildcards):
+def get_exclusion_inputs(param_space, wildcards):
 
     ## Getting list of excluded regions
     exclusion_set = config["exclusion_set"][wildcards.bench_exclusion_set]
@@ -333,7 +345,7 @@ def get_exclusion_inputs(wildcards):
             ref_id = get_ref_id(wildcards)
             exc_path = f"resources/exclusions/{ref_id}/{exclusion}"
         else:
-            exc_path = f"results/draft_benchmarksets/intermediates/exclusions/{wildcards.prefix}bench_exclusion_set~{wildcards.bench_exclusion_set}"
+            exc_path = f"results/draft_benchmarksets/intermediates/exclusions/{bench_space.wildcard_pattern}"
         ## Adding slop - currently a 15kb hard coded buffer around excluded repeat regions
         if exclusion in config["exclusion_slop_regions"]:
             exc_path = f"{exc_path}_slop"
