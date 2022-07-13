@@ -53,6 +53,7 @@ ASMIDS = set(vc_tbl["asm_id"].tolist())
 VCCMDS = set(vc_tbl["vc_cmd"].tolist())
 BENCHVCFPROC = set(analyses["bench_vcf_processing"])
 BENCHBEDPROC = set(analyses["bench_bed_processing"])
+BENCHEXCLUSIONSET=set(analyses["bench_exclusion_set"])
 COMPIDS = set(analyses["eval_query"].tolist() + analyses["eval_truth"].tolist())
 EVALIDS = set(
     analyses["eval_query"].tolist() + analyses["eval_truth"].tolist() + ["this_row"]
@@ -70,6 +71,7 @@ wildcard_constraints:
     ref_id="|".join(REFIDS),
     bench_vcf_processing="|".join(BENCHVCFPROC),
     bench_bed_processing="|".join(BENCHBEDPROC),
+    bench_exclusion_set="|".join(BENCHEXCLUSIONSET),
     comp_dir="asm_varcalls|draft_benchmarksets|evaluations|report",
     comp_id="|".join(COMPIDS),
     comp_ext="vcf.gz|vcf|bed|bed.gz",
@@ -217,6 +219,9 @@ rule all:
             "results/asm_varcalls/{params}.dip_rtg_stats.txt",
             params=dipcall_space.instance_patterns,
         ),
+        # expand("results/draft_benchmarksets/{params}.manual.bed",
+        #     params =bench_manual_space.instance_patterns,
+        # )
 
 
 ################################################################################
