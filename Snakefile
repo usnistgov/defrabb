@@ -51,7 +51,6 @@ REFIDS = set(vc_tbl["ref"])
 REFIDS = set(vc_tbl["ref"].tolist())
 ASMIDS = set(vc_tbl["asm_id"].tolist())
 VCCMDS = set(vc_tbl["vc_cmd"].tolist())
-VCPARAMIDS = set(vc_tbl["vc_param_id"].tolist())
 BENCHVCFPROC = set(analyses["bench_vcf_processing"])
 BENCHBEDPROC = set(analyses["bench_bed_processing"])
 COMPIDS = set(analyses["eval_query"].tolist() + analyses["eval_truth"].tolist())
@@ -73,7 +72,6 @@ wildcard_constraints:
     bench_bed_processing="|".join(BENCHBEDPROC),
     comp_dir="asm_varcalls|draft_benchmarksets|evaluations|report",
     comp_id="|".join(COMPIDS),
-    vc_param_id="|".join(VCPARAMIDS),
     comp_ext="vcf.gz|vcf|bed|bed.gz",
     eval_truth="|".join(EVALIDS),
     eval_query="|".join(EVALIDS),
@@ -90,7 +88,6 @@ bench_cols = [
     "ref",
     "asm_id",
     "vc_cmd",
-    "vc_params",
     "vc_param_id",
     "bench_type",
     "bench_vcf_processing",
@@ -130,7 +127,7 @@ truvari_space = Paramspace(
 dipcall_space = Paramspace(
     analyses.loc[
         analyses["vc_cmd"] == "dipcall",
-        ["asm_id", "ref", "vc_cmd", "vc_param_id", "vc_params"],
+        ["asm_id", "ref", "vc_cmd", "vc_param_id"],
     ].drop_duplicates(),
     filename_params=["asm_id", "ref", "vc_cmd"],
 )
@@ -394,8 +391,8 @@ rule run_dipcall:
         ts=config["_dipcall_threads"],
         make_jobs=config["_dipcall_jobs"],
         extra=lambda wildcards: ""
-        if wildcards.vc_params == "default"
-        else wildcards.vc_params,
+        if wildcards.vc_param_id == "default"
+        else config["_dipcall_params"][wildcards.vc_param_id],
     log:
         multiext(
             f"results/asm_varcalls/{dipcall_space.wildcard_pattern}",
