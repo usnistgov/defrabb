@@ -13,6 +13,30 @@
 analyses: "config/analyses.tsv"
 
 ################################################################################
+# Rule compute resource requirements and data dependencies
+
+## Dipcall Resources ##############
+# the number of dipcall threads to use
+_dipcall_threads: 5
+
+# the number of parallel jobs for dipcall's call to make - 2 or one per haplotype
+_dipcall_jobs: 4
+
+# Mem per job
+_dipcall_mem: 32000
+
+# Parameters
+_dipcall_params:
+  z2k: "-z200000,10000"
+
+  # the root of the par file for dipcall (and friends)
+_par_bed_root: data/par_bed
+
+## Happy Resources ################
+_happy_threads: 8
+_happy_mem: 32000
+
+################################################################################
 ## Reference Data Files
 # Reference Genomes
 #   - Exclusions - subset of GIAB genome-stratifications (see below)
@@ -25,12 +49,16 @@ references:
     ref_url: "ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz"
     par_bed: "hs37d5.PAR.bed"
     exclusions:
-      homopolymers: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+      all-tr-and-homopolymers: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_AllTandemRepeatsandHomopolymers_slop5.bed.gz
       segdups: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_segdups.bed.gz
       tandem-repeats: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_AllTandemRepeats_gt10000bp_slop5.bed.gz
       gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/OtherDifficult/GRCh37_gaps_slop15kb.bed.gz
       self-chains: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_chainSelf.bed.gz
       satellites: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_satellites_slop5.bed.gz
+      homopolymers-gt20: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/LowComplexity/GRCh37_SimpleRepeat_homopolymer_gt20_slop5.bed.gz
+      imperfecthomopol-gt20: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/LowComplexity/GRCh37_SimpleRepeat_imperfecthomopolgt20_slop5.bed.gz
+      imperfecthomopol-gt30: "https://gitlab.nist.gov/gitlab/bbd-human-genomics/defrabb/-/snippets/137/raw/main/GRCh38_SimpleRepeat_imperfecthomopolgt30_slop5.bed"
+      hifi-pacbioDV-XY-discrep: "https://gitlab.nist.gov/gitlab/bbd-human-genomics/defrabb/-/snippets/138/raw/main/GRCh38_HiFiDV-v4.2.1_T2T-XY-v2.7_dipcall-z2k_FP_merge30_slop50_gt2_FNINSgt2.bed"
     stratifications:
       id: "v3.0-stratifications-GRCh37"
       url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/v3.0-stratifications-GRCh37.tar.gz"
@@ -411,6 +439,7 @@ assemblies:
 
 exclusion_set:
   smvarall:
+    - imperfecthomopol-gt30
     - segdups
     - tandem-repeats
     - satellites
@@ -426,14 +455,26 @@ exclusion_set:
     - flanks
     - svs-and-homopolymers
   smvartest:
-    - svs-and-homopolymers
+    - imperfecthomopol-gt30
+    - svs-and-simple-repeats
   stvarall:
+    - imperfecthomopol-gt30
     - segdups
     - tandem-repeats
     - satellites
     - gaps
     - self-chains
     - flanks
+  smvarXYhifi:
+    - hifi-pacbioDV-XY-discrep
+    - imperfecthomopol-gt30
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - self-chains
+    - flanks
+    - svs-and-simple-repeats
 
 ## Regions 
 exclusion_slop_regions:
@@ -450,6 +491,8 @@ exclusion_asm_intersect:
 
 exclusion_asm_agnostic:
   - gaps
+  - imperfecthomopol-gt30
+  - hifi-pacbioDV-XY-discrep
 
 exclusion_ref_agnostic:
   - flanks
