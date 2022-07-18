@@ -28,7 +28,7 @@ _dipcall_mem: 32000
 
 # Parameters
 _dipcall_params:
-  z2k: "z200000,10000"
+  z2k: "-z200000,10000"
 
   # the root of the par file for dipcall (and friends)
 _par_bed_root: data/par_bed
@@ -64,6 +64,14 @@ references:
       imperfecthomopol-gt20:
         uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/LowComplexity/GRCh37_SimpleRepeat_imperfecthomopolgt20_slop5.bed.gz
         checksum: ""
+        checksum_algo: "md5"
+      imperfecthomopol-gt30:
+        uri: "https://gitlab.nist.gov/gitlab/bbd-human-genomics/defrabb/-/snippets/137/raw/main/GRCh38_SimpleRepeat_imperfecthomopolgt30_slop5.bed"
+        checksum: "2267cec6f6c4517ac28b9e1c364a42e9 "
+        checksum_algo: "md5"
+      hifi-pacbioDV-XY-discrep:
+        uri: "https://gitlab.nist.gov/gitlab/bbd-human-genomics/defrabb/-/snippets/138/raw/main/GRCh38_HiFiDV-v4.2.1_T2T-XY-v2.7_dipcall-z2k_FP_merge30_slop50_gt2_FNINSgt2.bed"
+        checksum: "2e7961e4f7127e82f1263c7455c5b1fd"
         checksum_algo: "md5"
       segdups: 
         uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/SegmentalDuplications/GRCh37_segdups.bed.gz
@@ -799,8 +807,7 @@ assemblies:
 
 exclusion_set:
   smvarall:
-    - homopolymers-gt20
-    - imperfecthomopol-gt20
+    - imperfecthomopol-gt30
     - segdups
     - tandem-repeats
     - satellites
@@ -809,8 +816,6 @@ exclusion_set:
     - flanks
     - svs-and-simple-repeats
   smvarallCHM13:
-    - homopolymers-gt20
-    - imperfecthomopol-gt20
     - segdups
     - tandem-repeats
     - satellites
@@ -818,18 +823,26 @@ exclusion_set:
     - flanks
     - svs-and-simple-repeats
   smvartest:
-    - homopolymers-gt20
-    - imperfecthomopol-gt20
+    - imperfecthomopol-gt30
     - svs-and-simple-repeats
   stvarall:
-    - homopolymers-gt20
-    - imperfecthomopol-gt20
+    - imperfecthomopol-gt30
     - segdups
     - tandem-repeats
     - satellites
     - gaps
     - self-chains
     - flanks
+  smvarXYhifi:
+    - hifi-pacbioDV-XY-discrep
+    - imperfecthomopol-gt30
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - self-chains
+    - flanks
+    - svs-and-simple-repeats
 
 ## Regions
 exclusion_slop_regions:
@@ -846,8 +859,8 @@ exclusion_asm_intersect:
 
 exclusion_asm_agnostic:
   - gaps
-  - homopolymers-gt20
-  - imperfecthomopol-gt20
+  - imperfecthomopol-gt30
+  - hifi-pacbioDV-XY-discrep
 
 exclusion_ref_agnostic:
   - flanks
