@@ -54,16 +54,16 @@ references:
     par_bed: "hs37d5.PAR.bed"
     exclusions:
       all-tr-and-homopolymers: 
-        uri: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_AllTandemRepeatsandHomopolymers_slop5.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/LowComplexity/GRCh37_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+        checksum: "7e61413ca7422204f9dbf2e8f4b4b21f"
         checksum_algo: "md5"
       homopolymers-gt20:
-        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/LowComplexity/GRCh37_SimpleRepeat_homopolymer_gt20_slop5.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/LowComplexity/GRCh37_SimpleRepeat_homopolymer_gt20_slop5.bed.gz
+        checksum: "d701516a77ad43f8808a8a8a23320cc1"
         checksum_algo: "md5"
       imperfecthomopol-gt20:
-        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/LowComplexity/GRCh37_SimpleRepeat_imperfecthomopolgt20_slop5.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/LowComplexity/GRCh37_SimpleRepeat_imperfecthomopolgt20_slop5.bed.gz
+        checksum: "758c05a4433cb465180702d8911de57f"
         checksum_algo: "md5"
       imperfecthomopol-gt30:
         uri: "https://gitlab.nist.gov/gitlab/bbd-human-genomics/defrabb/-/snippets/137/raw/main/GRCh38_SimpleRepeat_imperfecthomopolgt30_slop5.bed"
@@ -74,30 +74,30 @@ references:
         checksum: "2e7961e4f7127e82f1263c7455c5b1fd"
         checksum_algo: "md5"
       segdups: 
-        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/SegmentalDuplications/GRCh37_segdups.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/SegmentalDuplications/GRCh37_segdups.bed.gz
+        checksum: "9ca0ff19aea3de664381e89498336924"
         checksum_algo: "md5"
       tandem-repeats: 
-        uri: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_AllTandemRepeats_gt10000bp_slop5.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/LowComplexity/GRCh37_AllTandemRepeats_gt10000bp_slop5.bed.gz
+        checksum: "7e132b105898ed96fe15da90f4d6b67a"
         checksum_algo: "md5"
       gaps: 
-        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/OtherDifficult/GRCh37_gaps_slop15kb.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/OtherDifficult/GRCh37_gaps_slop15kb.bed.gz
+        checksum: "5584073339f944afc90abee3adf573db"
         checksum_algo: "md5"
       self-chains: 
-        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/SegmentalDuplications/GRCh37_chainSelf.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/SegmentalDuplications/GRCh37_chainSelf.bed.gz
+        checksum: "38429cbce4ba70ddc95f9a00ccfe161c"
         checksum_algo: "md5"
       satellites: 
-        uri: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_satellites_slop5.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/LowComplexity/GRCh37_satellites_slop5.bed.gz
+        checksum: "38429cbce4ba70ddc95f9a00ccfe161c"
         checksum_algo: "md5"
     stratifications:
       id: "v3.1-stratifications-GRCh37"
-      uri: "https://giab-data.s3.amazonaws.com/giab-test-data/v3.1-stratifications-GRCh37.tar.gz"
-      tarball: "v3.1-stratifications-GRCh37.tar.gz"
-      checksum: ""
+      uri: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/v3.1-genome-stratifications-GRCh37.tar.gz"
+      tarball: "v3.1-genome-stratifications-GRCh37.tar.gz"
+      checksum: "517c9322aeeacad6cebd58e0e693f8db"
       checksum_algo: "md5"
       tsv: "v3.1-GRCh37-all-stratifications.tsv"
   GRCh38:
@@ -108,45 +108,44 @@ references:
     par_bed: "hs38.PAR.bed"
     exclusions:
       all-tr-and-homopolymers: 
-        uri: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/LowComplexity/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+        checksum: "7e996df87de705c32586a2a620109f2c"
         checksum_algo: "md5"
       homopolymers-gt20:
-        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_SimpleRepeat_homopolymer_gt20_slop5.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/LowComplexity/GRCh38_SimpleRepeat_homopolymer_gt20_slop5.bed.gz
+        checksum: "7ecf287cc200f2db85ccd181b448f8bc"
         checksum_algo: "md5"
       imperfecthomopol-gt20:
-        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_SimpleRepeat_imperfecthomopolgt20_slop5.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/LowComplexity/GRCh38_SimpleRepeat_imperfecthomopolgt20_slop5.bed.gz
+        checksum: "2e5889f6f8e39d0b43b74a83ee56b6a2"
         checksum_algo: "md5"
       segdups: 
-        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_segdups.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/SegmentalDuplications/GRCh38_segdups.bed.gz
+        checksum: "d6d985395c5f730e75e671a4d991743c"
         checksum_algo: "md5"
       tandem-repeats: 
-        uri: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/GRCh38_AllTandemRepeats_gt10000bp_slop5.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/LowComplexity/GRCh38_AllTandemRepeats_gt10000bp_slop5.bed.gz
+        checksum: "ce48a17c596c2286af573816e61d4059"
         checksum_algo: "md5"
       gaps: 
-        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/OtherDifficult/GRCh38_gaps_slop15kb.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/OtherDifficult/GRCh38_gaps_slop15kb.bed.gz
+        checksum: "299d130f0fb5b5652837be318626bd4d"
         checksum_algo: "md5"
       self-chains: 
-        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
+        checksum: "c6b1f323776ebc10191504f070890ffa"
         checksum_algo: "md5"
       satellites: 
-        uri: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/GRCh38_satellites_slop5.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/LowComplexity/GRCh38_satellites_slop5.bed.gz
+        checksum: "2cc4a582d893a206225fd4b8927751b5"
         checksum_algo: "md5"
     stratifications:
       id: "v3.1-stratifications-GRCh38"
-      uri: "https://giab-data.s3.amazonaws.com/giab-test-data/v3.1-stratifications-GRCh38.tar.gz"
-      tarball: "v3.1-stratifications-GRCh38.tar.gz"
-      checksum: ""
+      uri: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/v3.1-genome-stratifications-GRCh38.tar.gz"
+      tarball: "v3.1-genome-stratifications-GRCh38.tar.gz"
+      checksum: "aebf985d3c2acdd5056a27fc3094649e"
       checksum_algo: "md5"
       tsv: "v3.1-GRCh38-all-stratifications.tsv"
-  ## temporary location on S3 for chm13
   CHM13v2.0:
     ref:
       uri: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/reference/chm13v2.0_maskedY.fa.gz"
@@ -155,38 +154,38 @@ references:
     par_bed: "chm13v2.0_PAR-X.bed"
     exclusions:
       all-tr-and-homopolymers: 
-        uri: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/LowComplexity/CHM13v2.0_AllTandemRepeatsandHomopolymers_slop5.bed.gz"
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/CHM13v2.0/LowComplexity/CHM13v2.0_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+        checksum: "ef4b876c14f6f3d4d5f526cdb47e6542"
         checksum_algo: "md5"
       homopolymers-gt20:
-        uri: TODO-ADD
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/CHM13v2.0/LowComplexity/CHM13v2.0_SimpleRepeat_homopolymer_gt20_slop5.bed.gz
+        checksum: "8ade3db6810dd2d4643eee167f9fd0b6"
         checksum_algo: "md5"
       imperfecthomopol-gt20:
-        uri: TODO-ADD
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/CHM13v2.0/LowComplexity/CHM13v2.0_SimpleRepeat_imperfecthomopolgt20_slop5.bed.gz
+        checksum: "713425f947b7a826a5da47b0a1dd7476"
         checksum_algo: "md5"
       segdups: 
-        uri: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/SegmentalDuplications/CHM13v2.0_SegDups.bed.gz"
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/CHM13v2.0/SegmentalDuplications/CHM13v2.0_SegDups.bed.gz
+        checksum: "197cef1f96719d66e52ed20a331d5f45"
         checksum_algo: "md5"
       tandem-repeats: 
-        uri: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/LowComplexity/CHM13v2.0_AllTandemRepeats_gt10000bp_slop5.bed.gz"
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/CHM13v2.0/LowComplexity/CHM13v2.0_AllTandemRepeats_gt10000bp_slop5.bed.gz
+        checksum: "ddf14533de70499fc1800c5687f91f58"
         checksum_algo: "md5"
       gaps: 
-        uri: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/OtherDifficult/CHM13v2.0_rDNA.bed.gz"
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/CHM13v2.0/OtherDifficult/CHM13v2.0_rDNA.bed.gz
+        checksum: "8a15c92e1c7d37b803789775d071bfa5"
         checksum_algo: "md5"
       satellites: 
-        uri: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/exclusions/LowComplexity/CHM13v2.0_satellites_slop5.bed.gz"
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/CHM13v2.0/LowComplexity/CHM13v2.0_satellites_slop5.bed.gz
+        checksum: "bb23932e0c576f89532c600518100552"
         checksum_algo: "md5"
     stratifications:
       id: "v3.1-stratifications-CHM13v2.0"
-      uri: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/strats/v3.1-stratifications-CHM13v2.0.tar.gz"
-      tarball: "v3.1-stratifications-CHM13v2.0.tar.gz"
-      checksum: ""
+      uri: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/v3.1-genome-stratifications-CHM13v2.0.tar.gz"
+      tarball: "v3.1-genome-stratifications-CHM13v2.0.tar.gz"
+      checksum: "0f9e7a5c85686218d7ffe1d1a0fab5b8"
       checksum_algo: "md5"
       tsv: "v3.1-CHM13v2.0-all-stratifications.tsv"
   ## For testing
@@ -198,36 +197,36 @@ references:
     par_bed: "hs38.PAR.bed"
     exclusions:
       all-tr-and-homopolymers: 
-        uri: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/LowComplexity/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+        checksum: "7e996df87de705c32586a2a620109f2c"
         checksum_algo: "md5"
       homopolymers-gt20:
-        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_SimpleRepeat_homopolymer_gt20_slop5.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/LowComplexity/GRCh38_SimpleRepeat_homopolymer_gt20_slop5.bed.gz
+        checksum: "7ecf287cc200f2db85ccd181b448f8bc"
         checksum_algo: "md5"
       imperfecthomopol-gt20:
-        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_SimpleRepeat_imperfecthomopolgt20_slop5.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/LowComplexity/GRCh38_SimpleRepeat_imperfecthomopolgt20_slop5.bed.gz
+        checksum: "2e5889f6f8e39d0b43b74a83ee56b6a2"
         checksum_algo: "md5"
       segdups: 
-        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/SegmentalDuplications/GRCh38_segdups.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/SegmentalDuplications/GRCh38_segdups.bed.gz
+        checksum: "d6d985395c5f730e75e671a4d991743c"
         checksum_algo: "md5"
       tandem-repeats: 
-        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeats_gt10000bp_slop5.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/LowComplexity/GRCh38_AllTandemRepeats_gt10000bp_slop5.bed.gz
+        checksum: "ce48a17c596c2286af573816e61d4059"
         checksum_algo: "md5"
       gaps: 
-        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/OtherDifficult/GRCh38_gaps_slop15kb.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/OtherDifficult/GRCh38_gaps_slop15kb.bed.gz
+        checksum: "299d130f0fb5b5652837be318626bd4d"
         checksum_algo: "md5"
       self-chains: 
-        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
+        checksum: "c6b1f323776ebc10191504f070890ffa"
         checksum_algo: "md5"
       satellites: 
-        uri: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/GRCh38_satellites_slop5.bed.gz
-        checksum: ""
+        uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/LowComplexity/GRCh38_satellites_slop5.bed.gz
+        checksum: "2cc4a582d893a206225fd4b8927751b5"
         checksum_algo: "md5"
     stratifications:
       id: "v3.0-stratifications-GRCh38_chr21"
