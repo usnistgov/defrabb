@@ -291,7 +291,6 @@ def get_eval_inputs_inner(
                         comp_file_dict[
                             "bed"
                         ] = f"results/draft_benchmarksets/{bench_space.wildcard_pattern}.excluded.bed"
-                        print("in exclude")
                 else:
                     print("bench_bed_processing should be either none, manual, or exclude")
                     comp_file_dict[
