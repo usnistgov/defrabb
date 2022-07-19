@@ -39,6 +39,7 @@ def test_get_comparison_vcf():
                 "-f",
                 "-j1",
                 "--keep-target-files",
+                "--touch",
                 "--use-conda",
                 "--directory",
                 workdir,
