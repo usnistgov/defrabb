@@ -15,6 +15,8 @@ rule get_SVs_from_vcf:
         tbl="results/{prefix}_SVs.tsv",
     log:
         "logs/exclusions/vc_SVs_{prefix}.log",
+    conda:
+        "../envs/bcftools.yml"
     shell:
         """
         ## Generating table with SV information and refwiden coordinates
