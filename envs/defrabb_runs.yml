@@ -1,4 +1,4 @@
-name: defrabb
+name: defrabb_runner
 channels:
   - conda-forge
   - bioconda
@@ -259,4 +259,4 @@ dependencies:
     - benchmark-4dn==0.5.15
     - python-lambda-4dn==0.12.3
     - tibanna==1.9.2
-prefix: /home/nolson/mambaforge/envs/defrabb
+prefix: .mamba/defrabb_runner
