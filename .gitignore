@@ -42,3 +42,5 @@ scratch/**
 ## Runtime Benchmark results
 benchmark/**
 
+## Mamba environment
+.mamba

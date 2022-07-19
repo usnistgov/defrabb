@@ -1,6 +1,10 @@
 # Milestone v0.009 TBD
 - Modified analyses table api so that it is more intuitive
 - Common script for downloading files including md5 checksum
+- Using Paramspace for simplifying coding filenames (WIP Will want to clean-up final filenames)
+- Added snippets for $137 and $138 with gt30 imperfect homopolymers and HiFiDV XY distrepancies with HiFiasm
+- adding environment definition and local version for use with defrabb run script
+
 
 # Milestone v0.008 2022-06-06
 - incorporating truvari for evaluating structural variant benchmarks
