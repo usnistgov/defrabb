@@ -114,13 +114,15 @@ param_contig_test:
       policy: pull  
 
 unit_test:
-  needs: [install_global_env]
+  needs: [install_global_env, install_smk_conda_envs]
   stage: test
   <<: *activate_smk
   script:
     - pytest .tests
   cache:
     - <<: *smk_global_cache
+      policy: pull 
+    - <<: *smk_envs_cache
       policy: pull
 
 snakemake_dry:
@@ -131,10 +133,10 @@ snakemake_dry:
     - snakemake --use-conda -c 1 --config analyses=$TESTCONF --dryrun
   cache:
     - <<: *smk_global_cache
-      policy: pull
+      policy: pull 
 
 snakemake_smtest:
-  needs: [install_global_env]
+  needs: [install_global_env, install_smk_conda_envs]
   stage: test
   <<: *activate_smk
   artifacts:
@@ -144,4 +146,6 @@ snakemake_smtest:
     - snakemake -p --use-conda --cores 1 --verbose
   cache:
     - <<: *smk_global_cache
+      policy: pull 
+    - <<: *smk_envs_cache
       policy: pull
