@@ -3,4 +3,4 @@ channels:
   - conda-forge
 dependencies:
   - bcftools==1.14
-  - gawk==h7f98852_0
+  - gawk==5.1.0
