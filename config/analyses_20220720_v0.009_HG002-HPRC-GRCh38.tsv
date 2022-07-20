@@ -1,0 +1,2 @@
+eval_cmd	eval_params	eval_query_vcf_preprocessing	eval_query_bed_preprocessing	eval_truth_vcf_preprocessing	eval_truth_bed_preprocessing	eval_query	eval_truth	eval_truth_regions	eval_target_regions	bench_type	bench_vcf_processing	bench_bed_processing	bench_exclusion_set	asm_id	ref	vc_cmd	vc_param_id
+happy	default	none	none	none	none	HG2-HifiDV-38	this_row	yes	FALSE	smvar	fix_XY_genotype	exclude	smvarall	HG2-HPRC-20211005	GRCh38	dipcall	z2k
