@@ -972,11 +972,11 @@ comparisons:
     ## HPRC callsets from dipcall
     HG2-HPRC-20211005-XY:
       vcf:
-        uri: https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip.vcf.gz
+        uri: https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip/asm_id~HG2-HPRC-20211005_ref~GRCh38_vc_cmd~dipcall_XY.dip.vcf.gz
         checksum: ""
         checksum_algo: "md5"
       bed:
-        uri: https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip.bed
+        uri: https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip/asm_id~HG2-HPRC-20211005_ref~GRCh38_vc_cmd~dipcall_XY.dip.bed
         checksum: ""
         checksum_algo: "md5"
     ## HG2 HPRC draft benchmark from defrabb run 20220610_v0.008_HG002-HPRC-GRCh38 used for comparisons with verkko
