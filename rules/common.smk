@@ -44,6 +44,7 @@ def analyses_to_bench_tbls(analyses):
     excluded_tbl = tbl[tbl.bench_exclusion_set != "none"]
     return (params, tbl, excluded_tbl)
 
+
 ################################################################################
 # init analyses
 
@@ -65,13 +66,13 @@ ASMIDS = set(vc_tbl["asm_id"].tolist())
 VCCMDS = set(vc_tbl["vc_cmd"].tolist())
 BENCHVCFPROC = set(analyses["bench_vcf_processing"])
 BENCHBEDPROC = set(analyses["bench_bed_processing"])
-BENCHEXCLUSIONSET=set(analyses["bench_exclusion_set"])
+BENCHEXCLUSIONSET = set(analyses["bench_exclusion_set"])
 COMPIDS = set(analyses["eval_query"].tolist() + analyses["eval_truth"].tolist())
 EVALIDS = set(
     analyses["eval_query"].tolist() + analyses["eval_truth"].tolist() + ["this_row"]
 )
-EVALTRUTHREGIONS = set(analyses['eval_truth_regions'].tolist())
-EVALTARGETREGIONS = set(analyses['eval_target_regions'].tolist())
+EVALTRUTHREGIONS = set(analyses["eval_truth_regions"].tolist())
+EVALTARGETREGIONS = set(analyses["eval_target_regions"].tolist())
 
 # Only constrain the wildcards to match what is in the resources file. Anything
 # else that can be defined on the command line or in the analyses.tsv can is
@@ -90,7 +91,7 @@ wildcard_constraints:
     eval_truth="|".join(EVALIDS),
     eval_query="|".join(EVALIDS),
     eval_truth_regions="|".join(EVALTRUTHREGIONS),
-    eval_target_regions="|".join(EVALTARGETREGIONS)
+    eval_target_regions="|".join(EVALTARGETREGIONS),
 
 
 ## Using Paramspace for file paths
@@ -153,7 +154,9 @@ bench_space = Paramspace(
 
 excluded_bench_space = Paramspace(
     bench_tbl.loc[
-        bench_tbl["bench_exclusion_set"] != "none",], filename_params=["bench_id", "asm_id", "ref", "vc_cmd", "bench_type"]
+        bench_tbl["bench_exclusion_set"] != "none",
+    ],
+    filename_params=["bench_id", "asm_id", "ref", "vc_cmd", "bench_type"],
 )
 
 ################################################################################
@@ -398,11 +401,13 @@ def get_eval_inputs_inner(
                         "bed"
                     ] = f"results/draft_benchmarksets/{bench_space.wildcard_pattern}.bed"
                 elif bench_bed_processing == "exclude":
-                        comp_file_dict[
-                            "bed"
-                        ] = f"results/draft_benchmarksets/{bench_space.wildcard_pattern}.excluded.bed"
+                    comp_file_dict[
+                        "bed"
+                    ] = f"results/draft_benchmarksets/{bench_space.wildcard_pattern}.excluded.bed"
                 else:
-                    print("bench_bed_processing should be either none, manual, or exclude")
+                    print(
+                        "bench_bed_processing should be either none, manual, or exclude"
+                    )
                     comp_file_dict[
                         "bed"
                     ] = f"results/draft_benchmarksets/{bench_space.wildcard_pattern}.FIXME.bed"
