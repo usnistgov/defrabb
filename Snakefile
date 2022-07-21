@@ -454,15 +454,15 @@ rule run_happy:
     resources:
         mem_mb=config["_happy_mem"],
     threads: config["_happy_threads"]
-#    log:
- #       f"logs/run_happy/{happy_space.wildcard_pattern}.log",
-        # "logs/run_happy/defrabb-0.008_eval_HG002_{ref}_{eval_cmd}_T~{eval_truth}_TR~{eval_truth_regions}_Q~{eval_query}_QR~{eval_target_regions}.log",
-#    benchmark:
- #       f"benchmark/run_happy/{happy_space.wildcard_pattern}.tsv"
-        # "benchmark/run_happy/defrabb-0.008_eval_HG002_{ref}_{eval_cmd}_T~{eval_truth}_TR~{eval_truth_regions}_Q~{eval_query}_QR~{eval_target_regions}.tsv"
-    conda:
+    log:
+        f"logs/run_happy/{happy_space.wildcard_pattern}.log",
+        #"logs/run_happy/defrabb-0.008_eval_HG002_{ref}_{eval_cmd}_T~{eval_truth}_TR~{eval_truth_regions}_Q~{eval_query}_QR~{eval_target_regions}.log",
+    benchmark:
+        f"benchmark/run_happy/{happy_space.wildcard_pattern}.tsv",
+        #"benchmark/run_happy/defrabb-0.008_eval_HG002_{ref}_{eval_cmd}_T~{eval_truth}_TR~{eval_truth_regions}_Q~{eval_query}_QR~{eval_target_regions}.tsv"
+    conda: 
         "envs/happy.yml"
-    script:
+    script: 
         "scripts/run_happy.py"
 
 

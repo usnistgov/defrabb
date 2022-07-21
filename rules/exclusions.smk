@@ -127,7 +127,7 @@ rule add_flanks:
 rule subtract_exclusions:
     input:
         dip_bed=f"results/draft_benchmarksets/intermediates/exclusions/{excluded_bench_space.wildcard_pattern}.sorted.bed",
-        other_beds=get_exclusion_inputs
+        other_beds=get_exclusion_inputs,
     output:
         bed=f"results/draft_benchmarksets/{excluded_bench_space.wildcard_pattern}.excluded.bed",
         stats=f"results/draft_benchmarksets/{excluded_bench_space.wildcard_pattern}.excluded_stats.txt",
