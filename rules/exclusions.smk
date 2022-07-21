@@ -126,17 +126,17 @@ rule add_flanks:
 ## for draft benchmark regions
 rule subtract_exclusions:
     input:
-        dip_bed="results/{comp_dir}/intermediates/exclusions/{prefix}bench_exclusion_set~{bench_exclusion_set}.sorted.bed",
-        other_beds=get_exclusion_inputs,
+        dip_bed=f"results/draft_benchmarksets/intermediates/exclusions/{excluded_bench_space.wildcard_pattern}.sorted.bed",
+        other_beds=get_exclusion_inputs
     output:
-        bed="results/{comp_dir}/{prefix}bench_exclusion_set~{bench_exclusion_set}.excluded.bed",
-        stats="results/{comp_dir}/{prefix}bench_exclusion_set~{bench_exclusion_set}.excluded_stats.txt",
+        bed=f"results/draft_benchmarksets/{excluded_bench_space.wildcard_pattern}.excluded.bed",
+        stats=f"results/draft_benchmarksets/{excluded_bench_space.wildcard_pattern}.excluded_stats.txt",
     params:
         script=workflow.source_path("../scripts/subtract_exclusions.py"),
     log:
-        "logs/exclusions/{comp_dir}_subtract_{prefix}bench_exclusion_set~{bench_exclusion_set}.log",
+        f"logs/exclusions/draft_benchmark_subtract/{excluded_bench_space.wildcard_pattern}.log",
     benchmark:
-        "benchmark/exclusions/{comp_dir}_subtract_{prefix}bench_exclusion_set~{bench_exclusion_set}.benchmark"
+        f"benchmark/exclusions/draft_benchmark_subtract/{excluded_bench_space.wildcard_pattern}.benchmark"
     conda:
         "../envs/bedtools.yml"
     shell:

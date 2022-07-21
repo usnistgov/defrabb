@@ -8,7 +8,6 @@ from snakemake.remote import AUTO
 from snakemake.remote.S3 import RemoteProvider as S3RemoteProvider
 
 S3 = S3RemoteProvider(keep_local=True)
-
 ################################################################################
 ## Config processing functions
 
@@ -45,6 +44,117 @@ def analyses_to_bench_tbls(analyses):
     excluded_tbl = tbl[tbl.bench_exclusion_set != "none"]
     return (params, tbl, excluded_tbl)
 
+################################################################################
+# init analyses
+
+## Loading analysis table with run information
+analyses = load_analyses(
+    workflow.source_path(f"../{config['analyses']}"), "../schema/analyses-schema.yml"
+)
+
+vc_params, vc_tbl = analyses_to_vc_tbl(analyses)
+
+ASMIDS = set(vc_tbl["asm_id"])
+REFIDS = set(vc_tbl["ref"])
+
+## Wildcard variables and ids
+
+## Variables for assembly based variant calling
+REFIDS = set(vc_tbl["ref"].tolist())
+ASMIDS = set(vc_tbl["asm_id"].tolist())
+VCCMDS = set(vc_tbl["vc_cmd"].tolist())
+BENCHVCFPROC = set(analyses["bench_vcf_processing"])
+BENCHBEDPROC = set(analyses["bench_bed_processing"])
+BENCHEXCLUSIONSET=set(analyses["bench_exclusion_set"])
+COMPIDS = set(analyses["eval_query"].tolist() + analyses["eval_truth"].tolist())
+EVALIDS = set(
+    analyses["eval_query"].tolist() + analyses["eval_truth"].tolist() + ["this_row"]
+)
+EVALTRUTHREGIONS = set(analyses['eval_truth_regions'].tolist())
+EVALTARGETREGIONS = set(analyses['eval_target_regions'].tolist())
+
+# Only constrain the wildcards to match what is in the resources file. Anything
+# else that can be defined on the command line or in the analyses.tsv can is
+# unconstrained (for now).
+
+
+wildcard_constraints:
+    asm_id="|".join(ASMIDS),
+    ref_id="|".join(REFIDS),
+    bench_vcf_processing="|".join(BENCHVCFPROC),
+    bench_bed_processing="|".join(BENCHBEDPROC),
+    bench_exclusion_set="|".join(BENCHEXCLUSIONSET),
+    comp_dir="asm_varcalls|draft_benchmarksets|evaluations|report",
+    comp_id="|".join(COMPIDS),
+    comp_ext="vcf.gz|vcf|bed|bed.gz",
+    eval_truth="|".join(EVALIDS),
+    eval_query="|".join(EVALIDS),
+    eval_truth_regions="|".join(EVALTRUTHREGIONS),
+    eval_target_regions="|".join(EVALTARGETREGIONS)
+
+
+## Using Paramspace for file paths
+## - preparing tables for output naming
+run_tbl = analyses
+run_tbl["run_id"] = [f"r{idx}" for idx in run_tbl.index]
+
+bench_cols = [
+    "ref",
+    "asm_id",
+    "vc_cmd",
+    "vc_param_id",
+    "bench_type",
+    "bench_vcf_processing",
+    "bench_bed_processing",
+    "bench_exclusion_set",
+]
+
+bench_tbl = analyses[bench_cols].drop_duplicates()
+
+bench_tbl["bench_id"] = [f"b{idx}" for idx in bench_tbl.index]
+## Creating analyses table with run and bench ids.
+analyses_wids = run_tbl.merge(bench_tbl)
+
+happy_tbl = analyses_wids[analyses_wids["eval_cmd"] == "happy"]
+
+happy_space = Paramspace(
+    happy_tbl,
+    filename_params=[
+        "run_id",
+        "bench_id",
+        "asm_id",
+        "ref",
+    ],
+)
+
+truvari_tbl = analyses_wids[analyses_wids["eval_cmd"] == "truvari"]
+truvari_space = Paramspace(
+    truvari_tbl,
+    filename_params=[
+        "run_id",
+        "bench_id",
+        "asm_id",
+        "ref",
+    ],
+)
+
+dipcall_space = Paramspace(
+    analyses.loc[
+        analyses["vc_cmd"] == "dipcall",
+        ["asm_id", "ref", "vc_cmd", "vc_param_id"],
+    ].drop_duplicates(),
+    filename_params=["asm_id", "ref", "vc_cmd"],
+)
+
+
+bench_space = Paramspace(
+    bench_tbl, filename_params=["bench_id", "asm_id", "ref", "vc_cmd", "bench_type"]
+)
+
+excluded_bench_space = Paramspace(
+    bench_tbl.loc[
+        bench_tbl["bench_exclusion_set"] != "none",], filename_params=["bench_id", "asm_id", "ref", "vc_cmd", "bench_type"]
+)
 
 ################################################################################
 ## Rule parameters
@@ -200,7 +310,7 @@ def get_genome_file(wildcards):
 def get_male_bed(wildcards):
     root = config["_par_bed_root"]
     filename = ref_config[wildcards.ref]["par_bed"]
-    return workflow.source_path(f"../{root}/{filename}")
+    return f"{root}/{filename}"
 
 
 def get_dipcall_par_param(wildcards):
@@ -274,7 +384,7 @@ def get_eval_inputs_inner(
         ## Using predefined bed file
         if eval_regions.lower().endswith("bed"):
             tr_dir = "resources/manual/target_regions"
-            comp_file_dict["bed"] = workflow.source_path(f"../{tr_dir}/{eval_regions}")
+            comp_file_dict["bed"] = f"{tr_dir}/{eval_regions}"
 
         elif eval_regions == "yes":
             ### using draft benchmark regions
@@ -330,7 +440,7 @@ def get_eval_inputs_inner(
 
 
 ## Exclusions
-def get_exclusion_inputs(param_space, wildcards):
+def get_exclusion_inputs(wildcards):
 
     ## Getting list of excluded regions
     exclusion_set = config["exclusion_set"][wildcards.bench_exclusion_set]
