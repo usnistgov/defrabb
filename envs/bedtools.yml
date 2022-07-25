@@ -4,4 +4,4 @@ channels:
 dependencies:
   - bedtools=2.30.0
   - pybedtools=0.8.2
-  - gawk==h7f98852_0
+  - gawk==5.1.0

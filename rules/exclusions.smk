@@ -126,7 +126,7 @@ rule add_flanks:
 ## for draft benchmark regions
 rule subtract_exclusions:
     input:
-        dip_bed=f"results/draft_benchmarksets/intermediates/exclusions/{excluded_bench_space.wildcard_pattern}.sorted.bed",
+        dip_bed=f"results/draft_benchmarksets/intermediates/exclusions/{excluded_bench_space.wildcard_pattern}.dip.sorted.bed",
         other_beds=get_exclusion_inputs,
     output:
         bed=f"results/draft_benchmarksets/{excluded_bench_space.wildcard_pattern}.excluded.bed",
