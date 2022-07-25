@@ -44,13 +44,25 @@ def analyses_to_bench_tbls(analyses):
     excluded_tbl = tbl[tbl.bench_exclusion_set != "none"]
     return (params, tbl, excluded_tbl)
 
+################################################################################
+# init resources
+
+
+configfile: workflow.source_path("../config/resources.yml")
+
+
+validate(config, "../schema/resources-schema.yml")
+
+asm_config = config["assemblies"]
+comp_config = config["comparisons"]
+ref_config = config["references"]
 
 ################################################################################
 # init analyses
 
 ## Loading analysis table with run information
 analyses = load_analyses(
-    workflow.source_path(f"../{config['analyses']}"), "../schema/analyses-schema.yml"
+    workflow.source_path(f"{config['analyses']}"), "../schema/analyses-schema.yml"
 )
 
 vc_params, vc_tbl = analyses_to_vc_tbl(analyses)
@@ -73,7 +85,7 @@ EVALIDS = set(
 )
 EVALTRUTHREGIONS = set(analyses["eval_truth_regions"].tolist())
 EVALTARGETREGIONS = set(analyses["eval_target_regions"].tolist())
-
+GENOMICREGIONS=["hifi-pacbioDV-XY-discrep", "imperfecthomopol-gt30","segdups","tandem-repeats","satellites","gaps","self-chains","flanks","svs-and-simple-repeats"]
 # Only constrain the wildcards to match what is in the resources file. Anything
 # else that can be defined on the command line or in the analyses.tsv can is
 # unconstrained (for now).
@@ -92,6 +104,7 @@ wildcard_constraints:
     eval_query="|".join(EVALIDS),
     eval_truth_regions="|".join(EVALTRUTHREGIONS),
     eval_target_regions="|".join(EVALTARGETREGIONS),
+    genomic_region="|".join(GENOMICREGIONS)
 
 
 ## Using Paramspace for file paths
@@ -162,12 +175,16 @@ excluded_bench_space = Paramspace(
 ################################################################################
 ## Rule parameters
 def get_ref_id(wildcards):
-    ref_id = wildcards.get("ref", "")
-    if not ref_id:
-        prefix = wildcards.get("prefix", "")
-        for id in REFIDS:
-            if id in prefix:
-                ref_id = id
+    ref = wildcards.get("ref", "")
+    if ref:
+        ref_id = ref
+    else:
+        ref_id = wildcards.get("ref_id", "")
+        if not ref_id:
+            prefix = wildcards.get("prefix", "")
+            for id in REFIDS:
+                if id in prefix:
+                    ref_id = id
     if not ref_id:
         print(f"ref_id could not be determined from wildcards or {prefix}")
 
@@ -459,7 +476,7 @@ def get_exclusion_inputs(wildcards):
             ref_id = get_ref_id(wildcards)
             exc_path = f"resources/exclusions/{ref_id}/{exclusion}"
         else:
-            exc_path = f"results/draft_benchmarksets/intermediates/exclusions/{bench_space.wildcard_pattern}"
+            exc_path = f"results/draft_benchmarksets/{bench_space.wildcard_pattern}/intermediates/{exclusion}"
         ## Adding slop - currently a 15kb hard coded buffer around excluded repeat regions
         if exclusion in config["exclusion_slop_regions"]:
             exc_path = f"{exc_path}_slop"
@@ -475,7 +492,7 @@ def get_exclusion_inputs(wildcards):
 
     ## Adding to exc_paths list and ensuring all beds are sorted
     ## prior to exclusion from dip assembled regions
-    exclusion_paths = [f"{exc}.sorted.bed" for exc in exc_paths]
+    exclusion_paths = [f"{exc}.bed" for exc in exc_paths]
 
     ## Returning list of bed paths for exclusion
     return exclusion_paths
