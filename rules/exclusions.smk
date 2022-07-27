@@ -28,7 +28,7 @@ rule get_SVs_from_vcf:
         bed="results/{prefix}_SVs.bed",
         tbl="results/{prefix}_SVs.tsv",
     log:
-        "logs/exclusions/{bench_id}_div_SVs_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/exclusions/{prefix}.log",
     shell:
         """
         ## Generating table with SV information and refwiden coordinates
