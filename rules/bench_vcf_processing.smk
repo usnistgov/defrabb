@@ -65,7 +65,7 @@ rule split_multiallelic_sites:
 rule normalize_for_svwiden:
     input:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
-        ref=get_ref_file,
+        ref="resources/references/{ref_id}.fa",
     output:
         "results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz",
     resources:
@@ -87,7 +87,7 @@ rule normalize_for_svwiden:
 rule run_svwiden:
     input:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz",
-        ref=get_ref_file,
+        ref="resources/references/{ref_id}.fa",
     output:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.vcf.gz",
     log:
@@ -97,7 +97,7 @@ rule run_svwiden:
     shadow:
         "minimal"
     params:
-        prefix="results/draft_benchmarksets/{prefix}.svwiden",
+        prefix="results/draft_benchmarksets/{bench_id}/intermediates{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden",
     shell:
         """
         svanalyzer widen \
