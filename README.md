@@ -188,7 +188,7 @@ Additional modifications were made for bam and vcf comparisons, specifically ign
 ### Python Function Unit Tests
 The functions need to be in a .py file.
 1. Copy `rules/common.smk` to `test/common.py` for running tests.
-2. Run tests using `python -m unittest rules/common.py test/unit/config.py`
+2. Run tests using `python -m unittest test/common.py test/unit/config.py`
 
 ### Pytest Snakemake Rule Unit Tests
 - Tests are run using `pytest .tests`
