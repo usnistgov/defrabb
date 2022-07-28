@@ -69,7 +69,7 @@ rule normalize_for_svwiden:
     output:
         "results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz",
     resources:
-        mem_mb=8000
+        mem_mb=8000,
     conda:
         "../envs/bcftools.yml"
     log:
