@@ -76,19 +76,11 @@ rule normalize_for_svwiden:
         "logs/gt19_norm/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     shell:
         """
-<<<<<<< HEAD
         bcftools norm -m- -Ou {input.vcf} \
             | bcftools norm -d exact -Ou \
             | bcftools norm -cs -f {input.ref} -Ov\
             | awk '($4!="*" && $5!="*" && (length($4)>20 || length($5)>20)) || $1~/^#/' \
             | bcftools sort -m{resources.mem_mb}m -Oz > {output} 2> {log}
-=======
-        bcftools norm -m- {input.vcf} \
-            | bcftools norm -f {input.ref} \
-            | bcftools norm -d none \
-            | awk '($4!="*" && $5!="*" && (length($4)>20 || length($5)>20)) || $1~/^#/' \
-            | bcftools view -o {output} -Oz - > {log}
->>>>>>> 06cb5f1... runnable rules
         """
 
 
@@ -97,7 +89,6 @@ rule run_svwiden:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz",
         ref="resources/references/{ref_id}.fa",
     output:
-<<<<<<< HEAD
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.vcf.gz",
     log:
         "logs/svwiden/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
@@ -107,17 +98,6 @@ rule run_svwiden:
         "minimal"
     params:
         prefix="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden",
-=======
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.svwiden.vcf.gz",
-    log:
-        "logs/svwiden/{bench_id}_{prefix}.log",
-    conda:
-        "../envs/svanalyzer.yml"
-    shadow:
-        "minimal"
-    params:
-        prefix="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.svwiden",
->>>>>>> 06cb5f1... runnable rules
     shell:
         """
         svanalyzer widen \
@@ -125,13 +105,9 @@ rule run_svwiden:
         --ref {input.ref} \
         --prefix {params.prefix} &> {log} 
 
-<<<<<<< HEAD
         # Removing ".;" at beginning of INFO field introduced by SVwiden
         sed 's/\.;REPTYPE/REPTYPE/' {params.prefix}.vcf \
             | bgzip -c > {params.prefix}.vcf.gz 2>> {log}
-=======
-        bgzip {params.prefix}.vcf
->>>>>>> 06cb5f1... runnable rules
         """
 
 
