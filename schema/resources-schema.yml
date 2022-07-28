@@ -52,7 +52,7 @@ properties:
             description: The beds to use when generating the exclusions
             additionalProperties: false
             patternProperties:
-              ^homopolymers|all-tr-and-homopolymers|segdups|tandem-repeats|gaps|self-chains|satellites|hifi-pacbioDV-XY-discrep|imperfecthomopol-gt30|imperfecthomopol-gt20|homopolymers-gt20$:
+              ^all-tr-and-homopolymers|segdups|tandem-repeats|gaps|self-chains|satellites|hifi-pacbioDV-XY-discrep|imperfecthomopol-gt30|imperfecthomopol-gt20|homopolymers-gt20$:
                 type: string
                 format: uri
 

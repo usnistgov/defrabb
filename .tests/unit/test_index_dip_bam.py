@@ -40,6 +40,7 @@ def test_index_dip_bam():
                 "-j1",
                 "--keep-target-files",
                 "--use-conda",
+                "--touch",
                 "--directory",
                 workdir,
             ]
