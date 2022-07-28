@@ -89,7 +89,7 @@ rule run_svwiden:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz",
         ref="resources/references/{ref_id}.fa",
     output:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.vcf.gz",
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.vcf.gz",
     log:
         "logs/svwiden/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     conda:
@@ -97,7 +97,7 @@ rule run_svwiden:
     shadow:
         "minimal"
     params:
-        prefix="results/draft_benchmarksets/{bench_id}/intermediates{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden",
+        prefix="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden",
     shell:
         """
         svanalyzer widen \
@@ -113,11 +113,11 @@ rule run_svwiden:
 
 rule move_asm_vcf_to_draft_bench:
     input:
-        lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{prefix}}.dip.vcf.gz",
+        lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.vcf.gz",
     output:
-        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
+        "results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
     log:
-        "logs/process_benchmark_vcf/{bench_id}_{prefix}.log",
+        "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     shell:
         "cp {input} {output} &> {log}"
 

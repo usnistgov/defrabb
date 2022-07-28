@@ -3,7 +3,7 @@ import pandas as pd
 
 wildcard_constraints:
     ref_id="GRCh38|GRCh37|GRCh38_chr21|CHM13v2.0",
-    genomic_region="homopolymers|segdups|tandem-repeats|gaps|self-chains|satellites",
+    genomic_region="all-tr-and-homopolymers|segdups|tandem-repeats|gaps|self-chains|satellites",
 
 
 # downloading beds used for exclusion
@@ -23,7 +23,7 @@ rule download_bed_gz:
 # structural variants - using asm varcalls vcf to identify structural variants for exclusion
 rule get_SVs_from_vcf:
     input:
-        "results/draft_benchmarksets/{bench_id}/intermediates{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.vcf.gz",
+        "results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.vcf.gz",
     output:
         bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.bed",
         tbl="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.tsv",
@@ -34,25 +34,24 @@ rule get_SVs_from_vcf:
     shell:
         """
         ## Generating table with SV information and refwiden coordinates
-        bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\%INFO\REFWIDENED\t%INFO\REPTYPE\n'  - > {output.tbl}
+        bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/REFWIDENED\t%INFO/REPTYPE\n'  {input} > {output.tbl}
 
         ## Creating bed with SVs for use in defining excluded regions
         # ---- excluding SVs less than 50 bps and reformatting as 0 base tab sep bed file (CHROM\tSTART\tSTOP)
         awk 'length($3)>49 || length($4)>49' {output.tbl} \
-            cut -f 5 \
-            | sed 's/[:,-]/\t/g'
-            awk '{{FS=OFS="\\t"}} {{print $1,$2-1,$3-1}}' \
-            1> {output} 2> {log}
+            | cut -f 5 \
+            | sed 's/[:,-]/\t/g' \
+            1> {output.bed} 2> {log}
         """
 
 
-rule intersect_SVs_and_homopolymers:
+rule intersect_SVs_and_simple_repeats:
     input:
         sv_bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs_sorted.bed",
-        homopoly_bed="resources/exclusions/{ref_id}/homopolymers_sorted.bed",
+        simple_repeat_bed="resources/exclusions/{ref_id}/all-tr-and-homopolymers_sorted.bed",
         genome=get_genome_file,
     output:
-        "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_svs-and-homopolymers.bed",
+        "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_svs-and-simple-repeats.bed",
     log:
         "logs/exclusions/{bench_id}_SVs_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
@@ -62,7 +61,7 @@ rule intersect_SVs_and_homopolymers:
     shell:
         """
         intersectBed -wa \
-                -a {input.homopoly_bed} \
+                -a {input.simple_repeat_bed} \
                 -b {input.sv_bed} | \
             multiIntersectBed -i stdin {input.sv_bed} | \
             bedtools slop -i stdin -g {input.genome} -b 50 | \

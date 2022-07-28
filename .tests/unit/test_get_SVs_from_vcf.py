@@ -26,6 +26,7 @@ def test_get_SVs_from_vcf():
         # dbg
         print(
             "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_dip_SVs.bed",
+            "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_dip_SVs.tsv",
             file=sys.stderr,
         )
 

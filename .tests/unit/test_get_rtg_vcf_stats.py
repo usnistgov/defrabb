@@ -40,6 +40,7 @@ def test_get_rtg_vcf_stats():
                 "-j1",
                 "--keep-target-files",
                 "--use-conda",
+                "--touch",
                 "--directory",
                 workdir,
             ]
