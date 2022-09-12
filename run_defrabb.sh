@@ -77,7 +77,7 @@ fi
 if [[ -n "${out_dir}" ]]; then
    run_dir="${out_dir}/${runid}"
 else
-   run_dir="../${runid}"
+   run_dir="/defrabb_runs/runs_in_progress/${runid}"
 fi
 
 mkdir -p ${run_dir}
