@@ -9,7 +9,7 @@ min_version("7.3.0")
 
 
 ## Rule ordering for ambiguous rules
-ruleorder: get_beds_for_exclusions > sort_bed > subtract_exclusions > postprocess_bed > normalize_for_svwiden > run_svwiden > fix_XY_genotype > move_asm_vcf_to_draft_bench
+ruleorder: sort_bed > get_bed_for_postprocessing > subtract_exclusions > postprocess_bed > normalize_for_svwiden > run_svwiden > fix_XY_genotype > move_asm_vcf_to_draft_bench
 
 
 ## Loading external rules
@@ -18,19 +18,6 @@ include: "rules/exclusions.smk"
 include: "rules/report.smk"
 include: "rules/bench_vcf_processing.smk"
 
-
-################################################################################
-# init resources
-
-
-configfile: workflow.source_path("config/resources.yml")
-
-
-validate(config, "schema/resources-schema.yml")
-
-asm_config = config["assemblies"]
-comp_config = config["comparisons"]
-ref_config = config["references"]
 
 
 ## Rules to run locally
@@ -334,12 +321,12 @@ rule run_dipcall:
 
 rule sort_bed:
     input:
-        in_file="results/{comp_dir}/{prefix}.bed",
+        in_file="{prefix}.bed",
         genome=get_genome_file,
     output:
-        "results/{comp_dir}/{prefix}.sorted.bed",
+        "results/{prefix}.sorted.bed",
     log:
-        "logs/sort_bed/{comp_dir}/{prefix}.log",
+        "logs/sort_bed/{prefix}.log",
     wrapper:
         "0.74.0/bio/bedtools/sort"
 
@@ -402,12 +389,32 @@ rule get_beds_for_exclusions:
     script:
         "scripts/download_resources.py"
 
+rule sort_exclusion_beds:
+    input:
+        in_file="resources/exclusions/{ref}/{genomic_region}.bed",
+        genome=get_genome_file,
+    output:
+        "resources/exclusions/{ref}/{genomic_region}.sorted.bed",
+    log:
+        "logs/sort_bed/exclusion/{ref}_{genomic_region}.log",
+    wrapper:
+        "0.74.0/bio/bedtools/sort"
 
 rule postprocess_bed:
     input:
         f"results/asm_varcalls/{dipcall_space.wildcard_pattern}.dip.bed",
     output:
         f"results/draft_benchmarksets/{bench_space.wildcard_pattern}.bed",
+    log:
+        f"logs/process_benchmark_bed/{bench_space.wildcard_pattern}.log",
+    shell:
+        "cp {input} {output} &> {log}"
+
+rule get_bed_for_postprocessing:
+    input:
+        f"results/asm_varcalls/{dipcall_space.wildcard_pattern}.dip.bed",
+    output:
+        f"results/draft_benchmarksets/intermediates/exclusions/{bench_space.wildcard_pattern}.dip.bed",
     log:
         f"logs/process_benchmark_bed/{bench_space.wildcard_pattern}.log",
     shell:
