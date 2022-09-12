@@ -11,7 +11,7 @@
 #   filesystem urls (eg file://blablabla) to allow local preprocessing if
 #   desired
 ################################################################################
-analyses: "config/analyses.tsv"
+analyses: "../config/analyses.tsv"
 
 ################################################################################
 # Rule compute resource requirements and data dependencies
@@ -65,14 +65,6 @@ references:
         uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/LowComplexity/GRCh37_SimpleRepeat_imperfecthomopolgt20_slop5.bed.gz
         checksum: "758c05a4433cb465180702d8911de57f"
         checksum_algo: "md5"
-      imperfecthomopol-gt30:
-        uri: "https://gitlab.nist.gov/gitlab/bbd-human-genomics/defrabb/-/snippets/137/raw/main/GRCh38_SimpleRepeat_imperfecthomopolgt30_slop5.bed"
-        checksum: "2267cec6f6c4517ac28b9e1c364a42e9 "
-        checksum_algo: "md5"
-      hifi-pacbioDV-XY-discrep:
-        uri: "https://gitlab.nist.gov/gitlab/bbd-human-genomics/defrabb/-/snippets/138/raw/main/GRCh38_HiFiDV-v4.2.1_T2T-XY-v2.7_dipcall-z2k_FP_merge30_slop50_gt2_FNINSgt2.bed"
-        checksum: "2e7961e4f7127e82f1263c7455c5b1fd"
-        checksum_algo: "md5"
       segdups: 
         uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/SegmentalDuplications/GRCh37_segdups.bed.gz
         checksum: "9ca0ff19aea3de664381e89498336924"
@@ -118,6 +110,14 @@ references:
       imperfecthomopol-gt20:
         uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/LowComplexity/GRCh38_SimpleRepeat_imperfecthomopolgt20_slop5.bed.gz
         checksum: "2e5889f6f8e39d0b43b74a83ee56b6a2"
+        checksum_algo: "md5"
+      imperfecthomopol-gt30:
+        uri: "https://gitlab.nist.gov/gitlab/bbd-human-genomics/defrabb/-/snippets/137/raw/main/GRCh38_SimpleRepeat_imperfecthomopolgt30_slop5.bed"
+        checksum: "2267cec6f6c4517ac28b9e1c364a42e9 "
+        checksum_algo: "md5"
+      hifi-pacbioDV-XY-discrep:
+        uri: "https://gitlab.nist.gov/gitlab/bbd-human-genomics/defrabb/-/snippets/138/raw/main/GRCh38_HiFiDV-v4.2.1_T2T-XY-v2.7_dipcall-z2k_FP_merge30_slop50_gt2_FNINSgt2.bed"
+        checksum: "2e7961e4f7127e82f1263c7455c5b1fd"
         checksum_algo: "md5"
       segdups: 
         uri: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/SegmentalDuplications/GRCh38_segdups.bed.gz
