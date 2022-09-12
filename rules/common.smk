@@ -311,9 +311,8 @@ def get_genome_file(wildcards):
 
 
 def get_male_bed(wildcards):
-    root = config["_par_bed_root"]
-    filename = ref_config[wildcards.ref]["par_bed"]
-    return f"{root}/{filename}"
+    filepath = f"{config['_par_bed_root']}/{ref_config[wildcards.ref]['par_bed']}"
+    return filepath
 
 
 def get_dipcall_par_param(wildcards):
