@@ -1,3 +1,14 @@
+# Milestone v0.009 2022-07-20
+- Modified analyses table api so that it is more intuitive
+- Common script for downloading files including md5 checksum
+- Using Paramspace for simplifying coding filenames (WIP Will want to clean-up final filenames)
+- Added snippets for $137 and $138 with gt30 imperfect homopolymers and HiFiDV XY distrepancies with HiFiasm
+- adding environment definition and local version for use with defrabb run script
+- adding gawk to conda envs for improved reproducibility
+
+Notes: API and filenaming changes broke unit tests, tests will be updated for next release
+
+
 # Milestone v0.008 2022-06-06
 - incorporating truvari for evaluating structural variant benchmarks
 - Using Truvari v3.2.0 with Bioconda package Issue #15

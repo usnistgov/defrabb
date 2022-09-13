@@ -1,15 +1,13 @@
 # process T2TXY_v2.7.dip.vcf to match hifiDV GT using JZ sed command `
-
-
 rule fix_XY_genotype:
     input:
-        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
+        "results/{prefix}.vcf.gz",
     output:
-        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.fix_XY_genotype.vcf.gz",
+        "results/{prefix}.fix_XY_genotype.vcf.gz",
     conda:
         "../envs/dipcall.yml"
     log:
-        "logs/fix_XY_genotype/{bench_id}_{prefix}.log",
+        "logs/fix_XY_genotype/{prefix}.log",
     shell:
         """
         gunzip -c {input} \
@@ -24,14 +22,14 @@ rule fix_XY_genotype:
 ##  Not current used - keeping here for potential future use
 rule dip_gap2homvarbutfiltered:
     input:
-        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
+        "results/{prefix}.vcf.gz",
     output:
-        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.gap2homvarbutfiltered.vcf.gz",
+        "results/{prefix}.gap2homvarbutfiltered.vcf.gz",
     # bgzip is part of samtools, which is part of the dipcall env
     conda:
         "../envs/dipcall.yml"
     log:
-        "logs/dip_gap2homvarbutfiltered/{bench_id}_{prefix}.log",
+        "logs/dip_gap2homvarbutfiltered/{prefix}.log",
     shell:
         """
         gunzip -c {input} |\
@@ -44,14 +42,14 @@ rule dip_gap2homvarbutfiltered:
 ## Primarily for SVs
 rule split_multiallelic_sites:
     input:
-        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
+        "results/{prefix}.vcf.gz",
     output:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.split_multi.vcf.gz",
-        vcf_tbi="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.split_multi.vcf.gz.tbi",
+        vcf="results/{prefix}.split_multi.vcf.gz",
+        vcf_tbi="results/{prefix}.split_multi.vcf.gz.tbi",
     conda:
         "../envs/bcftools.yml"
     log:
-        "logs/split_multiallelic_sites/{bench_id}_{prefix}.log",
+        "logs/split_multiallelic_sites/{prefix}.log",
     shell:
         """
         bcftools norm -m - {input} -Oz -o {output.vcf} 2> {log}
@@ -101,9 +99,9 @@ rule run_svwiden:
     shell:
         """
         svanalyzer widen \
-        --variants {input.vcf} \
-        --ref {input.ref} \
-        --prefix {params.prefix} &> {log} 
+            --variants {input.vcf} \
+            --ref {input.ref} \
+            --prefix {params.prefix} &> {log} 
 
         # Removing ".;" at beginning of INFO field introduced by SVwiden
         sed 's/\.;REPTYPE/REPTYPE/' {params.prefix}.vcf \
