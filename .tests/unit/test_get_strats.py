@@ -39,7 +39,6 @@ def test_get_strats():
                 "-f",
                 "-j1",
                 "--keep-target-files",
-                "--touch",
                 "--use-conda",
                 "--directory",
                 workdir,
