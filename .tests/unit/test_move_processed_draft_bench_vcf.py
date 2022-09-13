@@ -41,7 +41,6 @@ def test_move_processed_draft_bench_vcf():
                 "-f",
                 "-j1",
                 "--keep-target-files",
-                "--touch",
                 "--use-conda",
                 "--touch",
                 "--directory",

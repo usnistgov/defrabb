@@ -39,7 +39,6 @@ def test_get_bcftools_stats():
                 "-f",
                 "-j1",
                 "--keep-target-files",
-                "--touch",
                 "--use-conda",
                 "--directory",
                 workdir,
