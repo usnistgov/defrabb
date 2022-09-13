@@ -13,6 +13,7 @@ results/**
 logs/**
 benchmark/**
 .snakemake/**
+.mamba
 ## Resources - use -f to add 
 resources/**
 ## Unzipped stratifications on workstation
