@@ -36,6 +36,7 @@ def test_get_assemblies():
                 "-f",
                 "-j1",
                 "--keep-target-files",
+                "--touch",
                 "--use-conda",
                 "--directory",
                 workdir,

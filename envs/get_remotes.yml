@@ -1,6 +1,8 @@
 channels:
   - bioconda
   - conda-forge
+  - defaults
 dependencies:
-  - bcftools==1.14
-  - gawk==h7f98852_0
+  - snakemake
+  - curl
+  - awscli
