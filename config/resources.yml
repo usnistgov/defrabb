@@ -57,7 +57,7 @@ references:
       satellites: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_satellites_slop5.bed.gz
       homopolymers-gt20: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/LowComplexity/GRCh37_SimpleRepeat_homopolymer_gt20_slop5.bed.gz
       imperfecthomopol-gt20: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh37/LowComplexity/GRCh37_SimpleRepeat_imperfecthomopolgt20_slop5.bed.gz
-      imperfecthomopol-gt30: "https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/exclusions_GRCh38/imperfecthomopolgt30_slop5.bed"
+      imperfecthomopol-gt30: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/LowComplexity/GRCh37_SimpleRepeat_imperfecthomopolgt20_slop5.bed.gz
       hifi-pacbioDV-XY-discrep: "https://gitlab.nist.gov/gitlab/bbd-human-genomics/defrabb/-/snippets/138/raw/main/GRCh38_HiFiDV-v4.2.1_T2T-XY-v2.7_dipcall-z2k_FP_merge30_slop50_gt2_FNINSgt2.bed"
     stratifications:
       id: "v3.0-stratifications-GRCh37"
@@ -158,6 +158,10 @@ assemblies:
   HG2-HPRC-20211005:
     maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/21edcb42-02c4-4e9f-b226-6773e62484a4--RU-HG002-commons/assembly/curated_round2/HG002.mat.cur.20211005.fasta.gz
     paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/21edcb42-02c4-4e9f-b226-6773e62484a4--RU-HG002-commons/assembly/curated_round2/HG002.pat.cur.20211005.fasta.gz
+    is_male: true
+  HG002-verrkoV1.1-V0.6:
+    maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/verkko/HG002/v1.1/assembly.v0.6_maternal.fasta.gz
+    paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/verkko/HG002/v1.1/assembly.v0.6_paternal.fasta.gz
     is_male: true
   ## HPRC 44 Genome Assemblies from pangenome work
   HPRC-HG00733:
