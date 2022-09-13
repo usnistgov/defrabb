@@ -23,8 +23,8 @@ High-level diagram by Nate -https://lucid.app/lucidchart/aea8aae0-c550-420d-80df
 # Usage
 ##  Initial Setup and Test Run
 1. clone repository `git clone https://gitlab.nist.gov/gitlab/njd2/giab-asm-bench-whole-genome.git`
-2. generate conda snakemake environment `mamba env create --file=envs/defrabb_runs.yml `
-3. Activate environment `mamba activate .mamba/defrabb_runner`
+2. generate conda snakemake environment `mamba create -n snakemake --file envs/env.yml`
+3. Activate environment `conda activate snakemake`
 4. Run built in test analyses `snakemake --use-conda -j1`
 
 ## Running a defined analysis set
