@@ -13,7 +13,8 @@ results/**
 logs/**
 benchmark/**
 .snakemake/**
-.mamba
+.mamba/**
+
 ## Resources - use -f to add 
 resources/**
 ## Unzipped stratifications on workstation
@@ -37,9 +38,12 @@ etc/slurm/__pycache__/**
 scratch/**
 
 ## Rproject files
-.Rproj.user
+.Rproj.user/**
 .Rhistory
 
 ## Runtime Benchmark results
 benchmark/**
+
+## pytests files
+.tests/unit/__pycache__/**
 
