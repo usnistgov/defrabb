@@ -41,6 +41,7 @@ def test_move_asm_vcf_to_draft_bench():
                 "-f",
                 "-j1",
                 "--keep-target-files",
+                "--touch",
                 "--use-conda",
                 "--touch",
                 "--directory",
