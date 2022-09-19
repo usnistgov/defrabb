@@ -11,13 +11,13 @@ sys.path.insert(0, os.path.dirname(__file__))
 import common
 
 
-def test_intersect_SVs_and_homopolymers():
+def intersect_SVs_and_simple_repeats():
 
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
-        data_path = PurePosixPath(".tests/unit/intersect_SVs_and_homopolymers/data")
+        data_path = PurePosixPath(".tests/unit/intersect_SVs_and_simple_repeats/data")
         expected_path = PurePosixPath(
-            ".tests/unit/intersect_SVs_and_homopolymers/expected"
+            ".tests/unit/intersect_SVs_and_simple_repeats/expected"
         )
         config_path = PurePosixPath("config")
 
@@ -27,7 +27,7 @@ def test_intersect_SVs_and_homopolymers():
 
         # dbg
         print(
-            "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_svs-and-homopolymers.bed",
+            "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_svs-and-simple-repeats.bed",
             file=sys.stderr,
         )
 
@@ -37,7 +37,7 @@ def test_intersect_SVs_and_homopolymers():
                 "python",
                 "-m",
                 "snakemake",
-                "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_svs-and-homopolymers.bed",
+                "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_svs-and-simple-repeats.bed",
                 "-f",
                 "-j1",
                 "--keep-target-files",
