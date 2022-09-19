@@ -23,8 +23,8 @@ High-level diagram by Nate -https://lucid.app/lucidchart/aea8aae0-c550-420d-80df
 # Usage
 ##  Initial Setup and Test Run
 1. clone repository `git clone https://gitlab.nist.gov/gitlab/njd2/giab-asm-bench-whole-genome.git`
-2. generate conda snakemake environment `mamba env create --file=envs/defrabb_runs.yml `
-3. Activate environment `mamba activate .mamba/defrabb_runner`
+2. generate conda snakemake environment `mamba create -n snakemake --file envs/env.yml`
+3. Activate environment `conda activate snakemake`
 4. Run built in test analyses `snakemake --use-conda -j1`
 
 ## Running a defined analysis set
@@ -188,7 +188,7 @@ Additional modifications were made for bam and vcf comparisons, specifically ign
 ### Python Function Unit Tests
 The functions need to be in a .py file.
 1. Copy `rules/common.smk` to `test/common.py` for running tests.
-2. Run tests using `python -m unittest rules/common.py test/unit/config.py`
+2. Run tests using `python -m unittest test/common.py test/unit/config.py`
 
 ### Pytest Snakemake Rule Unit Tests
 - Tests are run using `pytest .tests`
