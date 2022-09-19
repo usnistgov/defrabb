@@ -30,27 +30,18 @@ properties:
 ################################################################################
 # resources - information for framework data dependencies, i.e. reference genomes
   references:
-    additionalProperties: true
+    additionalProperties: false
     patternProperties:
 
       ^GRCh3[7,8]|GRCh38_chr21|CHM13v[0-9].[0-9]$:
         type: object
         description: metadata for reference genomes
         properties:
-          ref:
-            type: object
-            description: metadata for reference genome sequence 
-            properties:
-              uri: 
-                type: string
-                format: uri
-                description: uri for remote file
-              checksum:
-                type: string
-                description: checksum hash for validating integrity of downloaded remote file
-              checksum_algo: 
-                type: string
-                description: algorithm used to compute checksum
+
+          ref_url:
+            format: url
+            description: url to the reference FASTA file
+
           par_bed:
             type: string
             description: |
@@ -59,32 +50,21 @@ properties:
 
           exclusions:
             description: The beds to use when generating the exclusions
-            additionalProperties: true
+            additionalProperties: false
             patternProperties:
-              ^homopolymers|segdups|tandem-repeat|gaps|self-chains|satellites$:
-                type: object 
-                description: file source and checksum information
-                properties:
-                  uri: 
-                    type: string
-                    format: uri
-                    description: uri for remote file
-                  checksum:
-                    type: string
-                    description: checksum hash for validating integrity of downloaded remote file
-                  checksum_algo: 
-                    type: string
-                    description: algorithm used to compute checksum
+              ^all-tr-and-homopolymers|segdups|tandem-repeats|gaps|self-chains|satellites|hifi-pacbioDV-XY-discrep|imperfecthomopol-gt30|imperfecthomopol-gt20|homopolymers-gt20$:
+                type: string
+                format: uri
 
           stratifications:
             description: |
               The stratification set to be used.
-            required: [id, uri, tarball, tsv]
+            required: [id, url, tarball, tsv]
             properties:
               id:
                 format: string
                 description: stratification set id
-              uri:
+              url:
                 format: uri
                 description: the url to the tarball with the stratification files
               tarball:
@@ -94,7 +74,7 @@ properties:
                 format: string
                 description: name of the stratification tsv file used by happy
 
-          required: [ref, par_bed]
+        required: [ref_url, par_bed]
 
   assemblies:
     description: |
@@ -132,7 +112,7 @@ properties:
 
       ^GRCh3[7,8]|GRCh38_chr21|CHM13v[0-9].[0-9]$:
         type: object
-        description: reference genome id
+        description: refernece genome id
 
         properties:
           ^[\w\.\-]*$:
@@ -216,6 +196,7 @@ properties:
       Exclusions whose genomic regions are not dependent on the reference genome.
     additionalProperties: false
     patternProperties:
+
       ^[\w\.\-]*$:
         type: array
         description: the list of exclusions independent of reference genome
@@ -242,12 +223,8 @@ properties:
     type: integer
 
   _dipcall_params:
-    description: dipcall parameter sets
-    additionalProperties: false
-    patternProperties:
-      ^[\w\.\-]*$:
-        type: string
-        description: key value pairs for dipcall params
+    description: command line parameters used for dipcall run
+    type: object
 
   _happy_threads:
     description: the number of threads for happy runs
