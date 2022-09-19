@@ -1,13 +1,15 @@
 # process T2TXY_v2.7.dip.vcf to match hifiDV GT using JZ sed command `
+
+
 rule fix_XY_genotype:
     input:
-        "results/{prefix}.vcf.gz",
+        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
     output:
-        "results/{prefix}.fix_XY_genotype.vcf.gz",
+        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.fix_XY_genotype.vcf.gz",
     conda:
         "../envs/dipcall.yml"
     log:
-        "logs/fix_XY_genotype/{prefix}.log",
+        "logs/fix_XY_genotype/{bench_id}_{prefix}.log",
     shell:
         """
         gunzip -c {input} \
@@ -22,14 +24,14 @@ rule fix_XY_genotype:
 ##  Not current used - keeping here for potential future use
 rule dip_gap2homvarbutfiltered:
     input:
-        "results/{prefix}.vcf.gz",
+        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
     output:
-        "results/{prefix}.gap2homvarbutfiltered.vcf.gz",
+        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.gap2homvarbutfiltered.vcf.gz",
     # bgzip is part of samtools, which is part of the dipcall env
     conda:
         "../envs/dipcall.yml"
     log:
-        "logs/dip_gap2homvarbutfiltered/{prefix}.log",
+        "logs/dip_gap2homvarbutfiltered/{bench_id}_{prefix}.log",
     shell:
         """
         gunzip -c {input} |\
@@ -42,14 +44,14 @@ rule dip_gap2homvarbutfiltered:
 ## Primarily for SVs
 rule split_multiallelic_sites:
     input:
-        "results/{prefix}.vcf.gz",
+        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
     output:
-        vcf="results/{prefix}.split_multi.vcf.gz",
-        vcf_tbi="results/{prefix}.split_multi.vcf.gz.tbi",
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.split_multi.vcf.gz",
+        vcf_tbi="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.split_multi.vcf.gz.tbi",
     conda:
         "../envs/bcftools.yml"
     log:
-        "logs/split_multiallelic_sites/{prefix}.log",
+        "logs/split_multiallelic_sites/{bench_id}_{prefix}.log",
     shell:
         """
         bcftools norm -m - {input} -Oz -o {output.vcf} 2> {log}
@@ -62,16 +64,16 @@ rule split_multiallelic_sites:
 # isn't done, svwiden will choke on commas and star characters
 rule normalize_for_svwiden:
     input:
-        vcf="results/{component_dir}/intermediates/{prefix}.vcf.gz",
-        ref=get_ref_file,
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
+        ref="resources/references/{ref_id}.fa",
     output:
-        "results/{component_dir}/intermediates/{prefix}.gt19_norm.vcf.gz",
+        "results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz",
     resources:
         mem_mb=8000,
     conda:
         "../envs/bcftools.yml"
     log:
-        "logs/gt19_norm/{component_dir}/{prefix}.log",
+        "logs/gt19_norm/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     shell:
         """
         bcftools norm -m- -Ou {input.vcf} \
@@ -84,26 +86,48 @@ rule normalize_for_svwiden:
 
 rule run_svwiden:
     input:
-        vcf="results/{prefix}.gt19_norm.vcf.gz",
-        ref=get_ref_file,
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz",
+        ref="resources/references/{ref_id}.fa",
     output:
-        vcf="results/{prefix}.svwiden.vcf.gz",
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.vcf.gz",
     log:
-        "logs/svwiden/{prefix}.log",
+        "logs/svwiden/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     conda:
         "../envs/svanalyzer.yml"
     shadow:
         "minimal"
     params:
-        prefix="results/{prefix}.svwiden",
+        prefix="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden",
     shell:
         """
         svanalyzer widen \
-            --variants {input.vcf} \
-            --ref {input.ref} \
-            --prefix {params.prefix} &> {log} 
+        --variants {input.vcf} \
+        --ref {input.ref} \
+        --prefix {params.prefix} &> {log} 
 
         # Removing ".;" at beginning of INFO field introduced by SVwiden
         sed 's/\.;REPTYPE/REPTYPE/' {params.prefix}.vcf \
             | bgzip -c > {params.prefix}.vcf.gz 2>> {log}
         """
+
+
+rule move_asm_vcf_to_draft_bench:
+    input:
+        lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.vcf.gz",
+    output:
+        "results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
+    log:
+        "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    shell:
+        "cp {input} {output} &> {log}"
+
+
+rule move_processed_draft_bench_vcf:
+    input:
+        get_processed_vcf,
+    output:
+        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
+    log:
+        "logs/move_processed_draft_bench_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    shell:
+        "cp {input} {output}"
