@@ -42,8 +42,8 @@ def test_run_normalize_for_svwiden():
                 "-f",
                 "-j1",
                 "--keep-target-files",
-                "--touch",
                 "--use-conda",
+                "--touch",
                 "--directory",
                 workdir,
             ]

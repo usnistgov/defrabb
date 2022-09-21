@@ -1,27 +1,32 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 description: whole genome assembly benchmark pipeline
 required:
+  - eval_id
   - eval_cmd
   - eval_params
-  - eval_truth
-  - eval_truth_vcf_preprocessing
+  - eval_comp_id
+  - eval_comp_id_is_truth
   - eval_truth_regions
-  - eval_truth_bed_preprocessing
-  - eval_query
-  - eval_query_vcf_preprocessing
   - eval_target_regions
-  - eval_query_bed_preprocessing
+  - bench_id
   - bench_type
   - bench_vcf_processing
   - bench_bed_processing
-  - bench_exclusion_set
+  - exclusion_set
+  - vc_id
   - asm_id
   - ref
   - vc_cmd
   - vc_param_id
+  - vc_params
 
 additionalProperties: false
 properties:
+  eval_id:
+    description: |
+      The ID for this analysis run. Every value in this column should be unique.
+    type: string
+
   eval_cmd:
     description: |
       The benchmarking tools command used for evaluating the draft benchmark set. Must be either 'happy', 'truvari', or 'unhappy' for when not performing an evaluation set.
@@ -35,55 +40,39 @@ properties:
       '--includebed' (truvari). Use 'default' to run benchmarking tool with default parameters.
     type: string
 
-  eval_query_vcf_preprocessing:
-    description: |
-      vcf preprocessing of query vcf to avoid vcf formatting issues with evaluation tool (e.g. happy or truvari).
-    type: string
-  
-  eval_query_bed_preprocessing:
-    description: |
-      bed preprocessing of query bed to avoid error with evaluation tool
-    type: string
-  
-  eval_truth_vcf_preprocessing:
-    description: |
-      vcf preprocessing of query vcf to avoid vcf formatting issues with evaluation tool (e.g. happy or truvari).
-    type: string
-  
-  eval_truth_bed_preprocessing:
-    description: |
-      bed preprocessing of truth bed to avoid error with evaluation tool (e.g. happy or truvari).
-    type: string
-
-  eval_query:
+  eval_comp_id:
     description: |
       Id for the variant callset (or benchmark set) used for comparison when evaluating the draft benchmark set. 
       Source files (vcf and beds) should be included in the resources.yml.
     type: string
 
-  eval_truth:
+  eval_comp_id_is_truth:
     description: |
       Set to 'true' to use the comparison variant calls and regions as the truth set in the evaluation and 'bench_id' as the query.  
       Setting this to 'false' make the 'bench_id' (draft benchmarkset) the truth set in the evaluation and 'comp_id' as the query.
-    type: string
+    type: boolean
 
   eval_truth_regions:
     description: |
-      Set to 'yes' the appropriate draft benchmark or comparison regions will be used as the truth regions in the evaluation tool.
-      If set to 'none' no truth regions are provided as input for the evaluation tool. 
-      If a bed file, the value will be interpreted as a path to the bed file to use (relative to
-      ./manual/target_regions); note the string must be a filename ending in ".bed." 
-    type: string
-    pattern: ^.*\.bed|(?i:yes)|(?i:none)$
+      Set to 'true' the appropriate draft benchmark ('bench_id') or comparison ('comp_id') regions will be used as the truth regions in the evaluation tool.
+      If set to 'false' no truth regions are provided as input for the evaluation tool.
+    type: boolean
 
   eval_target_regions:
     description: |
-      Set to 'yes' the appropriate draft benchmark or comparison regions will be used as the target regions in the evaluation tool.
-      If set to 'none' no target regions are provided as input for the evaluation tool. 
-      If a bed file, the value will be interpreted as a path to the bed file to use (relative to
-      ./manual/target_regions); note the string must be a filename ending in ".bed." 
+      The target regions for the evaluation tool. When provided the evaluation tool will only compare variant calls in the defined region.
+      If 'true,' the bed file associated with the query variant callset will be used as the target region.
+      If a string, the value will be interpreted as a path to the bed file to use (relative to
+      ./manual/target_regions); note the string must be a filename ending in
+      ".bed." If 'false,' the evaluation tool will run in an untargetted mode.
     type: string
-    pattern: ^.*\.bed|(?i:yes)|(?i:none)$
+    pattern: ^.*\.bed|(?i:true)|(?i:false)$
+
+  bench_id:
+    description: |
+      Unique id for draft benchmark set, will represent a unique combination of the 'bench_type', 'asm_id', 'ref', 'varcall', 'vc_param_id',
+      'vcf_postprocessing', 'bed_postprocessing', and 'exclusion_set'.
+    type: string
 
   bench_type:
     description: |
@@ -99,10 +88,14 @@ properties:
     description: post processing of output bed (genomic regions) from varcaller
     type: string
 
-  bench_exclusion_set:
+  exclusion_set:
     description: |
       The exclusion set to apply. See 'resources.yml' for preset exclusion bed
       files that may be used.
+    type: string
+
+  vc_id:
+    description: unique identifier for the combination of variant call parameters
     type: string
 
   asm_id:
