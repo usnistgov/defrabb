@@ -41,8 +41,8 @@ def test_run_truvari():
                 "-f",
                 "-j1",
                 "--keep-target-files",
-                "--use-conda",
                 "--touch",
+                "--use-conda",
                 "--directory",
                 workdir,
             ]

@@ -39,8 +39,8 @@ def test_sort_bed():
                 "-f",
                 "-j1",
                 "--keep-target-files",
-                "--use-conda",
                 "--touch",
+                "--use-conda",
                 "--directory",
                 workdir,
             ]
