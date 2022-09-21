@@ -43,7 +43,6 @@ def test_run_dipcall():
                 "--keep-target-files",
                 "--verbose",
                 "--use-conda",
-                "--touch",
                 "--directory",
                 workdir,
             ]

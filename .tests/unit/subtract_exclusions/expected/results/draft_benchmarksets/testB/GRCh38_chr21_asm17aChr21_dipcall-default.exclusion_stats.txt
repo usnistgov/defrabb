@@ -1,3 +1,3 @@
 exclusion	exclusion_length	resulting_length
 initial	0	642413
-results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_svs-and-simple-repeats_sorted.bed	5699	636714
+results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_svs-and-homopolymers_sorted.bed	5699	636714

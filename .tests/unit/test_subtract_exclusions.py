@@ -25,8 +25,7 @@ def test_subtract_exclusions():
 
         # dbg
         print(
-            "results/draft_benchmarksets/testB/GRCh38_chr21_asm17aChr21_dipcall-default.benchmark.bed",
-            "results/draft_benchmarksets/testB/GRCh38_chr21_asm17aChr21_dipcall-default.exclusion_stats.txt",
+            "results/draft_benchmarksets/testB/GRCh38_chr21_asm17aChr21_dipcall-default.benchmark.bed results/draft_benchmarksets/testB/GRCh38_chr21_asm17aChr21_dipcall-default.exclusion_stats.txt",
             file=sys.stderr,
         )
 
