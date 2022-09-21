@@ -1,151 +1,33 @@
-################################################################################
-# global pipeline config
+before_script:
+  - echo "Installing pipeline dependencies"
+  - mamba --version
+  - mamba install -c bioconda -c conda-forge snakemake==7.3.0 snakefmt
+  - snakemake --version
+  - black --version
 
-stages:
-  - snakemake_global
-  - snakemake_conda
-  - lint
-  - test
+# after_script:
+#   - echo "After script section"
+#   - echo "For example you might do some cleanup here"
 
-variables:
-  ENV_DIR: ./this-env
-  TESTCONF: config/analyses_fulltest.tsv
-  # speed up cache compression
-  FF_USE_FASTZIP: "true"
-  ARTIFACT_COMPRESSION_LEVEL: "fast"
-  CACHE_COMPRESSION_LEVEL: "fast"
-
-# TODO figure out on what branches the pipeline should run
-# workflow:
-#   rules:
-#     - if: $CI_COMMIT_BRANCH =~ /^surf_squid_warfare*/
-#       when: never
-
-image: condaforge/mambaforge:4.12.0-0
-
-################################################################################
-# reusable object to permit lazy coder syndrome
-
-.smk_global_cache: &smk_global_cache
-  paths:
-    - this-env
-  key:
-    files:
-      - envs/env.yml
-
-.smk_envs_cache: &smk_envs_cache
-  paths:
-    - .snakemake/conda
-  key:
-    files:
-      - workflow/envs
-
-.activate_smk: &activate_smk
-  before_script:
-    # silly hacky eval thing since the docker image we are using doesn't have
-    # this set up yet (oh well)
-    - eval "$(${CONDA_DIR}/bin/conda shell.bash hook 2> /dev/null)"
-    - conda activate $ENV_DIR
-
-################################################################################
-# set up global conda environment
-
-# - ASSUME the cache will track any changes to env.yml and will force an update
-#   if this changes
-install_global_env:
-  stage: snakemake_global
-  script:
-    - >
-      test -d $ENV_DIR
-      && echo "Env already created"
-      || mamba env create -f envs/env.yml -p $ENV_DIR
-  cache: 
-    - <<: *smk_global_cache
-
-################################################################################
-# set up snakemake rule conda environments
-
-install_smk_conda_envs:
-  stage: snakemake_conda
-  <<: *activate_smk
-  script:
-    - snakemake --use-conda -c 1 --config analyses=$TESTCONF --conda-create-envs-only
-  cache:
-    - <<: *smk_global_cache
-      policy: pull
-    - <<: *smk_envs_cache
-
-################################################################################
-# snakemake formatting and lintign
-
-snakemake_lint:
-  needs: [install_global_env]
-  stage: lint
-  <<: *activate_smk
+lint-test:
+  artifacts:
+    paths: 
+        - lint
   script:
     - snakemake --lint
-  cache:
-    - <<: *smk_global_cache
-      policy: pull
 
-snakemake_fmt:
-  needs: [install_global_env]
-  stage: lint
-  <<: *activate_smk
+smkformat:
   script:
     - echo "Running snakefmt"
     - snakefmt .
-  cache:
-    - <<: *smk_global_cache
-      policy: pull
 
-################################################################################
-# unit and pipeline tests
-param_contig_test:
-  needs: [install_global_env]
-  stage: test
-  <<: *activate_smk
-  script:
-    - cp rules/common.smk test/common.py
-    - python -m unittest test/common.py test/unit/config.py 
-    - rm test/common.py
-  cache:
-    - <<: *smk_global_cache
-      policy: pull  
-
-unit_test:
-  needs: [install_global_env, install_smk_conda_envs]
-  stage: test
-  <<: *activate_smk
+unit-test:
   script:
     - pytest .tests
-  cache:
-    - <<: *smk_global_cache
-      policy: pull 
-    - <<: *smk_envs_cache
-      policy: pull
 
-snakemake_dry:
-  needs: [install_global_env]
-  stage: test
-  <<: *activate_smk
-  script:
-    - snakemake --use-conda -c 1 --config analyses=$TESTCONF --dryrun
-  cache:
-    - <<: *smk_global_cache
-      policy: pull 
-
-snakemake_smtest:
-  needs: [install_global_env, install_smk_conda_envs]
-  stage: test
-  <<: *activate_smk
+run-test:
   artifacts:
     paths: 
-      - smalltest
+        - smalltest
   script:
     - snakemake -p --use-conda --cores 1 --verbose
-  cache:
-    - <<: *smk_global_cache
-      policy: pull 
-    - <<: *smk_envs_cache
-      policy: pull
