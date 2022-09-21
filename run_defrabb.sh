@@ -11,7 +11,7 @@ Required:
 
 Optional:
     -a FILE     defrabb run analyses table, if not provided assumes at config/analyses_[RUN ID].tsv
-    -o DIR      output directory for framework run, pipeline will create a named directory [RUN ID] at defined location, default is "../"
+    -o DIR      output directory for framework run, pipeline will create a named directory [RUN ID] at defined location, default is "/defrabb_runs/runs_in_progress/", note this is a system specific path.
     -s all|pipe|report|archive|release  Defining which workflow steps are run
                                     all: pipe, report, and archive (default)
                                     pipe: just the snakemake pipeline
@@ -20,6 +20,7 @@ Optional:
                                     release: copy run output to NAS for upload to Google Drive
     -n          Run snakemake in dry run mode, only runs pipe step
     -F          Force rerunning all steps, includes downloading resouces
+    -u          unlock snakeamke run directory
 EOF
 >&2;
     echo -e "\n$err" >&2;
@@ -30,8 +31,9 @@ EOF
 dry_run=""
 force=""
 steps="all"
+unlock=""
 
-while getopts "r:a:o:s:nF" flag; do
+while getopts "r:a:o:s:nFu" flag; do
     case "${flag}" in
         r) runid=${OPTARG};;
         a) analyses_file=${OPTARG};;
@@ -39,12 +41,13 @@ while getopts "r:a:o:s:nF" flag; do
         s) steps=${OPTARG};;
         n) dry_run="-n";;
         F) force="-F";;
+        u) unlock="--unlock";;
         *) usage;;
     esac
 done
 shift $((OPTIND-1))
-#extra_args="$*" ## WIP: Capturing extra arguments 
-extra_args="" ## setting as empty string for now
+extra_args="$*" ## WIP: Capturing extra arguments 
+# extra_args="" ## setting as empty string for now
  
 if [ -z "${runid}" ]; then
     usage "Missing required parameter -r";
@@ -133,8 +136,10 @@ if [ ${steps}  == "all" ] || [ ${steps} == "pipe" ]; then
             --use-conda \
             --config analyses=${analyses_file} \
             --directory ${run_dir} \
+            --keep-going \
             ${dry_run} \
             ${force} \
+            ${unlock} \
             ${extra_args}
 
     log "Done Executing DeFrABB"
