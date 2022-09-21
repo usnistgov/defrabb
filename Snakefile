@@ -504,16 +504,6 @@ rule postprocess_bed:
     shell:
         "cp {input} {output} &> {log}"
 
-rule get_bed_for_postprocessing:
-    input:
-        f"results/asm_varcalls/{dipcall_space.wildcard_pattern}.dip.bed",
-    output:
-        f"results/draft_benchmarksets/intermediates/exclusions/{bench_space.wildcard_pattern}.dip.bed",
-    log:
-        f"logs/process_benchmark_bed/{bench_space.wildcard_pattern}.log",
-    shell:
-        "cp {input} {output} &> {log}"
-
 
 ################################################################################
 ################################################################################
