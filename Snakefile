@@ -102,7 +102,6 @@ localrules:
     subtract_exclusions,
     add_flanks,
     intersect_start_and_end,
-    intersect_SVs_and_homopolymers,
     get_SVs_from_vcf,
     postprocess_bed,
     sort_bed,
