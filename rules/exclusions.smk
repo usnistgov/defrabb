@@ -41,6 +41,7 @@ rule get_SVs_from_vcf:
         awk 'length($3)>49 || length($4)>49' {output.tbl} \
             | cut -f 5 \
             | sed 's/[:,-]/\t/g' \
+            | awk '{{FS=OFS="\t"}} {{if($2 < $3){{print $1,$2,$3}}else{{print $1,$3,$2}}}}' \
             1> {output.bed} 2> {log}
         """
 
