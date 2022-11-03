@@ -228,7 +228,7 @@ rule all:
         expand(
             "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/summary.txt",
             zip,
-            eval_id=happy_analyses.index.tolist(),
+            eval_id=truvari_analyses.index.tolist(),
             bench_id=truvari_analyses["bench_id"].tolist(),
             ref_id=truvari_analyses["ref"].tolist(),
             comp_id=truvari_analyses["eval_comp_id"].tolist(),
@@ -236,9 +236,6 @@ rule all:
             vc_cmd=truvari_analyses["vc_cmd"].tolist(),
             vc_param_id=truvari_analyses["vc_param_id"].tolist(),
         ),
-
-
-#       expand("results/bench/truvari/{tvi_bench}.extended.csv", tvi_bench = analyses[analyses["bench_cmd"] == "truvari"].index.tolist()), ## Not yet used
 
 ################################################################################
 ################################################################################
