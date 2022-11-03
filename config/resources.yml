@@ -163,7 +163,7 @@ assemblies:
     maternal: https://giab-data.s3.amazonaws.com/giab-test-data/verkko-assembly/v1.0-updated-053122/assembly.updated_layout-haplotype1.fasta
     paternal: https://giab-data.s3.amazonaws.com/giab-test-data/verkko-assembly/v1.0-updated-053122/assembly.updated_layout-haplotype2.fasta
     is_male: true
-  HG002-verrkoV1.1-V0.6:
+  HG2-verrkoV1.1-V0.6:
     maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/verkko/HG002/v1.1/assembly.v0.6_maternal.fasta.gz
     paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/verkko/HG002/v1.1/assembly.v0.6_paternal.fasta.gz
     is_male: true
