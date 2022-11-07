@@ -164,9 +164,11 @@ assemblies:
     paternal: https://giab-data.s3.amazonaws.com/giab-test-data/verkko-assembly/v1.0-updated-053122/assembly.updated_layout-haplotype2.fasta
     is_male: true
   HG2-verrkoV1.1-V0.6:
-    maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/verkko/HG002/v1.1/assembly.v0.6_maternal.fasta.gz
-    paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/verkko/HG002/v1.1/assembly.v0.6_paternal.fasta.gz
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/T2T/scratch/HG002/assemblies/drafts/assembly.v0.6.maternal.fasta
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/T2T/scratch/HG002/assemblies/drafts/assembly.v0.6.paternal.fasta
     is_male: true
+#    maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/verkko/HG002/v1.1/assembly.v0.6_maternal.fasta.gz
+#    paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/verkko/HG002/v1.1/assembly.v0.6_paternal.fasta.gz
   ## HPRC 44 Genome Assemblies from pangenome work
   HPRC-HG00733:
     maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG00733/assemblies/year1_f1_assembly_v2_genbank/HG00733.maternal.f1_assembly_v2_genbank.fa.gz
@@ -545,6 +547,10 @@ comparisons:
       vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/NIST_SV_v0.6/HG002_SVs_Tier1_v0.6.vcf.gz
       bed_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/NIST_SV_v0.6/HG002_SVs_Tier1_noVDJorXorY_v0.6.2.bed
       tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/NIST_SV_v0.6/HG002_SVs_Tier1_v0.6.vcf.gz.tbi
+    CMRGv1.00-stvar:
+      vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh37/StructuralVariant/HG002_GRCh37_CMRG_SV_v1.00.vcf.gz
+      bed_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh37/StructuralVariant/HG002_GRCh37_CMRG_SV_v1.00.bed
+      tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh37/StructuralVariant/HG002_GRCh37_CMRG_SV_v1.00.vcf.gz.tbi
     # HG2 Hifi-DV contributed callset
     HG2-HifiDV-37:
       vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/analysis/PacBio_CCS_15kb_20kb_chemistry2_10312019/GRCh37/deepvariant_HG002_15kb_20kb_52X_SequelII.vcf.gz
@@ -575,10 +581,6 @@ comparisons:
       vcf_url: https://nist-midas.s3.amazonaws.com/pdrsrv/mds2-2336/submission_vcfs/B1S5A/B1S5A_HG002.vcf.gz
       bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
       tbi_url:
-    CMRGv1.00-smvar:
-      vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/StructuralVariant/HG002_GRCh38_CMRG_SV_v1.00.vcf.gz
-      bed_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/StructuralVariant/HG002_GRCh38_CMRG_SV_v1.00.bed
-      tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/StructuralVariant/HG002_GRCh38_CMRG_SV_v1.00.vcf.gz.tbi
     CMRGv1.00-stvar:
       vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/StructuralVariant/HG002_GRCh38_CMRG_SV_v1.00.vcf.gz
       bed_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/StructuralVariant/HG002_GRCh38_CMRG_SV_v1.00.bed
