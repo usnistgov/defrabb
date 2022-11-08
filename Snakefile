@@ -583,6 +583,7 @@ rule run_truvari:
             --multimatch \
             --passonly \
             -r 2000 \
+            -C 5000 \
             -f {input.genome} \
             --includebed {input.truth_regions} \
         2> {log}
