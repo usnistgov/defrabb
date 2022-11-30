@@ -590,6 +590,20 @@ comparisons:
       vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/analysis/PacBio_CCS_15kb_20kb_chemistry2_10312019/GRCh38/deepvariant_HG002_GRCh38_15kb_20kb_53X_SequelII.vcf.gz
       bed_url:
       tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/analysis/PacBio_CCS_15kb_20kb_chemistry2_10312019/GRCh38/deepvariant_HG002_GRCh38_15kb_20kb_53X_SequelII.vcf.gz.tbi
+    ## HG002 HPRC/Tgen pangenome
+    HG2-Pangenome-DV-38:
+      vcf_url: https:///s3-us-west-2.amazonaws.com/human-pangenomics/publications/PANGENOME_2022/DeepVariant/samples/HG002/HG002.30x_novaseq_pcrfree.giraffedv.vcf.gz
+      bed_url:
+      tbi_url: 
+    HG2-Pangenome-DT-38:
+      vcf_url: https://s3-us-west-2.amazonaws.com/human-pangenomics/publications/PANGENOME_2022/DeepTrio/samples/HG002/vcf/giraffe_deeptrio_trained/HG002_cohort.joint_called.trained_model.deeptrio.indel_realigned.unfiltered.vcf.gz
+      bed_url:
+      tbi_url: 
+    HG2-Pangenie-38:
+      vcf_url: https://zenodo.org/record/6797328/files/NA24385_genotyping_bi_all.vcf.gz
+      bed_url:
+      tbi_url: https://zenodo.org/record/6797328/files/NA24385_genotyping_bi_all.vcf.gz.tbi
+    
     ## HPRC 44 Genome DeepVariant Callsets All for GRCh38
     Hifi-DV-HG01123:
       vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01123/HG01123.GRCh38_no_alt.deepvariant.vcf.gz
