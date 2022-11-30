@@ -603,7 +603,23 @@ comparisons:
       vcf_url: https://zenodo.org/record/6797328/files/NA24385_genotyping_bi_all.vcf.gz
       bed_url:
       tbi_url: https://zenodo.org/record/6797328/files/NA24385_genotyping_bi_all.vcf.gz.tbi
-    
+    ## HG002 SV vcfs from Senteion generated using sentLRSV
+    HG2-sentLRSV-ontR9:
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/HG002.chemR9.Guppy4.2.sentLRSV.vcf.gz
+      bed_url:
+      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/HG002.chemR9.Guppy4.2.sentLRSV.vcf.gz.tbi
+    HG2-sentLRSV-pbhifi:
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/HG002.pFDA.pbHiFi.sentLRSV.vcf.gz
+      bed_url:
+      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/HG002.pFDA.pbHiFi.sentLRSV.vcf.gz.tbi
+    HG2-sentLRSV-pbHiFichem2.2:
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/HG002.pbHiFi.chem2.2.sentLRSV.vcf.gz
+      bed_url:
+      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/HG002.pbHiFi.chem2.2.sentLRSV.vcf.gz.tbi
+    HG2-sentLRSV-q20.guppy5.80x:
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/HG002.q20.guppy5.80x.sentLRSV.vcf.gz
+      bed_url:
+      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/HG002.q20.guppy5.80x.sentLRSV.vcf.gz.tbi
     ## HPRC 44 Genome DeepVariant Callsets All for GRCh38
     Hifi-DV-HG01123:
       vcf_url: https://g-f20d48.ad0e3.03c0.data.globus.org/Yale_HPP_Year1_Variant_Calls/HG01123/HG01123.GRCh38_no_alt.deepvariant.vcf.gz
