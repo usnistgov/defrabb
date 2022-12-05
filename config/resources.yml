@@ -612,7 +612,7 @@ comparisons:
       vcf_url: https://s3-us-west-2.amazonaws.com/human-pangenomics/publications/PANGENOME_2022/DeepTrio/samples/HG002/vcf/giraffe_deeptrio_trained/HG002_cohort.joint_called.trained_model.deeptrio.indel_realigned.unfiltered.vcf.gz
       bed_url:
       tbi_url: 
-    HG2-Pangenie-38:
+    HG2-Pangenie-SV-38:
       vcf_url: https://zenodo.org/record/6797328/files/NA24385_genotyping_bi_all.vcf.gz
       bed_url:
       tbi_url: https://zenodo.org/record/6797328/files/NA24385_genotyping_bi_all.vcf.gz.tbi
