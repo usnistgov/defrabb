@@ -490,6 +490,18 @@ exclusion_set:
     - self-chains
     - flanks
     - svs-and-simple-repeats
+  smvarXYdiscrep:
+    - hifiasm-HPRC-T2Tdicrep
+    - hifi-pacbioDV-XY-discrep
+    - imperfecthomopol-gt30
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - self-chains
+    - flanks
+    - svs-and-simple-repeats
+    
 
 ## Regions 
 exclusion_slop_regions:
