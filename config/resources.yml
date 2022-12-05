@@ -76,7 +76,7 @@ references:
       satellites: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/GRCh38_satellites_slop5.bed.gz
       imperfecthomopol-gt30: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/imperfecthomopol-gt30.bed.gz
       hifi-pacbioDV-XY-discrep: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/hifi-pacbioDV-XY-discrep.bed.gz
-      hifiasm-HPRC-T2Tdicrep: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/grch38_hg2-hprc-20211005-xy_t2t-xy-v2.7_dipcall-z2k_inhprcbed_fporfn_slop50_merge1000_homopolandtrexpanded.bed
+      hifiasm-HPRC-T2Tdiscrep: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/grch38_hg2-hprc-20211005-xy_t2t-xy-v2.7_dipcall-z2k_inhprcbed_fporfn_slop50_merge1000_homopolandtrexpanded.bed
     stratifications:
       id: "v3.0-stratifications-GRCh38"
       url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/v3.0-stratifications-GRCh38.tar.gz"
@@ -491,7 +491,7 @@ exclusion_set:
     - flanks
     - svs-and-simple-repeats
   smvarXYdiscrep:
-    - hifiasm-HPRC-T2Tdicrep
+    - hifiasm-HPRC-T2Tdiscrep
     - hifi-pacbioDV-XY-discrep
     - imperfecthomopol-gt30
     - segdups
@@ -520,6 +520,7 @@ exclusion_asm_agnostic:
   - gaps
   - imperfecthomopol-gt30
   - hifi-pacbioDV-XY-discrep
+  - hifiasm-HPRC-T2Tdiscrep
 
 exclusion_ref_agnostic:
   - flanks
