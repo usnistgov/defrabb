@@ -20,6 +20,7 @@ Optional:
                                     release: copy run output to NAS for upload to Google Drive
     -n          Run snakemake in dry run mode, only runs pipe step
     -F          Force rerunning all steps, includes downloading resouces
+    -k          keep going with independent jobs if one job fails
     -u          unlock snakeamke run directory
 EOF
 >&2;
@@ -32,8 +33,9 @@ dry_run=""
 force=""
 steps="all"
 unlock=""
+keepgoing=""
 
-while getopts "r:a:o:s:nFu" flag; do
+while getopts "r:a:o:s:nFku" flag; do
     case "${flag}" in
         r) runid=${OPTARG};;
         a) analyses_file=${OPTARG};;
@@ -41,6 +43,7 @@ while getopts "r:a:o:s:nFu" flag; do
         s) steps=${OPTARG};;
         n) dry_run="-n";;
         F) force="-F";;
+        k) keepgoing="-k";;
         u) unlock="--unlock";;
         *) usage;;
     esac
@@ -129,7 +132,6 @@ if [ ${steps}  == "all" ] || [ ${steps} == "pipe" ]; then
 
     snakemake \
             --printshellcmds \
-            --reason \
             --rerun-incomplete \
             --jobs "${cores}" \
             --resources "mem_gb=${mem_gb}" \
@@ -140,6 +142,7 @@ if [ ${steps}  == "all" ] || [ ${steps} == "pipe" ]; then
             ${dry_run} \
             ${force} \
             ${unlock} \
+            ${keepgoing} \
             ${extra_args}
 
     log "Done Executing DeFrABB"
