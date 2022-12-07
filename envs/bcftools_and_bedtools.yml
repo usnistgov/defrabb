@@ -1,0 +1,8 @@
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - bedtools=2.30.0
+  - pybedtools=0.8.2
+  - bcftools==1.14
+  - gawk==5.1.0
