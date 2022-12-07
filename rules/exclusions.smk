@@ -28,7 +28,7 @@ rule get_SVs_from_vcf:
         bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.bed",
         tbl="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.tsv",
     conda:
-        "../envs/bcftools.yml"
+        "../envs/bcftools_and_bedtools.yml"
     log:
         "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.log",
     shell:
@@ -41,7 +41,9 @@ rule get_SVs_from_vcf:
         awk 'length($3)>49 || length($4)>49' {output.tbl} \
             | cut -f 5 \
             | sed 's/[:,-]/\t/g' \
-            | awk '{{FS=OFS="\t"}} {{if($2 < $3){{print $1,$2,$3}}else{{print $1,$3,$2}}}}' \
+            | awk '{{FS=OFS="\t"}} {{if($2>$3){{print $1,$3,$2}}else{{print $1,$2,$3}}}}' \
+            | sortBed -i stdin \
+            | mergeBed -i stdin -d 5 \
             1> {output.bed} 2> {log}
         """
 
