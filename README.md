@@ -41,21 +41,24 @@ Steps below assume running defrabb on workstation with team NAS mounted.
 1. Run pipeline using `./run_defrabb.sh` providing run in using the defined format (i.e. `-r [YYYYMMDD_milestone_brief-id]`) or `-r` along with `-a`. The wrapper script records the mamba runtime environment information and the git repo status and last commit tag
 
 ```
-Usage: ./run_defrabb.sh [options] 
+Usage: ./run_defrabb.sh [options] [extra arguments passed to snakemake]
 Required:
     -r STRING   Analysis RUN ID, please use following naming convention YYYYMMDD_milestone_brief-id
 
 Optional:
     -a FILE     defrabb run analyses table, if not provided assumes at config/analyses_[RUN ID].tsv
-    -o DIR      output directory for framework run, pipeline will create a named directory [RUN ID] at defined location, default is "../"
+    -o DIR      output directory for framework run, pipeline will create a named directory [RUN ID] at defined location, default is "/defrabb_runs/runs_in_progress/", note this is a system specific path.
     -s all|pipe|report|archive|release  Defining which workflow steps are run
                                     all: pipe, report, and archive (default)
                                     pipe: just the snakemake pipeline
                                     report: generating the snakemake run report
                                     archive: generating snakemake archive tarball
                                     release: copy run output to NAS for upload to Google Drive
+    -j          number of jobs used by snakemake, default number of system cores
     -n          Run snakemake in dry run mode, only runs pipe step
     -F          Force rerunning all steps, includes downloading resouces
+    -k          keep going with independent jobs if one job fails
+    -u          unlock snakeamke run directory
 ```
 1. (For NIST internal run documentation) Fill out README with relevant run information - framework repo info - [milestone] tag (with some potential - hopefully minor-differences), who ran the framework and where/ how, justification / reasoning for analyses, JZ notes (what did we learn), use [defrabb run README template](https://docs.google.com/document/d/1yTXP-3OQxXfGl7kIyXWMTac-USMgiMNPhz10GXwBro0/edit?usp=sharing).
 1. (For NIST internal run documentation) Add run information to the [defrabb run log spreadsheet](https://docs.google.com/spreadsheets/d/183LuUat1VCJo2dL7fu0LFMOy8CBA5FTo4WyOVsx4U6o/edit?usp=sharing) 
