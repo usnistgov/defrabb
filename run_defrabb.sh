@@ -19,6 +19,7 @@ Optional:
                                     archive: generating snakemake archive tarball
                                     release: copy run output to NAS for upload to Google Drive
     -n          Run snakemake in dry run mode, only runs pipe step
+    -j          number of jobs used by snakemake, default number of system cores
     -F          Force rerunning all steps, includes downloading resouces
     -k          keep going with independent jobs if one job fails
     -u          unlock snakeamke run directory
@@ -34,14 +35,16 @@ force=""
 steps="all"
 unlock=""
 keepgoing=""
+jobs=0
 
-while getopts "r:a:o:s:nFku" flag; do
+while getopts "r:a:o:s:n:j:Fku" flag; do
     case "${flag}" in
         r) runid=${OPTARG};;
         a) analyses_file=${OPTARG};;
         o) out_dir=${OPTARG};;
         s) steps=${OPTARG};;
         n) dry_run="-n";;
+        j) jobs=${OPTARG};;
         F) force="-F";;
         k) keepgoing="-k";;
         u) unlock="--unlock";;
@@ -50,6 +53,7 @@ while getopts "r:a:o:s:nFku" flag; do
 done
 shift $((OPTIND-1))
 extra_args="$*" ## WIP: Capturing extra arguments 
+echo $extra_args
 # extra_args="" ## setting as empty string for now
  
 if [ -z "${runid}" ]; then
@@ -58,7 +62,14 @@ fi
 
 ## Getting system resource information
 source etc/common.sh
+
+## Setting the number of jobs run by snakemake to either number of cores on 
+## system or user specified value.
 cores=$(find_core_limit)
+if [ ${jobs} != 0 ]; then
+    cores=${jobs};
+fi
+
 mem_gb=$(find_mem_limit_gb)
 log "Number of cores: $cores"
 log "Memory limit: $mem_gb GB"
