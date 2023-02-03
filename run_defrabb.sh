@@ -5,7 +5,7 @@
 usage() { 
     local err=${1:-""};
     cat <<EOF
-Usage: $0 [options] 
+Usage: $0 [options] [extra arguments passed to snakemake]
 Required:
     -r STRING   Analysis RUN ID, please use following naming convention YYYYMMDD_milestone_brief-id
 
@@ -18,8 +18,8 @@ Optional:
                                     report: generating the snakemake run report
                                     archive: generating snakemake archive tarball
                                     release: copy run output to NAS for upload to Google Drive
-    -n          Run snakemake in dry run mode, only runs pipe step
     -j          number of jobs used by snakemake, default number of system cores
+    -n          Run snakemake in dry run mode, only runs pipe step
     -F          Force rerunning all steps, includes downloading resouces
     -k          keep going with independent jobs if one job fails
     -u          unlock snakeamke run directory
@@ -37,7 +37,7 @@ unlock=""
 keepgoing=""
 jobs=0
 
-while getopts "r:a:o:s:n:j:Fku" flag; do
+while getopts "r:a:o:s:j:nFku" flag; do
     case "${flag}" in
         r) runid=${OPTARG};;
         a) analyses_file=${OPTARG};;
@@ -52,9 +52,8 @@ while getopts "r:a:o:s:n:j:Fku" flag; do
     esac
 done
 shift $((OPTIND-1))
-extra_args="$*" ## WIP: Capturing extra arguments 
-echo $extra_args
-# extra_args="" ## setting as empty string for now
+echo ${jobs}
+extra_args="$*" ## Capturing extra arguments for snakemake
  
 if [ -z "${runid}" ]; then
     usage "Missing required parameter -r";
@@ -66,7 +65,7 @@ source etc/common.sh
 ## Setting the number of jobs run by snakemake to either number of cores on 
 ## system or user specified value.
 cores=$(find_core_limit)
-if [ ${jobs} != 0 ]; then
+if [ ${jobs} > 0 ]; then
     cores=${jobs};
 fi
 
