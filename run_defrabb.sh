@@ -5,7 +5,7 @@
 usage() { 
     local err=${1:-""};
     cat <<EOF
-Usage: $0 [options] 
+Usage: $0 [options] [extra arguments passed to snakemake]
 Required:
     -r STRING   Analysis RUN ID, please use following naming convention YYYYMMDD_milestone_brief-id
 
@@ -18,6 +18,7 @@ Optional:
                                     report: generating the snakemake run report
                                     archive: generating snakemake archive tarball
                                     release: copy run output to NAS for upload to Google Drive
+    -j          number of jobs used by snakemake, default number of system cores
     -n          Run snakemake in dry run mode, only runs pipe step
     -F          Force rerunning all steps, includes downloading resouces
     -k          keep going with independent jobs if one job fails
@@ -34,14 +35,16 @@ force=""
 steps="all"
 unlock=""
 keepgoing=""
+jobs=0
 
-while getopts "r:a:o:s:nFku" flag; do
+while getopts "r:a:o:s:j:nFku" flag; do
     case "${flag}" in
         r) runid=${OPTARG};;
         a) analyses_file=${OPTARG};;
         o) out_dir=${OPTARG};;
         s) steps=${OPTARG};;
         n) dry_run="-n";;
+        j) jobs=${OPTARG};;
         F) force="-F";;
         k) keepgoing="-k";;
         u) unlock="--unlock";;
@@ -49,8 +52,8 @@ while getopts "r:a:o:s:nFku" flag; do
     esac
 done
 shift $((OPTIND-1))
-extra_args="$*" ## WIP: Capturing extra arguments 
-# extra_args="" ## setting as empty string for now
+echo ${jobs}
+extra_args="$*" ## Capturing extra arguments for snakemake
  
 if [ -z "${runid}" ]; then
     usage "Missing required parameter -r";
@@ -58,7 +61,14 @@ fi
 
 ## Getting system resource information
 source etc/common.sh
+
+## Setting the number of jobs run by snakemake to either number of cores on 
+## system or user specified value.
 cores=$(find_core_limit)
+if [ ${jobs} < 1 ]; then
+    cores=${jobs};
+fi
+
 mem_gb=$(find_mem_limit_gb)
 log "Number of cores: $cores"
 log "Memory limit: $mem_gb GB"
@@ -138,7 +148,6 @@ if [ ${steps}  == "all" ] || [ ${steps} == "pipe" ]; then
             --use-conda \
             --config analyses=${analyses_file} \
             --directory ${run_dir} \
-            --keep-going \
             ${dry_run} \
             ${force} \
             ${unlock} \
