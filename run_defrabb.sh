@@ -65,7 +65,7 @@ source etc/common.sh
 ## Setting the number of jobs run by snakemake to either number of cores on 
 ## system or user specified value.
 cores=$(find_core_limit)
-if [ ${jobs} > 0 ]; then
+if [ ${jobs} < 1 ]; then
     cores=${jobs};
 fi
 
@@ -148,7 +148,6 @@ if [ ${steps}  == "all" ] || [ ${steps} == "pipe" ]; then
             --use-conda \
             --config analyses=${analyses_file} \
             --directory ${run_dir} \
-            --keep-going \
             ${dry_run} \
             ${force} \
             ${unlock} \
