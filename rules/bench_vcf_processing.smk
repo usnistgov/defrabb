@@ -13,7 +13,7 @@ rule fix_XY_genotype:
     shell:
         """
         gunzip -c {input} \
-            | sed 's/\.|1/1\/1/;s/1|\./1\/1/' \
+            | sed 's/.|1:0,1/1:1/;s/1|.:0,1/1:1/'  \
             | bgzip -c \
             > {output}
         """
