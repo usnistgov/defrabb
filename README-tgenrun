@@ -1,0 +1,4 @@
+# Analysis of tgen provided HG002 vcfs
+defrabb command `./run_defrabb.sh -r 20230202_v0.010-HG002-tgenVCFs -s pipe -j 16`. 
+run by NDO on workstation on 2/3/2023 started 11:30 AM
+using Posit workbench vscode session with tmux defrabb to run pipeline.
