@@ -1,6 +1,7 @@
 import pandas as pd
 from pathlib import Path
 from snakemake.utils import validate
+
 ################################################################################
 ## Config processing functions
 
@@ -38,6 +39,7 @@ def analyses_to_bench_tbls(analyses):
     params, tbl = _filter_subtable(analyses, "bench_", id_cols, "bench_id")
     excluded_tbl = tbl[tbl.exclusion_set != "none"]
     return (params, tbl, excluded_tbl)
+
 
 ################################################################################
 ## Rule parameters
