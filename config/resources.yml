@@ -77,6 +77,8 @@ references:
       imperfecthomopol-gt30: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/imperfecthomopol-gt30.bed.gz
       hifi-pacbioDV-XY-discrep: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/hifi-pacbioDV-XY-discrep.bed.gz
       hifiasm-HPRC-T2Tdiscrep: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/grch38_hg2-hprc-20211005-xy_t2t-xy-v2.7_dipcall-z2k_inhprcbed_fporfn_slop50_merge1000_homopolandtrexpanded.bed.gz
+      XYelement-homopolymer-T2T-discrep: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/HG002_DV_Element_1_query_XY_draft_benchmark_FPorFN_homopolgt10_indel.bed.gz
+      XYdipcallmanualbugs: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/GRCh38_XY_dipcallbug_manualexclude.bed.gz
     stratifications:
       id: "v3.0-stratifications-GRCh38"
       url: "ftp://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/v3.0-stratifications-GRCh38.tar.gz"
@@ -168,8 +170,10 @@ assemblies:
     maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/T2T/scratch/HG002/assemblies/drafts/assembly.v0.6.maternal.fasta
     paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/T2T/scratch/HG002/assemblies/drafts/assembly.v0.6.paternal.fasta
     is_male: true
-#    maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/verkko/HG002/v1.1/assembly.v0.6_maternal.fasta.gz
-#    paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/verkko/HG002/v1.1/assembly.v0.6_paternal.fasta.gz
+  HG2-verrkoV1.1-V0.7:
+    maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/verkko/HG002/v1.1/assembly.v0.7_maternal.fasta.gz
+    paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/verkko/HG002/v1.1/assembly.v0.7_paternal.fasta.gz
+    is_male: true
   ## HPRC 44 Genome Assemblies from pangenome work
   HPRC-HG00733:
     maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/working/HPRC_PLUS/HG00733/assemblies/year1_f1_assembly_v2_genbank/HG00733.maternal.f1_assembly_v2_genbank.fa.gz
@@ -491,6 +495,8 @@ exclusion_set:
     - flanks
     - svs-and-simple-repeats
   smvarXYdiscrep:
+    - XYelement-homopolymer-T2T-discrep
+    - XYdipcallmanualbugs
     - hifiasm-HPRC-T2Tdiscrep
     - hifi-pacbioDV-XY-discrep
     - imperfecthomopol-gt30
@@ -501,7 +507,7 @@ exclusion_set:
     - self-chains
     - flanks
     - svs-and-simple-repeats
-    
+
 
 ## Regions 
 exclusion_slop_regions:
@@ -521,6 +527,8 @@ exclusion_asm_agnostic:
   - imperfecthomopol-gt30
   - hifi-pacbioDV-XY-discrep
   - hifiasm-HPRC-T2Tdiscrep
+  - XYelement-homopolymer-T2T-discrep
+  - XYdipcallmanualbugs
 
 exclusion_ref_agnostic:
   - flanks

@@ -3,7 +3,7 @@ import pandas as pd
 
 wildcard_constraints:
     ref_id="GRCh38|GRCh37|GRCh38_chr21|CHM13v2.0",
-    genomic_region="all-tr-and-homopolymers|segdups|tandem-repeats|gaps|self-chains|satellites|hifi-pacbioDV-XY-discrep|imperfecthomopol-gt30|hifiasm-HPRC-T2Tdiscrep",
+    genomic_region="all-tr-and-homopolymers|segdups|tandem-repeats|gaps|self-chains|satellites|hifi-pacbioDV-XY-discrep|imperfecthomopol-gt30|hifiasm-HPRC-T2Tdiscrep|XYelement-homopolymer-T2T-discrep|XYdipcallmanualbugs",
 
 
 # downloading beds used for exclusion
@@ -21,28 +21,38 @@ rule download_bed_gz:
 
 
 # structural variants - using asm varcalls vcf to identify structural variants for exclusion
-rule get_SVs_from_vcf:
+rule get_SVs_from_vcf_tbl:
     input:
         "results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.vcf.gz",
     output:
-        bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.bed",
         tbl="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.tsv",
     conda:
-        "../envs/bcftools_and_bedtools.yml"
+        "../envs/bcftools.yml"
+    log:
+        "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_tbl.log",
+    shell: """
+        ## Generating table with SV information and refwiden coordinates
+        bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/REFWIDENED\t%INFO/REPTYPE\n'  {input} > {output.tbl}
+    """
+
+rule get_SV_widen_coords:
+    input:  tbl="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.tsv",
+    output:"results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_coords.tsv",
+    log:"logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_coords.log",
+    script: "../scripts/get_sv_coords.py"
+
+rule get_SV_exclusion_bed:
+    input:
+       "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_coords.tsv",
+    output:
+        bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.bed",
+    conda:
+        "../envs/bedtools.yml"
     log:
         "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.log",
     shell:
         """
-        ## Generating table with SV information and refwiden coordinates
-        bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/REFWIDENED\t%INFO/REPTYPE\n'  {input} > {output.tbl}
-
-        ## Creating bed with SVs for use in defining excluded regions
-        # ---- excluding SVs less than 50 bps and reformatting as 0 base tab sep bed file (CHROM\tSTART\tSTOP)
-        awk 'length($3)>49 || length($4)>49' {output.tbl} \
-            | cut -f 5 \
-            | sed 's/[:,-]/\t/g' \
-            | awk '{{FS=OFS="\t"}} {{if($2>$3){{print $1,$3,$2}}else{{print $1,$2,$3}}}}' \
-            | sortBed -i stdin \
+        sortBed -i {input} \
             | mergeBed -i stdin -d 5 \
             1> {output.bed} 2> {log}
         """
