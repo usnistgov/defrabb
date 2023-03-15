@@ -237,6 +237,7 @@ rule all:
             vc_param_id=truvari_analyses["vc_param_id"].tolist(),
         ),
 
+
 ################################################################################
 ################################################################################
 ##
@@ -479,6 +480,7 @@ rule index_dip_bam:
 #     shell:
 #         "cp {input} {output} &> {log}"
 
+
 rule sort_exclusion_beds:
     input:
         in_file="resources/exclusions/{ref}/{genomic_region}.bed",
@@ -489,6 +491,7 @@ rule sort_exclusion_beds:
         "logs/sort_bed/exclusion/{ref}_{genomic_region}.log",
     wrapper:
         "0.74.0/bio/bedtools/sort"
+
 
 rule postprocess_bed:
     input:
@@ -547,7 +550,7 @@ rule run_happy:
         "benchmark/run_happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "envs/happy.yml"
-    script: 
+    script:
         "scripts/run_happy.py"
 
 

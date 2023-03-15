@@ -30,20 +30,27 @@ rule get_SVs_from_vcf_tbl:
         "../envs/bcftools.yml"
     log:
         "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_tbl.log",
-    shell: """
+    shell:
+        """
         ## Generating table with SV information and refwiden coordinates
         bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/REFWIDENED\t%INFO/REPTYPE\n'  {input} > {output.tbl}
-    """
+        """
+
 
 rule get_SV_widen_coords:
-    input:  tbl="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.tsv",
-    output:"results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_coords.tsv",
-    log:"logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_coords.log",
-    script: "../scripts/get_sv_coords.py"
+    input:
+        tbl="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.tsv",
+    output:
+        "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_coords.tsv",
+    log:
+        "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_coords.log",
+    script:
+        "../scripts/get_sv_coords.py"
+
 
 rule get_SV_exclusion_bed:
     input:
-       "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_coords.tsv",
+        "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_coords.tsv",
     output:
         bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.bed",
     conda:
