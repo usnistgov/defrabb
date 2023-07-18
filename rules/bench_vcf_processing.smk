@@ -54,7 +54,7 @@ rule split_multiallelic_sites:
         "logs/split_multiallelic_sites/{bench_id}_{prefix}.log",
     shell:
         """
-        bcftools norm -m - {input} -Oz -o {output.vcf} 2> {log}
+        bcftools norm -m-any {input} -Oz -o {output.vcf} 2> {log}
         tabix -p vcf {output.vcf} 2>> {log}
         """
 
