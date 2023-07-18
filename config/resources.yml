@@ -1001,23 +1001,3 @@ comparisons:
       vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/giab/HG002.pacbio.chm13.vcf.gz
       bed_url:
       tbi_url:
-
-################################################################################
-# Rule compute resource requirements and data dependencies
-
-## Dipcall Resources ##############
-# the number of dipcall threads to use
-_dipcall_threads: 3
-
-# the number of parallel jobs for dipcall's call to make - 2 or one per haplotype
-_dipcall_jobs: 4
-
-# Mem per job
-_dipcall_mem: 32000
-
-# the root of the par file for dipcall (and friends)
-_par_bed_root: data/par_bed
-
-## Happy Resources ################
-_happy_threads: 4
-_happy_mem: 32000
