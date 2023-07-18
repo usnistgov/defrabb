@@ -246,6 +246,7 @@ rule all:
 
 
 # Get and prepare assemblies
+# Get and prepare assemblies
 rule get_assemblies:
     output:
         "resources/assemblies/{asm_id}/{haplotype}.fa",
@@ -254,7 +255,14 @@ rule get_assemblies:
     log:
         "logs/get_assemblies/{asm_id}_{haplotype}.log",
     shell:
-        "curl -f -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
+        """
+        file=$(curl -f -L -sI {params.url} | grep -o -i 'content-type:.*' | cut -d ':' -f 2 | tr -d '[[:space:]]');
+        if [ "$file" == "application/x-gzip" ]; then
+            curl -f -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log};
+        else
+            curl -f -L {params.url} 2> {log} > {output};
+        fi
+        """
 
 
 # Get and prepare reference
