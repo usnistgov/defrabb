@@ -20,7 +20,7 @@ Optional:
                                     release: copy run output to NAS for upload to Google Drive
     -j          number of jobs used by snakemake, default number of system cores
     -n          Run snakemake in dry run mode, only runs pipe step
-    -F          Force rerunning all steps, includes downloading resouces
+    -F          Force rerunning all steps, includes downloading resources
     -k          keep going with independent jobs if one job fails
     -u          unlock snakeamke run directory
 EOF
