@@ -46,7 +46,7 @@ _happy_mem: 32000
 
 references:
   GRCh37:
-    ref_url: "ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/phase2_reference_assembly_sequence/hs37d5.fa.gz"
+    ref_url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/references/GRCh37/hs37d5.fa.gz"
     par_bed: "hs37d5.PAR.bed"
     exclusions:
       all-tr-and-homopolymers: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh37/GRCh37_AllTandemRepeatsandHomopolymers_slop5.bed.gz
@@ -65,7 +65,7 @@ references:
       tarball: "v3.0-stratifications-GRCh37.tar.gz"
       tsv: "v3.0-GRCh37-all-stratifications.tsv"
   GRCh38:
-    ref_url: "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.gz"
+    ref_url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/references/GRCh38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta.gz"
     par_bed: "hs38.PAR.bed"
     exclusions:
       all-tr-and-homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
