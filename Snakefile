@@ -5,7 +5,7 @@ from snakemake.utils import min_version, validate
 # include: "rules/bench_vcf_processing.smk"
 
 
-min_version("7.3.0")
+min_version("7.26.0")
 
 
 ## Rule ordering for ambiguous rules
