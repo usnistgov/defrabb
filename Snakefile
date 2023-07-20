@@ -256,12 +256,7 @@ rule get_assemblies:
         "logs/get_assemblies/{asm_id}_{haplotype}.log",
     shell:
         """
-        file=$(curl -f -L -sI {params.url} | grep -o -i 'content-type:.*' | cut -d ':' -f 2 | tr -d '[[:space:]]');
-        if [ "$file" == "application/x-gzip" ]; then
-            curl -f -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log};
-        else
-            curl -f -L {params.url} 2> {log} > {output};
-        fi
+        curl -f -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log};
         """
 
 
