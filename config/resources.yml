@@ -63,7 +63,7 @@ references:
       id: "v3.1-stratifications-GRCh37"
       url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/v3.1-genome-stratifications-GRCh37.tar.gz"
       tarball: "v3.1-genome-stratifications-GRCh37.tar.gz"
-      tsv: "vv3.1-GRCh37-stratifications-all-except-genome-specific-stratifications.tsv"
+      tsv: "v3.1-GRCh37-stratifications-all-except-genome-specific-stratifications.tsv"
   GRCh38:
     ref_url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/references/GRCh38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta.gz"
     par_bed: "hs38.PAR.bed"
