@@ -488,3 +488,7 @@ comparisons:
       vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/giab/HG002.pacbio.chm13.vcf.gz
       bed_url:
       tbi_url:
+    HG2-Sniffles2-CHM13v2:
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/hg002-chm13-sniffles2.vcf.gz
+      bed_url:
+      tbi_url:
