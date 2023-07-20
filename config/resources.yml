@@ -175,8 +175,8 @@ assemblies:
     paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/verkko/HG002/v1.1/assembly.v0.7_paternal.fasta.gz
     is_male: true
   HG2-T2TQ100-V0.9:
-    maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/verkko/hg002v0.9_mat.fa.gz
-    paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/verkko/hg002v0.9_pat.fa.gz
+    maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/hg002v0.9_mat.fa.gz
+    paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/hg002v0.9_pat.fa.gz
     is_male: true
 
 ################################################################################
