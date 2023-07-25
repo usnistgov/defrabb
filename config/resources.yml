@@ -338,6 +338,19 @@ exclusion_set:
     - self-chains
     - flanks
     - svs-and-simple-repeats
+  stvarallwlongHPnoSelfChain:
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - flanks
+  smvarallwlongHPnoSelfChain:
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - flanks
+    - svs-and-simple-repeats
 
 ## Regions 
 exclusion_slop_regions:
