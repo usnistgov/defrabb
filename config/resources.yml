@@ -89,7 +89,7 @@ references:
     ref_url: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/reference/chm13v2.0_maskedY.fa.gz"
     par_bed: "chm13v2.0_PAR-X.bed"
     exclusions:
-      all-tr-and-homopolymers: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/LowComplexity/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz"
+      all-tr-and-homopolymers: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/CHM13v2.0/LowComplexity/CHM13v2.0_AllTandemRepeatsandHomopolymers_slop5.bed.gz"
       segdups: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/CHM13v2.0/SegmentalDuplications/CHM13v2.0_SegDups.bed.gz"
       tandem-repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/CHM13v2.0/LowComplexity/CHM13v2.0_AllTandemRepeats_gt10000bp_slop5.bed.gz"
       gaps: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/CHM13v2.0/OtherDifficult/CHM13v2.0_rDNA.bed.gz"
