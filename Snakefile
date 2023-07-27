@@ -224,7 +224,7 @@ rule all:
             vc_param_id=happy_analyses["vc_param_id"].tolist(),
         ),
         expand(
-            "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/summary.txt",
+            "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/summary.json",
             zip,
             eval_id=truvari_analyses.index.tolist(),
             bench_id=truvari_analyses["bench_id"].tolist(),
@@ -563,7 +563,12 @@ rule run_truvari:
     input:
         unpack(partial(get_truvari_inputs, analyses, config)),
     output:
-        "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/summary.txt",
+        report(
+            "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/summary.json",
+            caption="report/truvari_summary.rst",
+            category="Truvari",
+        ),
+        
     log:
         "logs/run_travari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/truvari.log",
     # TODO this tmp thing is a workaround for the fact that snakemake
@@ -584,7 +589,7 @@ rule run_truvari:
             -b {input.truth} \
             -c {input.query} \
             -o {params.tmpdir} \
-            --multimatch \
+            --pick ac \
             --passonly \
             -r 2000 \
             -C 5000 \

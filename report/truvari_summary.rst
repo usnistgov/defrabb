@@ -1,0 +1,1 @@
+Truvari summary.json results for {{snakemake.wildcards.eval_id}}.
