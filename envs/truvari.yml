@@ -2,4 +2,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - truvari=3.2.0
+  - truvari=4.0.0
