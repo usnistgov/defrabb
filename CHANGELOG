@@ -1,3 +1,13 @@
+# Milestone v0.011 2023-07-25
+Most changes in this release were making the run_defrabb script more user friendly and fixing bugs encountered
+making XY benchmark, comparison to Sentieon SV callsets, and benchmarks for v0.09 of T2T HG002 assembly
+- improving usability of run_defrabb script, keep going, number of jobs, extra snakemake args
+- updated usage documentation
+- updated config to use v3.1 stratifications and ftp version of reference
+- new benchmarks based on v0.9 of HG002 T2T assembly
+- now including all homopolymers since able to evaluate with new high accuracy short read technologies
+
+
 # Milestone v0.010 2022-09-21
 - Fixing breaking changes introduced with v0.009.
 - Will add back in downloading files functionality and simplifying api in future releases.
