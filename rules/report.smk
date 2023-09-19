@@ -31,45 +31,6 @@ rule run_assembly_stats:
     wrapper:
         "v0.86.0/bio/assembly-stats"
 
-
-## Potentially modify to calculate for all output beds
-rule get_bed_size:
-    input:
-        "{genomic_region}.bed",
-    output:
-        "results/bed_size/{genomic_region}.txt",
-    # output: report("results/bed_size/{genomic_region}.txt", caption = "report/bed_size.rst", category = "Exclusion Stats")
-    log:
-        "logs/get_bed_size/{genomic_region}.log",
-    shell:
-        """
-        cat {input} \
-            | '{sum+=$3-$2} END {print sum} \
-            1> {output} 2> {log}
-        """
-
-
-## TODO - fix output filename and add to rule all
-rule get_number_of_variants:
-    input:
-        vcf="{prefix}.vcf.gz",
-        bed="{genomic_region}.bed",
-    output:
-        "{prefix}/nvars_{genomic_region}.txt",
-    log:
-        "logs/{prefix}_{genomic_region}_var_counts.tsv",
-    conda:
-        "../envs/bedtools.yml"
-    shell:
-        """
-        nvar=$(intersectBed \
-         -a {input.vcf} \
-         -b {input.bed} \
-         | wc -l
-        echo {input.bed} $nvar 1> {output}  2> {log}
-        """
-
-
 ## Summary stats by chromosome, need to test/ debug getting ref_id from input bed
 rule get_bed_stats:
     input:
