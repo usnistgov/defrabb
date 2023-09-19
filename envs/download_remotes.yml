@@ -1,0 +1,12 @@
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - snakemake
+  - curl
+  - gzip
+  - htslib >=1.10 # for bgzip
+  - sed
+  - awk
+  - grep

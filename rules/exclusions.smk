@@ -16,6 +16,8 @@ rule download_bed_gz:
         url=lambda wildcards: config["references"][wildcards.ref_id]["exclusions"][
             wildcards.genomic_region
         ],
+    conda:
+        "../envs/download_remotes.yml"
     shell:
         "curl -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
 
