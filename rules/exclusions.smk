@@ -164,7 +164,7 @@ rule subtract_exclusions:
         dip_bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
         other_beds=get_exclusion_inputs,
     output:
-        report(
+        rpt=report(
             "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.exclusion_stats.txt",
             caption="../report/exclusion_stats.rst",
             category="Exclusions",
@@ -183,6 +183,6 @@ rule subtract_exclusions:
         python {params.script} \
         {input.dip_bed} \
         {output.bed} \
-        {output[0]} \
+        {output.rpt} \
         {input.other_beds}
         """
