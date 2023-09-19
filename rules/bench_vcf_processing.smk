@@ -121,7 +121,7 @@ rule move_asm_vcf_to_draft_bench:
     log:
         "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     conda:
-        "envs/download_remotes.yml"
+        "../envs/download_remotes.yml"
     shell:
         "cp {input} {output} &> {log}"
 
@@ -134,6 +134,6 @@ rule move_processed_draft_bench_vcf:
     log:
         "logs/move_processed_draft_bench_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     conda:
-        "envs/download_remotes.yml"
+        "../envs/download_remotes.yml"
     shell:
         "cp {input} {output}"
