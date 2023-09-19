@@ -120,6 +120,8 @@ rule move_asm_vcf_to_draft_bench:
         "results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
     log:
         "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    conda:
+        "envs/download_remotes.yml"
     shell:
         "cp {input} {output} &> {log}"
 
@@ -131,5 +133,7 @@ rule move_processed_draft_bench_vcf:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
     log:
         "logs/move_processed_draft_bench_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    conda:
+        "envs/download_remotes.yml"
     shell:
         "cp {input} {output}"
