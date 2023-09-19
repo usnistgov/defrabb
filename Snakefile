@@ -254,6 +254,8 @@ rule get_assemblies:
         url=lambda wildcards: asm_config[wildcards.asm_id][wildcards.haplotype],
     log:
         "logs/get_assemblies/{asm_id}_{haplotype}.log",
+    conda:
+        "envs/download_remotes.yml"
     shell:
         """
         curl -f -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log};
@@ -268,6 +270,8 @@ rule get_ref:
         url=lambda wildcards: ref_config[wildcards.ref_id]["ref_url"],
     log:
         "logs/get_ref/{ref_id}.log",
+    conda:
+        "envs/download_remotes.yml"
     shell:
         "curl -f --connect-timeout 120 -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
 
@@ -325,6 +329,8 @@ rule get_strats:
         url=lambda wildcards: f"{config['references'][wildcards.ref_id]['stratifications']['url']}",
     log:
         "logs/get_strats/{ref_id}_{strat_id}.log",
+    conda:
+        "envs/download_remotes.yml"
     shell:
         "curl -f -L -o {output} {params.url} &> {log}"
 
@@ -342,6 +348,8 @@ rule get_comparison_vcf:
         ],
     log:
         "logs/get_comparisons/{ref_id}_{comp_id}_vcf.log",
+    conda:
+        "envs/download_remotes.yml"
     shell:
         "curl -f -L -o {output} {params.url} &> {log}"
 
@@ -501,6 +509,8 @@ rule postprocess_bed:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed",
     log:
         "logs/process_benchmark_bed/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    conda:
+        "envs/download_remotes.yml"
     shell:
         "cp {input} {output} &> {log}"
 
