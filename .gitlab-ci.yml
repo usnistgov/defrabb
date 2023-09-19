@@ -1,7 +1,7 @@
 before_script:
   - echo "Installing pipeline dependencies"
   - mamba --version
-  - mamba install -c bioconda -c conda-forge snakemake==7.3.0 snakefmt
+  - mamba install -c bioconda -c conda-forge snakemake==7.26.0 snakefmt
   - snakemake --version
   - black --version
 
