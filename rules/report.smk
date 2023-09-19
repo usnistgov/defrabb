@@ -41,6 +41,8 @@ rule get_bed_size:
     # output: report("results/bed_size/{genomic_region}.txt", caption = "report/bed_size.rst", category = "Exclusion Stats")
     log:
         "logs/get_bed_size/{genomic_region}.log",
+    conda:
+        "../envs/download_remotes.yml"
     shell:
         """
         cat {input} \

@@ -10,6 +10,8 @@ rule fix_XY_genotype:
         "../envs/dipcall.yml"
     log:
         "logs/fix_XY_genotype/{bench_id}_{prefix}.log",
+    conda:
+        "../envs/download_remotes.yml"
     shell:
         """
         gunzip -c {input} \
@@ -29,7 +31,7 @@ rule dip_gap2homvarbutfiltered:
         "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.gap2homvarbutfiltered.vcf.gz",
     # bgzip is part of samtools, which is part of the dipcall env
     conda:
-        "../envs/dipcall.yml"
+        "../envs/download_remotes.yml"
     log:
         "logs/dip_gap2homvarbutfiltered/{bench_id}_{prefix}.log",
     shell:
