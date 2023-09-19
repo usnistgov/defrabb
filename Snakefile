@@ -509,6 +509,8 @@ rule postprocess_bed:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed",
     log:
         "logs/process_benchmark_bed/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    conda:
+        "envs/download_remotes.yml"
     shell:
         "cp {input} {output} &> {log}"
 
