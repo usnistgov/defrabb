@@ -8,5 +8,5 @@ dependencies:
   - gzip
   - htslib >=1.10 # for bgzip
   - sed
-  - awk
+  - gawk
   - grep
