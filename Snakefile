@@ -595,9 +595,22 @@ rule run_truvari:
         """
         ## Removing temp directory before starting run
         rm -rf {params.tmpdir}
+
+        ## Normalize chromosome names in the query VCF to match the truth VCF
+        if bcftools view -h {input.truth} | grep -q "^##contig=<ID=chr"
+        then
+            # Chromosome names in the truth VCF have 'chr' prefix
+            bcftools annotate -Oz --rename-chrs <(echo -e "1\tchr1\n2\tchr2\n3\tchr3\n4\tchr4\n5\tchr5\n6\tchr6\n7\tchr7\n8\tchr8\n9\tchr9\n10\tchr10\n11\tchr11\n12\tchr12\n13\tchr13\n14\tchr14\n15\tchr15\n16\tchr16\n17\tchr17\n18\tchr18\n19\tchr19\n20\tchr20\n21\tchr21\n22\tchr22\nX\tchrX\nY\tchrY") {input.query} > {params.dir}/query.vcf.gz
+        else
+            # Chromosome names in the truth VCF do not have 'chr' prefix
+            bcftools annotate -Oz --rename-chrs <(echo -e "chr1\t1\nchr2\t2\nchr3\t3\nchr4\t4\nchr5\t5\nchr6\t6\nchr7\t7\nchr8\t8\nchr9\t9\nchr10\t10\nchr11\t11\nchr12\t12\nchr13\t13\nchr14\t14\nchr15\t15\nchr16\t16\nchr17\t17\nchr18\t18\nchr19\t19\nchr20\t20\nchr21\t21\nchr22\t22\nchrX\tX\nchrY\tY") {input.query} > {params.dir}/query.vcf.gz
+        fi
+        bcftools index -t {params.dir}/query.vcf.gz
+
+        ## Running truvari
         truvari bench \
             -b {input.truth} \
-            -c {input.query} \
+            -c {params.dir}/query.vcf.gz \
             -o {params.tmpdir} \
             --pick ac \
             --passonly \
