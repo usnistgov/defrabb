@@ -124,6 +124,7 @@ rule get_adotto_tr_anno_db:
         "../envs/download_remotes.yml"
     params:
         url="https://zenodo.org/record/7689784/files/adotto_TRregions_v1.1.bed.gz?download=1",
+    log: "logs/get_addoto_tr_anno_db/GRCh38.log"
     shell:
         """
         curl -L {params.url} 2> {log} \
@@ -138,6 +139,7 @@ rule get_adotto_tr_anno_db:
 rule run_truvari_anno_trf:
     input:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz",
+        vcfidx="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz.tbi",
         ref="resources/references/{ref_id}.fa",
         trdb="resources/references/{ref_id}_trf.bed.gz",
     output:
@@ -145,7 +147,7 @@ rule run_truvari_anno_trf:
     log:
         "logs/truvari_anno_trf/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     conda:
-        "../envs/turvari.yml"
+        "../envs/truvari.yml"
     params:
         threads=2,
     shell:
