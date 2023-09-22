@@ -124,7 +124,8 @@ rule get_adotto_tr_anno_db:
         "../envs/download_remotes.yml"
     params:
         url="https://zenodo.org/record/7689784/files/adotto_TRregions_v1.1.bed.gz?download=1",
-    log: "logs/get_addoto_tr_anno_db/GRCh38.log"
+    log:
+        "logs/get_addoto_tr_anno_db/GRCh38.log",
     shell:
         """
         curl -L {params.url} 2> {log} \

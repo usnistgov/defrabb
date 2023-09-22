@@ -31,6 +31,7 @@ rule run_assembly_stats:
     wrapper:
         "v0.86.0/bio/assembly-stats"
 
+
 ## Summary stats by chromosome, need to test/ debug getting ref_id from input bed
 rule get_bed_stats:
     input:
