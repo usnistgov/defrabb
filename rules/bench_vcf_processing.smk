@@ -86,30 +86,77 @@ rule normalize_for_svwiden:
         """
 
 
-rule run_svwiden:
-    input:
-        vcf=ancient("results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz"),
-        ref="resources/references/{ref_id}.fa",
+## Old code from using SVwiden to get SV coords including overlapping tandem repeats
+# rule run_svwiden:
+#     input:
+#         vcf=ancient("results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz"),
+#         ref="resources/references/{ref_id}.fa",
+#     output:
+#         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.vcf.gz",
+#     log:
+#         "logs/svwiden/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+#     conda:
+#         "../envs/svanalyzer.yml"
+#     shadow:
+#         "minimal"
+#     params:
+#         prefix="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden",
+#     shell:
+#         """
+#         svanalyzer widen \
+#         --variants {input.vcf} \
+#         --ref {input.ref} \
+#         --prefix {params.prefix} &> {log}
+
+#         # Removing ".;" at beginning of INFO field introduced by SVwiden
+#         sed 's/\.;REPTYPE/REPTYPE/' {params.prefix}.vcf \
+#             | bgzip -c > {params.prefix}.vcf.gz 2>> {log}
+#         """
+
+
+## currently only for GRCh38
+## TODO - replace hard coded url with url from config file
+rule get_adotto_tr_anno_db:
     output:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.vcf.gz",
-    log:
-        "logs/svwiden/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        bed="resources/references/GRCh38_trf.bed.gz",
+        tbi="resources/references/GRCh38_trf.bed.gz.tbi",
     conda:
-        "../envs/svanalyzer.yml"
-    shadow:
-        "minimal"
+        "../envs/download_remotes.yml"
     params:
-        prefix="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden",
+        url="https://zenodo.org/record/7689784/files/adotto_TRregions_v1.1.bed.gz?download=1",
     shell:
         """
-        svanalyzer widen \
-        --variants {input.vcf} \
-        --ref {input.ref} \
-        --prefix {params.prefix} &> {log} 
+        curl -L {params.url} 2> {log} \
+        | zcat \
+        | cut -f1-3,18 \
+        | bgzip > {output.bed}
 
-        # Removing ".;" at beginning of INFO field introduced by SVwiden
-        sed 's/\.;REPTYPE/REPTYPE/' {params.prefix}.vcf \
-            | bgzip -c > {params.prefix}.vcf.gz 2>> {log}
+        tabix {output.bed}
+        """
+
+
+rule run_truvari_anno_trf:
+    input:
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz",
+        ref="resources/references/{ref_id}.fa",
+        trdb="resources/references/{ref_id}_trf.bed.gz",
+    output:
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.trfanno.vcf",
+    log:
+        "logs/truvari_anno_trf/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    conda:
+        "../envs/turvari.yml"
+    params:
+        threads=2,
+    shell:
+        """
+        truvari anno trf \
+            -i {input.vcf} \
+            -o {output.vcf} \
+            -r {input.trdb} \
+            -f {input.ref} \
+            -t {params.threads} \
+            -e trf &> {log}
         """
 
 
