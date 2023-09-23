@@ -64,7 +64,7 @@ rule get_sv_widen_coords:
         "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_coords.log",
     shell:
         """
-        python ../scripts/get_sv_widen_coords.py \
+        python scripts/get_sv_widen_coords.py \
             --input {input.vcf} \
             --output {output.bed} \
             --verbose \
