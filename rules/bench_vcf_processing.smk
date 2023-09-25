@@ -114,18 +114,18 @@ rule normalize_for_svwiden:
 #         """
 
 
-## currently only for GRCh38
-## TODO - replace hard coded url with url from config file
+## Using Adotto as tr catalogue for SV annotations - currently only for GRCh38
+## https://github.com/ACEnglish/adotto
 rule get_adotto_tr_anno_db:
     output:
-        bed="resources/references/GRCh38_trf.bed.gz",
-        tbi="resources/references/GRCh38_trf.bed.gz.tbi",
+        bed="resources/references/{ref_id}_trf.bed.gz",
+        tbi="resources/references/{ref_id}_trf.bed.gz.tbi",
     conda:
         "../envs/download_remotes.yml"
     params:
-        url="https://zenodo.org/record/7689784/files/adotto_TRregions_v1.1.bed.gz?download=1",
+        url=get_addoto_tr_anno_db_url,
     log:
-        "logs/get_addoto_tr_anno_db/GRCh38.log",
+        "logs/get_addoto_tr_anno_db/{ref_id}.log",
     shell:
         """
         curl -L {params.url} 2> {log} \

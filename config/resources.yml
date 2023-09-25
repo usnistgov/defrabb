@@ -67,6 +67,7 @@ references:
   GRCh38:
     ref_url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/references/GRCh38/GCA_000001405.15_GRCh38_no_alt_analysis_set.fasta.gz"
     par_bed: "hs38.PAR.bed"
+    adotto_db: "https://zenodo.org/record/7689784/files/adotto_TRregions_v1.1.bed.gz?download=1"
     exclusions:
       all-tr-and-homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/LowComplexity/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
       segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/SegmentalDuplications/GRCh38_segdups.bed.gz
@@ -103,6 +104,7 @@ references:
   GRCh38_chr21:
     ref_url: "https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_chr21.fa.gz"
     par_bed: "hs38.PAR.bed"
+    adotto_db: "https://zenodo.org/record/7689784/files/adotto_TRregions_v1.1.bed.gz?download=1"
     exclusions:
       all-tr-and-homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/LowComplexity/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
       segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v2.0/GRCh38/SegmentalDuplications/GRCh38_segdups.bed.gz
