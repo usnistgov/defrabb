@@ -104,11 +104,11 @@ def main(
 
                 ## Including TR region for trf annotated SVs
                 if trf_start:
-                    start = min(pos, trf_start, trf_end) - 50
-                    end = max(pos + len(ref), trf_start, trf_end) + 50
+                    start = min(pos, trf_start, trf_end)
+                    end = max(pos + len(ref), trf_start, trf_end)
                 else:
-                    start = pos - 50
-                    end = pos + len(alt) + 50
+                    start = pos
+                    end = pos + len(alt)
 
                 # Adjust for base encoding: VCF is 1-based and BED is 0-based
                 start -= 1
