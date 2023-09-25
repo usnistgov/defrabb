@@ -1,2 +1,0 @@
-eval_id	bench_id	eval_cmd	eval_params	eval_comp_id	eval_comp_id_is_truth	eval_truth_regions	eval_target_regions	vc_id	bench_type	bench_vcf_processing	bench_bed_processing	exclusion_set	asm_id	ref	vc_cmd	vc_param_id	vc_params
-CHM13v2.0_T~HG002-HPRC-dipz2k_Q~HifiDV_TR~none	CHM13v2.0_HG002-HPRC-dipz2k_smvar-excluded-fix_XY_genotype	happy	default	HG2-Hifi-DV-CHM13v2	FALSE	TRUE	FALSE	CHM13v2.0_HG002-HPRC_dipz2k	smvar	fix_XY_genotype	exclude	smvarallCHM13	HG2-HPRC-20211005	CHM13v2.0	dipcall	z2k	"-z200000,10000"
