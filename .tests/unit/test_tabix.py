@@ -38,6 +38,7 @@ def test_tabix():
                 "results/draft_benchmarksets/testA/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz.tbi",
                 "-f",
                 "-j1",
+                "--touch",
                 "--keep-target-files",
                 "--use-conda",
                 "--directory",
