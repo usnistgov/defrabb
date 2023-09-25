@@ -24,7 +24,7 @@ def load_sv_tbl(tbl_path):
     ## Adding SV end position coordinates
     df["REF_len"] = [len(x) for x in df["REF"]]
     df["ALT_len"] = [len(x) for x in df["ALT"]]
-    df["END"] = df["POS"] + df["REF_len"] + df["ALT_len"]
+    df["END"] = df["POS"] + df["REF_len"]
 
     ## Filtering small variants
     df = df.loc[(df["REF_len"] > 49) | (df["ALT_len"] > 49)]
