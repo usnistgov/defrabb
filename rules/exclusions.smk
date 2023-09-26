@@ -60,11 +60,13 @@ rule get_sv_widen_coords:
         tbl="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.tsv",
     conda:
         "../envs/sv_widen_coords.yml"
+    params:
+        script=workflow.source_path("../scripts/get_sv_widen_coords.py"),
     log:
         "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_coords.log",
     shell:
         """
-        python scripts/get_sv_widen_coords.py \
+        python {params.script} \
             --input {input.vcf} \
             --output {output.bed} \
             --verbose \
