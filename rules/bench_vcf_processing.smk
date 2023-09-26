@@ -150,7 +150,8 @@ rule run_truvari_anno_trf:
     conda:
         "../envs/truvari.yml"
     params:
-        threads=2,
+        min_length=20,
+    threads: 5
     shell:
         """
         truvari anno trf \
@@ -158,7 +159,8 @@ rule run_truvari_anno_trf:
             -o {output.vcf} \
             -r {input.trdb} \
             -f {input.ref} \
-            -t {params.threads} \
+            -t {threads} \
+            --min-length {params.min_length} \
             -e trf &> {log}
         """
 
