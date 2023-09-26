@@ -1,5 +1,2 @@
-eval_cmd	eval_params	eval_query_vcf_preprocessing	eval_query_bed_preprocessing	eval_truth_vcf_preprocessing	eval_truth_bed_preprocessing	eval_query	eval_truth	eval_truth_regions	eval_target_regions	bench_type	bench_vcf_processing	bench_bed_processing	bench_exclusion_set	asm_id	ref	vc_cmd	vc_param_id
-happy	default	none	none	none	none	this_row	v4.2.1	yes	yes	smvar	none	none	none	HG2-HPRC-20211005	GRCh38	dipcall	default
-happy	default	none	none	none	none	HiFiDV-v4.2.1	this_row	yes	GRCh38_chrXY.bed	smvar	fix_XY_genotype	exclude	smvarXYhifi	T2T-XY-v2.7	GRCh38	dipcall	z2k
-happy	default	none	none	none	none	HG2-HifiDV-38	this_row	yes	none	smvar	none	exclude	smvarall	HG2-HPRC-20211005	GRCh38	dipcall	z2k
-truvari	default	none	none	none	none	this_row	v0.6	yes	yes	stvar	none	exclude	stvarall	HG2-HPRC-20211005	GRCh37	dipcall	z2k
+eval_id	bench_id	eval_cmd	eval_params	eval_comp_id	eval_comp_id_is_truth	eval_truth_regions	eval_target_regions	vc_id	bench_type	bench_vcf_processing	bench_bed_processing	exclusion_set	asm_id	ref	vc_cmd	vc_param_id	vc_params
+GRCh38_T~HG002-T2TQ100v0.9-dipz2k_Q~v4.2.1_TR~4.2.1	GRCh38_HG002-T2TQ100v0.9-dipz2k_smvar-excluded	happy	default	v4.2.1	FALSE	TRUE	TRUE	GRCh38_HG002-T2TQ100v0.9-dipz2k	smvar	none	exclude	smvarallwlongHP	HG2-T2TQ100-V0.9	GRCh38	dipcall	z2k	-z200000,10000
