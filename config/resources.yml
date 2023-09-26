@@ -98,7 +98,7 @@ references:
       id: "v3.1-stratifications-CHM13v2.0"
       url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/v3.1-genome-stratifications-CHM13v2.0.tar.gz"
       tarball: "v3.1-genome-stratifications-CHM13v2.0.tar.gz"
-      tsv: "v3.1-CHM13v2.0-all-stratifications.tsv  "
+      tsv: "v3.1-CHM13v2.0-all-stratifications.tsv"
   ## For testing
   GRCh38_chr21:
     ref_url: "https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_chr21.fa.gz"
