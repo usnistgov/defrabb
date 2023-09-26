@@ -71,7 +71,7 @@ def get_genome_file(wildcards):
 
 
 def get_addoto_tr_anno_db_url(wildcards):
-    config["references"][wildcards.ref_id]["adotto_db"]
+    return ref_config[wildcards.ref_id]["adotto_db"]
 
 
 def get_male_bed(wildcards):
