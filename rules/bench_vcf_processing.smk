@@ -93,7 +93,8 @@ rule run_svwiden:
     output:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.vcf.gz",
     log:
-        "logs/svwiden/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        stdlog="logs/svwiden/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        svwidenlog="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.log"
     conda:
         "../envs/svanalyzer.yml"
     shadow:
@@ -105,11 +106,11 @@ rule run_svwiden:
         svanalyzer widen \
         --variants {input.vcf} \
         --ref {input.ref} \
-        --prefix {params.prefix} &> {log} 
+        --prefix {params.prefix} &> {log.stdlog} 
 
         # Removing ".;" at beginning of INFO field introduced by SVwiden
         sed 's/\.;REPTYPE/REPTYPE/' {params.prefix}.vcf \
-            | bgzip -c > {params.prefix}.vcf.gz 2>> {log}
+            | bgzip -c > {params.prefix}.vcf.gz 2>> {log.stdlog}
         """
 
 
