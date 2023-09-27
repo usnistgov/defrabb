@@ -48,12 +48,13 @@ while getopts "r:a:o:s:j:nFku" flag; do
         F) force="-F";;
         k) keepgoing="-k";;
         u) unlock="--unlock";;
+        \?) break ;;
         *) usage;;
     esac
 done
 shift $((OPTIND-1))
 echo ${jobs}
-extra_args="$*" ## Capturing extra arguments for snakemake
+extra_args=($@) ## Capturing extra arguments for snakemake
  
 if [ -z "${runid}" ]; then
     usage "Missing required parameter -r";
@@ -152,7 +153,7 @@ if [ ${steps}  == "all" ] || [ ${steps} == "pipe" ]; then
             ${force} \
             ${unlock} \
             ${keepgoing} \
-            ${extra_args}
+            ${extra_args[@]}
 
     log "Done Executing DeFrABB"
 
