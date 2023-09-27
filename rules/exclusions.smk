@@ -25,7 +25,9 @@ rule download_bed_gz:
 # structural variants - using asm varcalls vcf to identify structural variants for exclusion
 rule get_SVs_from_vcf_tbl:
     input:
-        ancient("results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.vcf.gz"),
+        ancient(
+            "results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.vcf.gz"
+        ),
     output:
         tbl="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.tsv",
     conda:
