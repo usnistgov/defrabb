@@ -89,7 +89,9 @@ rule normalize_for_svwiden:
 ## Old code from using SVwiden to get SV coords including overlapping tandem repeats
 rule run_svwiden:
     input:
-        vcf=ancient("results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz"),
+        vcf=ancient(
+            "results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz"
+        ),
         ref="resources/references/{ref_id}.fa",
     output:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.vcf.gz",
