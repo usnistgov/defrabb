@@ -108,7 +108,7 @@ def main(
                     end = max(pos + len(ref), trf_start, trf_end)
                 else:
                     start = pos
-                    end = pos + len(alt)
+                    end = pos + len(ref)
 
                 # Adjust for base encoding: VCF is 1-based and BED is 0-based
                 start -= 1
