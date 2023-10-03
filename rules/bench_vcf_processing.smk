@@ -1,6 +1,4 @@
 # process T2TXY_v2.7.dip.vcf to match hifiDV GT using JZ sed command `
-
-
 rule fix_XY_genotype:
     input:
         "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
@@ -64,7 +62,7 @@ rule split_multiallelic_sites:
 # Split multi-allelic variants, left-align/normalize, remove duplicates, and
 # filter all lines that have REF or ALT > 20bp and no '*' characters. If this
 # isn't done, svwiden will choke on commas and star characters
-rule normalize_for_svwiden:
+rule filter_lt19_and_norm:
     input:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
         ref="resources/references/{ref_id}.fa",
@@ -83,36 +81,6 @@ rule normalize_for_svwiden:
             | bcftools norm -cs -f {input.ref} -Ov\
             | awk '($4!="*" && $5!="*" && (length($4)>20 || length($5)>20)) || $1~/^#/' \
             | bcftools sort -m{resources.mem_mb}m -Oz > {output} 2> {log}
-        """
-
-
-## Old code from using SVwiden to get SV coords including overlapping tandem repeats
-rule run_svwiden:
-    input:
-        vcf=ancient(
-            "results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz"
-        ),
-        ref="resources/references/{ref_id}.fa",
-    output:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.vcf.gz",
-    log:
-        "logs/svwiden/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
-    conda:
-        "../envs/svanalyzer.yml"
-    shadow:
-        "minimal"
-    params:
-        prefix="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden",
-    shell:
-        """
-        svanalyzer widen \
-        --variants {input.vcf} \
-        --ref {input.ref} \
-        --prefix {params.prefix} &> {log}
-
-        # Removing ".;" at beginning of INFO field introduced by SVwiden
-        sed 's/\.;REPTYPE/REPTYPE/' {params.prefix}.vcf \
-            | bgzip -c > {params.prefix}.vcf.gz 2>> {log}
         """
 
 

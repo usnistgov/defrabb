@@ -21,36 +21,6 @@ rule download_bed_gz:
     shell:
         "curl -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
 
-
-## Old rule for SVwiden based SV coordinates
-# structural variants - using asm varcalls vcf to identify structural variants for exclusion
-# rule get_SVs_from_vcf_tbl:
-#     input:
-#         ancient("results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.vcf.gz"),
-#     output:
-#         tbl="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.tsv",
-#     conda:
-#         "../envs/bcftools.yml"
-#     log:
-#         "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_tbl.log",
-#     shell:
-#         """
-#         ## Generating table with SV information and refwiden coordinates
-#         bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/REFWIDENED\t%INFO/REPTYPE\n'  {input} > {output.tbl}
-#         """
-
-## Old rule for SVwiden based SV coordinates
-# rule get_SV_widen_coords:
-#     input:
-#         tbl="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.tsv",
-#     output:
-#         "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_coords.tsv",
-#     log:
-#         "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_coords.log",
-#     script:
-#         "../scripts/get_sv_coords.py"
-
-
 rule get_sv_widen_coords:
     input:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.trfanno.vcf",
@@ -75,24 +45,6 @@ rule get_sv_widen_coords:
             --genome {input.genome} \
             --log {log}
         """
-
-
-## Old rule for SVwiden based SV coordinates
-# rule get_SV_exclusion_bed:
-#     input:
-#         "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_coords.tsv",
-#     output:
-#         bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.bed",
-#     conda:
-#         "../envs/bedtools.yml"
-#     log:
-#         "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.log",
-#     shell:
-#         """
-#         sortBed -i {input} \
-#             | mergeBed -i stdin -d 5 \
-#             1> {output.bed} 2> {log}
-#         """
 
 
 rule intersect_SVs_and_simple_repeats:
