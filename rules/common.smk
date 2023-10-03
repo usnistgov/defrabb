@@ -70,6 +70,10 @@ def get_genome_file(wildcards):
     return workflow.source_path(f"../resources/references/{ref_id}.genome")
 
 
+def get_addoto_tr_anno_db_url(wildcards):
+    return ref_config[wildcards.ref_id]["adotto_db"]
+
+
 def get_male_bed(wildcards):
     root = config["_par_bed_root"]
     filename = ref_config[wildcards.ref_id]["par_bed"]

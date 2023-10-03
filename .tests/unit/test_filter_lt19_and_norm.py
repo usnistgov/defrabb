@@ -11,12 +11,12 @@ sys.path.insert(0, os.path.dirname(__file__))
 import common
 
 
-def test_run_truvari():
+def test_run_filter_lt19_and_norm():
 
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
-        data_path = PurePosixPath(".tests/unit/run_svwiden/data")
-        expected_path = PurePosixPath(".tests/unit/run_svwiden/expected")
+        data_path = PurePosixPath(".tests/unit/filter_lt19_and_norm/data")
+        expected_path = PurePosixPath(".tests/unit/filter_lt19_and_norm/expected")
         config_path = PurePosixPath("config")
         references_path = PurePosixPath(".tests/integration/resources/references")
 
@@ -26,7 +26,7 @@ def test_run_truvari():
         shutil.copytree(references_path, workdir / "resources" / "references")
 
         # dbg
-        output = "results/draft_benchmarksets/testC/intermediates/GRCh38_chr21_asm17aChr21_dipcall-default.svwiden.vcf.gz"
+        output = "results/draft_benchmarksets/testC/intermediates/GRCh38_chr21_asm17aChr21_dipcall-default.gt19_norm.vcf.gz"
         print(
             output,
             file=sys.stderr,
