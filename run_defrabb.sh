@@ -141,7 +141,7 @@ set -euo pipefail
 if [ ${steps}  == "all" ] || [ ${steps} == "pipe" ]; then
     log "Running DeFrABB snakemake pipeline";
 
-    snakemake \
+    cmd="snakemake \
             --printshellcmds \
             --rerun-incomplete \
             --jobs "${cores}" \
@@ -153,7 +153,9 @@ if [ ${steps}  == "all" ] || [ ${steps} == "pipe" ]; then
             ${force} \
             ${unlock} \
             ${keepgoing} \
-            ${extra_args[@]}
+            ${extra_args[@]}"
+    echo $cmd
+    $cmd
 
     log "Done Executing DeFrABB"
 
