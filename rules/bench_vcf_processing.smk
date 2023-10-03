@@ -1,6 +1,4 @@
 # process T2TXY_v2.7.dip.vcf to match hifiDV GT using JZ sed command `
-
-
 rule fix_XY_genotype:
     input:
         "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
@@ -64,7 +62,7 @@ rule split_multiallelic_sites:
 # Split multi-allelic variants, left-align/normalize, remove duplicates, and
 # filter all lines that have REF or ALT > 20bp and no '*' characters. If this
 # isn't done, svwiden will choke on commas and star characters
-rule normalize_for_svwiden:
+rule filter_lt19_and_norm:
     input:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
         ref="resources/references/{ref_id}.fa",
@@ -86,33 +84,54 @@ rule normalize_for_svwiden:
         """
 
 
-rule run_svwiden:
-    input:
-        vcf=ancient(
-            "results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz"
-        ),
-        ref="resources/references/{ref_id}.fa",
+## Using Adotto as tr catalogue for SV annotations - currently only for GRCh38
+## https://github.com/ACEnglish/adotto
+rule get_adotto_tr_anno_db:
     output:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.vcf.gz",
-    log:
-        stdlog="logs/svwiden/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
-        svwidenlog="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.log"
+        bed="resources/references/{ref_id}_trf.bed.gz",
+        tbi="resources/references/{ref_id}_trf.bed.gz.tbi",
     conda:
-        "../envs/svanalyzer.yml"
-    shadow:
-        "minimal"
+        "../envs/download_remotes.yml"
     params:
-        prefix="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden",
+        url=get_addoto_tr_anno_db_url,
+    log:
+        "logs/get_addoto_tr_anno_db/{ref_id}.log",
     shell:
         """
-        svanalyzer widen \
-        --variants {input.vcf} \
-        --ref {input.ref} \
-        --prefix {params.prefix} &> {log.stdlog} 
+        curl -L {params.url} 2> {log} \
+        | zcat \
+        | cut -f1-3,18 \
+        | bgzip > {output.bed}
 
-        # Removing ".;" at beginning of INFO field introduced by SVwiden
-        sed 's/\.;REPTYPE/REPTYPE/' {params.prefix}.vcf \
-            | bgzip -c > {params.prefix}.vcf.gz 2>> {log.stdlog}
+        tabix {output.bed}
+        """
+
+
+rule run_truvari_anno_trf:
+    input:
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz",
+        vcfidx="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz.tbi",
+        ref="resources/references/{ref_id}.fa",
+        trdb="resources/references/{ref_id}_trf.bed.gz",
+    output:
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.trfanno.vcf",
+    log:
+        "logs/truvari_anno_trf/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    conda:
+        "../envs/truvari.yml"
+    params:
+        min_length=20,
+    threads: 5
+    shell:
+        """
+        truvari anno trf \
+            -i {input.vcf} \
+            -o {output.vcf} \
+            -r {input.trdb} \
+            -f {input.ref} \
+            -t {threads} \
+            --min-length {params.min_length} \
+            -e trf &> {log}
         """
 
 
