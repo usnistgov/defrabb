@@ -21,6 +21,7 @@ rule download_bed_gz:
     shell:
         "curl -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
 
+
 rule get_sv_widen_coords:
     input:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.trfanno.vcf",
