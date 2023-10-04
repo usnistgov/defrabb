@@ -2,7 +2,7 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - bedtools=2.30.0
+  - bedtools=2.31.0
   - pybedtools=0.8.2
   - gawk=5.1.0
 
