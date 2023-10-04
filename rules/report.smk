@@ -39,7 +39,7 @@ rule get_bed_stats:
     output: 
         report("{prefix}_bed-summary.tsv", 
             caption = "../report/bed_stats.rst", 
-            category = "Exclusion Stats")
+            category = "Exclusions")
     log:
         "logs/get_bed/stats/{prefix}.log",
     conda:
