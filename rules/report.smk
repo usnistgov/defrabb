@@ -31,15 +31,18 @@ rule run_assembly_stats:
     wrapper:
         "v0.86.0/bio/assembly-stats"
 
+
 ## Summary stats by chromosome
 rule get_bed_stats:
     input:
         bed="{prefix}.bed",
         genome=get_genome_file,
-    output: 
-        report("{prefix}_bed-summary.tsv", 
-            caption = "../report/bed_stats.rst", 
-            category = "Exclusions")
+    output:
+        report(
+            "{prefix}_bed-summary.tsv",
+            caption="../report/bed_stats.rst",
+            category="Exclusions",
+        ),
     log:
         "logs/get_bed/stats/{prefix}.log",
     conda:
