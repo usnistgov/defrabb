@@ -34,14 +34,14 @@ rule run_assembly_stats:
 ## Summary stats by chromosome
 rule get_bed_stats:
     input:
-        bed="{genomic_region}.bed",
+        bed="{prefix}.bed",
         genome=get_genome_file,
     output: 
-        report("{genomic_region}_bed-summary.tsv", 
+        report("{prefix}_bed-summary.tsv", 
             caption = "report/bed_stats.rst", 
             category = "Exclusion Stats")
     log:
-        "logs/get_bed/stats/{genomic_region}.log",
+        "logs/get_bed/stats/{prefix}.log",
     conda:
         "../envs/bedtools.yml"
     shell:
