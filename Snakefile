@@ -587,7 +587,6 @@ rule run_truvari:
             caption="report/truvari_summary.rst",
             category="Truvari",
         ),
-        
     log:
         "logs/run_travari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/truvari.log",
     # TODO this tmp thing is a workaround for the fact that snakemake
