@@ -22,54 +22,35 @@ rule download_bed_gz:
         "curl -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
 
 
-# structural variants - using asm varcalls vcf to identify structural variants for exclusion
-rule get_SVs_from_vcf_tbl:
+rule get_sv_widen_coords:
     input:
-        ancient("results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.svwiden.vcf.gz"),
-    output:
-        tbl="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.tsv",
-    conda:
-        "../envs/bcftools.yml"
-    log:
-        "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_tbl.log",
-    shell:
-        """
-        ## Generating table with SV information and refwiden coordinates
-        bcftools query -f '%CHROM\t%POS\t%REF\t%ALT\t%INFO/REFWIDENED\t%INFO/REPTYPE\n'  {input} > {output.tbl}
-        """
-
-
-rule get_SV_widen_coords:
-    input:
-        tbl="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.tsv",
-    output:
-        "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_coords.tsv",
-    log:
-        "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_coords.log",
-    script:
-        "../scripts/get_sv_coords.py"
-
-
-rule get_SV_exclusion_bed:
-    input:
-        "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_coords.tsv",
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.trfanno.vcf",
+        genome=get_genome_file,
     output:
         bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.bed",
+        tbl="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.tsv",
     conda:
-        "../envs/bedtools.yml"
+        "../envs/sv_widen_coords.yml"
+    params:
+        script=workflow.source_path("../scripts/get_sv_widen_coords.py"),
     log:
-        "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.log",
+        "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_coords.log",
     shell:
         """
-        sortBed -i {input} \
-            | mergeBed -i stdin -d 5 \
-            1> {output.bed} 2> {log}
+        python {params.script} \
+            --input {input.vcf} \
+            --output {output.bed} \
+            --verbose \
+            --table \
+            --sort-merge \
+            --genome {input.genome} \
+            --log {log}
         """
 
 
 rule intersect_SVs_and_simple_repeats:
     input:
-        sv_bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs_sorted.bed",
+        sv_bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.bed",
         simple_repeat_bed="resources/exclusions/{ref_id}/all-tr-and-homopolymers_sorted.bed",
         genome=get_genome_file,
     output:
