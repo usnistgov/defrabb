@@ -4,3 +4,4 @@ channels:
 dependencies:
   - truvari==4.0.0
   - bcftools==1.14
+  - trf==4.09.1
