@@ -38,7 +38,7 @@ rule get_bed_stats:
         genome=get_genome_file,
     output: 
         report("{prefix}_bed-summary.tsv", 
-            caption = "report/bed_stats.rst", 
+            caption = "../report/bed_stats.rst", 
             category = "Exclusion Stats")
     log:
         "logs/get_bed/stats/{prefix}.log",
