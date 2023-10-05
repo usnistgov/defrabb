@@ -374,17 +374,20 @@ use rule get_comparison_vcf as get_comparison_bed with:
         "logs/get_comparisons/{ref_id}_{comp_id}_bed.log",
 
 
-## General rule for compressing vcfs
-rule bgzip:
+## General rule for compressing vcfs - bcftools sort based rule to ensure vcf is sorted
+rule compress_vcf:
     input:
         "{prefix}.vcf",
     output:
         "{prefix}.vcf.gz",
-    threads: 1
     log:
-        "logs/bgzip/{prefix}.log",
+        "logs/bcftools/sort/{prefix}.log",
+    params:
+        extras="-Oz",
+    resources:
+        mem_mb=8000,
     wrapper:
-        "v2.6.0/bio/bgzip"
+        "v2.6.0/bio/bcftools/sort"
 
 ## General indexing rule for vcfs
 rule tabix:
