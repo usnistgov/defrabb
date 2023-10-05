@@ -160,6 +160,15 @@ rule all:
             vc_param_id=bench_excluded_tbl["vc_param_id"].tolist(),
         ),
         expand(
+            "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.benchmark_bed-summary.tsv",
+            zip,
+            bench_id=bench_excluded_tbl.index.tolist(),
+            ref=bench_excluded_tbl["ref"].tolist(),
+            asm_id=bench_excluded_tbl["asm_id"].tolist(),
+            vc_cmd=bench_excluded_tbl["vc_cmd"].tolist(),
+            vc_param_id=bench_excluded_tbl["vc_param_id"].tolist(),
+        ),
+        expand(
             "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1.bam.bai",
             zip,
             vc_id=dipcall_tbl.index.tolist(),
