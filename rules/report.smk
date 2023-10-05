@@ -32,16 +32,19 @@ rule run_assembly_stats:
         "v0.86.0/bio/assembly-stats"
 
 
-## Summary stats by chromosome, need to test/ debug getting ref_id from input bed
+## Summary stats by chromosome
 rule get_bed_stats:
     input:
-        bed="{bed_dir}/{ref_id}_{genomic_region}.bed",
-        genome="resouces/references/{ref_id}.genome",
+        bed="{prefix}.bed",
+        genome=get_genome_file,
     output:
-        "results/bed_stats/{bed_dir}_{ref_id}/{genomic_region}.tsv",
-    # output: report("results/bed_stats/{bed_dir}_{ref_id}/{genomic_region}.tsv", caption = "report/bed_stats.rst", category = "Exclusion Stats")
+        report(
+            "{prefix}_bed-summary.tsv",
+            caption="../report/bed_stats.rst",
+            category="Exclusions",
+        ),
     log:
-        "logs/get_bed/stats/{bed_dir}_{ref_id}_{genomic_region}.log",
+        "logs/get_bed/stats/{prefix}.log",
     conda:
         "../envs/bedtools.yml"
     shell:
