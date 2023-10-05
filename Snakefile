@@ -389,6 +389,7 @@ rule compress_vcf:
     wrapper:
         "v2.6.0/bio/bcftools/sort"
 
+
 ## General indexing rule for vcfs
 rule tabix:
     input:
