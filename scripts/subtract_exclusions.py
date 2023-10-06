@@ -7,11 +7,12 @@ import pandas as pd
 from pybedtools import BedTool
 from itertools import accumulate
 
-# usage: subtract_exclusions INPUT_BED OUTPUT_BED EXCLUDED_BEDS ...
+VALID_CHROMOSOMES = [f"chr{i}" for i in range(1, 23)] + [range(1, 23)] + ["chrX", "chrY", "X", "Y"] 
 
 
 def count_bp(bedfile):
-    df = bedfile.to_dataframe(names=["chr", "start", "end"])
+    temp_bed = bedfile.saveas()
+    df = temp_bed.to_dataframe(names=["chr", "start", "end"])
     ## To avoid error with empty bed files
     if len(df.index) < 1:
         return int(0)
@@ -46,11 +47,28 @@ def exclude_beds(input_bed, excluded_beds):
     ]
     return after
 
+def filter_chromosomes(bedtool, valid_chromosomes):
+    """
+    Filter out regions from BED file not in valid chromosomes.
+
+    Parameters:
+    - bedtool (BedTool): A BedTool object to filter.
+    - valid_chromosomes (list): List of valid chromosome names.
+
+    Returns:
+    - BedTool: Filtered BedTool object.
+    """
+    return bedtool.filter(lambda b: b.chrom in valid_chromosomes)
+
 
 def main():
     input_bed = BedTool(sys.argv[1])
+    # Filter only valid chromosomes
+    filtered_bed = filter_chromosomes(input_bed, VALID_CHROMOSOMES)
+    # Exclude regions from filtered input bed
     excluded_beds = get_excluded(sys.argv[4:])
-    after_exclusions = exclude_beds(input_bed, excluded_beds)
+    after_exclusions = exclude_beds(filtered_bed, excluded_beds)
+    # Print summary and excluded bed
     print_summary(after_exclusions, excluded_beds, sys.argv[3])
     after_exclusions[-1].saveas(sys.argv[2])
 
