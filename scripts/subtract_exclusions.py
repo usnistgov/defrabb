@@ -16,7 +16,9 @@ prints a summary of exclusions, and writes the resulting BED to an output file.
 Usage: subtract_exclusions INPUT_BED OUTPUT_BED EXCLUDED_BEDS ...
 """
 
-VALID_CHROMOSOMES = [f"chr{i}" for i in range(1, 23)] + [range(1, 23)] + ["chrX", "chrY", "X", "Y"] 
+VALID_CHROMOSOMES = (
+    [f"chr{i}" for i in range(1, 23)] + [range(1, 23)] + ["chrX", "chrY", "X", "Y"]
+)
 
 
 def count_bp(bedfile):
@@ -29,8 +31,7 @@ def count_bp(bedfile):
     Returns:
     - int: Total number of base pairs in the BED.
     """
-    temp_bed = bedfile.saveas()
-    df = temp_bed.to_dataframe(names=["chr", "start", "end"])
+    df = bedfile.to_dataframe(names=["chr", "start", "end"])
     ## To avoid error with empty bed files
     if len(df.index) < 1:
         return int(0)
@@ -92,6 +93,7 @@ def exclude_beds(input_bed, excluded_beds):
     ]
     return after
 
+
 def filter_chromosomes(bedtool, valid_chromosomes):
     """
     Filter out regions from BED file not in valid chromosomes.
@@ -103,7 +105,11 @@ def filter_chromosomes(bedtool, valid_chromosomes):
     Returns:
     - BedTool: Filtered BedTool object.
     """
-    return bedtool.filter(lambda b: b.chrom in valid_chromosomes)
+    filtered = bedtool.filter(lambda b: b.chrom in valid_chromosomes)
+    ## Making sure the filtered bed bedtools object is file backed,
+    ## not doing so resulted in downstream errors
+    filt_bed = filtered.saveas()
+    return filt_bed
 
 
 def main():
