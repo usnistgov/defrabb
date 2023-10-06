@@ -6,6 +6,7 @@ from os import stat as os_stat
 import pandas as pd
 from pybedtools import BedTool
 from itertools import accumulate
+import warnings
 
 """
 subtract_exclusions script:
@@ -68,8 +69,13 @@ def get_excluded(paths):
     Returns:
     - list: List of BedTool objects of non-empty BED files.
     """
-    non_empty_paths = [i for i in paths if os_stat(i).st_size != 0]
-    ## TODO - add warning for empty paths
+    non_empty_paths = []
+    for path in paths:
+        if os_stat(path).st_size != 0:
+            non_empty_paths.append(path)
+        else:
+            warnings.warn(f"The BED file at path {path} is empty and will be ignored.")
+            
     return [*map(BedTool, non_empty_paths)]
 
 
