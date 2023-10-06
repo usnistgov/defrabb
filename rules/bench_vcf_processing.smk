@@ -88,8 +88,8 @@ rule filter_lt19_and_norm:
 ## https://github.com/ACEnglish/adotto
 rule get_adotto_tr_anno_db:
     output:
-        bed="resources/references/{ref_id}_trf.bed.gz",
-        tbi="resources/references/{ref_id}_trf.bed.gz.tbi",
+        bed="resources/references/{ref_id}_adotto_trf.bed.gz",
+        tbi="resources/references/{ref_id}_adotto_trf.bed.gz.tbi",
     conda:
         "../envs/download_remotes.yml"
     params:
@@ -106,6 +106,20 @@ rule get_adotto_tr_anno_db:
         tabix {output.bed}
         """
 
+rule get_trf_db:
+    output:
+        bed="resources/references/{ref_id}_trf.bed.gz",
+        tbi="resources/references/{ref_id}_trf.bed.gz.tbi"
+    conda:
+        "../envs/download_remotes.yml"
+    params:
+        url=get_trf_db_url
+    log:
+        "logs/get_trf_db/{ref_id}.log",
+    shell: """
+        curl -L {params.url} 1> {output.bed} 2> {log} 
+        tabix {output.bed}
+    """
 
 rule run_truvari_anno_trf:
     input:

@@ -73,6 +73,9 @@ def get_genome_file(wildcards):
 def get_addoto_tr_anno_db_url(wildcards):
     return ref_config[wildcards.ref_id]["adotto_db"]
 
+def get_trf_db_url(wildcards):
+    return ref_config[wildcards.ref_id]["trf_db"]
+
 
 def get_male_bed(wildcards):
     root = config["_par_bed_root"]
