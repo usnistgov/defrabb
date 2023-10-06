@@ -48,6 +48,13 @@ properties:
               File name of the PAR.bed file used for the -x flag in
               'run-dipcall'; will be prefixed with the value of 'par_bed_root'
 
+          trf_db:
+            type: string
+            format: uri
+            description:
+              url to a bed file that will be used as the trf database/catalogue 
+              with truvari anno trf 
+
           exclusions:
             description: The beds to use when generating the exclusions
             additionalProperties: false
