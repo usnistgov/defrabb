@@ -9,7 +9,7 @@ min_version("7.26.0")
 
 
 ## Rule ordering for ambiguous rules
-ruleorder: download_bed_gz > sort_bed
+ruleorder: make_gaps_bed > download_bed_gz > sort_bed
 
 
 ## Loading external rules
