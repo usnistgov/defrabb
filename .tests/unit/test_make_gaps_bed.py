@@ -11,23 +11,17 @@ sys.path.insert(0, os.path.dirname(__file__))
 import common
 
 
-def test_get_sv_widen_coords():
+def test_make_gaps_bed():
 
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
-        data_path = PurePosixPath(".tests/unit/get_sv_widen_coords/data")
-        expected_path = PurePosixPath(".tests/unit/get_sv_widen_coords/expected")
+        data_path = PurePosixPath(".tests/unit/make_gaps_bed/data")
+        expected_path = PurePosixPath(".tests/unit/make_gaps_bed/expected")
         references_path = PurePosixPath(".tests/integration/resources/references")
 
         # Copy data to the temporary workdir.
         shutil.copytree(data_path, workdir)
         shutil.copytree(references_path, workdir / "resources" / "references")
-
-        # dbg
-        print(
-            "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_dip_SVs.bed results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_dip_SVs.tsv",
-            file=sys.stderr,
-        )
 
         # Run the test job.
         sp.check_output(
@@ -35,7 +29,7 @@ def test_get_sv_widen_coords():
                 "python",
                 "-m",
                 "snakemake",
-                "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_dip_SVs.bed results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_dip_SVs.tsv",
+                "resources/exclusions/GRCh38_chr21/gaps.bed",
                 "-f",
                 "-j1",
                 "--keep-target-files",
