@@ -203,6 +203,10 @@ if [ ${steps}  == "all" ] || [ ${steps} == "release" ]; then
         ${run_dir} \
         ${archive_dir};
 
+    log "Copying config files to archive directory"
+    cp $(basename ${analyses_file}) ${archive_dir}
+    cp config/resources.yml ${archive_dir}/
+
     log "Done Releasing Run"
 
 fi
