@@ -116,7 +116,7 @@ rule make_db_for_truvari_anno_trf:
         ## Using python one-liner as using `zcat {input.adotto_db} | head -n 1 | awk -v FS='\\t' '{{print NF}}'
         ## - causes a pipe error (captured using `trap '' PIPE`), using `set +e` allowed the rule to run
         ## - python one-liner avoid this error and avoids having to use `set +e`
-        last_col=$(python -c "import gzip; print(len(gzip.open('{input.adotto_db}', 'rt').readline().strip().split('\t')))")
+        last_col=$(awk -v FS='\t' 'NR==1 {print NF; exit}' <(gzip -dc {input.adotto_db}))
         echo "Number of columns $last_col" >> {log}
         zcat {input.adotto_db} \
             | cut -f1-3,${{last_col}} \
