@@ -22,6 +22,21 @@ rule download_bed_gz:
         "curl -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
 
 
+rule make_gaps_bed:
+    input:
+        fa="resources/references/{ref_id}.fa",
+    output:
+        bed="resources/exclusions/{ref_id}/gaps.bed",
+    log:
+        "logs/make_gap_bed/{ref_id}.log",
+    params:
+        minNs=50,
+    conda:
+        "../envs/seqtk.yml"
+    shell:
+        "seqtk gap -l {params.minNs} {input.fa} 1> {output.bed} 2> {log}"
+
+
 rule get_sv_widen_coords:
     input:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.trfanno.vcf",
