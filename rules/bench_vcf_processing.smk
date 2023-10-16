@@ -88,8 +88,7 @@ rule filter_lt19_and_norm:
 ## https://github.com/ACEnglish/adotto
 rule get_adotto_tr_anno_db:
     output:
-        bed="resources/references/{ref_id}_adotto_trf.bed.gz",
-        tbi="resources/references/{ref_id}_adotto_trf.bed.gz.tbi",
+        adotto_db="resources/references/{ref_id}_adotto_db.bed.gz",
     conda:
         "../envs/download_remotes.yml"
     params:
@@ -98,27 +97,32 @@ rule get_adotto_tr_anno_db:
         "logs/get_addoto_tr_anno_db/{ref_id}.log",
     shell:
         """
-        curl -L {params.url} 2> {log} \
-        | zcat \
-        | cut -f1-3,18 \
-        | bgzip > {output.bed}
-
-        tabix {output.bed}
+        curl -L {params.url} 1> {output.adotto_db} 2> {log}
         """
 
-rule get_trf_db:
+rule make_db_for_truvari_anno_trf:
+    input:
+        adotto_db="resources/references/{ref_id}_adotto_db.bed.gz",
+        genome=get_genome_file,
     output:
-        bed="resources/references/{ref_id}_trf.bed.gz",
-        tbi="resources/references/{ref_id}_trf.bed.gz.tbi"
-    conda:
-        "../envs/download_remotes.yml"
-    params:
-        url=get_trf_db_url
+        trfdb="resources/references/{ref_id}_adotto_trf.bed.gz",
+        trfdbtbi="resources/references/{ref_id}_adotto_trf.bed.gz.tbi",
     log:
-        "logs/get_trf_db/{ref_id}.log",
+        "logs/make_db_for_truvari_anno_trf/{ref_id}.log"
+    conda:
+        "../envs/bedtools.yml"
     shell: """
-        curl -L {params.url} 1> {output.bed} 2> {log} 
-        tabix {output.bed}
+        echo "Getting number of columns in {input.adotto_db}" >{log}
+        ## Using python one-liner as using `zcat {input.adotto_db} | head -n 1 | awk -v FS='\\t' '{{print NF}}'
+        ## - causes a pipe error (captured using `trap '' PIPE`), using `set +e` allowed the rule to run
+        ## - python one-liner avoid this error and avoids having to use `set +e`
+        last_col=$(python -c "import gzip; print(len(gzip.open('{input.adotto_db}', 'rt').readline().strip().split('\t')))")
+        echo "Number of columns $last_col" >> {log}
+        zcat {input.adotto_db} \
+            | cut -f1-3,${{last_col}} \
+            | bedtools sort -i stdin -g {input.genome} \
+            | bgzip 1> {output.trfdb} 2>>{log}
+        tabix {output.trfdb} 2>>{log}
     """
 
 rule run_truvari_anno_trf:
@@ -126,7 +130,7 @@ rule run_truvari_anno_trf:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz",
         vcfidx="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz.tbi",
         ref="resources/references/{ref_id}.fa",
-        trdb="resources/references/{ref_id}_trf.bed.gz",
+        trdb="resources/references/{ref_id}_adotto_trf.bed.gz",
     output:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.trfanno.vcf",
     log:
