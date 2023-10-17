@@ -100,6 +100,7 @@ rule get_adotto_tr_anno_db:
         curl -L {params.url} 1> {output.adotto_db} 2> {log}
         """
 
+
 rule make_db_for_truvari_anno_trf:
     input:
         adotto_db="resources/references/{ref_id}_adotto_db.bed.gz",
@@ -108,15 +109,16 @@ rule make_db_for_truvari_anno_trf:
         trfdb="resources/references/{ref_id}_adotto_trf.bed.gz",
         trfdbtbi="resources/references/{ref_id}_adotto_trf.bed.gz.tbi",
     log:
-        "logs/make_db_for_truvari_anno_trf/{ref_id}.log"
+        "logs/make_db_for_truvari_anno_trf/{ref_id}.log",
     conda:
         "../envs/bedtools.yml"
-    shell: """
+    shell:
+        """
         echo "Getting number of columns in {input.adotto_db}" >{log}
         ## Using python one-liner as using `zcat {input.adotto_db} | head -n 1 | awk -v FS='\\t' '{{print NF}}'
         ## - causes a pipe error (captured using `trap '' PIPE`), using `set +e` allowed the rule to run
         ## - python one-liner avoid this error and avoids having to use `set +e`
-        last_col=$(awk -v FS='\t' 'NR==1 {print NF; exit}' <(gzip -dc {input.adotto_db}))
+        last_col=$(awk -v FS='\\t' 'NR==1 {{print NF; exit}}' <(gzip -dc {input.adotto_db}))
         echo "Number of columns $last_col" >> {log}
         zcat {input.adotto_db} \
             | cut -f1-3,${{last_col}} \
@@ -124,6 +126,7 @@ rule make_db_for_truvari_anno_trf:
             | bgzip 1> {output.trfdb} 2>>{log}
         tabix {output.trfdb} 2>>{log}
     """
+
 
 rule run_truvari_anno_trf:
     input:

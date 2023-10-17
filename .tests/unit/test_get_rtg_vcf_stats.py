@@ -12,7 +12,6 @@ import common
 
 
 def test_get_rtg_vcf_stats():
-
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
         data_path = PurePosixPath(".tests/unit/get_rtg_vcf_stats/data")

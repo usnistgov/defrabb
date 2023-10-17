@@ -12,7 +12,6 @@ import common
 
 
 def test_postprocess_bed():
-
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
         data_path = PurePosixPath(".tests/unit/postprocess_bed/data")

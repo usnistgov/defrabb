@@ -12,7 +12,6 @@ import common
 
 
 def test_get_strats():
-
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
         data_path = PurePosixPath(".tests/unit/get_strats/data")
