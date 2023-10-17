@@ -75,7 +75,7 @@ def get_excluded(paths):
             non_empty_paths.append(path)
         else:
             warnings.warn(f"The BED file at path {path} is empty and will be ignored.")
-            
+
     return [*map(BedTool, non_empty_paths)]
 
 

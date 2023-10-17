@@ -12,7 +12,6 @@ import common
 
 
 def test_subtract_exclusions():
-
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
         data_path = PurePosixPath(".tests/unit/subtract_exclusions/data")

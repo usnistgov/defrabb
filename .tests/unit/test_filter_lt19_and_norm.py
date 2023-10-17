@@ -12,7 +12,6 @@ import common
 
 
 def test_run_filter_lt19_and_norm():
-
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
         data_path = PurePosixPath(".tests/unit/filter_lt19_and_norm/data")
