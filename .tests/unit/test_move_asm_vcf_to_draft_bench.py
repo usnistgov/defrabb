@@ -12,7 +12,6 @@ import common
 
 
 def test_move_asm_vcf_to_draft_bench():
-
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
         data_path = PurePosixPath(".tests/unit/move_asm_vcf_to_draft_bench/data")

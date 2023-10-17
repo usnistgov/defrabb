@@ -12,7 +12,6 @@ import common
 
 
 def test_make_gaps_bed():
-
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
         data_path = PurePosixPath(".tests/unit/make_gaps_bed/data")

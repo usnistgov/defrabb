@@ -12,7 +12,6 @@ import common
 
 
 def test_run_happy():
-
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
         data_path = PurePosixPath(".tests/unit/run_happy/data")

@@ -12,7 +12,6 @@ import common
 
 
 def test_get_SVs_from_vcf():
-
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
         data_path = PurePosixPath(".tests/unit/get_SVs_from_vcf/data")
