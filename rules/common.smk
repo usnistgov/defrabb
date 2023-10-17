@@ -73,6 +73,7 @@ def get_genome_file(wildcards):
 def get_addoto_tr_anno_db_url(wildcards):
     return ref_config[wildcards.ref_id]["adotto_db"]
 
+
 def get_trf_db_url(wildcards):
     return ref_config[wildcards.ref_id]["trf_db"]
 
@@ -197,7 +198,6 @@ def get_truvari_inputs_inner(ref_id, eval_id, analyses, config):
 
 ## Exclusions
 def get_exclusion_inputs(wildcards):
-
     ## Getting list of excluded regions
     exclusion_set_id = bench_tbl.loc[wildcards.bench_id, "exclusion_set"]
     exclusion_set = config["exclusion_set"][exclusion_set_id]
@@ -206,7 +206,6 @@ def get_exclusion_inputs(wildcards):
     ## diploid assembled regions
     exc_paths = []
     for exclusion in exclusion_set:
-
         ## Determining path for asm specific exclusions and asm agnostic exclusions
         if exclusion in config["exclusion_asm_agnostic"]:
             exc_path = f"resources/exclusions/{{ref_id}}/{exclusion}"

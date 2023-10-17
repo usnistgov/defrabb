@@ -12,7 +12,6 @@ import common
 
 
 def test_run_truvari_anno_trf():
-
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
         data_path = PurePosixPath(".tests/unit/run_truvari_anno_trf/data")

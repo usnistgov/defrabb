@@ -12,7 +12,6 @@ import common
 
 
 def intersect_SVs_and_simple_repeats():
-
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
         data_path = PurePosixPath(".tests/unit/intersect_SVs_and_simple_repeats/data")
