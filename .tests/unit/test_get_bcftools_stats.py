@@ -12,7 +12,6 @@ import common
 
 
 def test_get_bcftools_stats():
-
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
         data_path = PurePosixPath(".tests/unit/get_bcftools_stats/data")
