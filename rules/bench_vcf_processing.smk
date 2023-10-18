@@ -64,16 +64,16 @@ rule split_multiallelic_sites:
 # isn't done, svwiden will choke on commas and star characters
 rule filter_lt19_and_norm:
     input:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz",
         ref="resources/references/{ref_id}.fa",
     output:
-        "results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz",
+        "results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz",
     resources:
         mem_mb=8000,
     conda:
         "../envs/bcftools.yml"
     log:
-        "logs/gt19_norm/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/gt19_norm/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     shell:
         """
         bcftools norm -m- -Ou {input.vcf} \
@@ -130,14 +130,14 @@ rule make_db_for_truvari_anno_trf:
 
 rule run_truvari_anno_trf:
     input:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz",
-        vcfidx="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz.tbi",
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz",
+        vcfidx="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz.tbi",
         ref="resources/references/{ref_id}.fa",
         trdb="resources/references/{ref_id}_adotto_trf.bed.gz",
     output:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.trfanno.vcf",
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.trfanno.vcf",
     log:
-        "logs/truvari_anno_trf/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/truvari_anno_trf/{bench_id}/intermediates/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     conda:
         "../envs/truvari.yml"
     params:
@@ -160,9 +160,9 @@ rule move_asm_vcf_to_draft_bench:
     input:
         lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.vcf.gz",
     output:
-        "results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
+        "results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz",
     log:
-        "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     conda:
         "../envs/download_remotes.yml"
     shell:
@@ -173,9 +173,9 @@ rule move_processed_draft_bench_vcf:
     input:
         get_processed_vcf,
     output:
-        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
+        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz",
     log:
-        "logs/move_processed_draft_bench_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/move_processed_draft_bench_vcf/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     conda:
         "../envs/download_remotes.yml"
     shell:
