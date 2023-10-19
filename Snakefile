@@ -599,7 +599,7 @@ rule run_happy:
             category="Happy",
         ),
     params:
-        prefix="results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}",
+        prefix="results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}",
         strat_tsv=lambda wildcards: f"{wildcards.ref_id}/{config['references'][wildcards.ref_id]['stratifications']['tsv']}",
         threads=config["_happy_threads"],
         engine="vcfeval",
@@ -608,6 +608,7 @@ rule run_happy:
         mem_mb=config["_happy_mem"],
     threads: config["_happy_threads"]
     log:
+        "logs/run_happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/happy.log",
     benchmark:
         "benchmark/run_happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
