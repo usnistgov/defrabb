@@ -24,7 +24,7 @@ def test_get_SVs_from_vcf():
 
         # dbg
         print(
-            "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_dip_SVs.bed",
+            "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_smvar_dipcall-default_dip_SVs.bed",
             file=sys.stderr,
         )
 
@@ -34,7 +34,7 @@ def test_get_SVs_from_vcf():
                 "python",
                 "-m",
                 "snakemake",
-                "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_dip_SVs.bed",
+                "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_smvar_dipcall-default_dip_SVs.bed",
                 "-f",
                 "-j1",
                 "--keep-target-files",
