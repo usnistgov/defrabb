@@ -648,3 +648,32 @@ rule run_truvari:
         mv {params.tmpdir}/* {params.dir}
         rm -r {params.tmpdir}
         """
+
+rule truvari_refine:
+    input:
+        json="results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/summary.json",
+        ref="resources/references/{ref_id}.fa",
+        unpack(partial(get_truvari_inputs, analyses, config)),
+    output:
+        json="results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/phad_bench/refine.variant_summary.json",
+    params: 
+        bench_output="results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
+        refine_output="results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/phab_bench"
+    conda:
+        "envs/truvari.yml"
+    threads: config["_truvari_refine_threads"]
+    shell: """
+        optional_regions=""
+        if [[ -n {input.comp_bed} ]]; then
+            optional_regions=" --regions {input.comp_bed}"
+        fi
+
+        rm -rf {params.refine_output}
+
+        truvari refine --threads {threads} \
+            --align mafft \
+            --use-original \
+            --reference {input.ref} \
+            {optional_regions} \
+            {params.bench_output}
+    """
