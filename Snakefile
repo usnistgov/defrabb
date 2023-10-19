@@ -155,15 +155,36 @@ rule all:
             vc_cmd=bench_tbl["vc_cmd"].tolist(),
             vc_param_id=bench_tbl["vc_param_id"].tolist(),
         ),
+        ## Bench BED Processing
+        expand(
+            "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.bed",
+            zip,
+            bench_id=bench_excluded_tbl.index.tolist(),
+            ref=bench_excluded_tbl["ref"].tolist(),
+            asm_id=bench_excluded_tbl["asm_id"].tolist(),
+            bench_type=bench_tbl["bench_type"].tolist(),
+            vc_cmd=bench_excluded_tbl["vc_cmd"].tolist(),
+            vc_param_id=bench_excluded_tbl["vc_param_id"].tolist(),
+        ),
+        expand(
+            "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_bed-summary.tsv",
+            zip,
+            bench_id=bench_excluded_tbl.index.tolist(),
+            ref=bench_excluded_tbl["ref"].tolist(),
+            asm_id=bench_excluded_tbl["asm_id"].tolist(),
+            bench_type=bench_tbl["bench_type"].tolist(),
+            vc_cmd=bench_excluded_tbl["vc_cmd"].tolist(),
+            vc_param_id=bench_excluded_tbl["vc_param_id"].tolist(),
+        ),
         expand(
             "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.benchmark.bed",
             zip,
-            bench_id=bench_tbl.index.tolist(),
-            ref=bench_tbl["ref"].tolist(),
-            asm_id=bench_tbl["asm_id"].tolist(),
-            bench_type=bench_tbl["bench_type"].tolist(),
-            vc_cmd=bench_tbl["vc_cmd"].tolist(),
-            vc_param_id=bench_tbl["vc_param_id"].tolist(),
+            bench_id=bench_excluded_tbl.index.tolist(),
+            ref=bench_excluded_tbl["ref"].tolist(),
+            asm_id=bench_excluded_tbl["asm_id"].tolist(),
+            bench_type=bench_excluded_tbl["bench_type"].tolist(),
+            vc_cmd=bench_excluded_tbl["vc_cmd"].tolist(),
+            vc_param_id=bench_excluded_tbl["vc_param_id"].tolist(),
         ),
         expand(
             "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.benchmark_bed-summary.tsv",
@@ -171,7 +192,7 @@ rule all:
             bench_id=bench_excluded_tbl.index.tolist(),
             ref=bench_excluded_tbl["ref"].tolist(),
             asm_id=bench_excluded_tbl["asm_id"].tolist(),
-            bench_type=bench_tbl["bench_type"].tolist(),
+            bench_type=bench_excluded_tbl["bench_type"].tolist(),
             vc_cmd=bench_excluded_tbl["vc_cmd"].tolist(),
             vc_param_id=bench_excluded_tbl["vc_param_id"].tolist(),
         ),
@@ -218,7 +239,7 @@ rule all:
             vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
         ),
         expand(
-            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_smvar_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
+            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_smvar_{vc_cmd}-{vc_param_id}.summary.csv",
             zip,
             eval_id=happy_analyses.index.tolist(),
             bench_id=happy_analyses["bench_id"].tolist(),
@@ -229,7 +250,7 @@ rule all:
             vc_param_id=happy_analyses["vc_param_id"].tolist(),
         ),
         expand(
-            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_smvar_{asm_id}_{vc_cmd}-{vc_param_id}.extended.csv",
+            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_smvar_{vc_cmd}-{vc_param_id}.extended.csv",
             zip,
             eval_id=happy_analyses.index.tolist(),
             bench_id=happy_analyses["bench_id"].tolist(),
@@ -562,7 +583,7 @@ rule run_happy:
         unpack(partial(get_happy_inputs, analyses, config)),
     output:
         multiext(
-            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}",
+            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}",
             ".runinfo.json",
             ".vcf.gz",
             ".extended.csv",
@@ -573,7 +594,7 @@ rule run_happy:
             ".roc.Locations.SNP.csv.gz",
         ),
         report(
-            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.summary.csv",
+            "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.summary.csv",
             caption="report/happy_summary.rst",
             category="Happy",
         ),
@@ -587,7 +608,6 @@ rule run_happy:
         mem_mb=config["_happy_mem"],
     threads: config["_happy_threads"]
     log:
-        "logs/run_happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
         "benchmark/run_happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.tsv"
     conda:

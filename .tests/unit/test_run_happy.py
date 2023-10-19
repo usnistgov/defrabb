@@ -26,7 +26,7 @@ def test_run_happy():
 
         # dbg
         print(
-            "results/evaluations/happy/eval1_testA/GRCh38_chr21_v4.2.1chr21_asm17aChr21_dipcall-default.extended.csv",
+            "results/evaluations/happy/eval1_testA/GRCh38_chr21_v4.2.1chr21_asm17aChr21_smvar_dipcall-default.extended.csv",
             file=sys.stderr,
         )
 
@@ -36,7 +36,7 @@ def test_run_happy():
                 "python",
                 "-m",
                 "snakemake",
-                "results/evaluations/happy/eval1_testA/GRCh38_chr21_v4.2.1chr21_asm17aChr21_dipcall-default.extended.csv",
+                "results/evaluations/happy/eval1_testA/GRCh38_chr21_v4.2.1chr21_asm17aChr21_smvar_dipcall-default.extended.csv",
                 "-f",
                 "-j1",
                 "--keep-target-files",

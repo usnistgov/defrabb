@@ -26,7 +26,7 @@ def test_move_asm_vcf_to_draft_bench():
 
         # dbg
         print(
-            "results/draft_benchmarksets/testA/intermediates/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz",
+            "results/draft_benchmarksets/testA/intermediates/GRCh38_chr21_asm17aChr21_smvar_dipcall-default.vcf.gz",
             file=sys.stderr,
         )
 
@@ -36,7 +36,7 @@ def test_move_asm_vcf_to_draft_bench():
                 "python",
                 "-m",
                 "snakemake",
-                "results/draft_benchmarksets/testA/intermediates/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz",
+                "results/draft_benchmarksets/testA/intermediates/GRCh38_chr21_asm17aChr21_smvar_dipcall-default.vcf.gz",
                 "-f",
                 "-j1",
                 "--keep-target-files",
