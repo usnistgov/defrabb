@@ -271,7 +271,17 @@ rule all:
             vc_cmd=truvari_analyses["vc_cmd"].tolist(),
             vc_param_id=truvari_analyses["vc_param_id"].tolist(),
         ),
-
+        expand(
+            "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_stvar_{vc_cmd}-{vc_param_id}/phab_bench/refine.variant_summary.json",
+            zip,
+            eval_id=truvari_analyses.index.tolist(),
+            bench_id=truvari_analyses["bench_id"].tolist(),
+            ref_id=truvari_analyses["ref"].tolist(),
+            comp_id=truvari_analyses["eval_comp_id"].tolist(),
+            asm_id=truvari_analyses["asm_id"].tolist(),
+            vc_cmd=truvari_analyses["vc_cmd"].tolist(),
+            vc_param_id=truvari_analyses["vc_param_id"].tolist(),
+        ),
 
 ################################################################################
 ################################################################################
@@ -678,29 +688,23 @@ rule run_truvari:
 
 rule truvari_refine:
     input:
-        json="results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/summary.json",
-        ref="resources/references/{ref_id}.fa",
         unpack(partial(get_truvari_inputs, analyses, config)),
+        json="results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/summary.json",
+        ref="resources/references/{ref_id}.fa",
+        refidx="resources/references/{ref_id}.fa.fai",
     output:
-        json="results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/phad_bench/refine.variant_summary.json",
+        report(
+            "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/phab_bench/refine.variant_summary.json",
+            caption="report/truvari_refine_summary.rst",
+            category="Truvari",
+        ),
+    log:
+        "logs/run_travari_refine/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/truvari_refine.log",
     params: 
-        bench_output="results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
-        refine_output="results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{vc_cmd}-{vc_param_id}/phab_bench"
+        bench_output="results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}",
+        refine_output="results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/phab_bench"
     conda:
         "envs/truvari.yml"
     threads: config["_truvari_refine_threads"]
-    shell: """
-        optional_regions=""
-        if [[ -n {input.comp_bed} ]]; then
-            optional_regions=" --regions {input.comp_bed}"
-        fi
-
-        rm -rf {params.refine_output}
-
-        truvari refine --threads {threads} \
-            --align mafft \
-            --use-original \
-            --reference {input.ref} \
-            {optional_regions} \
-            {params.bench_output}
-    """
+    script:
+        "scripts/run_truvari_refine.py"
