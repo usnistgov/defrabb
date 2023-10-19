@@ -26,7 +26,7 @@ def test_run_truvari():
 
         # dbg
         print(
-            "results/evaluations/truvari/eval1_testC/GRCh38_chr21_CMRGv1.00-stvar_asm17aChr21_dipcall-default/summary.json",
+            "results/evaluations/truvari/eval1_testC/GRCh38_chr21_CMRGv1.00-stvar_asm17aChr21_stvar_dipcall-default/summary.json",
             file=sys.stderr,
         )
 
@@ -36,7 +36,7 @@ def test_run_truvari():
                 "python",
                 "-m",
                 "snakemake",
-                "results/evaluations/truvari/eval1_testC/GRCh38_chr21_CMRGv1.00-stvar_asm17aChr21_dipcall-default/summary.json",
+                "results/evaluations/truvari/eval1_testC/GRCh38_chr21_CMRGv1.00-stvar_asm17aChr21_stvar_dipcall-default/summary.json",
                 "-f",
                 "-j1",
                 "--keep-target-files",

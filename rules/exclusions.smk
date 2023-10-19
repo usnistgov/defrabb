@@ -39,17 +39,17 @@ rule make_gaps_bed:
 
 rule get_sv_widen_coords:
     input:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.trfanno.vcf",
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.trfanno.vcf",
         genome=get_genome_file,
     output:
-        bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.bed",
-        tbl="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.tsv",
+        bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_dip_SVs.bed",
+        tbl="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_dip_SVs.tsv",
     conda:
         "../envs/sv_widen_coords.yml"
     params:
         script=workflow.source_path("../scripts/get_sv_widen_coords.py"),
     log:
-        "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SV_coords.log",
+        "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_dip_SV_coords.log",
     shell:
         """
         python {params.script} \
@@ -65,15 +65,15 @@ rule get_sv_widen_coords:
 
 rule intersect_SVs_and_simple_repeats:
     input:
-        sv_bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_dip_SVs.bed",
+        sv_bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_dip_SVs.bed",
         simple_repeat_bed="resources/exclusions/{ref_id}/all-tr-and-homopolymers_sorted.bed",
         genome=get_genome_file,
     output:
-        "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_svs-and-simple-repeats.bed",
+        "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_svs-and-simple-repeats.bed",
     log:
-        "logs/exclusions/{bench_id}_SVs_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/exclusions/{bench_id}_SVs_{ref_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
-        "benchmark/exclusions/{bench_id}_SVs_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
+        "benchmark/exclusions/{bench_id}_SVs_{ref_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -116,12 +116,12 @@ rule intersect_start_and_end:
         xregions="resources/exclusions/{ref_id}/{excluded_region}.bed",
         genome=get_genome_file,
     output:
-        start="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_{excluded_region}_start_sorted.bed",
-        end="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_{excluded_region}_end_sorted.bed",
+        start="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_{excluded_region}_start_sorted.bed",
+        end="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_{excluded_region}_end_sorted.bed",
     log:
-        "logs/exclusions/start_end_{bench_id}_{excluded_region}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/exclusions/start_end_{bench_id}_{excluded_region}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
-        "benchmark/exclusions/start_end_{bench_id}_{excluded_region}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
+        "benchmark/exclusions/start_end_{bench_id}_{excluded_region}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -144,9 +144,9 @@ rule add_flanks:
         bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
         genome=get_genome_file,
     output:
-        "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_flanks.bed",
+        "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_flanks.bed",
     log:
-        "logs/exclusions/{bench_id}_flanks_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/exclusions/{bench_id}_flanks_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -161,17 +161,17 @@ rule subtract_exclusions:
         other_beds=get_exclusion_inputs,
     output:
         rpt=report(
-            "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.exclusion_stats.txt",
+            "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.exclusion_stats.txt",
             caption="../report/exclusion_stats.rst",
             category="Exclusions",
         ),
-        bed="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.benchmark.bed",
+        bed="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.benchmark.bed",
     params:
         script=workflow.source_path("../scripts/subtract_exclusions.py"),
     log:
-        "logs/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
-        "benchmark/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.benchmark"
+        "benchmark/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.benchmark"
     conda:
         "../envs/bedtools.yml"
     shell:

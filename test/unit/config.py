@@ -80,12 +80,12 @@ class TestConfig(ut.TestCase):
             "genome": "resources/references/GRCh38_chr21.fa",
             "genome_index": "resources/references/GRCh38_chr21.fa.fai",
             "strat_tb": "resources/strats/GRCh38_chr21/v3.0-stratifications-GRCh38_chr21.tar.gz",
-            "query": "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
-            "query_vcfidx": "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi",
+            "query": "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz",
+            "query_vcfidx": "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi",
             "truth": "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz",
             "truth_vcfidx": "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz.tbi",
             "truth_regions": "resources/comparison_variant_callsets/{ref_id}_{comp_id}.bed",
-            "target_regions": "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed",
+            "target_regions": "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.bed",
         }
         assert_happy(self, truth, "eval1", "GRCh38_chr21")
 
@@ -94,8 +94,8 @@ class TestConfig(ut.TestCase):
         truth = {
             "genome": "resources/references/GRCh38_chr21.fa",
             "genome_index": "resources/references/GRCh38_chr21.fa.fai",
-            "query": "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
-            "query_vcfidx": "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi",
+            "query": "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz",
+            "query_vcfidx": "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi",
             "truth": "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz",
             "truth_vcfidx": "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz.tbi",
             "truth_regions": "resources/comparison_variant_callsets/{ref_id}_{comp_id}.bed",
