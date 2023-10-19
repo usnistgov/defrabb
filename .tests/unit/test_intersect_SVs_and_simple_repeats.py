@@ -26,7 +26,7 @@ def intersect_SVs_and_simple_repeats():
 
         # dbg
         print(
-            "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_svs-and-simple-repeats.bed",
+            "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_smvar_dipcall-default_svs-and-simple-repeats.bed",
             file=sys.stderr,
         )
 
@@ -36,7 +36,7 @@ def intersect_SVs_and_simple_repeats():
                 "python",
                 "-m",
                 "snakemake",
-                "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_dipcall-default_svs-and-simple-repeats.bed",
+                "results/draft_benchmarksets/testB/exclusions/GRCh38_chr21_asm17aChr21_smvar_dipcall-default_svs-and-simple-repeats.bed",
                 "-f",
                 "-j1",
                 "--keep-target-files",
