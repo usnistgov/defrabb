@@ -25,7 +25,7 @@ def test_run_filter_lt19_and_norm():
         shutil.copytree(references_path, workdir / "resources" / "references")
 
         # dbg
-        output = "results/draft_benchmarksets/testC/intermediates/GRCh38_chr21_asm17aChr21_dipcall-default.gt19_norm.vcf.gz"
+        output = "results/draft_benchmarksets/testC/intermediates/GRCh38_chr21_asm17aChr21_stvar_dipcall-default.gt19_norm.vcf.gz"
         print(
             output,
             file=sys.stderr,
