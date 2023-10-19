@@ -111,14 +111,14 @@ def get_happy_inputs_inner(ref_id, eval_id, analyses, config):
     inputs["strat_tb"] = f"resources/strats/{ref_id}/{strat_tb}"
 
     ## draft benchmark variant calls
-    draft_bench_vcf = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz"
-    draft_bench_vcfidx = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi"
+    draft_bench_vcf = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz"
+    draft_bench_vcfidx = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi"
 
     ## draft benchmark regions
     if analyses.loc[eval_id, "exclusion_set"] == "none":
-        draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed"
+        draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.bed"
     else:
-        draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.benchmark.bed"
+        draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.benchmark.bed"
 
     ## comparison variant call paths
     comp_vcf = "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz"
@@ -171,13 +171,13 @@ def get_truvari_inputs(analyses, config, wildcards):
 
 
 def get_truvari_inputs_inner(ref_id, eval_id, analyses, config):
-    draft_bench_vcf = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz"
-    draft_bench_vcfidx = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi"
+    draft_bench_vcf = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz"
+    draft_bench_vcfidx = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi"
 
     if analyses.loc[eval_id, "exclusion_set"] == "none":
-        draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.bed"
+        draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.bed"
     else:
-        draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.benchmark.bed"
+        draft_bench_bed = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.benchmark.bed"
 
     comp_vcf = "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz"
     comp_vcfidx = "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz.tbi"
@@ -210,7 +210,7 @@ def get_exclusion_inputs(wildcards):
         if exclusion in config["exclusion_asm_agnostic"]:
             exc_path = f"resources/exclusions/{{ref_id}}/{exclusion}"
         else:
-            exc_path = f"results/draft_benchmarksets/{{bench_id}}/exclusions/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}_{exclusion}"
+            exc_path = f"results/draft_benchmarksets/{{bench_id}}/exclusions/{{ref_id}}_{{asm_id}}_{{bench_type}}_{{vc_cmd}}-{{vc_param_id}}_{exclusion}"
 
         ## Adding slop - currently a 15kb hard coded buffer around excluded repeat regions
         if exclusion in config["exclusion_slop_regions"]:
@@ -237,8 +237,23 @@ def get_exclusion_inputs(wildcards):
 
 
 def get_processed_vcf(wildcards):
-    vcf_suffix = bench_tbl.loc[wildcards.bench_id, "bench_vcf_processing"]
+    # Filter rows based on bench_type using the query method
+    filtered_df = bench_tbl.query(f'bench_type == "{wildcards.bench_type}"')
+    # Further filter the DataFrame based on bench_id using the loc method
+    subset_df = filtered_df.loc[[wildcards.bench_id]]
+
+    # Remove duplicate entries
+    subset_df = subset_df.drop_duplicates()
+
+    # Ensure that only one unique row remains after removing duplicates
+    assert (
+        subset_df.shape[0] == 1
+    ), f"Error: Multiple entries found for bench_id {wildcards.bench_id} and bench_type {wildcards.bench_type}"
+
+    # Now, you can grab the value of bench_vcf_processing from the first (and presumably only) row of subset_df
+    vcf_suffix = subset_df.iloc[0]["bench_vcf_processing"]
+
     if vcf_suffix == "none":
-        return f"results/draft_benchmarksets/{{bench_id}}/intermediates/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.vcf.gz"
+        return f"results/draft_benchmarksets/{{bench_id}}/intermediates/{{ref_id}}_{{asm_id}}_{{bench_type}}_{{vc_cmd}}-{{vc_param_id}}.vcf.gz"
     else:
-        return f"results/draft_benchmarksets/{{bench_id}}/intermediates/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.{vcf_suffix}.vcf.gz"
+        return f"results/draft_benchmarksets/{{bench_id}}/intermediates/{{ref_id}}_{{asm_id}}_{{bench_type}}_{{vc_cmd}}-{{vc_param_id}}.{vcf_suffix}.vcf.gz"
