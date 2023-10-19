@@ -22,7 +22,7 @@ def test_get_bed_stats():
 
         # dbg
         print(
-            "results/draft_benchmarksets/testB/GRCh38_chr21_asm17aChr21_dipcall-default.benchmark_bed-summary.tsv",
+            "results/draft_benchmarksets/testB/GRCh38_chr21_asm17aChr21_smvar_dipcall-default.benchmark_bed-summary.tsv",
             file=sys.stderr,
         )
 
@@ -32,7 +32,7 @@ def test_get_bed_stats():
                 "python",
                 "-m",
                 "snakemake",
-                "results/draft_benchmarksets/testB/GRCh38_chr21_asm17aChr21_dipcall-default.benchmark_bed-summary.tsv",
+                "results/draft_benchmarksets/testB/GRCh38_chr21_asm17aChr21_smvar_dipcall-default.benchmark_bed-summary.tsv",
                 "-f",
                 "-j1",
                 "--keep-target-files",
