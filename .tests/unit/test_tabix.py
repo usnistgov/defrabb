@@ -24,7 +24,7 @@ def test_tabix():
 
         # dbg
         print(
-            "results/draft_benchmarksets/testA/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz.tbi",
+            "results/draft_benchmarksets/testA/GRCh38_chr21_asm17aChr21_smvar_dipcall-default.vcf.gz.tbi",
             file=sys.stderr,
         )
 
@@ -34,7 +34,7 @@ def test_tabix():
                 "python",
                 "-m",
                 "snakemake",
-                "results/draft_benchmarksets/testA/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz.tbi",
+                "results/draft_benchmarksets/testA/GRCh38_chr21_asm17aChr21_smvar_dipcall-default.vcf.gz.tbi",
                 "-f",
                 "-j1",
                 "--touch",
