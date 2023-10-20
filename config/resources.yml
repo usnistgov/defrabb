@@ -436,6 +436,10 @@ comparisons:
       vcf_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz
       bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
       tbi_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark.vcf.gz.tbi
+    ## GIAB Tandem Repeat Benchmarkset
+    GIABTRv1.0:
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/GIABTR.HG002.benchmark.vcf.gz
+      bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/GIABTR.HG002.benchmark.regions.bed
     ## HPRC callsets from dipcall
     HG2-HPRC-20211005-XY:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip/asm_id~HG2-HPRC-20211005_ref~GRCh38_vc_cmd~dipcall_XY.dip.vcf.gz
