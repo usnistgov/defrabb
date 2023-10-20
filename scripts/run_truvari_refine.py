@@ -19,6 +19,6 @@ shell(
     "--use-original "
     "--reference {snakemake.input.ref} "
     "{query_regions} "
-    "{snakemake.params.bench_output} "
-    "{log}"
+    "{snakemake.params.bench_output} ",
+    "{snakemake.log}",
 )
