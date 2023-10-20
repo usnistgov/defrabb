@@ -283,6 +283,7 @@ rule all:
             vc_param_id=truvari_analyses["vc_param_id"].tolist(),
         ),
 
+
 ################################################################################
 ################################################################################
 ##
@@ -686,6 +687,7 @@ rule run_truvari:
         rm -r {params.tmpdir}
         """
 
+
 rule truvari_refine:
     input:
         unpack(partial(get_truvari_inputs, analyses, config)),
@@ -700,9 +702,9 @@ rule truvari_refine:
         ),
     log:
         "logs/run_travari_refine/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/truvari_refine.log",
-    params: 
+    params:
         bench_output="results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}",
-        refine_output="results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/phab_bench"
+        refine_output="results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/phab_bench",
     conda:
         "envs/truvari.yml"
     threads: config["_truvari_refine_threads"]

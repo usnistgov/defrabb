@@ -202,7 +202,8 @@ def get_truvari_inputs_inner(ref_id, eval_id, analyses, config):
     if query_regions:
         inputs["query_regions"] = draft_bench_bed if draft_is_query else comp_bed
 
-    return(inputs)
+    return inputs
+
 
 ## Exclusions
 def get_exclusion_inputs(wildcards):
