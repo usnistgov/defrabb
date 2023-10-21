@@ -13,7 +13,7 @@ if query_regions:
 
 ## Running Truvari
 shell(
-    "rm -rf {snakemake.params.refine_output} && "
+    "rm -rf {snakemake.params.bench_output}/phab_bench && "
     "truvari refine --threads {snakemake.threads} "
     "--align mafft "
     "--use-original "
