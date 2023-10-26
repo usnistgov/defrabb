@@ -1,0 +1,1 @@
+Truvari refine `refine.variant_summary.json` results for {{snakemake.wildcards.eval_id}}.
