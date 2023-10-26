@@ -120,6 +120,7 @@ report: "report/workflow.rst"
 # defining variables for cleaner rule all
 happy_analyses = analyses[analyses["eval_cmd"] == "happy"]
 truvari_analyses = analyses[analyses["eval_cmd"] == "truvari"]
+truvari_refine_analyses = analyses[analyses["eval_cmd"] == "truvari_refine"]
 dipcall_tbl = vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]
 
 
@@ -270,6 +271,17 @@ rule all:
             asm_id=truvari_analyses["asm_id"].tolist(),
             vc_cmd=truvari_analyses["vc_cmd"].tolist(),
             vc_param_id=truvari_analyses["vc_param_id"].tolist(),
+        ),
+        expand(
+            "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_stvar_{vc_cmd}-{vc_param_id}/refine.variant_summary.json",
+            zip,
+            eval_id=truvari_refine_analyses.index.tolist(),
+            bench_id=truvari_refine_analyses["bench_id"].tolist(),
+            ref_id=truvari_refine_analyses["ref"].tolist(),
+            comp_id=truvari_refine_analyses["eval_comp_id"].tolist(),
+            asm_id=truvari_refine_analyses["asm_id"].tolist(),
+            vc_cmd=truvari_refine_analyses["vc_cmd"].tolist(),
+            vc_param_id=truvari_refine_analyses["vc_param_id"].tolist(),
         ),
 
 
@@ -675,3 +687,34 @@ rule run_truvari:
         mv {params.tmpdir}/* {params.dir}
         rm -r {params.tmpdir}
         """
+
+
+rule truvari_refine:
+    input:
+        unpack(partial(get_truvari_inputs, analyses, config)),
+        json="results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/summary.json",
+        ref="resources/references/{ref_id}.fa",
+        refidx="resources/references/{ref_id}.fa.fai",
+    output:
+        report(
+            "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/refine.variant_summary.json",
+            caption="report/truvari_refine_summary.rst",
+            category="Truvari",
+        ),
+        multiext(
+            "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/",
+            "phab.output.vcf.gz",
+            "phab.output.vcf.gz.tbi",
+            "refine.log.txt",
+            "refine.region_summary.json",
+            "refine.regions.txt",
+        ),
+    log:
+        "logs/run_travari_refine/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/truvari_refine.log",
+    params:
+        bench_output=lambda w, output: os.path.dirname(output[0]),
+    conda:
+        "envs/truvari.yml"
+    threads: config["_truvari_refine_threads"]
+    script:
+        "scripts/run_truvari_refine.py"
