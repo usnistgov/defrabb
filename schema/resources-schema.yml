@@ -15,6 +15,7 @@ required:
   - _dipcall_params
   - _happy_threads
   - _happy_mem
+  - _truvari_refine_threads
   - _par_bed_root
 
 additionalProperties: false
@@ -239,6 +240,11 @@ properties:
 
   _happy_mem:
     description: memory required per happy run, in mbs i.e. 1000 ~ 1Gb of ram
+    exclusiveMinimum: 0
+    type: integer
+
+  _truvari_refine_threads:
+    description: the number of threads for truvari refine runs
     exclusiveMinimum: 0
     type: integer
 

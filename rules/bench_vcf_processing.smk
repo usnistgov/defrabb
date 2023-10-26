@@ -76,7 +76,7 @@ rule filter_lt19_and_norm:
         "logs/gt19_norm/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     shell:
         """
-        bcftools norm -m- -Ou {input.vcf} \
+        bcftools norm -m-any -Ou {input.vcf} \
             | bcftools norm -d exact -Ou \
             | bcftools norm -cs -f {input.ref} -Ov\
             | awk '($4!="*" && $5!="*" && (length($4)>20 || length($5)>20)) || $1~/^#/' \

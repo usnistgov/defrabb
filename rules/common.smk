@@ -184,16 +184,25 @@ def get_truvari_inputs_inner(ref_id, eval_id, analyses, config):
     comp_bed = "resources/comparison_variant_callsets/{ref_id}_{comp_id}.bed"
 
     draft_is_query = analyses.loc[eval_id, "eval_comp_id_is_truth"] == True
+    truth_regions = analyses.loc[eval_id, "eval_truth_regions"] == True
+    query_regions = analyses.loc[eval_id, "eval_target_regions"] == True
 
-    return {
+    inputs = {
         "query": draft_bench_vcf if draft_is_query else comp_vcf,
         "query_vcfidx": draft_bench_vcfidx if draft_is_query else comp_vcfidx,
         "truth": comp_vcf if draft_is_query else draft_bench_vcf,
         "truth_vcfidx": comp_vcfidx if draft_is_query else draft_bench_vcfidx,
-        "truth_regions": comp_bed if draft_is_query else draft_bench_bed,
         "genome": f"resources/references/{ref_id}.fa",
         "genome_index": f"resources/references/{ref_id}.fa.fai",
     }
+
+    ## Defining Truth and Query Regions
+    if truth_regions:
+        inputs["truth_regions"] = comp_bed if draft_is_query else draft_bench_bed
+    if query_regions:
+        inputs["query_regions"] = draft_bench_bed if draft_is_query else comp_bed
+
+    return inputs
 
 
 ## Exclusions
