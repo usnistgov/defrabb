@@ -492,21 +492,21 @@ comparisons:
       tbi_url: https://zenodo.org/record/6797328/files/NA24385_genotyping_bi_all.vcf.gz.tbi
     ## HG002 SV vcfs from Senteion generated using sentLRSV
     HG2-sentLRSV-ontR9:
-      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/HG002.chemR9.Guppy4.2.sentLRSV.vcf.gz
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh38_HG2-sentLRSV-ontR9.norm.vcf.gz
       bed_url:
-      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/HG002.chemR9.Guppy4.2.sentLRSV.vcf.gz.tbi
+      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh38_HG2-sentLRSV-ontR9.norm.vcf.gz.tbi
     HG2-sentLRSV-pbhifi:
-      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/HG002.pFDA.pbHiFi.sentLRSV.vcf.gz
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh38_HG2-sentLRSV-pbhifi.norm.vcf.gz
       bed_url:
-      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/HG002.pFDA.pbHiFi.sentLRSV.vcf.gz.tbi
+      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh38_HG2-sentLRSV-pbhifi.norm.vcf.gz.tbi
     HG2-sentLRSV-pbHiFichem2.2:
-      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/HG002.pbHiFi.chem2.2.sentLRSV.vcf.gz
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh38_HG2-sentLRSV-pbHiFichem2.2.norm.vcf.gz
       bed_url:
-      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/HG002.pbHiFi.chem2.2.sentLRSV.vcf.gz.tbi
+      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh38_HG2-sentLRSV-pbHiFichem2.2.norm.vcf.gz.tbi
     HG2-sentLRSV-q20.guppy5.80x:
-      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/HG002.q20.guppy5.80x.sentLRSV.vcf.gz
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh38_HG2-sentLRSV-q20.guppy5.80x.norm.vcf.gz
       bed_url:
-      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/HG002.q20.guppy5.80x.sentLRSV.vcf.gz.tbi
+      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh38_HG2-sentLRSV-q20.guppy5.80x.norm.vcf.gz.tbi
   CHM13v2.0:
         ## Query callset HG002 PCR-Free Illumina 50x mapped to chmv2.0 using BWA and variant calling w/ DV from Andrew Carroll
     HG2-ILMN-CHM13v2:
