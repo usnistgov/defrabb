@@ -350,7 +350,7 @@ rule index_ref_mmi:
     conda:
         "envs/dipcall.yml"
     shell:
-        "minimap2 -x asm5 -d {output} {input}"
+        "minimap2 -x asm5 -d {output} {input} &> {log}"
 
 
 rule index_ref_sdf:
@@ -363,7 +363,7 @@ rule index_ref_sdf:
     conda:
         "envs/rtgtools.yml"
     shell:
-        "rtg format -o {output} {input}"
+        "rtg format -o {output} {input} &>{log}"
 
 
 ################################################################################
@@ -494,7 +494,7 @@ rule run_dipcall:
     threads: config["_dipcall_threads"] * config["_dipcall_jobs"]
     shell:
         """
-        echo "Writing Makefile defining dipcall pipeline"
+        echo "Writing Makefile defining dipcall pipeline" > {log.rulelog}
         run-dipcall \
             -t {params.ts} \
             -d {input.ref_mmi} \
@@ -504,10 +504,10 @@ rule run_dipcall:
             {input.ref} \
             {input.h1} \
             {input.h2} \
-            1> {output.make}
+            1> {output.make} 2>> {log.rulelog}
 
-        echo "Running dipcall pipeline"
-        make -j{params.ts} -f {output.make}
+        echo "Running dipcall pipeline" >> {log.rulelog}
+        make -j{params.ts} -f {output.make} &>>{log.rulelog}
         """
 
 
@@ -681,9 +681,8 @@ rule run_truvari:
             -C 5000 \
             -f {input.genome} \
             --includebed {input.truth_regions} \
-        2> {log}
+        &> {log}
 
-        echo {params.dir}
         mv {params.tmpdir}/* {params.dir}
         rm -r {params.tmpdir}
         """
