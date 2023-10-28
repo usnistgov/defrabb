@@ -53,58 +53,58 @@ references:
     par_bed: "hs37d5.PAR.bed"
     adotto_db: "https://giab-data.s3.amazonaws.com/giab-test-data/adotto-dev-dbs/GRCh37.adotto_TRregions_v1.0.bed.gz"
     exclusions:
-      all-tr-and-homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/LowComplexity/GRCh37_AllTandemRepeatsandHomopolymers_slop5.bed.gz
-      segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/SegmentalDuplications/GRCh37_segdups.bed.gz
-      tandem-repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/LowComplexity/GRCh37_AllTandemRepeats_gt10000bp_slop5.bed.gz
-      gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/OtherDifficult/GRCh37_gaps_slop15kb.bed.gz
+      all-tr-and-homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh37@all/LowComplexity/GRCh37_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+      segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh37@all/SegmentalDuplications/GRCh37_segdups.bed.gz
+      tandem-repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh37@all/LowComplexity/GRCh37_AllTandemRepeats_ge10001bp_slop5.bed.gz
+      gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh37@all/OtherDifficult/GRCh37_gaps_slop15kb.bed.gz
       self-chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/SegmentalDuplications/GRCh37_chainSelf.bed.gz
-      satellites: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/LowComplexity/GRCh37_satellites_slop5.bed.gz
-      homopolymers-gt20: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/LowComplexity/GRCh37_SimpleRepeat_homopolymer_gt20_slop5.bed.gz
-      imperfecthomopol-gt20: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/LowComplexity/GRCh37_SimpleRepeat_imperfecthomopolgt20_slop5.bed.gz
+      satellites: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh37@all/LowComplexity/GRCh37_satellites_slop5.bed.gz
+      homopolymers-gt20: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh37@all/LowComplexity/GRCh37_SimpleRepeat_homopolymer_ge21_slop5.bed.gz
+      imperfecthomopol-gt20: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh37@all/LowComplexity/GRCh37_SimpleRepeat_imperfecthomopolge21_slop5.bed.gz
       imperfecthomopol-gt30: NO_LINK_NOT_ON_FTP
       hifi-pacbioDV-XY-discrep: "https://gitlab.nist.gov/gitlab/bbd-human-genomics/defrabb/-/snippets/138/raw/main/GRCh38_HiFiDV-v4.2.1_T2T-XY-v2.7_dipcall-z2k_FP_merge30_slop50_gt2_FNINSgt2.bed"
     stratifications:
-      id: "v3.1-stratifications-GRCh37"
-      url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/v3.1-genome-stratifications-GRCh37.tar.gz"
-      tarball: "v3.1-genome-stratifications-GRCh37.tar.gz"
-      tsv: "v3.1-GRCh37-stratifications-all-except-genome-specific-stratifications.tsv"
+      id: "v3.3-stratifications-GRCh37"
+      url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/genome-stratifications-GRCh37@all.tar.gz"
+      tarball: "genome-stratifications-GRCh37@all.tar.gz"
+      tsv: "GRCh37@all/GRCh37-all-stratifications.tsv"
   GRCh38:
     ref_url: "https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_GIABv3_no_alt_analysis_set_maskedGRC_decoys_MAP2K3_KMT2C_KCNJ18.fasta.gz"
     par_bed: "hs38.PAR.bed"
     adotto_db: "https://giab-data.s3.amazonaws.com/giab-test-data/adotto-dev-dbs/GRCh38.adotto_TRregions_v1.0.bed.gz"
     exclusions:
-      all-tr-and-homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/LowComplexity/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
-      segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/SegmentalDuplications/GRCh38_segdups.bed.gz
-      tandem-repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/LowComplexity/GRCh38_AllTandemRepeats_gt10000bp_slop5.bed.gz
-      gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/OtherDifficult/GRCh38_gaps_slop15kb.bed.gz
+      all-tr-and-homopolymers: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh38@all/LowComplexity/GRCh38_AllTandemRepeatsandHomopolymers_slop5.bed.gz
+      segdups: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh38@all/SegmentalDuplications/GRCh38_segdups.bed.gz
+      tandem-repeats: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh38@all/LowComplexity/GRCh38_AllTandemRepeats_ge10001bp_slop5.bed.gz
+      gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh38@all/OtherDifficult/GRCh38_gaps_slop15kb.bed.gz
       self-chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
-      satellites: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/LowComplexity/GRCh38_satellites_slop5.bed.gz
+      satellites: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh38@all/LowComplexity/GRCh38_satellites_slop5.bed.gz
       imperfecthomopol-gt30: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/imperfecthomopol-gt30.bed.gz
       hifi-pacbioDV-XY-discrep: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/hifi-pacbioDV-XY-discrep.bed.gz
       hifiasm-HPRC-T2Tdiscrep: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/grch38_hg2-hprc-20211005-xy_t2t-xy-v2.7_dipcall-z2k_inhprcbed_fporfn_slop50_merge1000_homopolandtrexpanded.bed.gz
       XYelement-homopolymer-T2T-discrep: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/HG002_DV_Element_1_query_XY_draft_benchmark_FPorFN_homopolgt10_indel.bed.gz
       XYdipcallmanualbugs: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/GRCh38_XY_dipcallbug_manualexclude.bed.gz
     stratifications:
-      id: "v3.1-genome-stratifications-GRCh38.tar.gz"
-      url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/v3.1-genome-stratifications-GRCh38.tar.gz"
-      tarball: "v3.1-stratifications-GRCh38.tar.gz"
-      tsv: "v3.1-GRCh38-all-stratifications.tsv"
+      id: "v3.3-stratifications-GRCh38"
+      url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/genome-stratifications-GRCh38@all.tar.gz"
+      tarball: "genome-stratifications-GRCh38@all.tar.gz"
+      tsv: "GRCh38@all/GRCh38-all-stratifications.tsv"
   ## temporary location on S3 for chm13
   CHM13v2.0:
     ref_url: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/reference/chm13v2.0_maskedY.fa.gz"
     par_bed: "chm13v2.0_PAR-X.bed"
     adotto_db: "https://giab-data.s3.amazonaws.com/giab-test-data/adotto-dev-dbs/CHM13.adotto_TRregions_v1.0.bed.gz"
     exclusions:
-      all-tr-and-homopolymers: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/CHM13v2.0/LowComplexity/CHM13v2.0_AllTandemRepeatsandHomopolymers_slop5.bed.gz"
-      segdups: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/CHM13v2.0/SegmentalDuplications/CHM13v2.0_SegDups.bed.gz"
-      tandem-repeats: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/CHM13v2.0/LowComplexity/CHM13v2.0_AllTandemRepeats_gt10000bp_slop5.bed.gz"
-      gaps: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/CHM13v2.0/OtherDifficult/CHM13v2.0_rDNA.bed.gz"
-      satellites: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/CHM13v2.0/LowComplexity/CHM13v2.0_satellites_slop5.bed.gz"
+      all-tr-and-homopolymers: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/LowComplexity/CHM13_AllTandemRepeatsandHomopolymers_slop5.bed.gz"
+      segdups: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/SegmentalDuplications/CHM13_SegDups.bed.gz"
+      tandem-repeats: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/LowComplexity/CHM13_AllTandemRepeats_ge10001bp_slop5.bed.gz"
+      gaps: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/OtherDifficult/CHM13_rDNA.bed.gz"
+      satellites: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/LowComplexity/CHM13_satellites_slop5.bed.gz"
     stratifications:
-      id: "v3.1-stratifications-CHM13v2.0"
-      url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/v3.1-genome-stratifications-CHM13v2.0.tar.gz"
-      tarball: "v3.1-genome-stratifications-CHM13v2.0.tar.gz"
-      tsv: "v3.1-CHM13v2.0-all-stratifications.tsv"
+      id: "v3.3-stratifications-CHM13"
+      url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/genome-stratifications-CHM13@all.tar.gz"
+      tarball: "genome-stratifications-CHM13@all.tar.gz"
+      tsv: "CHM13@all/CHM13-all-stratifications.tsv"
   ## For testing
   GRCh38_chr21:
     ref_url: "https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_chr21.fa.gz"
