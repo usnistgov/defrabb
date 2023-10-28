@@ -1,0 +1,228 @@
+#!/usr/bin/env python
+import argparse
+import sys
+import os
+import subprocess
+import datetime
+import logging
+import re
+
+
+# Set up logging
+def setup_logging(run_dir):
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        filename=os.path.join(run_dir, "run.log"),
+        filemode="w",
+    )
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    formatter = logging.Formatter(
+        "%(asctime)s [%(levelname)s] - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+    )
+    console.setFormatter(formatter)
+    logging.getLogger("").addHandler(console)
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description="DeFrABB wrapper script for executing and archiving framework",
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog="Any additional arguments provided will be passed directly to Snakemake.",
+    )
+    parser.add_argument(
+        "-r",
+        "--runid",
+        required=True,
+        type=str,
+        help="Analysis RUN ID, please use following naming convention YYYYMMDD_milestone_brief-id",
+    )
+    parser.add_argument("-a", "--analyses", type=str, help="defrabb run analyses table")
+    parser.add_argument(
+        "-o",
+        "--outdir",
+        type=str,
+        default="/defrabb_runs/runs_in_progress/",
+        help="Output directory",
+    )
+    parser.add_argument(
+        "-j", "--jobs", type=int, help="Number of jobs used by snakemake"
+    )
+    parser.add_argument(
+        "-n", "--dryrun", action="store_true", help="Run snakemake in dry run mode"
+    )
+    parser.add_argument(
+        "-F", "--forcerun", action="store_true", help="Force rerunning all steps"
+    )
+    parser.add_argument(
+        "-k",
+        "--keepgoing",
+        action="store_true",
+        help="Keep going with independent jobs if one fails",
+    )
+    parser.add_argument(
+        "-u", "--unlock", action="store_true", help="Unlock snakemake run directory"
+    )
+    # Create an argument group for better formatting
+    group = parser.add_argument_group("workflow steps")
+
+    # Add the 'steps' argument with a detailed description using line breaks
+    group.add_argument(
+        "-s",
+        "--steps",
+        type=str,
+        choices=["all", "pipe", "report", "archive", "release"],
+        default="all",
+        metavar="",
+        help="""Defining which workflow steps are run:
+    all: pipe, report, and archive (default)
+    pipe: just the snakemake pipeline
+    report: generating the snakemake run report
+    archive: generating snakemake archive tarball
+    release: copy run output to NAS for upload to Google Drive""",
+    )
+    args, unknown_args = parser.parse_known_args()
+    return args, unknown_args
+
+
+def validate_and_set_defaults(args):
+    pattern = r"^\d{8}_[v\d.\d{3}]+_[a-z\-]+$"
+    if not re.match(pattern, args.runid):
+        sys.exit("Error: Invalid RUN ID format.")
+    if not args.analyses:
+        args.analyses = f"config/analyses_{args.runid}.tsv"
+    if not os.path.exists(args.outdir):
+        sys.exit(f"Error: Output directory '{args.outdir}' does not exist.")
+    if not os.path.exists(args.analyses):
+        sys.exit(f"Error: Analyses file '{args.analyses}' does not exist.")
+    return args
+
+
+def find_core_limit():
+    return os.cpu_count()
+
+
+def execute_snakemake_pipeline(args, run_dir, extra_args):
+    cmd = [
+        "snakemake",
+        "--use-conda",
+        "--config",
+        f"analyses={args.analyses}",
+        "--directory",
+        run_dir,
+        "--cores",
+        str(args.jobs),
+    ] + extra_args
+    subprocess.run(
+        cmd,
+        check=True,
+    )
+
+
+def generate_snakemake_report(args, run_dir, report_name):
+    cmd = [
+        "snakemake",
+        "--config",
+        f"analyses={args.analyses}",
+        "--directory",
+        run_dir,
+        "--report",
+        report_name,
+    ]
+    subprocess.run(cmd, check=True)
+
+
+def generate_snakemake_archive(args, smk_archive_path):
+    cmd = [
+        "snakemake",
+        "--use-conda",
+        "--config",
+        f"analyses={args.analyses}",
+        "--archive",
+        smk_archive_path,
+    ]
+    subprocess.run(cmd, check=True)
+
+
+def release_run(args, run_dir, archive_dir):
+    cmd = [
+        "rsync",
+        "-rlptoDv",
+        "--exclude=.snakemake",
+        "--exclude=resources",
+        "--exclude=GRCh37@all",
+        "--exclude=GRCh38@all",
+        "--exclude=CHM13@all",
+        f"{run_dir}",
+        f"{archive_dir}",
+    ]
+    subprocess.run(cmd, check=True)
+
+    # Copy resources.yml and config file to the archive directory
+    subprocess.run(["cp", os.path.basename(args.analyses), archive_dir], check=True)
+    subprocess.run(["cp", "config/resources.yml", archive_dir], check=True)
+
+
+def log_git_status():
+    commit_hash = subprocess.getoutput("git rev-parse HEAD")
+    branch_name = subprocess.getoutput("git symbolic-ref --short HEAD")
+    logging.info(f"Git latest commit: {commit_hash}")
+    logging.info(f"Git branch: {branch_name}")
+    uncommitted_changes = subprocess.getoutput("git diff --stat")
+    if uncommitted_changes:
+        logging.warning("Uncommitted changes detected:")
+        logging.warning(uncommitted_changes)
+    else:
+        logging.info("No uncommitted changes.")
+
+
+def log_conda_environment(run_dir):
+    """Generate and log YAML for the specified Conda environment."""
+    # Generate YAML file for the current conda environment
+    subprocess.run(
+        ["conda", "env", "export", "--file", os.path.join(run_dir, "environment.yml")],
+        check=True,
+    )
+    logging.info(f"Conda environment details saved to environment.yml")
+
+
+def main():
+    args, extra_args = parse_arguments()
+    args = validate_and_set_defaults(args)
+    if not args.jobs:
+        args.jobs = find_core_limit()
+    run_dir = os.path.join(args.outdir, args.runid)
+    report_name = os.path.join(run_dir, f"snakemake_report_{args.runid}.html")
+    smk_archive_path = os.path.join(run_dir, f"{args.runid}.tar.gz")
+    archive_dir = "/mnt/bbdhg-nas/analysis/defrabb-runs/"
+
+    # Set up logging to write to the run directory
+    os.makedirs(run_dir, exist_ok = True)
+    setup_logging(run_dir)
+
+    ## Starting run and documenting run environment
+    logging.info("# Starting DeFrABB Run")
+    logging.info("Recording code status")
+    log_git_status()
+    log_conda_environment(run_dir)
+
+    if args.steps in ["all", "pipe"]:
+        logging.info("Executing Snakemake Pipeline")
+        execute_snakemake_pipeline(args, run_dir, extra_args)
+    if args.steps in ["all", "report"]:
+        logging.info("Generating Snakemake Report")
+        generate_snakemake_report(args, run_dir, report_name)
+    if args.steps in ["all", "archive"]:
+        logging.info("Generating Snakemake Archive")
+        generate_snakemake_archive(args, smk_archive_path)
+    if args.steps in ["all", "release"]:
+        logging.info("Releasing Run")
+        release_run(args, run_dir, archive_dir)
+
+    logging.info("DeFrABB execution complete!")
+
+
+if __name__ == "__main__":
+    main()
