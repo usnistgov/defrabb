@@ -15,7 +15,7 @@ rule fix_XY_genotype:
         gunzip -c {input} \
             | sed 's/\.|1:0,1/1:1/;s/1|\.:0,1/1:1/'  \
             | bgzip -c \
-            > {output}
+            1> {output} 2> {log}
         """
 
 
@@ -37,7 +37,7 @@ rule dip_gap2homvarbutfiltered:
         gunzip -c {input} |\
         sed 's/1|\./1|1/' |\
         grep -v 'HET\|GAP1\|DIP' |\
-        bgzip -c > {output}
+        bgzip -c 1> {output} 2> {log}
         """
 
 
@@ -76,11 +76,11 @@ rule filter_lt19_and_norm:
         "logs/gt19_norm/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     shell:
         """
-        bcftools norm -m-any -Ou {input.vcf} \
-            | bcftools norm -d exact -Ou \
-            | bcftools norm -cs -f {input.ref} -Ov\
+        bcftools norm -m-any -Ou {input.vcf} 2> {log} \
+            | bcftools norm -d exact -Ou 2>> {log} \
+            | bcftools norm -cs -f {input.ref} -Ov 2>> {log} \
             | awk '($4!="*" && $5!="*" && (length($4)>20 || length($5)>20)) || $1~/^#/' \
-            | bcftools sort -m{resources.mem_mb}m -Oz > {output} 2> {log}
+            | bcftools sort -m{resources.mem_mb}m -Oz > {output} 2>> {log}
         """
 
 
