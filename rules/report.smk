@@ -83,7 +83,7 @@ rule get_bcftools_stats:
     conda:
         "../envs/bcftools.yml"
     shell:
-        " bcftools stats {input} > {output} "
+        " bcftools stats {input} 1> {output} 2> {log}"
 
 
 rule get_rtg_vcf_stats:
