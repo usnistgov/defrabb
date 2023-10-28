@@ -19,7 +19,7 @@ rule download_bed_gz:
     conda:
         "../envs/download_remotes.yml"
     shell:
-        "curl -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
+        "curl -L {params.url} 2> {log} | gunzip -c 1> {output} 2> {log}"
 
 
 rule make_gaps_bed:
@@ -59,7 +59,7 @@ rule get_sv_widen_coords:
             --table \
             --sort-merge \
             --genome {input.genome} \
-            --log {log}
+            --log {log} 2>> {log}
         """
 
 
@@ -180,5 +180,6 @@ rule subtract_exclusions:
         {input.dip_bed} \
         {output.bed} \
         {output.rpt} \
-        {input.other_beds}
+        {input.other_beds} \
+        &> {log}
         """
