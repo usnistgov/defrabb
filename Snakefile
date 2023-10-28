@@ -612,7 +612,7 @@ rule run_happy:
         ),
     params:
         prefix="results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}",
-        strat_tsv=lambda wildcards: f"{wildcards.ref_id}/{config['references'][wildcards.ref_id]['stratifications']['tsv']}",
+        strat_tsv=lambda wildcards: f"{config['references'][wildcards.ref_id]['stratifications']['tsv']}",
         threads=config["_happy_threads"],
         engine="vcfeval",
         engine_extra=lambda wildcards: f"--engine-vcfeval-template resources/references/{wildcards.ref_id}.sdf",
