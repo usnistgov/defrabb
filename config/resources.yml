@@ -121,10 +121,10 @@ references:
       imperfecthomopol-gt30: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/imperfecthomopol-gt30.bed.gz
       hifi-pacbioDV-XY-discrep: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/hifi-pacbioDV-XY-discrep.bed.gz
     stratifications:
-      id: "v3.0-stratifications-GRCh38_chr21"
-      url: "https://giab-data.s3.amazonaws.com/giab-test-data/v3.0-stratifications-GRCh38_chr21.tar.gz"
-      tarball: "v3.0-stratifications-GRCh38_chr21.tar.gz"
-      tsv: "v3.0-GRCh38-test-stratifications.tsv"
+      id: "v3.3-stratifications-GRCh38"
+      url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/genome-stratifications-GRCh38@all.tar.gz"
+      tarball: "genome-stratifications-GRCh38@all.tar.gz"
+      tsv: "GRCh38@all/GRCh38-all-stratifications.tsv"
 
 
 ################################################################################
