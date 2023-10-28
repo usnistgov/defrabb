@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 # Author: Nathan Olson
 from os import path
+import sys
 from snakemake.shell import shell
 
+sys.stdout = open(snakemake.log[0], "a")
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
 ## Optional parameters
@@ -26,7 +28,7 @@ strat_id = snakemake.config["references"][ref_id]["stratifications"]["id"]
 strat_tsv = f"{snakemake.params.strat_tsv}"
 
 print("Extracting Stratifications")
-shell("tar -xf {snakemake.input.strat_tb}", "{log}")
+shell("tar -xf {snakemake.input.strat_tb}" + log)
 
 if path.isfile(strat_tsv):
     print("Stratification tsv file present")
@@ -47,6 +49,5 @@ shell(
     "    --verbose "
     "    {target_regions} "
     "    {snakemake.input.truth} "
-    "    {snakemake.input.query} )"
-    "{log}"
+    "    {snakemake.input.query} )" + log
 )
