@@ -32,27 +32,36 @@ or if you have other questions about the pipeline.
 ### Executing and Archiving DeFrABB Analysis Runs
 Steps below assume running defrabb on workstation with team NAS mounted.
 1. Fill out `config/analyses_[YYYYMMDD_milestone_brief-id]` and update `config/resources.yml` if necessary.
-1. Run pipeline using `./run_defrabb.sh` providing run in using the defined format (i.e. `-r [YYYYMMDD_milestone_brief-id]`) or `-r` along with `-a`. The wrapper script records the mamba runtime environment information and the git repo status and last commit tag
+1. Run pipeline using `./run_defrabb` providing run id using the defined format (i.e. `-r [YYYYMMDD_milestone_brief-id]`) or `-r` along with `-a`. The wrapper script records the mamba runtime environment information and the git repo status and last commit tag
 
 ```
-Usage: ./run_defrabb.sh [options] [extra arguments passed to snakemake]
-Required:
-    -r STRING   Analysis RUN ID, please use following naming convention YYYYMMDD_milestone_brief-id
+usage: run_defrabb [-h] -r RUNID [-a ANALYSES] [-o OUTDIR] [-j JOBS] [-n] [-F] [-k] [-u] [-s]
 
-Optional:
-    -a FILE     defrabb run analyses table, if not provided assumes at config/analyses_[RUN ID].tsv
-    -o DIR      output directory for framework run, pipeline will create a named directory [RUN ID] at defined location, default is "/defrabb_runs/runs_in_progress/", note this is a system specific path.
-    -s all|pipe|report|archive|release  Defining which workflow steps are run
-                                    all: pipe, report, and archive (default)
-                                    pipe: just the snakemake pipeline
-                                    report: generating the snakemake run report
-                                    archive: generating snakemake archive tarball
-                                    release: copy run output to NAS for upload to Google Drive
-    -j          number of jobs used by snakemake, default number of system cores
-    -n          Run snakemake in dry run mode, only runs pipe step
-    -F          Force rerunning all steps, includes downloading resources
-    -k          keep going with independent jobs if one job fails
-    -u          unlock snakeamke run directory
+DeFrABB wrapper script for executing and archiving framework
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -r RUNID, --runid RUNID
+                        Analysis RUN ID, please use following naming convention YYYYMMDD_milestone_brief-id
+  -a ANALYSES, --analyses ANALYSES
+                        defrabb run analyses table
+  -o OUTDIR, --outdir OUTDIR
+                        Output directory
+  -j JOBS, --jobs JOBS  Number of jobs used by snakemake
+  -n, --dryrun          Run snakemake in dry run mode
+  -F, --forcerun        Force rerunning all steps
+  -k, --keepgoing       Keep going with independent jobs if one fails
+  -u, --unlock          Unlock snakemake run directory
+
+workflow steps:
+  -s , --steps          Defining which workflow steps are run:
+                            all: pipe, report, and archive (default)
+                            pipe: just the snakemake pipeline
+                            report: generating the snakemake run report
+                            archive: generating snakemake archive tarball
+                            release: copy run output to NAS for upload to Google Drive
+
+Any additional arguments provided will be passed directly to Snakemake.
 ```
 
 1. (For NIST internal run documentation) Fill out README with relevant run information - framework repo info - [milestone] tag (with some potential - hopefully minor-differences), who ran the framework and where/ how, justification / reasoning for analyses, JZ notes (what did we learn), use [defrabb run README template](https://docs.google.com/document/d/1yTXP-3OQxXfGl7kIyXWMTac-USMgiMNPhz10GXwBro0/edit?usp=sharing).
