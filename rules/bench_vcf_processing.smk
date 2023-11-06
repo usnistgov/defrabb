@@ -216,7 +216,6 @@ rule run_truvari_anno_remap:
         "logs/truvari_anno_remap/{bench_id}/intermediates/{prefix}.log",
     conda:
         "../envs/truvari.yml"
-    threads: 5
     params:
         min_length=20,
     shell:
