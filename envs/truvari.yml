@@ -6,3 +6,4 @@ dependencies:
   - bcftools==1.14
   - trf==4.09.1
   - mafft
+  - repeatmasker
