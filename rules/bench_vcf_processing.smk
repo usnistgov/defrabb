@@ -224,9 +224,7 @@ rule run_truvari_anno_remap:
         truvari anno remap \
             -r {input.ref} \
             -o {output.vcf} \
-            -e RepeatMasker \
             --minlength {params.min_length} \
-            -T {threads} \
             --debug \
             {input.vcf} \
             &> {log}
