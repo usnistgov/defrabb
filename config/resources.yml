@@ -151,41 +151,50 @@ assemblies:
     maternal: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/hifiasm-assembly/HG002-v0.11.mat.fa.gz
     paternal: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/hifiasm-assembly/HG002-v0.11.pat.fa.gz
     is_male: true
+    sample_id: "HG002"
   asm17aChr21:
     maternal: https://giab-data.s3.amazonaws.com/giab-test-data/asm17aChr21/maternal.fa.gz
     paternal: https://giab-data.s3.amazonaws.com/giab-test-data/asm17aChr21/paternal.fa.gz
     is_male: true
+    sample_id: "HG002"
   ## T2T XY assemblies (maternal=X and paternal=Y)
   T2T-XY-v2.7:
     maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-v2.7_XY/chrX_v2.7.fa.gz
     paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-v2.7_XY/chrY_v2.7.fa.gz
     is_male: true
+    sample_id: "HG002"
   ## chr X from T2Tv2.7 and CHM13v2.  For use with AI work
   T2Tv2.7-CHM13v2_chrX:
     maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2Tv2.7-CHM13v2_chrX/T2T-v2.7_HG2chrX.fa.gz
     paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2Tv2.7-CHM13v2_chrX/chm13v2.0_CHM13chrX.fa.gz
     is_male: false
+    sample_id: "HG002-CHM13"
   ##latest assembly from HPRC
   HG2-HPRC-20211005:
     maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/21edcb42-02c4-4e9f-b226-6773e62484a4--RU-HG002-commons/assembly/curated_round2/HG002.mat.cur.20211005.fasta.gz
     paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/21edcb42-02c4-4e9f-b226-6773e62484a4--RU-HG002-commons/assembly/curated_round2/HG002.pat.cur.20211005.fasta.gz
     is_male: true
+    sample_id: "HG002"
   HG2-verkko-053122:
     maternal: https://giab-data.s3.amazonaws.com/giab-test-data/verkko-assembly/v1.0-updated-053122/assembly.updated_layout-haplotype1.fasta
     paternal: https://giab-data.s3.amazonaws.com/giab-test-data/verkko-assembly/v1.0-updated-053122/assembly.updated_layout-haplotype2.fasta
     is_male: true
+    sample_id: "HG002"
   HG2-verrkoV1.1-V0.6:
     maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/T2T/scratch/HG002/assemblies/drafts/assembly.v0.6.maternal.fasta
     paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/T2T/scratch/HG002/assemblies/drafts/assembly.v0.6.paternal.fasta
     is_male: true
+    sample_id: "HG002"
   HG2-verrkoV1.1-V0.7:
     maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/verkko/HG002/v1.1/assembly.v0.7_maternal.fasta.gz
     paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/verkko/HG002/v1.1/assembly.v0.7_paternal.fasta.gz
     is_male: true
+    sample_id: "HG002"
   HG2-T2TQ100-V0.9:
     maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/hg002v0.9_mat.fa.gz
     paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/hg002v0.9_pat.fa.gz
     is_male: true
+    sample_id: "HG002"
 
 ################################################################################
 # Benchmark Generation
