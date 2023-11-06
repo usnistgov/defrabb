@@ -182,8 +182,9 @@ rule rename_and_move_processed_draft_bench_vcf:
         get_sample_id,
     shell:
         """
-        java -jar picard.jar RenameSampleInVcf \
-            INPUT={input} \
-            OUTPUT={output} \
-            NEW_SAMPLE_NAME={params}
+        picard RenameSampleInVcf \
+            -INPUT {input} \
+            -OUTPUT {output} \
+            -NEW_SAMPLE_NAME {params} \
+	   &> {log}
         """
