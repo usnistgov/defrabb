@@ -110,6 +110,10 @@ properties:
             type: boolean
             description: true if this assembly to be processed as a male genome
 
+          sample_id:
+            type: string
+            description: sample name used in sample renaming (e.g. dipcall vcf output)
+
   comparisons:
     description: |
       The comparison variant callsets to be used in evaluating draft benchmark sets; each key is an identifier that

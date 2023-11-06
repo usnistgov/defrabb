@@ -78,6 +78,10 @@ def get_trf_db_url(wildcards):
     return ref_config[wildcards.ref_id]["trf_db"]
 
 
+def get_sample_id(wildcards):
+    return asm_config[wildcards.asm_id]["sample_id]
+
+
 def get_male_bed(wildcards):
     root = config["_par_bed_root"]
     filename = ref_config[wildcards.ref_id]["par_bed"]
