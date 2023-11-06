@@ -200,7 +200,7 @@ rule run_truvari_anno_repmask:
             --min-length {params.min_length} \
             -T {threads} \
             --debug \
-            &> {log}
+            2>&1 | tee -a {log}
         """
 
 
