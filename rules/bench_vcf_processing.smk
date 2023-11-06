@@ -185,5 +185,5 @@ rule rename_and_move_processed_draft_bench_vcf:
         java -jar picard.jar RenameSampleInVcf \
             INPUT={input} \
             OUTPUT={output} \
-            NEW_SAMPLE_NAME={params.sample}
+            NEW_SAMPLE_NAME={params}
         """
