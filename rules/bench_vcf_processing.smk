@@ -169,14 +169,22 @@ rule move_asm_vcf_to_draft_bench:
         "cp {input} {output} &> {log}"
 
 
-rule move_processed_draft_bench_vcf:
+rule rename_and_move_processed_draft_bench_vcf:
     input:
         get_processed_vcf,
     output:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz",
     log:
-        "logs/move_processed_draft_bench_vcf/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
+        "logs/rename_and_move_processed_draft_bench_vcf/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     conda:
-        "../envs/download_remotes.yml"
+        "../envs/picard.yml"
+    params:
+        get_sample_id,
     shell:
-        "cp {input} {output}"
+        """
+        picard RenameSampleInVcf \
+            -INPUT {input} \
+            -OUTPUT {output} \
+            -NEW_SAMPLE_NAME {params} \
+	   &> {log}
+        """
