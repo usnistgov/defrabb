@@ -1,3 +1,19 @@
+# Milestone v0.012 TBD
+Numerous changes to repo aimed at improving usability and functionality.
+- rewrote wapper script in python for improved usability and easier development
+- ensuring rules print logs to defined log files
+- Using truvari anno trf to get widened SV coordinates instead of SVwiden for excluding SVs from the small variant benchmark regions. Created new TR databases for GRCh37, GRCh38, and CHM13 (https://github.com/nate-d-olson/adotto-smk)
+- Fixed issue with truvari when base and comparison vcfs had different contig ids
+- added bedtool summary to get chromosome level coverage stats for benchmark beds
+- removed unplaced contigs and alts from benchmark regions
+- copying config files to analysis run directory for clarity (file previously only in snakemake generated archive tarball)
+- modifed benchmark filenames to include benchmark type
+- added ability to benchmark SVs with truvari refine
+- updated README to more clearly document running defrabb and added output file descriptions
+- now using v3.3 of GIAB stratifications (https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/)
+- improving output benchmark vcf - changed sample name in vcf from dipcall default
+- fixing issue where gaps were not appropriately excluded, gaps are now determined from the ref fasta file
+
 # Milestone v0.011 2023-07-25
 Most changes in this release were making the run_defrabb script more user friendly and fixing bugs encountered
 making XY benchmark, comparison to Sentieon SV callsets, and benchmarks for v0.09 of T2T HG002 assembly
