@@ -279,5 +279,9 @@ rule rename_and_move_processed_draft_bench_vcf:
             -INPUT {input} \
             -OUTPUT {output} \
             -NEW_SAMPLE_NAME {params} \
+<<<<<<< HEAD
        &> {log}
+=======
+            &> {log}
+>>>>>>> e8acd6e (formatting)
         """
