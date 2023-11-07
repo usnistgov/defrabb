@@ -63,6 +63,7 @@ references:
       imperfecthomopol-gt20: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh37@all/LowComplexity/GRCh37_SimpleRepeat_imperfecthomopolge21_slop5.bed.gz
       imperfecthomopol-gt30: NO_LINK_NOT_ON_FTP
       hifi-pacbioDV-XY-discrep: "https://gitlab.nist.gov/gitlab/bbd-human-genomics/defrabb/-/snippets/138/raw/main/GRCh38_HiFiDV-v4.2.1_T2T-XY-v2.7_dipcall-z2k_FP_merge30_slop50_gt2_FNINSgt2.bed"
+      VDJ: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh37@all/OtherDifficult/GRCh37_VDJ.bed.gz"
     stratifications:
       id: "v3.3-stratifications-GRCh37"
       url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/genome-stratifications-GRCh37@all.tar.gz"
@@ -84,6 +85,7 @@ references:
       hifiasm-HPRC-T2Tdiscrep: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/grch38_hg2-hprc-20211005-xy_t2t-xy-v2.7_dipcall-z2k_inhprcbed_fporfn_slop50_merge1000_homopolandtrexpanded.bed.gz
       XYelement-homopolymer-T2T-discrep: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/HG002_DV_Element_1_query_XY_draft_benchmark_FPorFN_homopolgt10_indel.bed.gz
       XYdipcallmanualbugs: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/GRCh38_XY_dipcallbug_manualexclude.bed.gz
+      VDJ: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh38@all/OtherDifficult/GRCh38_VDJ.bed.gz"
     stratifications:
       id: "v3.3-stratifications-GRCh38"
       url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/genome-stratifications-GRCh38@all.tar.gz"
@@ -100,6 +102,7 @@ references:
       tandem-repeats: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/LowComplexity/CHM13_AllTandemRepeats_ge10001bp_slop5.bed.gz"
       gaps: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/OtherDifficult/CHM13_rDNA.bed.gz"
       satellites: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/LowComplexity/CHM13_satellites_slop5.bed.gz"
+      VDJ: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/OtherDifficult/CHM13_VDJ.bed.gz"
     stratifications:
       id: "v3.3-stratifications-CHM13"
       url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/genome-stratifications-CHM13@all.tar.gz"
@@ -369,6 +372,21 @@ exclusion_set:
     - gaps
     - flanks
     - svs-and-simple-repeats
+  stvarallwlongHPnoSelfChainExVDJ:
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - flanks
+    - VDJ
+  smvarallwlongHPnoSelfChainExVDJ:
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - flanks
+    - svs-and-simple-repeats
+    - VDJ
 
 ## Regions 
 exclusion_slop_regions:
@@ -390,6 +408,7 @@ exclusion_asm_agnostic:
   - hifiasm-HPRC-T2Tdiscrep
   - XYelement-homopolymer-T2T-discrep
   - XYdipcallmanualbugs
+  - VDJ
 
 exclusion_ref_agnostic:
   - flanks
