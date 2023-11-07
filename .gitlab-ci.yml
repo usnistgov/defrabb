@@ -3,6 +3,7 @@ image: condaforge/mambaforge:23.3.1-1
 before_script:
   - echo "Installing pipeline dependencies"
   - mamba --version
+  - mamba config --set channel_priority strict
   - mamba install -c bioconda -c conda-forge snakemake==7.26.0 snakefmt
   - snakemake --version
   - black --version
