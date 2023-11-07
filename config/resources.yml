@@ -198,6 +198,11 @@ assemblies:
     paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/hg002v0.9_pat.fa.gz
     is_male: true
     sample_id: "HG002"
+  HG2-T2TQ100-V1.0:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/T2T/HG002/assemblies/hg002v1.0.mat_Y_EBV_MT.fasta.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/T2T/HG002/assemblies/hg002v1.0.pat_X_EBV_MT.fasta.gz
+    is_male: true
+    sample_id: "HG002"
 
 ################################################################################
 # Benchmark Generation
