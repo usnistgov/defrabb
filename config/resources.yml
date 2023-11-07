@@ -102,7 +102,7 @@ references:
       tandem-repeats: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/LowComplexity/CHM13_AllTandemRepeats_ge10001bp_slop5.bed.gz"
       gaps: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/OtherDifficult/CHM13_rDNA.bed.gz"
       satellites: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/LowComplexity/CHM13_satellites_slop5.bed.gz"
-      VCJ: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/OtherDifficult/CHM13_VDJ.bed.gz"
+      VDJ: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/OtherDifficult/CHM13_VDJ.bed.gz"
     stratifications:
       id: "v3.3-stratifications-CHM13"
       url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/genome-stratifications-CHM13@all.tar.gz"
