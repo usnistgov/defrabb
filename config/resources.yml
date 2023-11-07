@@ -98,7 +98,7 @@ references:
     adotto_db: "https://giab-data.s3.amazonaws.com/giab-test-data/adotto-dev-dbs/CHM13.adotto_TRregions_v1.0.bed.gz"
     exclusions:
       all-tr-and-homopolymers: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/LowComplexity/CHM13_AllTandemRepeatsandHomopolymers_slop5.bed.gz"
-      segdups: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/SegmentalDuplications/CHM13_SegDups.bed.gz"
+      segdups: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/SegmentalDuplications/CHM13_segdups.bed.gz"
       tandem-repeats: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/LowComplexity/CHM13_AllTandemRepeats_ge10001bp_slop5.bed.gz"
       gaps: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/OtherDifficult/CHM13_rDNA.bed.gz"
       satellites: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/LowComplexity/CHM13_satellites_slop5.bed.gz"
