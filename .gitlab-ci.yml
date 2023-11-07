@@ -33,4 +33,4 @@ run-test:
     paths: 
         - smalltest
   script:
-    - snakemake -p --use-conda --cores 1 --verbose
+    - snakemake -p --use-conda --cores 1 --verbose --dry-run
