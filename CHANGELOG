@@ -13,6 +13,7 @@ Numerous changes to repo aimed at improving usability and functionality.
 - now using v3.3 of GIAB stratifications (https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/)
 - improving output benchmark vcf - changed sample name in vcf from dipcall default
 - fixing issue where gaps were not appropriately excluded, gaps are now determined from the ref fasta file
+- using updated version of GRCh38 with additional masked regions as described in [FixItFelix paper](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-023-02863-7). 
 
 # Milestone v0.011 2023-07-25
 Most changes in this release were making the run_defrabb script more user friendly and fixing bugs encountered
