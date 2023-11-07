@@ -156,6 +156,99 @@ rule run_truvari_anno_trf:
         """
 
 
+rule run_truvari_anno_svinfo:
+    input:
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
+        vcfidx="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz.tbi",
+    output:
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.svinfo.vcf",
+    log:
+        "logs/truvari_anno_svinfo/{bench_id}/intermediates/{prefix}.log",
+    conda:
+        "../envs/truvari.yml"
+    params:
+        minsize=20,
+    shell:
+        """
+        truvari anno svinfo \
+            -o {output.vcf} \
+            --minsize {params.minsize} \
+            {input.vcf} \
+            &> {log}
+        """
+
+
+rule run_truvari_anno_repmask:
+    input:
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
+        vcfidx="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz.tbi",
+    output:
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.repmask.vcf",
+    log:
+        "logs/truvari_anno_repmask/{bench_id}/intermediates/{prefix}.log",
+    conda:
+        "../envs/truvari.yml"
+    threads: 5
+    params:
+        min_length=20,
+    shell:
+        """
+        truvari anno repmask \
+            -i {input.vcf} \
+            -o {output.vcf} \
+            -e RepeatMasker \
+            --min-length {params.min_length} \
+            -T {threads} \
+            --debug \
+            2>&1 | tee -a {log}
+        """
+
+
+rule run_truvari_anno_remap:
+    input:
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
+        vcfidx="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz.tbi",
+        ref=get_ref_file,
+        refidx=get_ref_index,
+    output:
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.remap.vcf",
+    log:
+        "logs/truvari_anno_remap/{bench_id}/intermediates/{prefix}.log",
+    conda:
+        "../envs/truvari.yml"
+    params:
+        min_length=20,
+    shell:
+        """
+        truvari anno remap \
+            -r {input.ref} \
+            -o {output.vcf} \
+            --minlength {params.min_length} \
+            --debug \
+            {input.vcf} \
+            &> {log}
+        """
+
+
+rule run_truvari_anno_lcr:
+    input:
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
+        vcfidx="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz.tbi",
+    output:
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.lcr.vcf",
+    log:
+        "logs/truvari_anno_lcr/{bench_id}/intermediates/{prefix}.log",
+    conda:
+        "../envs/truvari.yml"
+    shell:
+        """
+        truvari anno lcr \
+            -o {output.vcf} \
+            {input.vcf} \
+            &> {log}
+        """
+
+
 rule move_asm_vcf_to_draft_bench:
     input:
         lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.vcf.gz",
