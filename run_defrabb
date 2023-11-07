@@ -88,7 +88,7 @@ def parse_arguments():
 
 
 def validate_and_set_defaults(args):
-    pattern = r"^\d{8}_[v\d.\d{3}]+_[a-z\-]+$"
+    pattern = r"^\d{8}_v\d{1}\.\d{3}_"
     if not re.match(pattern, args.runid):
         sys.exit("Error: Invalid RUN ID format.")
     if not args.analyses:
