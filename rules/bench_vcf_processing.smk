@@ -47,15 +47,13 @@ rule split_multiallelic_sites:
         "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
     output:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.split_multi.vcf.gz",
-        vcf_tbi="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.split_multi.vcf.gz.tbi",
     conda:
         "../envs/bcftools.yml"
     log:
         "logs/split_multiallelic_sites/{bench_id}_{prefix}.log",
     shell:
         """
-        bcftools norm -m-any {input} -Oz -o {output.vcf} 2> {log}
-        tabix -p vcf {output.vcf} 2>> {log}
+        bcftools norm -m-any {input} -Oz -o {output.vcf} &> {log}
         """
 
 
