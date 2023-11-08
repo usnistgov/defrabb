@@ -273,8 +273,8 @@ rule rename_and_move_processed_draft_bench_vcf:
         get_sample_id,
     shell:
         """
-        echo "syndip {params}\n" | bcftools reheader \
-            -Oz \
+        echo "syndip {params}\n" | \
+            bcftools reheader \
             -s -\
             -o {output} \
             {input} \
