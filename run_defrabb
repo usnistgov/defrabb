@@ -108,14 +108,15 @@ def execute_snakemake_pipeline(args, run_dir, extra_args):
     cmd = [
         "snakemake",
         "--use-conda",
+        "--rerun-triggers",
+        "mtime",
+        "--keep-going",
         "--config",
         f"analyses={args.analyses}",
         "--directory",
         run_dir,
         "--cores",
         str(args.jobs),
-        "--rerun-triggers mtime",
-        "--keep-going",
     ] + extra_args
     subprocess.run(
         cmd,
