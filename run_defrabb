@@ -114,7 +114,7 @@ def execute_snakemake_pipeline(args, run_dir, extra_args):
         run_dir,
         "--cores",
         str(args.jobs),
-        "--rerun-trigger mtime",
+        "--rerun-triggers mtime",
         "--keep-going",
     ] + extra_args
     subprocess.run(
