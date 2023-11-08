@@ -268,14 +268,14 @@ rule rename_and_move_processed_draft_bench_vcf:
     log:
         "logs/rename_and_move_processed_draft_bench_vcf/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     conda:
-        "../envs/picard.yml"
+        "../envs/bcftools.yml"
     params:
         get_sample_id,
     shell:
         """
-        picard RenameSampleInVcf \
-            -INPUT {input} \
-            -OUTPUT {output} \
-            -NEW_SAMPLE_NAME {params} \
+        bcftools reheader \
+            -s "syndip {params}\n" \
+            -o {output} \
+            {input} \
             &> {log}
         """
