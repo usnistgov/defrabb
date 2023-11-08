@@ -202,7 +202,7 @@ def main():
     archive_dir = "/mnt/bbdhg-nas/analysis/defrabb-runs/"
 
     # Set up logging to write to the run directory
-    os.makedirs(run_dir, exist_ok = True)
+    os.makedirs(run_dir, exist_ok=True)
     setup_logging(run_dir)
 
     ## Starting run and documenting run environment
