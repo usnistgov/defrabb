@@ -121,7 +121,7 @@ def execute_snakemake_pipeline(args, run_dir, extra_args):
     )
 
 
-def generate_snakemake_report(args, run_dir, report_name):
+def generate_snakemake_report(args, run_dir, report_name, extra_args):
     cmd = [
         "snakemake",
         "--config",
@@ -134,15 +134,18 @@ def generate_snakemake_report(args, run_dir, report_name):
     subprocess.run(cmd, check=True)
 
 
-def generate_snakemake_archive(args, smk_archive_path):
-    cmd = [
-        "snakemake",
+def generate_snakemake_archive(args, run_dir, smk_archive_path, extra_args):
+    cmd = ["snakemake",
         "--use-conda",
         "--config",
         f"analyses={args.analyses}",
+        "--directory",
+        run_dir,
+        "--cores",
+        str(args.jobs),
         "--archive",
         smk_archive_path,
-    ]
+    ] + extra_args
     subprocess.run(cmd, check=True)
 
 
@@ -213,10 +216,10 @@ def main():
         execute_snakemake_pipeline(args, run_dir, extra_args)
     if args.steps in ["all", "report"]:
         logging.info("Generating Snakemake Report")
-        generate_snakemake_report(args, run_dir, report_name)
+        generate_snakemake_report(args, run_dir, report_name, extra_args)
     if args.steps in ["all", "archive"]:
         logging.info("Generating Snakemake Archive")
-        generate_snakemake_archive(args, smk_archive_path)
+        generate_snakemake_archive(args, run_dir, smk_archive_path, extra_args)
     if args.steps in ["all", "release"]:
         logging.info("Releasing Run")
         release_run(args, run_dir, archive_dir)
