@@ -164,7 +164,7 @@ def release_run(args, run_dir, archive_dir):
     subprocess.run(cmd, check=True)
 
     # Copy resources.yml and config file to the archive directory
-    subprocess.run(["cp", os.path.basename(args.analyses), archive_dir], check=True)
+    subprocess.run(["cp", args.analyses, archive_dir], check=True)
     subprocess.run(["cp", "config/resources.yml", archive_dir], check=True)
 
 
