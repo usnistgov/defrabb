@@ -1,6 +1,7 @@
-import pandas as pd
 from pathlib import Path
 from snakemake.utils import validate
+import pandas as pd
+
 
 ################################################################################
 ## Config processing functions
@@ -233,8 +234,12 @@ def get_exclusion_inputs(wildcards):
         ## Adding slop - currently a 15kb hard coded buffer around excluded repeat regions
         if exclusion in config["exclusion_slop_regions"]:
             exc_path = f"{exc_path}_slop"
-        elif exclusion in config["exclusion_asm_intersect"]:
-            ## Ensuring bed files are sorted before intersect
+        ## Adding slop then merging - hard coded 15kb slop then merging with 10kb hard coded dist
+        elif exclusion in config["exclusion_slopmerge_regions"]:
+            exc_path = f"{exc_path}_slopmerge"
+
+        ## Ensuring bed files are sorted before intersect
+        if exclusion in config["exclusion_asm_intersect"]:
             exc_path = f"{exc_path}_sorted"
 
         ## Defining which regions are excluded based on diploid assembly breaks
