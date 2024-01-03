@@ -18,7 +18,9 @@ Usage: subtract_exclusions INPUT_BED OUTPUT_BED EXCLUDED_BEDS ...
 """
 
 VALID_CHROMOSOMES = (
-    [f"chr{i}" for i in range(1, 23)] + [f"{i}" for i in range(1, 23)] + ["chrX", "chrY", "X", "Y"]
+    [f"chr{i}" for i in range(1, 23)]
+    + [f"{i}" for i in range(1, 23)]
+    + ["chrX", "chrY", "X", "Y"]
 )
 
 

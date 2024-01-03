@@ -6,6 +6,7 @@ required:
   - comparisons
   - exclusion_set
   - exclusion_slop_regions
+  - exclusion_slopmerge_regions
   - exclusion_asm_intersect
   - exclusion_asm_agnostic
   - exclusion_ref_agnostic
@@ -123,7 +124,7 @@ properties:
 
       ^GRCh3[7,8]|GRCh38_chr21|CHM13v[0-9].[0-9]$:
         type: object
-        description: refernece genome id
+        description: reference genome id
 
         properties:
           ^[\w\.\-]*$:
@@ -166,6 +167,20 @@ properties:
     description: |
       Exclusions regions where slop is applied before exclusion or 
       identification of diploid assembly coverage.
+    additionalProperties: false
+    patternProperties:
+
+      ^[\w\.\-]*$:
+        type: array
+        description: the list of exclusions to apply slop to
+        items:
+          type: string
+          format: ^.*$
+
+  exclusion_slopmerge_regions:
+    description: |
+      Exclusion regions where where slop is applied then merged 
+      before exclusion or identification of diploid assembly coverage.
     additionalProperties: false
     patternProperties:
 
