@@ -20,7 +20,11 @@ resources/**
 ## Unzipped stratifications on workstation
 GRCh38/**
 GRCh37**
+GRCh38@all/**
+GRCh37@all/**
 CHM13v2.0/**
+CHM13/**
+
 ## Run archiving files
 *_v*.tar.gz
 v*-report.html
