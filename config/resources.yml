@@ -3,7 +3,7 @@
 #
 # This is an example config file that controls how hap.py and the variant caller
 # (which for now is only dipcall) are run. See each section below for a
-# walkthough and explanation of each option
+# walkthrough and explanation of each option
 #
 # General notes:
 # - while not implemented yet, any URL field should theoretically allow
@@ -318,6 +318,10 @@ exclusion_set:
     - imperfecthomopol-gt30
     - svs-and-simple-repeats
     - gaps
+  stvartest:
+    - segdups
+    - satellites
+    - gaps
   stvarall:
     - imperfecthomopol-gt30
     - segdups
@@ -395,10 +399,13 @@ exclusion_set:
 
 ## Regions 
 exclusion_slop_regions:
-  - segdups
   - tandem-repeats
   - gaps
   - self-chains
+
+exclusion_slopmerge_regions:
+  - segdups
+  - satellites
 
 exclusion_asm_intersect:
   - segdups
@@ -514,7 +521,7 @@ comparisons:
       vcf_url: https://zenodo.org/record/6797328/files/NA24385_genotyping_bi_all.vcf.gz
       bed_url:
       tbi_url: https://zenodo.org/record/6797328/files/NA24385_genotyping_bi_all.vcf.gz.tbi
-    ## HG002 SV vcfs from Senteion generated using sentLRSV
+    ## HG002 SV vcfs from Sentieon generated using sentLRSV
     HG2-sentLRSV-ontR9:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh38_HG2-sentLRSV-ontR9.norm.vcf.gz
       bed_url:
@@ -532,17 +539,17 @@ comparisons:
       bed_url:
       tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh38_HG2-sentLRSV-q20.guppy5.80x.norm.vcf.gz.tbi
   CHM13v2.0:
-        ## Query callset HG002 PCR-Free Illumina 50x mapped to chmv2.0 using BWA and variant calling w/ DV from Andrew Carroll
+    ## Query callset HG002 PCR-Free Illumina 50x mapped to chm13v2.0 using BWA and variant calling w/ DV from Andrew Carroll
     HG2-ILMN-CHM13v2:
       vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/giab/chm13.HG002.novaseq.pcr-free.50x.chm13.vcf.gz
       bed_url:
       tbi_url:
-        ## draft-benchmark dipcall output from defrabb run 20220426_v0.007-HG002-HPRC-CHM13v2
+    ## draft-benchmark dipcall output from defrabb run 20220426_v0.007-HG002-HPRC-CHM13v2
     HG2-HPRC-20211005-CHM13v2:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0_HG2-HPRC-20211005/dipcall/CHM13v2.0_HG2-HPRC-20211005_dipcall-z2k.dip.vcf.gz
       bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0_HG2-HPRC-20211005/dipcall/CHM13v2.0_HG2-HPRC-20211005_dipcall-z2k.dip.bed
       tbi_url:
-      ## Query callset HG002 HiFi DV mapping to CHM13v2.0 from Andrew Carroll
+    ## Query callset HG002 HiFi DV mapping to CHM13v2.0 from Andrew Carroll
     HG2-Hifi-DV-CHM13v2:
       vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/giab/HG002.pacbio.chm13.vcf.gz
       bed_url:
