@@ -102,7 +102,7 @@ localrules:
     get_strats,
     download_bed_gz,
     subtract_exclusions,
-    add_flanks,
+    get_flanks,
     intersect_start_and_end,
     postprocess_bed,
     sort_bed,
