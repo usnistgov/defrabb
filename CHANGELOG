@@ -3,6 +3,7 @@
 ## Milestone v0.014 TBD
 
 - including index of dipcall output vcf issue #130
+- adding rule to merge regions in defined exclusions
 
 ## Milestone v0.013 2024-01-03
 
