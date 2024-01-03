@@ -1,6 +1,7 @@
-import pandas as pd
 from pathlib import Path
 from snakemake.utils import validate
+import pandas as pd
+
 
 ################################################################################
 ## Config processing functions
