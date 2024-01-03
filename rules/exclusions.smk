@@ -152,11 +152,13 @@ rule intersect_start_and_end:
         awk '{{FS=OFS="\t"}} {{print $1, $2, $2+1}}' {input.dip} \
             | bedtools intersect -wa -a {input.xregions} -b stdin \
             | bedtools sort -g {input.genome} -i stdin \
+            | uniq -u \
             1> {output.start} 2> {log}
 
         awk '{{FS=OFS="\t"}} {{print $1, $3-1, $3}}' {input.dip} \
             | bedtools intersect -wa -a {input.xregions} -b stdin  \
             | bedtools sort -g {input.genome} -i stdin \
+            | uniq -u \
             1> {output.end} 2>> {log}
         """
 
