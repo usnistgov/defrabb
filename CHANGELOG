@@ -1,3 +1,12 @@
+# Milestone v0.013 2024-01-03
+
+Bug fixes and modifications made while generating the Q100 HG002 benchmark.
+
+- excluding VDJ from small and sv benchmark [issue #120](bbd-human-genomics/defrabb#120)
+- numerous modifications to config files
+- addressed issue with non-iupac bases in assembly as it was causing an error with the sample renaming step (d15c10fc855c2c46f42af3c00722cfd41864d6b2)
+- debugging and fixing errors with wrapper script
+
 # Milestone v0.012 2023-11-07
 Numerous changes to repo aimed at improving usability and functionality.
 - rewrote wapper script in python for improved usability and easier development
