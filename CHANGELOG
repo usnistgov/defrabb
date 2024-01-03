@@ -4,6 +4,7 @@
 
 - including index of dipcall output vcf issue #130
 - adding rule to merge regions in defined exclusions
+- fixing flanks to exclude edges of dip.bed issue #128
 
 ## Milestone v0.013 2024-01-03
 
