@@ -1,8 +1,10 @@
-# Milestone v0.014 TBD
+# CHANGELOG
+
+## Milestone v0.014 TBD
 
 - including index of dipcall output vcf issue #130
 
-# Milestone v0.013 2024-01-03
+## Milestone v0.013 2024-01-03
 
 Bug fixes and modifications made while generating the Q100 HG002 benchmark.
 
@@ -11,89 +13,100 @@ Bug fixes and modifications made while generating the Q100 HG002 benchmark.
 - addressed issue with non-iupac bases in assembly as it was causing an error with the sample renaming step (d15c10fc855c2c46f42af3c00722cfd41864d6b2)
 - debugging and fixing errors with wrapper script
 
-# Milestone v0.012 2023-11-07
+## Milestone v0.012 2023-11-07
+
 Numerous changes to repo aimed at improving usability and functionality.
-- rewrote wapper script in python for improved usability and easier development
+
+- rewrote wrapper script in python for improved usability and easier development
 - ensuring rules print logs to defined log files
-- Using truvari anno trf to get widened SV coordinates instead of SVwiden for excluding SVs from the small variant benchmark regions. Created new TR databases for GRCh37, GRCh38, and CHM13 (https://github.com/nate-d-olson/adotto-smk)
+- Using truvari anno trf to get widened SV coordinates instead of SVwiden for excluding SVs from the small variant benchmark regions. Created new TR databases for GRCh37, GRCh38, and CHM13 (<https://github.com/nate-d-olson/adotto-smk>)
 - Fixed issue with truvari when base and comparison vcfs had different contig ids
 - added bedtool summary to get chromosome level coverage stats for benchmark beds
 - removed unplaced contigs and alts from benchmark regions
 - copying config files to analysis run directory for clarity (file previously only in snakemake generated archive tarball)
-- modifed benchmark filenames to include benchmark type
+- modified benchmark filenames to include benchmark type
 - added ability to benchmark SVs with truvari refine
 - updated README to more clearly document running defrabb and added output file descriptions
-- now using v3.3 of GIAB stratifications (https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/)
+- now using v3.3 of GIAB stratifications (<https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/>)
 - improving output benchmark vcf - changed sample name in vcf from dipcall default
 - fixing issue where gaps were not appropriately excluded, gaps are now determined from the ref fasta file
-- using updated version of GRCh38 with additional masked regions as described in [FixItFelix paper](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-023-02863-7). 
+- using updated version of GRCh38 with additional masked regions as described in [FixItFelix paper](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-023-02863-7).
 - added VDJ to exclusions
 
-# Milestone v0.011 2023-07-25
+## Milestone v0.011 2023-07-25
+
 Most changes in this release were making the run_defrabb script more user friendly and fixing bugs encountered
 making XY benchmark, comparison to Sentieon SV callsets, and benchmarks for v0.09 of T2T HG002 assembly
+
 - improving usability of run_defrabb script, keep going, number of jobs, extra snakemake args
 - updated usage documentation
 - updated config to use v3.1 stratifications and ftp version of reference
 - new benchmarks based on v0.9 of HG002 T2T assembly
 - now including all homopolymers since able to evaluate with new high accuracy short read technologies
 
+## Milestone v0.010 2022-09-21
 
-# Milestone v0.010 2022-09-21
 - Fixing breaking changes introduced with v0.009.
 - Will add back in downloading files functionality and simplifying api in future releases.
 
-# Milestone v0.009 2022-07-20
+## Milestone v0.009 2022-07-20
+
 - Modified analyses table api so that it is more intuitive
 - Common script for downloading files including md5 checksum
 - Using Paramspace for simplifying coding filenames (WIP Will want to clean-up final filenames)
-- Added snippets for $137 and $138 with gt30 imperfect homopolymers and HiFiDV XY distrepancies with HiFiasm
+- Added snippets for $137 and $138 with gt30 imperfect homopolymers and HiFiDV XY discrepancies with HiFiasm
 - adding environment definition and local version for use with defrabb run script
 - adding gawk to conda envs for improved reproducibility
 
-Notes: API and filenaming changes broke unit tests, tests will be updated for next release
+Notes: API and file naming changes broke unit tests, tests will be updated for next release
 
-# Milestone v0.008 2022-06-06
+## Milestone v0.008 2022-06-06
+
 - incorporating truvari for evaluating structural variant benchmarks
 - Using Truvari v3.2.0 with Bioconda package Issue #15
 
-# Milestone v0.007 2022-05-09
+## Milestone v0.007 2022-05-09
+
 - Draft benchmark sets for HG002 whole genome and XY only against CHM13v2
 - Created wrapper script for running and archiving analysis runs.
 - Added documentation for different stratification types
 - Cleaned up issues related to running things on tibanna/ AWS
 - Using Truvari v3.2.0 with Bioconda package Issue #15
 
-# Milestone v0.006 2022-04-18
+## Milestone v0.006 2022-04-18
+
 - updated framework to allow for GRCh37 and CHM13 as references (yet to vet GRCh37 however) changes by JM, including modifications to schema's and rules as well as adding appropriate reference dependencies.
 - added chm13 exclusions set to resources.yml
 - moved .genome files to resources/references/
 - Fixed issue with padding for rule `intersect_SVs_and_homopolymers` when adding slop resulted in a negative starting position.
 - Added initial set of python function and snakemake rule unit tests.
 
-# Milestone v0.005 2022-03-25
+## Milestone v0.005 2022-03-25
+
 - Using Snakemake version 7.3 addresses issue with local runs, removed groups for local rules
 - Added documentation for running pipeline on AWS using Tibanna
 - Adding analyses.tsv tables for additional framework runs
 
-# Milestone v0.004 2022-03-03
+## Milestone v0.004 2022-03-03
+
 - Revising test dataset for easier local development
 - Adding basic report functionality
-- Modifying logging and run scipts to help with debugging when running on AWS via Tibanna
+- Modifying logging and run scripts to help with debugging when running on AWS via Tibanna
 - Added documentation for running defrabb on AWS via Tibanna
 - Added rules for indexing dipcall output bams and draft benchmark vcfs
 - Initial optimization of dipcall and happy resource compute requirements
-- Added initial funtionality for processing draft benchmark vcfs
+- Added initial functionality for processing draft benchmark vcfs
 - Revised and restructured resources.yml and schema for clearer documentation and easier use.
 - Added analyses.tsv and updated resource config files for running framework on 44 HPRC genome and HG002 XY
 - Cleaning up code and comments
 - revised analyses schema for clarity, the API is still a work in progress, hope to make it more intuitive in future releases.
 - Fixed exclusions; ensuring bed files are properly sorted, added slop to repeats before identifying regions to exclude, added config variables to clarify how exclusions are generated.
 
-# Milestone v0.003 2022-01-28
+## Milestone v0.003 2022-01-28
+
 - Version of pipeline used for generation and evaluation of the HG002 T2T assembly based draft benchmark set(HPRC-HG002-cur.20211005) with excluded regions.
 - Modified framework into three components; asm-varcalls, benchmark, and evaluations.
-- Repository clean-up, removing unused files and code, simiplifying results and log paths
+- Repository clean-up, removing unused files and code, simplifying results and log paths
 - Modified config files, analyses.tsv and resources.yml to better handle stratifications.
 - Added genome and satellites excluded files to the repo and moved rules to generate files to snippets.
 - Added directive for benchmarking for use in evaluating step resource requirements.
@@ -102,8 +115,9 @@ Notes: API and filenaming changes broke unit tests, tests will be updated for ne
 - Snakemake formatting and linting using Snakemake tools
 - Documentation for running pipeline
 
-# Milestone v0.002 2022-01-20
-- This version of the pipeline was used to perform initial analysis of benchmark set performance using 
+## Milestone v0.002 2022-01-20
+
+- This version of the pipeline was used to perform initial analysis of benchmark set performance using
 - Added functionality to excluded defined genomic regions of draft benchmark regions bed file
 - Added utility scripts for running the pipeline on the CTCMS cluster
 - New Chr21 test dataset for use in pipeline development
@@ -111,9 +125,10 @@ Notes: API and filenaming changes broke unit tests, tests will be updated for ne
 - Snakemake formatting and linting using Snakemake tools
 - Documentation for running pipeline
 
-# Milestone v0.001 2022-01-10
-- First milestone 
-- added schema's for analyses table, config, and resources yamls
+## Milestone v0.001 2022-01-10
+
+- First milestone
+- added schema's for analyses table, config, and resource yamls
 - Added ability to define analyses run with a metadata table for documenting framework runs
 - Using pathlib for handling file paths
 - Implementing small variant benchmarking with happy and structural variant benchmarking with Truvari
