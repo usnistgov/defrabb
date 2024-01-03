@@ -96,7 +96,7 @@ rule add_slop:
     output:
         "resources/exclusions/{ref_id}/{genomic_region}_slop.bed",
     log:
-        "logs/exclusions/{ref_id}_{genomic_region}.bed",
+        "logs/exclusions/{ref_id}_{genomic_region}_slop.log",
     params:
         slop=15000,
     conda:
@@ -105,6 +105,29 @@ rule add_slop:
         """
         bedtools sort -i {input.bed} -g {input.genome} |
             bedtools slop -i stdin -g {input.genome} -b {params.slop} \
+            1> {output} 2> {log}
+        """
+
+
+## Expanding regions by 15kb then merging regions within 10kb
+rule add_slop_and_merge:
+    input:
+        bed="resources/exclusions/{ref_id}/{genomic_region}.bed",
+        genome=get_genome_file,
+    output:
+        "resources/exclusions/{ref_id}/{genomic_region}_slopmerge.bed",
+    log:
+        "logs/exclusions/{ref_id}_{genomic_region}_slopmerge.log",
+    params:
+        slop=15000,
+        dist=10000,
+    conda:
+        "../envs/bedtools.yml"
+    shell:
+        """
+        bedtools sort -i {input.bed} -g {input.genome} |
+            bedtools slop -i stdin -g {input.genome} -b {params.slop} |
+            bedtools merge -i stdin -d {params.dist} \
             1> {output} 2> {log}
         """
 
