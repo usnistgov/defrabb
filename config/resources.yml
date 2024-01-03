@@ -318,6 +318,7 @@ exclusion_set:
     - imperfecthomopol-gt30
     - svs-and-simple-repeats
     - gaps
+    - flanks
   stvarall:
     - imperfecthomopol-gt30
     - segdups
