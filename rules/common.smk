@@ -70,6 +70,13 @@ def get_ref_index(wildcards):
     ref_id = get_ref_id(wildcards)
     return workflow.source_path(f"../resources/references/{ref_id}.fa.fai")
 
+def get_ref_bwaindex(wildcards):
+    ref_id = get_ref_id(wildcards)
+    return [
+        f"resources/references/{ref_id}.fa.{ext}"
+        for ext in ["amb", "ann", "bwt", "pac", "sa"]
+    ]
+
 
 def get_genome_file(wildcards):
     ref_id = get_ref_id(wildcards)

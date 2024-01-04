@@ -1,0 +1,12 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - bcftools==1.14
+  - trf==4.09.1
+  - mafft==7.520
+  - repeatmasker==4.1.5
+  - edlib>=1.3.9
+  - pip
+  - pip:
+    - Truvari==4.1
