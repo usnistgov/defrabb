@@ -163,19 +163,25 @@ rule intersect_start_and_end:
         """
 
 
-# flanks
-rule add_flanks:
+# Generate bed with 15kb regions around assembly breaks (non-dip coverage)
+rule get_flanks:
     input:
         bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
         genome=get_genome_file,
     output:
         "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_flanks.bed",
+    params:
+        bases=15000,
     log:
         "logs/exclusions/{bench_id}_flanks_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     conda:
         "../envs/bedtools.yml"
     shell:
-        "bedtools flank -i {input.bed} -g {input.genome} -b 15000 1> {output} 2> {log}"
+        """
+        bedtools complement -i {input.bed} -g {input.genome} |
+            bedtools flank -i stdin -g {input.genome} -b {params.bases} \
+            1> {output} 2> {log}
+        """
 
 
 ## Removing excluded genomic regions from asm varcalls bed file

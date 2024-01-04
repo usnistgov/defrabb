@@ -4,7 +4,7 @@ before_script:
   - echo "Installing pipeline dependencies"
   - mamba --version
   - mamba config --set channel_priority strict
-  - mamba install -c bioconda -c conda-forge snakemake==7.26.0 snakefmt
+  - mamba install -c bioconda -c conda-forge python==3.11.6 snakemake==7.26.0 snakefmt
   - snakemake --version
   - black --version
 
