@@ -5,5 +5,5 @@ dependencies:
   - truvari==4.1.0
   - bcftools==1.14
   - trf==4.09.1
-  - mafft
+  - mafft==7.520
   - repeatmasker==4.1.5
