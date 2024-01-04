@@ -6,7 +6,7 @@ dependencies:
   - trf==4.09.1
   - mafft==7.520
   - repeatmasker==4.1.5
-  - make
+  - pywfa>=0.5.1
   - edlib>=1.3.9
   - pip
   - pip:
