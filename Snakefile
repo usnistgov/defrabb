@@ -346,6 +346,21 @@ rule index_ref:
         "0.79.0/bio/samtools/faidx"
 
 
+rule bwa_index:
+    input:
+        "resources/references/{ref_id}.fa",
+    output:
+        idx=multiext(
+            "resources/references/{ref_id}.fa", ".amb", ".ann", ".bwt", ".pac", ".sa"
+        ),
+    log:
+        "logs/bwa_index/{ref_id}.log",
+    params:
+        prefix="resources/references/{ref_id}.fa",
+    wrapper:
+        "v3.3.3/bio/bwa/index"
+
+
 rule index_ref_mmi:
     input:
         "resources/references/{ref_id}.fa",
