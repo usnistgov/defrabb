@@ -356,7 +356,7 @@ rule bwa_index:
     log:
         "logs/bwa_index/{ref_id}.log",
     params:
-        prefix="resources/references/{ref_id}.fa",
+        prefix=lambda w, input: input[0],
     wrapper:
         "v3.3.3/bio/bwa/index"
 
