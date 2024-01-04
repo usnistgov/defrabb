@@ -37,7 +37,6 @@ def test_run_truvari_anno_remap():
             "-j1",
             "--keep-target-files",
             "--touch",
-            "--use-conda",
             "--directory",
             workdir,
         ])
