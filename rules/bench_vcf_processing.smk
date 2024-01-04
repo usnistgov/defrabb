@@ -208,12 +208,13 @@ rule run_truvari_anno_remap:
         vcfidx="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz.tbi",
         ref=get_ref_file,
         refidx=get_ref_index,
+        refbwaidx=get_ref_bwaindex,
     output:
         vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.remap.vcf",
     log:
         "logs/truvari_anno_remap/{bench_id}/intermediates/{prefix}.log",
     conda:
-        "../envs/truvari.yml"
+        "../envs/truvari_remap.yml"
     params:
         min_length=20,
     shell:
