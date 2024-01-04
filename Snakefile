@@ -666,6 +666,20 @@ rule run_truvari:
             caption="report/truvari_summary.rst",
             category="Truvari",
         ),
+        multiext(
+            "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/",
+            "fn.vcf.gz",
+            "fn.vcf.gz.tbi",
+            "fp.vcf.gz",
+            "fp.vcf.gz.tbi",
+            "query.vcf.gz",
+            "query.vcf.gz.tbi",
+            "tp-base.vcf.gz",
+            "tp-base.vcf.gz.tbi",
+            "tp-comp.vcf.gz",
+            "tp-comp.vcf.gz.tbi",
+            "candidate.refine.bed",
+        ),
     log:
         "logs/run_travari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/truvari.log",
     # TODO this tmp thing is a workaround for the fact that snakemake
@@ -715,6 +729,7 @@ rule run_truvari:
 rule truvari_refine:
     input:
         unpack(partial(get_truvari_inputs, analyses, config)),
+        refine_bed="results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/candidate.refine.bed",
         json="results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/summary.json",
         ref="resources/references/{ref_id}.fa",
         refidx="resources/references/{ref_id}.fa.fai",
