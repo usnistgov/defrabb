@@ -63,12 +63,13 @@ def get_ref_id(wildcards):
 
 def get_ref_file(wildcards):
     ref_id = get_ref_id(wildcards)
-    return workflow.source_path(f"../resources/references/{ref_id}.fa")
+    return f"resources/references/{ref_id}.fa"
 
 
 def get_ref_index(wildcards):
     ref_id = get_ref_id(wildcards)
-    return workflow.source_path(f"../resources/references/{ref_id}.fa.fai")
+    return f"resources/references/{ref_id}.fa.fai"
+
 
 def get_ref_bwaindex(wildcards):
     ref_id = get_ref_id(wildcards)
