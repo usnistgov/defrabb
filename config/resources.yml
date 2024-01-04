@@ -317,7 +317,8 @@ exclusion_set:
   smvartest:
     - imperfecthomopol-gt30
     - svs-and-simple-repeats
-    - gaps    - flanks
+    - gaps
+    - flanks
   stvartest:
     - segdups
     - satellites
