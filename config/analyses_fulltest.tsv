@@ -1,3 +1,3 @@
 eval_id	bench_id	eval_cmd	eval_params	eval_comp_id	eval_comp_id_is_truth	eval_truth_regions	eval_target_regions	vc_id	bench_type	bench_vcf_processing	bench_bed_processing	exclusion_set	asm_id	ref	vc_cmd	vc_param_id	vc_params
 GRCh38_T~HG002-T2TQ100v0.9-dipz2k_Q~v4.2.1_TR~4.2.1	GRCh38_HG002-T2TQ100v0.9-dipz2k_smvar-excluded	happy	default	v4.2.1	FALSE	TRUE	TRUE	GRCh38_HG002-T2TQ100v0.9-dipz2k	smvar	none	exclude	smvarallwlongHP	HG2-T2TQ100-V0.9	GRCh38	dipcall	z2k	-z200000,10000
-testE	truvari_refine	default	GIABTRv1.0	false	true	true	vc2	stvar	trfanno	none	none	T2T-XY-v2.7	GRCh38	dipcall	default	default
+testE	refine_test	truvari_refine	default	GIABTRv1.0	false	true	true	vc2	stvar	trfanno	none	none	T2T-XY-v2.7	GRCh38	dipcall	default	default
