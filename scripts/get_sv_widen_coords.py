@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-get_sv_widen_coords.py: Create a bed file with SV coordinates from a VCF file with coordinates widened to include overlapping trandem repeat regions.
+get_sv_widen_coords.py: Create a bed file with SV coordinates from a VCF file with coordinates widened to include overlapping tandem repeat regions.
 
 Usage: python get_sv_widen_coords.py --input input.vcf --output output.bed [--verbose] [--table] [--sort-merge --genome genome.txt --max-distance 5]
 
