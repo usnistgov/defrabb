@@ -82,6 +82,28 @@ rule filter_lt19_and_norm:
         """
 
 
+# Split multi-allelic variants, left-align/normalize, and remove duplicates.
+rule normalize_vars:
+    input:
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
+        ref=get_ref_file,
+    output:
+        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.norm.vcf.gz",
+    resources:
+        mem_mb=8000,
+    conda:
+        "../envs/bcftools.yml"
+    log:
+        "logs/normalize_vars/{bench_id}_{prefix}.log",
+    shell:
+        """
+        bcftools norm -m-any -Ou {input.vcf} 2> {log} \
+            | bcftools norm -d exact -Ou 2>> {log} \
+            | bcftools norm -cs -f {input.ref} -Ov 2>> {log} \
+            | bcftools sort -m{resources.mem_mb}m -Oz > {output} 2>> {log}
+        """
+
+
 ## Using Adotto as tr catalogue for SV annotations - currently only for GRCh38
 ## https://github.com/ACEnglish/adotto
 rule get_adotto_tr_anno_db:
@@ -128,14 +150,14 @@ rule make_db_for_truvari_anno_trf:
 
 rule run_truvari_anno_trf:
     input:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz",
-        vcfidx="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz.tbi",
-        ref="resources/references/{ref_id}.fa",
-        trdb="resources/references/{ref_id}_adotto_trf.bed.gz",
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
+        vcfidx="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz.tbi",
+        ref=get_ref_file,
+        trdb=get_ref_trdb,
     output:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.trfanno.vcf",
+        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.trfanno.vcf",
     log:
-        "logs/truvari_anno_trf/{bench_id}/intermediates/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
+        "logs/truvari_anno_trf/{bench_id}/intermediates/{prefix}.log",
     conda:
         "../envs/truvari.yml"
     params:
