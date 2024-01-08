@@ -11,23 +11,22 @@ sys.path.insert(0, os.path.dirname(__file__))
 import common
 
 
-def test_run_filter_lt19_and_norm():
+def test_move_asm_vcf_to_draft_bench():
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
-        data_path = PurePosixPath(".tests/unit/filter_lt19_and_norm/data")
-        expected_path = PurePosixPath(".tests/unit/filter_lt19_and_norm/expected")
+        data_path = PurePosixPath(".tests/unit/copy_asm_vcf_to_annotations/data")
+        expected_path = PurePosixPath(
+            ".tests/unit/copy_asm_vcf_to_annotations/expected"
+        )
         config_path = PurePosixPath("config")
-        references_path = PurePosixPath(".tests/integration/resources/references")
 
         # Copy data to the temporary workdir.
         shutil.copytree(data_path, workdir)
         shutil.copytree(config_path, workdir / "config")
-        shutil.copytree(references_path, workdir / "resources" / "references")
 
         # dbg
-        output = "results/asm_varcalls/vc1/annotations/GRCh38_chr21_asm17aChr21_dipcall-default.gt19_norm.vcf.gz"
         print(
-            output,
+            "results/asm_varcalls/vc1/annotations/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz",
             file=sys.stderr,
         )
 
@@ -37,7 +36,7 @@ def test_run_filter_lt19_and_norm():
                 "python",
                 "-m",
                 "snakemake",
-                output,
+                "results/asm_varcalls/vc1/annotations/GRCh38_chr21_asm17aChr21_dipcall-default.vcf.gz",
                 "-f",
                 "-j1",
                 "--keep-target-files",
@@ -51,6 +50,4 @@ def test_run_filter_lt19_and_norm():
         # To modify this behavior, you can inherit from common.OutputChecker in here
         # and overwrite the method `compare_files(generated_file, expected_file),
         # also see common.py.
-        common.OutputChecker(
-            data_path, expected_path, workdir, ignore_unexpected=True
-        ).check()
+        common.OutputChecker(data_path, expected_path, workdir).check()
