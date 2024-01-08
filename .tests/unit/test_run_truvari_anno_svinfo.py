@@ -21,8 +21,9 @@ def test_run_truvari_anno_svinfo():
         shutil.copytree(data_path, workdir)
 
         # dbg
+        output = "results/asm_varcalls/vc1/annotations/GRCh38_chr21_asm17aChr21_dipcall-default.svinfo.vcf"
         print(
-            "results/draft_benchmarksets/testE/intermediates/GRCh38_chr21_asm17aChr21_stvar_dipcall-default.svinfo.vcf",
+            output,
             file=sys.stderr,
         )
 
@@ -32,7 +33,7 @@ def test_run_truvari_anno_svinfo():
                 "python",
                 "-m",
                 "snakemake",
-                "results/draft_benchmarksets/testE/intermediates/GRCh38_chr21_asm17aChr21_stvar_dipcall-default.svinfo.vcf",
+                output,
                 "-f",
                 "-j1",
                 "--keep-target-files",
