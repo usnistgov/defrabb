@@ -108,7 +108,7 @@ localrules:
     sort_bed,
     add_slop,
     tabix,
-    move_asm_vcf_to_draft_bench,
+    copy_asm_vcf_to_annotations,
 
 
 ## Snakemake Report
