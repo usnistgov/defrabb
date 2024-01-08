@@ -24,7 +24,7 @@ def test_run_truvari_anno_remap():
         shutil.copytree(resource_path, workdir / "resources" )
 
         # dbg
-        output="results/draft_benchmarksets/testI/intermediates/GRCh38_chr21_asm17aChr21_stvar_dipcall-default.remap.vcf"
+        output="results/asm_varcalls/vc1/annotations/GRCh38_chr21_asm17aChr21_dipcall-default.remap.vcf"
         print(output, file=sys.stderr)
 
         # Run the test job.

@@ -28,7 +28,7 @@ strat_id = snakemake.config["references"][ref_id]["stratifications"]["id"]
 strat_tsv = f"{snakemake.params.strat_tsv}"
 
 print("Extracting Stratifications")
-shell("tar -xf {snakemake.input.strat_tb}" + log)
+shell("tar --skip-old-files -xf {snakemake.input.strat_tb}" + log)
 
 if path.isfile(strat_tsv):
     print("Stratification tsv file present")

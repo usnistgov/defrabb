@@ -1,13 +1,13 @@
 # process T2TXY_v2.7.dip.vcf to match hifiDV GT using JZ sed command `
 rule fix_XY_genotype:
     input:
-        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
+        "results/asm_varcalls/{vc_id}/{prefix}.vcf.gz",
     output:
-        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.fix_XY_genotype.vcf.gz",
+        "results/asm_varcalls/{vc_id}/{prefix}.fix_XY_genotype.vcf.gz",
     conda:
         "../envs/dipcall.yml"
     log:
-        "logs/fix_XY_genotype/{bench_id}_{prefix}.log",
+        "logs/fix_XY_genotype/{vc_id}_{prefix}.log",
     conda:
         "../envs/download_remotes.yml"
     shell:
@@ -24,14 +24,14 @@ rule fix_XY_genotype:
 ##  Not current used - keeping here for potential future use
 rule dip_gap2homvarbutfiltered:
     input:
-        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
+        "results/asm_varcalls/{vc_id}/{prefix}.vcf.gz",
     output:
-        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.gap2homvarbutfiltered.vcf.gz",
+        "results/asm_varcalls/{vc_id}/{prefix}.gap2homvarbutfiltered.vcf.gz",
     # bgzip is part of samtools, which is part of the dipcall env
     conda:
         "../envs/download_remotes.yml"
     log:
-        "logs/dip_gap2homvarbutfiltered/{bench_id}_{prefix}.log",
+        "logs/dip_gap2homvarbutfiltered/{vc_id}_{prefix}.log",
     shell:
         """
         gunzip -c {input} |\
@@ -44,13 +44,13 @@ rule dip_gap2homvarbutfiltered:
 ## Primarily for SVs
 rule split_multiallelic_sites:
     input:
-        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
+        "results/asm_varcalls/{vc_id}/{prefix}.vcf.gz",
     output:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.split_multi.vcf.gz",
+        vcf="results/asm_varcalls/{vc_id}/{prefix}.split_multi.vcf.gz",
     conda:
         "../envs/bcftools.yml"
     log:
-        "logs/split_multiallelic_sites/{bench_id}_{prefix}.log",
+        "logs/split_multiallelic_sites/{vc_id}_{prefix}.log",
     shell:
         """
         bcftools norm -m-any {input} -Oz -o {output.vcf} &> {log}
@@ -62,16 +62,16 @@ rule split_multiallelic_sites:
 # isn't done, svwiden will choke on commas and star characters
 rule filter_lt19_and_norm:
     input:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz",
-        ref="resources/references/{ref_id}.fa",
+        vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz",
+        ref=get_ref_file,
     output:
-        "results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.gt19_norm.vcf.gz",
+        "results/asm_varcalls/{vc_id}/annotations/{prefix}.gt19_norm.vcf.gz",
     resources:
         mem_mb=8000,
     conda:
         "../envs/bcftools.yml"
     log:
-        "logs/gt19_norm/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
+        "logs/gt19_norm/{vc_id}_{prefix}.log",
     shell:
         """
         bcftools norm -m-any -Ou {input.vcf} 2> {log} \
@@ -85,16 +85,16 @@ rule filter_lt19_and_norm:
 # Split multi-allelic variants, left-align/normalize, and remove duplicates.
 rule normalize_vars:
     input:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
+        vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz",
         ref=get_ref_file,
     output:
-        "results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.norm.vcf.gz",
+        "results/asm_varcalls/{vc_id}/annotations/{prefix}.norm.vcf.gz",
     resources:
         mem_mb=8000,
     conda:
         "../envs/bcftools.yml"
     log:
-        "logs/normalize_vars/{bench_id}_{prefix}.log",
+        "logs/normalize_vars/{vc_id}_{prefix}.log",
     shell:
         """
         bcftools norm -m-any -Ou {input.vcf} 2> {log} \
@@ -150,14 +150,14 @@ rule make_db_for_truvari_anno_trf:
 
 rule run_truvari_anno_trf:
     input:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
-        vcfidx="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz.tbi",
+        vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz",
+        vcfidx="results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz.tbi",
         ref=get_ref_file,
         trdb=get_ref_trdb,
     output:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.trfanno.vcf",
+        vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.trfanno.vcf",
     log:
-        "logs/truvari_anno_trf/{bench_id}/intermediates/{prefix}.log",
+        "logs/truvari_anno_trf/{vc_id}_{prefix}.log",
     conda:
         "../envs/truvari.yml"
     params:
@@ -178,12 +178,12 @@ rule run_truvari_anno_trf:
 
 rule run_truvari_anno_svinfo:
     input:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
-        vcfidx="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz.tbi",
+        vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz",
+        vcfidx="results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz.tbi",
     output:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.svinfo.vcf",
+        vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.svinfo.vcf",
     log:
-        "logs/truvari_anno_svinfo/{bench_id}/intermediates/{prefix}.log",
+        "logs/truvari_anno_svinfo/{vc_id}_{prefix}.log",
     conda:
         "../envs/truvari.yml"
     params:
@@ -200,12 +200,12 @@ rule run_truvari_anno_svinfo:
 
 rule run_truvari_anno_repmask:
     input:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
-        vcfidx="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz.tbi",
+        vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz",
+        vcfidx="results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz.tbi",
     output:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.repmask.vcf",
+        vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.repmask.vcf",
     log:
-        "logs/truvari_anno_repmask/{bench_id}/intermediates/{prefix}.log",
+        "logs/truvari_anno_repmask/{vc_id}_{prefix}.log",
     conda:
         "../envs/truvari.yml"
     threads: 5
@@ -226,15 +226,15 @@ rule run_truvari_anno_repmask:
 
 rule run_truvari_anno_remap:
     input:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
-        vcfidx="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz.tbi",
+        vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz",
+        vcfidx="results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz.tbi",
         ref=get_ref_file,
         refidx=get_ref_index,
         refbwaidx=get_ref_bwaindex,
     output:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.remap.vcf",
+        vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.remap.vcf",
     log:
-        "logs/truvari_anno_remap/{bench_id}/intermediates/{prefix}.log",
+        "logs/truvari_anno_remap/{vc_id}_{prefix}.log",
     conda:
         "../envs/truvari_remap.yml"
     params:
@@ -253,12 +253,12 @@ rule run_truvari_anno_remap:
 
 rule run_truvari_anno_lcr:
     input:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz",
-        vcfidx="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.vcf.gz.tbi",
+        vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz",
+        vcfidx="results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz.tbi",
     output:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{prefix}.lcr.vcf",
+        vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.lcr.vcf",
     log:
-        "logs/truvari_anno_lcr/{bench_id}/intermediates/{prefix}.log",
+        "logs/truvari_anno_lcr/{vc_id}_{prefix}.log",
     conda:
         "../envs/truvari.yml"
     shell:
@@ -270,13 +270,13 @@ rule run_truvari_anno_lcr:
         """
 
 
-rule move_asm_vcf_to_draft_bench:
+rule copy_asm_vcf_to_annotations:
     input:
-        lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.vcf.gz",
+        "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
     output:
-        "results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz",
+        "results/asm_varcalls/{vc_id}/annotations/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
     log:
-        "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
+        "logs/copy_asm_vcf/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     conda:
         "../envs/download_remotes.yml"
     shell:

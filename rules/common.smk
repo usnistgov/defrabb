@@ -270,8 +270,6 @@ def get_exclusion_inputs(wildcards):
 
 
 ## Benchmark VCF generation
-
-
 def get_processed_vcf(wildcards):
     # Filter rows based on bench_type using the query method
     filtered_df = bench_tbl.query(f'bench_type == "{wildcards.bench_type}"')
@@ -286,10 +284,11 @@ def get_processed_vcf(wildcards):
         subset_df.shape[0] == 1
     ), f"Error: Multiple entries found for bench_id {wildcards.bench_id} and bench_type {wildcards.bench_type}"
 
-    # Now, you can grab the value of bench_vcf_processing from the first (and presumably only) row of subset_df
+    # Now, you can grab the value of vc_id and bench_vcf_processing from the first (and presumably only) row of subset_df
+    vc_id = subset_df.iloc[0]["vc_id"]
     vcf_suffix = subset_df.iloc[0]["bench_vcf_processing"]
 
     if vcf_suffix == "none":
-        return f"results/draft_benchmarksets/{{bench_id}}/intermediates/{{ref_id}}_{{asm_id}}_{{bench_type}}_{{vc_cmd}}-{{vc_param_id}}.vcf.gz"
+        return f"results/asm_varcalls/{vc_id}/annotations/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.vcf.gz"
     else:
-        return f"results/draft_benchmarksets/{{bench_id}}/intermediates/{{ref_id}}_{{asm_id}}_{{bench_type}}_{{vc_cmd}}-{{vc_param_id}}.{vcf_suffix}.vcf.gz"
+        return f"results/asm_varcalls/{vc_id}/annotations/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.{vcf_suffix}.vcf.gz"

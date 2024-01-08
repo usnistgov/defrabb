@@ -22,7 +22,7 @@ def test_run_truvari_anno_lcr():
 
         # dbg
         print(
-            "results/draft_benchmarksets/testH/intermediates/GRCh38_chr21_asm17aChr21_stvar_dipcall-default.lcr.vcf",
+            "results/asm_varcalls/vc1/annotations/GRCh38_chr21_asm17aChr21_dipcall-default.lcr.vcf",
             file=sys.stderr,
         )
 
@@ -32,7 +32,7 @@ def test_run_truvari_anno_lcr():
                 "python",
                 "-m",
                 "snakemake",
-                "results/draft_benchmarksets/testH/intermediates/GRCh38_chr21_asm17aChr21_stvar_dipcall-default.lcr.vcf",
+                "results/asm_varcalls/vc1/annotations/GRCh38_chr21_asm17aChr21_dipcall-default.lcr.vcf",
                 "-f",
                 "-j1",
                 "--keep-target-files",
