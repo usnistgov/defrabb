@@ -21,10 +21,8 @@ def test_run_truvari_anno_repmask():
         shutil.copytree(data_path, workdir)
 
         # dbg
-        print(
-            "results/draft_benchmarksets/testF/intermediates/GRCh38_chr21_asm17aChr21_stvar_dipcall-default.repmask.vcf",
-            file=sys.stderr,
-        )
+        output = "results/asm_varcalls/vc1/annotations/GRCh38_chr21_asm17aChr21_dipcall-default.repmask.vcf"
+        print(output, file=sys.stderr)
 
         # Run the test job.
         sp.check_output(
@@ -32,7 +30,7 @@ def test_run_truvari_anno_repmask():
                 "python",
                 "-m",
                 "snakemake",
-                "results/draft_benchmarksets/testF/intermediates/GRCh38_chr21_asm17aChr21_stvar_dipcall-default.repmask.vcf",
+                output,
                 "-f",
                 "-j1",
                 "--keep-target-files",

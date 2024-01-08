@@ -39,7 +39,7 @@ rule make_gaps_bed:
 
 rule get_sv_widen_coords:
     input:
-        vcf="results/draft_benchmarksets/{bench_id}/intermediates/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.norm.trfanno.vcf",
+        vcf=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/annotations/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.norm.trfanno.vcf",
         genome=get_genome_file,
     output:
         bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_dip_SVs.bed",
