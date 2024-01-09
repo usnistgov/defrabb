@@ -15,7 +15,7 @@ def setup_logging(run_dir):
         format="%(asctime)s [%(levelname)s] - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
         filename=os.path.join(run_dir, "run.log"),
-        filemode="w",
+        filemode="a",
     )
     console = logging.StreamHandler()
     console.setLevel(logging.INFO)
