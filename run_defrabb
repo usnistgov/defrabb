@@ -50,21 +50,6 @@ def parse_arguments():
     parser.add_argument(
         "-j", "--jobs", type=int, help="Number of jobs used by snakemake"
     )
-    parser.add_argument(
-        "-n", "--dryrun", action="store_true", help="Run snakemake in dry run mode"
-    )
-    parser.add_argument(
-        "-F", "--forcerun", action="store_true", help="Force rerunning all steps"
-    )
-    parser.add_argument(
-        "-k",
-        "--keepgoing",
-        action="store_true",
-        help="Keep going with independent jobs if one fails",
-    )
-    parser.add_argument(
-        "-u", "--unlock", action="store_true", help="Unlock snakemake run directory"
-    )
     # Create an argument group for better formatting
     group = parser.add_argument_group("workflow steps")
 
@@ -115,6 +100,7 @@ def execute_snakemake_pipeline(args, run_dir, extra_args):
         "--cores",
         str(args.jobs),
     ] + extra_args
+    logging.info(f"Pipeline execusion command: {cmd}")
     subprocess.run(
         cmd,
         check=True,

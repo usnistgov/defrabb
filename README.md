@@ -41,11 +41,11 @@ Steps below assume running defrabb on workstation with team NAS mounted.
 1. Run pipeline using `./run_defrabb` providing run id using the defined format (i.e. `-r [YYYYMMDD_milestone_brief-id]`) or `-r` along with `-a`. The wrapper script records the mamba runtime environment information and the git repo status and last commit tag
 
 ```sh
-usage: run_defrabb [-h] -r RUNID [-a ANALYSES] [-o OUTDIR] [-j JOBS] [-n] [-F] [-k] [-u] [-s]
+usage: run_defrabb [-h] -r RUNID [-a ANALYSES] [-o OUTDIR] [-j JOBS] [-s]
 
 DeFrABB wrapper script for executing and archiving framework
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -r RUNID, --runid RUNID
                         Analysis RUN ID, please use following naming convention YYYYMMDD_milestone_brief-id
@@ -54,10 +54,6 @@ optional arguments:
   -o OUTDIR, --outdir OUTDIR
                         Output directory
   -j JOBS, --jobs JOBS  Number of jobs used by snakemake
-  -n, --dryrun          Run snakemake in dry run mode
-  -F, --forcerun        Force rerunning all steps
-  -k, --keepgoing       Keep going with independent jobs if one fails
-  -u, --unlock          Unlock snakemake run directory
 
 workflow steps:
   -s , --steps          Defining which workflow steps are run:
