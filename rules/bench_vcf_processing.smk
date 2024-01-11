@@ -318,7 +318,7 @@ rule get_variants_in_benchmark_regions:
     log:
         "logs/get_vars_in_bench_regions/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     params:
-        filt=lambda wildcards: f"-f 'INFO/SVLEN < 50'" if wildcards.bench_type is "stvar" else "",
+        filt=lambda wildcards: f"-f 'INFO/SVLEN < 50'" if wildcards.bench_type == "stvar" else "",
     conda:
         "../envs/bcftools.yml"
     shell: """
