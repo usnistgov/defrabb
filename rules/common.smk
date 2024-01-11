@@ -105,7 +105,6 @@ def get_male_bed(wildcards):
     root = config["_par_bed_root"]
     filename = ref_config[wildcards.ref_id]["par_bed"]
     return Path(workflow.basedir) / root / filename
-    # return workflow.source_path(f"../{root}/{filename}")
 
 
 def get_dipcall_par_param(wildcards):
@@ -287,7 +286,7 @@ def get_processed_vcf(wildcards):
         subset_df.shape[0] == 1
     ), f"Error: Multiple entries found for bench_id {wildcards.bench_id} and bench_type {wildcards.bench_type}"
 
-    # Now, you can grab the value of vc_id and bench_vcf_processing from the first (and presumably only) row of subset_df
+    # Now, you can grab the value of vc_id and bench_vcf_processing from the first row
     vc_id = subset_df.iloc[0]["vc_id"]
     vcf_suffix = subset_df.iloc[0]["bench_vcf_processing"]
 

@@ -51,6 +51,7 @@ rule get_bed_stats:
         "bedtools summary -i {input.bed} -g {input.genome} 1> {output} 2> {log}"
 
 
+## Not currently being used
 rule get_exclusion_coverage:
     input:
         "results/draft_benchmarksets/{draft_bench}_exclusions/{prefix}.bed",
@@ -104,6 +105,7 @@ rule get_rtg_vcf_stats:
         " rtg vcfstats --allele-lengths {input} 1> {output} 2> {log}"
 
 
+## Not currently being used
 rule summarize_exclusions:
     input:
         lambda wildcards: f"results/draft_benchmarksets/{{bench_id}}/{{ref_id}}_{vc_tbl.loc[(wildcards.vc_id, 'asm_id')]}_{vc_tbl.loc[(wildcards.vc_id, 'vc_cmd')]}-{vc_tbl.loc[(wildcards.vc_id, 'vc_param_id')]}.excluded_stats.txt",
