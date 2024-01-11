@@ -194,7 +194,7 @@ def generate_snakemake_report(
         run_dir,
         "--report",
         report_name,
-    ]
+    ] + extra_args
     logging.info(f"Command to generate report: {' '.join(cmd)}")
     run_subprocess_command(cmd, "Error generating Snakemake report")
 
