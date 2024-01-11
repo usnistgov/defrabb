@@ -47,7 +47,8 @@ rule get_sv_widen_coords:
     conda:
         "../envs/sv_widen_coords.yml"
     params:
-        script=workflow.source_path("../scripts/get_sv_widen_coords.py"),
+        # script=workflow.source_path("../scripts/get_sv_widen_coords.py"),
+        script=Path(workflow.basedir) / "scripts/get_sv_widen_coords.py"
     log:
         "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_dip_SV_coords.log",
     shell:
@@ -198,7 +199,7 @@ rule subtract_exclusions:
         ),
         bed="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.benchmark.bed",
     params:
-        script=workflow.source_path("../scripts/subtract_exclusions.py"),
+        script=Path(workflow.basedir) / "scripts/subtract_exclusions.py"
     log:
         "logs/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
