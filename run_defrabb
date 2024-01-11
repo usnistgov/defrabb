@@ -6,19 +6,40 @@ import subprocess
 import datetime
 import logging
 import re
+from typing import List, Optional, Tuple
+
+# Constants
+DEFAULT_OUTDIR = "/defrabb_runs/runs_in_progress/"
+ARCHIVE_DIR = "/mnt/bbdhg-nas/analysis/defrabb-runs/"
+DEFAULT_LOG_LEVEL = logging.INFO
+VALID_STEPS = ["all", "pipe", "report", "archive", "release"]
+LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+
+
+# Custom exceptions
+class InvalidRunIDError(ValueError):
+    """Exception raised for errors in the format of the RUN ID."""
+
+
+class InvalidDirectoryError(FileNotFoundError):
+    """Exception raised when a specified directory does not exist."""
 
 
 # Set up logging
-def setup_logging(run_dir):
+def setup_logging(run_dir: str, log_level: str) -> None:
+    """Set up logging for the script."""
+    log_level = log_level.upper()
+    if log_level not in LOG_LEVELS:
+        log_level = "INFO"  # Set to default if invalid level provided
     logging.basicConfig(
-        level=logging.INFO,
+        level=log_level,
         format="%(asctime)s [%(levelname)s] - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
         filename=os.path.join(run_dir, "run.log"),
         filemode="a",
     )
     console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
+    console.setLevel(log_level)
     formatter = logging.Formatter(
         "%(asctime)s [%(levelname)s] - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
     )
@@ -26,7 +47,13 @@ def setup_logging(run_dir):
     logging.getLogger("").addHandler(console)
 
 
-def parse_arguments():
+def parse_arguments() -> Tuple[argparse.Namespace, List[str]]:
+    """
+    Parse command-line arguments.
+
+    Returns:
+        A tuple containing the parsed arguments and any extra arguments.
+    """
     parser = argparse.ArgumentParser(
         description="DeFrABB wrapper script for executing and archiving framework",
         formatter_class=argparse.RawTextHelpFormatter,
@@ -50,6 +77,19 @@ def parse_arguments():
     parser.add_argument(
         "-j", "--jobs", type=int, help="Number of jobs used by snakemake"
     )
+    parser.add_argument(
+        "--archive_dir",
+        type=str,
+        default=ARCHIVE_DIR,
+        help="Directory to copy pipeline run output to for release. Primarily intended for internal NIST use.",
+    )
+    parser.add_argument(
+        "--log-level",
+        type=str,
+        choices=LOG_LEVELS,
+        default=DEFAULT_LOG_LEVEL,
+        help=f"Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
+    )
     # Create an argument group for better formatting
     group = parser.add_argument_group("workflow steps")
 
@@ -66,30 +106,68 @@ def parse_arguments():
     pipe: just the snakemake pipeline
     report: generating the snakemake run report
     archive: generating snakemake archive tarball
-    release: copy run output to NAS for upload to Google Drive""",
+    release: copy run output to NAS for upload to Google Drive (internal NIST use-case)""",
     )
     args, unknown_args = parser.parse_known_args()
     return args, unknown_args
 
 
-def validate_and_set_defaults(args):
+def validate_and_set_defaults(args: argparse.Namespace) -> argparse.Namespace:
+    """Validate arguments and set default values.
+
+    Args:
+        args (argparse.Namespace): Parsed command-line arguments.
+
+    Returns:
+        argparse.Namespace: Validated and updated arguments.
+
+    Raises:
+        InvalidRunIDError: If the RUN ID format is invalid.
+        InvalidDirectoryError: If specified directories do not exist.
+    """
     pattern = r"^\d{8}_v\d{1}\.\d{3}_"
     if not re.match(pattern, args.runid):
-        sys.exit("Error: Invalid RUN ID format.")
+        raise InvalidRunIDError("Error: Invalid RUN ID format.")
+    # Validate analyses file
     if not args.analyses:
         args.analyses = f"config/analyses_{args.runid}.tsv"
-    if not os.path.exists(args.outdir):
-        sys.exit(f"Error: Output directory '{args.outdir}' does not exist.")
     if not os.path.exists(args.analyses):
-        sys.exit(f"Error: Analyses file '{args.analyses}' does not exist.")
+        raise InvalidDirectoryError(
+            f"Error: Analyses file '{args.analyses}' does not exist."
+        )
+    # Validate output directory
+    if not os.path.exists(args.outdir):
+        raise InvalidDirectoryError(
+            f"Error: Output directory '{args.outdir}' does not exist."
+        )
+    # Num jobs
+    if not args.jobs:
+        args.jobs = find_core_limit()
+    if args.jobs and args.jobs <= 0:
+        raise ValueError("Error: Number of jobs must be a positive integer.")
+    # Steps to run
+    if args.steps not in VALID_STEPS:
+        raise ValueError("Error: Invalid choice for --steps.")
     return args
 
 
-def find_core_limit():
+def find_core_limit() -> int:
+    """Number of system cpus"""
     return os.cpu_count()
 
 
-def execute_snakemake_pipeline(args, run_dir, extra_args):
+def run_subprocess_command(cmd: List[str], error_message: str) -> None:
+    """Run a subprocess command and handle errors."""
+    try:
+        subprocess.run(cmd, check=True)
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"{error_message}: {e}")
+
+
+def execute_snakemake_pipeline(
+    args: argparse.Namespace, run_dir: str, extra_args: List[str]
+) -> None:
+    """Execute Snakemake pipeline."""
     cmd = [
         "snakemake",
         "--use-conda",
@@ -100,14 +178,14 @@ def execute_snakemake_pipeline(args, run_dir, extra_args):
         "--cores",
         str(args.jobs),
     ] + extra_args
-    logging.info(f"Pipeline execution command: {cmd}")
-    subprocess.run(
-        cmd,
-        check=True,
-    )
+    logging.info(f"Pipeline execution command: {' '.join(cmd)}")
+    run_subprocess_command(cmd, "Error executing Snakemake pipeline")
 
 
-def generate_snakemake_report(args, run_dir, report_name, extra_args):
+def generate_snakemake_report(
+    args: argparse.Namespace, run_dir: str, report_name: str, extra_args: List[str]
+) -> None:
+    """Generate Snakemake report."""
     cmd = [
         "snakemake",
         "--config",
@@ -117,16 +195,20 @@ def generate_snakemake_report(args, run_dir, report_name, extra_args):
         "--report",
         report_name,
     ]
-    subprocess.run(cmd, check=True)
+    logging.info(f"Command to generate report: {' '.join(cmd)}")
+    run_subprocess_command(cmd, "Error generating Snakemake report")
 
 
-def generate_snakemake_archive(args, run_dir, smk_archive_path, extra_args):
+def generate_snakemake_archive(
+    args: argparse.Namespace, run_dir: str, smk_archive_path: str, extra_args: List[str]
+) -> None:
+    """Generate Snakemake archive."""
     if os.path.exists(smk_archive_path):
         logging.warning(
             f"Archive present remove and rerun script if you want to generate a new archive. Archive Path: {smk_archive_path}"
         )
+        sys.exit()
     else:
-        ## Generating Archive
         cmd = [
             "snakemake",
             "--use-conda",
@@ -139,10 +221,12 @@ def generate_snakemake_archive(args, run_dir, smk_archive_path, extra_args):
             "--archive",
             smk_archive_path,
         ] + extra_args
-        subprocess.run(cmd, check=True)
+        logging.info(f"Command to generate archive: {' '.join(cmd)}")
+        run_subprocess_command(cmd, "Error generating Snakemake archive")
 
 
-def release_run(args, run_dir, archive_dir):
+def release_run(args: argparse.Namespace, run_dir: str, archive_dir: str) -> None:
+    """Release run by copying files to an archive directory."""
     cmd = [
         "rsync",
         "-rlptoDv",
@@ -154,72 +238,109 @@ def release_run(args, run_dir, archive_dir):
         f"{run_dir}",
         f"{archive_dir}",
     ]
-    subprocess.run(cmd, check=True)
-
-    # Copy resources.yml and config file to the archive directory
-    subprocess.run(["cp", args.analyses, f"{archive_dir}/{args.runid}/"], check=True)
-    subprocess.run(
-        ["cp", "config/resources.yml", f"{archive_dir}/{args.runid}/"], check=True
-    )
-
-
-def log_git_status():
-    commit_hash = subprocess.getoutput("git rev-parse HEAD")
-    branch_name = subprocess.getoutput("git symbolic-ref --short HEAD")
-    logging.info(f"Git latest commit: {commit_hash}")
-    logging.info(f"Git branch: {branch_name}")
-    uncommitted_changes = subprocess.getoutput("git diff --stat")
-    if uncommitted_changes:
-        logging.warning("Uncommitted changes detected:")
-        logging.warning(uncommitted_changes)
-    else:
-        logging.info("No uncommitted changes.")
+    try:
+        subprocess.run(cmd, check=True)
+        # Copy resources.yml and config file to the archive directory
+        subprocess.run(
+            ["cp", args.analyses, f"{archive_dir}/{args.runid}/"], check=True
+        )
+        subprocess.run(
+            ["cp", "config/resources.yml", f"{archive_dir}/{args.runid}/"], check=True
+        )
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Error releasing run: {e}")
 
 
-def log_conda_environment(run_dir):
+def log_git_status() -> None:
+    """Log Git status and information."""
+    try:
+        commit_hash = subprocess.getoutput("git rev-parse HEAD")
+        branch_name = subprocess.getoutput("git symbolic-ref --short HEAD")
+        logging.info(f"Git latest commit: {commit_hash}")
+        logging.info(f"Git branch: {branch_name}")
+        uncommitted_changes = subprocess.getoutput("git diff --stat")
+        if uncommitted_changes:
+            logging.warning("Uncommitted changes detected:")
+            logging.warning(uncommitted_changes)
+        else:
+            logging.info("No uncommitted changes.")
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Error getting Git repo status information: {e}")
+
+
+def log_conda_environment(run_dir: str) -> None:
     """Generate and log YAML for the specified Conda environment."""
-    # Generate YAML file for the current conda environment
-    subprocess.run(
-        ["conda", "env", "export", "--file", os.path.join(run_dir, "environment.yml")],
-        check=True,
-    )
-    logging.info(f"Conda environment details saved to environment.yml")
+    try:
+        # Generate YAML file for the current conda environment
+        subprocess.run(
+            [
+                "conda",
+                "env",
+                "export",
+                "--file",
+                os.path.join(run_dir, "environment.yml"),
+            ],
+            check=True,
+        )
+        logging.info(f"Conda environment details saved to environment.yml")
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Error getting Conda environment details: {e}")
 
 
-def main():
+def main() -> None:
     args, extra_args = parse_arguments()
-    args = validate_and_set_defaults(args)
-    if not args.jobs:
-        args.jobs = find_core_limit()
+    try:
+        args = validate_and_set_defaults(args)
+    except (InvalidRunIDError, InvalidDirectoryError) as e:
+        logging.error(str(e))
+        sys.exit(1)
+
     run_dir = os.path.join(args.outdir, args.runid)
     report_name = os.path.join(run_dir, f"snakemake_report_{args.runid}.html")
     smk_archive_path = os.path.join(run_dir, f"{args.runid}.tar.gz")
-    archive_dir = "/mnt/bbdhg-nas/analysis/defrabb-runs/"
+    archive_dir = arg.archive_dir
 
     # Set up logging to write to the run directory
     os.makedirs(run_dir, exist_ok=True)
-    setup_logging(run_dir)
+    setup_logging(run_dir, args.log_level)
 
     ## Starting run and documenting run environment
     logging.info("# Starting DeFrABB Run")
-    logging.info("Recording code status")
+    logging.info("Recording code status and environment")
     log_git_status()
+    # Check for Snakemake in the environment and get version
+    try:
+        snakemake_version = subprocess.check_output(
+            ["snakemake", "--version"], text=True
+        )
+        logging.info(
+            f"Snakemake version in Conda environment: {snakemake_version.strip()}"
+        )
+    except subprocess.CalledProcessError:
+        logging.warning(
+            "Snakemake not found in the Conda environment. Please run in an activated conda environment with snakemake installed"
+        )
+        sys.exit(1)
     log_conda_environment(run_dir)
 
-    if args.steps in ["all", "pipe"]:
-        logging.info("Executing Snakemake Pipeline")
-        execute_snakemake_pipeline(args, run_dir, extra_args)
-    if args.steps in ["all", "report"]:
-        logging.info("Generating Snakemake Report")
-        generate_snakemake_report(args, run_dir, report_name, extra_args)
-    if args.steps in ["all", "archive"]:
-        logging.info("Generating Snakemake Archive")
-        generate_snakemake_archive(args, run_dir, smk_archive_path, extra_args)
-    if args.steps in ["all", "release"]:
-        logging.info("Releasing Run")
-        release_run(args, run_dir, archive_dir)
+    try:
+        if args.steps in ["all", "pipe"]:
+            logging.info("Executing Snakemake Pipeline")
+            execute_snakemake_pipeline(args, run_dir, extra_args)
+        if args.steps in ["all", "report"]:
+            logging.info("Generating Snakemake Report")
+            generate_snakemake_report(args, run_dir, report_name, extra_args)
+        if args.steps in ["all", "archive"]:
+            logging.info("Generating Snakemake Archive")
+            generate_snakemake_archive(args, run_dir, smk_archive_path, extra_args)
+        if args.steps in ["all", "release"]:
+            logging.info("Releasing Run")
+            release_run(args, run_dir, archive_dir)
 
-    logging.info("DeFrABB execution complete!")
+        logging.info("DeFrABB execution complete!")
+    except (RuntimeError, FileNotFoundError, subprocess.CalledProcessError) as e:
+        logging.error(str(e))
+        sys.exit(1)
 
 
 if __name__ == "__main__":
