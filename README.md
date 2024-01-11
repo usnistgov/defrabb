@@ -41,7 +41,8 @@ Steps below assume running defrabb on workstation with team NAS mounted.
 1. Run pipeline using `./run_defrabb` providing run id using the defined format (i.e. `-r [YYYYMMDD_milestone_brief-id]`) or `-r` along with `-a`. The wrapper script records the mamba runtime environment information and the git repo status and last commit tag
 
 ```sh
-usage: run_defrabb [-h] -r RUNID [-a ANALYSES] [-o OUTDIR] [-j JOBS] [-s]
+usage: run_defrabb [-h] -r RUNID [-a ANALYSES] [-o OUTDIR] [-j JOBS] [--archive_dir ARCHIVE_DIR]
+                   [--log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}] [-s]
 
 DeFrABB wrapper script for executing and archiving framework
 
@@ -54,6 +55,10 @@ options:
   -o OUTDIR, --outdir OUTDIR
                         Output directory
   -j JOBS, --jobs JOBS  Number of jobs used by snakemake
+  --archive_dir ARCHIVE_DIR
+                        Directory to copy pipeline run output to for release. Primarily intended for internal NIST use.
+  --log-level {DEBUG,INFO,WARNING,ERROR,CRITICAL}
+                        Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
 
 workflow steps:
   -s , --steps          Defining which workflow steps are run:
@@ -61,7 +66,7 @@ workflow steps:
                             pipe: just the snakemake pipeline
                             report: generating the snakemake run report
                             archive: generating snakemake archive tarball
-                            release: copy run output to NAS for upload to Google Drive
+                            release: copy run output to NAS for upload to Google Drive (internal NIST use-case)
 
 Any additional arguments provided will be passed directly to Snakemake.
 ```
