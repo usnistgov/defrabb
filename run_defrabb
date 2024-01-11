@@ -11,7 +11,7 @@ from typing import List, Optional, Tuple
 # Constants
 DEFAULT_OUTDIR = "/defrabb_runs/runs_in_progress/"
 ARCHIVE_DIR = "/mnt/bbdhg-nas/analysis/defrabb-runs/"
-DEFAULT_LOG_LEVEL = logging.INFO
+DEFAULT_LOG_LEVEL = "INFO"
 VALID_STEPS = ["all", "pipe", "report", "archive", "release"]
 LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
@@ -298,7 +298,7 @@ def main() -> None:
     run_dir = os.path.join(args.outdir, args.runid)
     report_name = os.path.join(run_dir, f"snakemake_report_{args.runid}.html")
     smk_archive_path = os.path.join(run_dir, f"{args.runid}.tar.gz")
-    archive_dir = arg.archive_dir
+    archive_dir = args.archive_dir
 
     # Set up logging to write to the run directory
     os.makedirs(run_dir, exist_ok=True)
