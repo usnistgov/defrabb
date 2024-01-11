@@ -303,3 +303,25 @@ rule rename_and_move_processed_draft_bench_vcf:
             {input} \
             &> {log}
         """
+
+
+## Filtering vcf to only include variants in benchmark regions
+## - assumes sv benchmark vcfs are annotated with truvari svinfo
+rule get_variants_in_benchmark_regions:
+    input:
+        vcf="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz",
+        vcfidx="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi",
+        bed="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.benchmark.bed",
+    output:
+        vcf="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_bench-vars.vcf.gz",
+        vcfidx="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_bench-vars.vcf.gz.tbi",
+    log:
+        "logs/get_vars_in_bench_regions/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
+    params:
+        filt=lambda wildcards: f"-f 'INFO/SVLEN < 50'" if wildcards.bench_type is "stvar" else "",
+    conda:
+        "../envs/bcftools.yml"
+    shell: """
+    bcftools view -Oz -o {output.vcf} -R {input.bed}  {params.filt} {input.vcf} >> {log}
+        bcftools index -t {output.vcf} >> {log}
+    """

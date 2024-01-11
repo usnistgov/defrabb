@@ -249,6 +249,16 @@ rule all:
             vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
         ),
         expand(
+            "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_bench-vars_rtg_stats.txt",
+            zip,
+            bench_id=bench_tbl.index.tolist(),
+            ref=bench_tbl["ref"].tolist(),
+            asm_id=bench_tbl["asm_id"].tolist(),
+            bench_type=bench_tbl["bench_type"].tolist(),
+            vc_cmd=bench_tbl["vc_cmd"].tolist(),
+            vc_param_id=bench_tbl["vc_param_id"].tolist(),
+        ),
+        expand(
             "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_smvar_{vc_cmd}-{vc_param_id}.summary.csv",
             zip,
             eval_id=happy_analyses.index.tolist(),
