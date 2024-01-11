@@ -19,6 +19,8 @@ The following usage documentation is for running the pipeline locally using mamb
 Please use these instructions as a starting point for running the pipeline locally.
 Contact Nathan Olson at <nolson@nist.gov>, with questions or submit an issue, if you are unable to run the pipeline locally,
 or if you have other questions about the pipeline.
+This pipeline was developed and maintained primarily for use in generating benchmark sets for the GIAB RMs by the NIST-GIAB team.
+The code is provided for transparency in the benchmark set development process.
 
 ### Initial Setup and Test Run
 
@@ -94,7 +96,7 @@ Output directory structure
 │   ├── references - reference genomes assemblies compared to
 │   └── strats - GIAB stratifications used to stratify evaluation results
 ├── results
-│   ├── asm_varcalls - reference v. assembly comparisons
+│   ├── asm_varcalls - reference v. assembly comparisons including vcf annotations
 │   ├── draft_benchmarksets - benchmark regions and variants along with intermediate files
 │   ├── evaluations - benchmarking draft benchmark sets to comparison callsets
 │   └── report - summary stats and metric used in snakemake report

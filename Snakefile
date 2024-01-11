@@ -2,8 +2,6 @@ import pandas as pd
 from pathlib import Path
 from snakemake.utils import min_version, validate
 
-# include: "rules/bench_vcf_processing.smk"
-
 
 min_version("7.26.0")
 
@@ -165,6 +163,24 @@ rule all:
             vc_cmd=bench_tbl["vc_cmd"].tolist(),
             vc_param_id=bench_tbl["vc_param_id"].tolist(),
         ),
+        expand(
+            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1.bam.bai",
+            zip,
+            vc_id=dipcall_tbl.index.tolist(),
+            ref=dipcall_tbl["ref"].tolist(),
+            asm_id=dipcall_tbl["asm_id"].tolist(),
+            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
+            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
+        ),
+        expand(
+            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap2.bam.bai",
+            zip,
+            vc_id=dipcall_tbl.index.tolist(),
+            ref=dipcall_tbl["ref"].tolist(),
+            asm_id=dipcall_tbl["asm_id"].tolist(),
+            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
+            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
+        ),
         ## Bench BED Processing
         expand(
             "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.bed",
@@ -205,24 +221,6 @@ rule all:
             bench_type=bench_excluded_tbl["bench_type"].tolist(),
             vc_cmd=bench_excluded_tbl["vc_cmd"].tolist(),
             vc_param_id=bench_excluded_tbl["vc_param_id"].tolist(),
-        ),
-        expand(
-            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1.bam.bai",
-            zip,
-            vc_id=dipcall_tbl.index.tolist(),
-            ref=dipcall_tbl["ref"].tolist(),
-            asm_id=dipcall_tbl["asm_id"].tolist(),
-            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
-            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
-        ),
-        expand(
-            "results/asm_varcalls/{vc_id}/{ref}_{asm_id}_{vc_cmd}-{vc_param_id}.hap2.bam.bai",
-            zip,
-            vc_id=dipcall_tbl.index.tolist(),
-            ref=dipcall_tbl["ref"].tolist(),
-            asm_id=dipcall_tbl["asm_id"].tolist(),
-            vc_cmd=dipcall_tbl["vc_cmd"].tolist(),
-            vc_param_id=dipcall_tbl["vc_param_id"].tolist(),
         ),
         ## rules for report
         expand(
@@ -340,7 +338,10 @@ rule get_ref:
     conda:
         "envs/download_remotes.yml"
     shell:
-        "curl -f --connect-timeout 120 -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log}"
+        """
+        curl -f --connect-timeout 120 -L {params.url} 2> {log} \
+            | gunzip -c 1> {output} 2>> {log}
+        """
 
 
 rule index_ref:
@@ -524,7 +525,8 @@ rule run_dipcall:
     benchmark:
         "benchmark/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     resources:
-        mem_mb=config["_dipcall_jobs"] * config["_dipcall_mem"],  ## GB per make job run in parallel
+        ## GB per make job run in parallel
+        mem_mb=config["_dipcall_jobs"] * config["_dipcall_mem"],
     threads: config["_dipcall_threads"] * config["_dipcall_jobs"]
     shell:
         """
@@ -575,29 +577,6 @@ rule index_dip_bam:
 ##
 ################################################################################
 ################################################################################
-
-## Moved to rules/bench_vcf_processing
-# rule postprocess_vcf:
-#     input:
-#         lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.vcf.gz",
-#     output:
-#         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
-#     log:
-#         "logs/process_benchmark_vcf/{bench_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
-#     shell:
-#         "cp {input} {output} &> {log}"
-
-
-rule sort_exclusion_beds:
-    input:
-        in_file="resources/exclusions/{ref}/{genomic_region}.bed",
-        genome=get_genome_file,
-    output:
-        "resources/exclusions/{ref}/{genomic_region}.sorted.bed",
-    log:
-        "logs/sort_bed/exclusion/{ref}_{genomic_region}.log",
-    wrapper:
-        "0.74.0/bio/bedtools/sort"
 
 
 rule postprocess_bed:

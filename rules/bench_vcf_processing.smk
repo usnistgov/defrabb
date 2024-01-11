@@ -1,4 +1,4 @@
-# process T2TXY_v2.7.dip.vcf to match hifiDV GT using JZ sed command `
+# process T2TXY_v2.7.dip.vcf to match hifiDV GT using JZ sed command
 rule fix_XY_genotype:
     input:
         "results/asm_varcalls/{vc_id}/{prefix}.vcf.gz",
@@ -27,7 +27,6 @@ rule dip_gap2homvarbutfiltered:
         "results/asm_varcalls/{vc_id}/{prefix}.vcf.gz",
     output:
         "results/asm_varcalls/{vc_id}/{prefix}.gap2homvarbutfiltered.vcf.gz",
-    # bgzip is part of samtools, which is part of the dipcall env
     conda:
         "../envs/download_remotes.yml"
     log:
@@ -104,8 +103,7 @@ rule normalize_vars:
         """
 
 
-## Using Adotto as tr catalogue for SV annotations - currently only for GRCh38
-## https://github.com/ACEnglish/adotto
+## Using Adotto as tr catalogue for SV annotations
 rule get_adotto_tr_anno_db:
     output:
         adotto_db="resources/references/{ref_id}_adotto_db.bed.gz",
@@ -135,9 +133,6 @@ rule make_db_for_truvari_anno_trf:
     shell:
         """
         echo "Getting number of columns in {input.adotto_db}" >{log}
-        ## Using python one-liner as using `zcat {input.adotto_db} | head -n 1 | awk -v FS='\\t' '{{print NF}}'
-        ## - causes a pipe error (captured using `trap '' PIPE`), using `set +e` allowed the rule to run
-        ## - python one-liner avoid this error and avoids having to use `set +e`
         last_col=$(awk -v FS='\\t' 'NR==1 {{print NF; exit}}' <(gzip -dc {input.adotto_db}))
         echo "Number of columns $last_col" >> {log}
         zcat {input.adotto_db} \
@@ -318,13 +313,15 @@ rule get_variants_in_benchmark_regions:
     log:
         "logs/get_vars_in_bench_regions/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     params:
-        filt=lambda wildcards: f"-f 'INFO/SVLEN < 50'"
+        filt=lambda wildcards: f"-i 'INFO/SVLEN > 49'"
         if wildcards.bench_type == "stvar"
         else "",
     conda:
         "../envs/bcftools.yml"
     shell:
         """
-    bcftools view -Oz -o {output.vcf} -R {input.bed}  {params.filt} {input.vcf} >> {log}
+    bcftools view -Oz -o {output.vcf} \
+        -R {input.bed} --regions-overlap 2 \
+        {params.filt} {input.vcf} >> {log}
         bcftools index -t {output.vcf} >> {log}
     """
