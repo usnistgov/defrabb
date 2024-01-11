@@ -100,7 +100,7 @@ def execute_snakemake_pipeline(args, run_dir, extra_args):
         "--cores",
         str(args.jobs),
     ] + extra_args
-    logging.info(f"Pipeline execusion command: {cmd}")
+    logging.info(f"Pipeline execution command: {cmd}")
     subprocess.run(
         cmd,
         check=True,
@@ -121,18 +121,25 @@ def generate_snakemake_report(args, run_dir, report_name, extra_args):
 
 
 def generate_snakemake_archive(args, run_dir, smk_archive_path, extra_args):
-    cmd = ["snakemake",
-        "--use-conda",
-        "--config",
-        f"analyses={args.analyses}",
-        "--directory",
-        run_dir,
-        "--cores",
-        str(args.jobs),
-        "--archive",
-        smk_archive_path,
-    ] + extra_args
-    subprocess.run(cmd, check=True)
+    if os.path.exists(smk_archive_path):
+        logging.warning(
+            f"Archive present remove and rerun script if you want to generate a new archive. Archive Path: {smk_archive_path}"
+        )
+    else:
+        ## Generating Archive
+        cmd = [
+            "snakemake",
+            "--use-conda",
+            "--config",
+            f"analyses={args.analyses}",
+            "--directory",
+            run_dir,
+            "--cores",
+            str(args.jobs),
+            "--archive",
+            smk_archive_path,
+        ] + extra_args
+        subprocess.run(cmd, check=True)
 
 
 def release_run(args, run_dir, archive_dir):
@@ -151,7 +158,9 @@ def release_run(args, run_dir, archive_dir):
 
     # Copy resources.yml and config file to the archive directory
     subprocess.run(["cp", args.analyses, f"{archive_dir}/{args.runid}/"], check=True)
-    subprocess.run(["cp", "config/resources.yml", f"{archive_dir}/{args.runid}/"], check=True)
+    subprocess.run(
+        ["cp", "config/resources.yml", f"{archive_dir}/{args.runid}/"], check=True
+    )
 
 
 def log_git_status():
