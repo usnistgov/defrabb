@@ -232,6 +232,8 @@ def get_truvari_inputs_inner(ref_id, eval_id, analyses, config):
 def get_exclusion_inputs(wildcards):
     ## Getting list of excluded regions
     exclusion_set_id = bench_tbl.loc[wildcards.bench_id, "exclusion_set"]
+    if exclusion_set_id == "none":
+        return []
     exclusion_set = config["exclusion_set"][exclusion_set_id]
 
     ## Initiating empty list for storing paths for beds to excluded from

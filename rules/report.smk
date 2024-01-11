@@ -101,7 +101,7 @@ rule get_rtg_vcf_stats:
     conda:
         "../envs/rtgtools.yml"
     shell:
-        " rtg vcfstats {input} 1> {output} 2> {log}"
+        " rtg vcfstats --allele-lengths {input} 1> {output} 2> {log}"
 
 
 rule summarize_exclusions:
