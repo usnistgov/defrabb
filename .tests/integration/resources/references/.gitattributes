@@ -1,1 +1,1 @@
-*.{fa,fa.bwt,fa.sa} filter=lfs diff=lfs merge=lfs -text
+*.{fa,fa.sa,fa.bwt} filter=lfs diff=lfs merge=lfs -text
