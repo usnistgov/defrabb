@@ -1,4 +1,4 @@
-.fa.sa filter=lfs diff=lfs merge=lfs -text
+*.fa.sa filter=lfs diff=lfs merge=lfs -text
 *.fa filter=lfs diff=lfs merge=lfs -text
 *.fa.bwt filter=lfs diff=lfs merge=lfs -text
 .fa.bwt filter=lfs diff=lfs merge=lfs -text
