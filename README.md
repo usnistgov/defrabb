@@ -24,7 +24,7 @@ The code is provided for transparency in the benchmark set development process.
 
 ### Initial Setup and Test Run
 
-1. clone repository `git clone https://github.com/nate-d-olson/defrabb.git`
+1. clone repository `git clone https://github.com/usnistgov/giab-defrabb.git`
 2. generate conda snakemake environment `mamba create -n snakemake --file envs/env.yml`
 3. Activate environment `mamba activate snakemake`
 4. Run built in test analyses `snakemake --use-conda -j1`
@@ -36,8 +36,6 @@ The code is provided for transparency in the benchmark set development process.
 3. Run pipeline using `snakemake --use-conda -j1`
 
 ### Executing and Archiving DeFrABB Analysis Runs
-
-Steps below assume running defrabb on workstation with team NAS mounted.
 
 1. Fill out `config/analyses_[YYYYMMDD_milestone_brief-id]` and update `config/resources.yml` if necessary.
 1. Run pipeline using `./run_defrabb` providing run id using the defined format (i.e. `-r [YYYYMMDD_milestone_brief-id]`) or `-r` along with `-a`. The wrapper script records the mamba runtime environment information and the git repo status and last commit tag
@@ -72,6 +70,13 @@ workflow steps:
 
 Any additional arguments provided will be passed directly to Snakemake.
 ```
+
+__For external users__ The default `output` and `release` directories in the `run_defrabb` 
+script are configured specifically for internal use.
+The `output` directory can be provided as a command line argument.
+The  `release` directory is hard coded to copy files to the NIST-GAIB team NAS. 
+You will need to modify the output directory path to a path that is appropriate for your setup.
+
 
 1. (For NIST internal run documentation) Fill out README with relevant run information - framework repo info - [milestone] tag (with some potential - hopefully minor-differences), who ran the framework and where/ how, justification / reasoning for analyses, JZ notes (what did we learn), use [defrabb run README template](https://docs.google.com/document/d/1yTXP-3OQxXfGl7kIyXWMTac-USMgiMNPhz10GXwBro0/edit?usp=sharing).
 1. (For NIST internal run documentation) Add run information to the [defrabb run log spreadsheet](https://docs.google.com/spreadsheets/d/183LuUat1VCJo2dL7fu0LFMOy8CBA5FTo4WyOVsx4U6o/edit?usp=sharing)
