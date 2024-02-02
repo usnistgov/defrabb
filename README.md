@@ -37,8 +37,6 @@ The code is provided for transparency in the benchmark set development process.
 
 ### Executing and Archiving DeFrABB Analysis Runs
 
-1. Fill out `config/analyses_[YYYYMMDD_milestone_brief-id]` and update `config/resources.yml` if necessary.
-1. Run pipeline using `./run_defrabb` providing run id using the defined format (i.e. `-r [YYYYMMDD_milestone_brief-id]`) or `-r` along with `-a`. The wrapper script records the mamba runtime environment information and the git repo status and last commit tag
 
 ```sh
 usage: run_defrabb [-h] -r RUNID [-a ANALYSES] [-o OUTDIR] [-j JOBS] [--archive_dir ARCHIVE_DIR]
