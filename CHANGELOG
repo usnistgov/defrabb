@@ -2,6 +2,7 @@
 
 ## Milestone v0.014 TBD
 
+- using git lfs and cleaning up history for github mirror
 - fixing sentLRSV comparisons, adding revio and ultima callsets
 - Fix issue with `workflow.source_path()` in params causing unintended rerunning of rules !138
 - revising `run_defrabb` script for more robust usage
