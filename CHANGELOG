@@ -2,6 +2,7 @@
 
 ## Milestone v0.014 TBD
 
+- fixing sentLRSV comparisons, adding revio and ultima callsets
 - Fix issue with `workflow.source_path()` in params causing unintended rerunning of rules !138
 - revising `run_defrabb` script for more robust usage
 - getting vcf stats for benchmark variants only !109
