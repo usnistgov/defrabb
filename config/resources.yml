@@ -467,10 +467,19 @@ comparisons:
       bed_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh37/StructuralVariant/HG002_GRCh37_CMRG_SV_v1.00.bed
       tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh37/StructuralVariant/HG002_GRCh37_CMRG_SV_v1.00.vcf.gz.tbi
     # HG2 Hifi-DV contributed callset
-    HG2-HifiDV-37:
+    HG2-HifiDV:
       vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/analysis/PacBio_CCS_15kb_20kb_chemistry2_10312019/GRCh37/deepvariant_HG002_15kb_20kb_52X_SequelII.vcf.gz
       bed_url:
       tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/analysis/PacBio_CCS_15kb_20kb_chemistry2_10312019/GRCh37/deepvariant_HG002_15kb_20kb_52X_SequelII.vcf.gz.tbi
+    # HG2 HiFi Revio Callsets
+    HG2-RevioDV:
+      vcf_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.GRCh37.deepvariant.phased.vcf.gz
+      bed_url:
+      tbi_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.GRCh37.deepvariant.phased.vcf.gz.tbi
+    HG2-RevioPBSV:
+      vcf_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.GRCh37.pbsv.phased.vcf.gz
+      bed_url:
+      tbi_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.GRCh37.pbsv.phased.vcf.gz.tbi
     ## Sentieon contributed sv callsets
     HG2-sentLRSV-q20.guppy5.80x:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh37_HG2-sentLRSV-q20.guppy5.80x.norm.vcf.gz
@@ -522,7 +531,7 @@ comparisons:
       bed_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/StructuralVariant/HG002_GRCh38_CMRG_SV_v1.00.bed
       tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/StructuralVariant/HG002_GRCh38_CMRG_SV_v1.00.vcf.gz.tbi
     ## HG002 Hifi-DV contributed callsets
-    HG2-HifiDV-38:
+    HG2-HifiDV:
       vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/analysis/PacBio_CCS_15kb_20kb_chemistry2_10312019/GRCh38/deepvariant_HG002_GRCh38_15kb_20kb_53X_SequelII.vcf.gz
       bed_url:
       tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/analysis/PacBio_CCS_15kb_20kb_chemistry2_10312019/GRCh38/deepvariant_HG002_GRCh38_15kb_20kb_53X_SequelII.vcf.gz.tbi
@@ -538,7 +547,21 @@ comparisons:
     HG2-Pangenie-SV-38:
       vcf_url: https://zenodo.org/record/6797328/files/NA24385_genotyping_bi_all.vcf.gz
       bed_url:
-      tbi_url: https://zenodo.org/record/6797328/files/NA24385_genotyping_bi_all.vcf.gz.tbi    
+      tbi_url: https://zenodo.org/record/6797328/files/NA24385_genotyping_bi_all.vcf.gz.tbi
+    ## Ultima HG002 Feb 2024 DeepVariant
+    HG2-UltimaDV:
+      vcf_url: https://giab-data.s3.amazonaws.com/ultima-GIAB-Feb-2024/DeepVariant_vcfs/NA24385-Z0027.annotated.AF.vcf.gz
+      bed_url: https://giab-data.s3.amazonaws.com/ultima-GIAB-Feb-2024/UG-High-Confidence-Regions/v2.1/ug_hcr.bed
+      tbi_url: https://giab-data.s3.amazonaws.com/ultima-GIAB-Feb-2024/DeepVariant_vcfs/NA24385-Z0027.annotated.AF.vcf.gz.tbi
+    ## HG2 HiFi Revio Callsets
+    HG2-RevioDV:
+      vcf_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.GRCh38.deepvariant.phased.vcf.gz
+      bed_url:
+      tbi_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.GRCh38.deepvariant.phased.vcf.gz.tbi
+    HG2-RevioPBSV:
+      vcf_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.GRCh38.pbsv.phased.vcf.gz
+      bed_url:
+      tbi_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.GRCh38.pbsv.phased.vcf.gz.tbi
   CHM13v2.0:
     ## Query callset HG002 PCR-Free Illumina 50x mapped to chm13v2.0 using BWA and variant calling w/ DV from Andrew Carroll
     HG2-ILMN-CHM13v2:
@@ -559,3 +582,12 @@ comparisons:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/hg002-chm13-sniffles2.vcf.gz
       bed_url:
       tbi_url:
+    # HG2 HiFi Revio Callsets
+    HG2-RevioDV:
+      vcf_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.CHM13.deepvariant.phased.vcf.gz
+      bed_url:
+      tbi_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.CHM13.deepvariant.phased.vcf.gz.tbi
+    HG2-RevioPBSV:
+      vcf_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.CHM13.pbsv.phased.vcf.gz
+      bed_url:
+      tbi_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.CHM13.pbsv.phased.vcf.gz.tbi
