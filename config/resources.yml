@@ -473,9 +473,21 @@ comparisons:
       tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/analysis/PacBio_CCS_15kb_20kb_chemistry2_10312019/GRCh37/deepvariant_HG002_15kb_20kb_52X_SequelII.vcf.gz.tbi
     ## Sentieon contributed sv callsets
     HG2-sentLRSV-q20.guppy5.80x:
-      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh38_HG2-sentLRSV-q20.guppy5.80x.norm.vcf.gz
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh37_HG2-sentLRSV-q20.guppy5.80x.norm.vcf.gz
       bed_url:
-      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh38_HG2-sentLRSV-q20.guppy5.80x.norm.vcf.gz.tbi
+      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh37_HG2-sentLRSV-q20.guppy5.80x.norm.vcf.gz.tbi
+    HG2-sentLRSV-ontR9:
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh37_HG2-sentLRSV-ontR9.norm.vcf.gz
+      bed_url:
+      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh37_HG2-sentLRSV-ontR9.norm.vcf.gz.tbi
+    HG2-sentLRSV-pbhifi:
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh37_HG2-sentLRSV-pbhifi.norm.vcf.gz
+      bed_url:
+      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh37_HG2-sentLRSV-pbhifi.norm.vcf.gz.tbi
+    HG2-sentLRSV-pbHiFichem2.2:
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh37_HG2-sentLRSV-pbHiFichem2.2.norm.vcf.gz
+      bed_url:
+      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh37_HG2-sentLRSV-pbHiFichem2.2.norm.vcf.gz.tbi
   GRCh38:
     ## GIAB Benchmark Sets
     v4.2.1:
@@ -526,20 +538,7 @@ comparisons:
     HG2-Pangenie-SV-38:
       vcf_url: https://zenodo.org/record/6797328/files/NA24385_genotyping_bi_all.vcf.gz
       bed_url:
-      tbi_url: https://zenodo.org/record/6797328/files/NA24385_genotyping_bi_all.vcf.gz.tbi
-    ## HG002 SV vcfs from Sentieon generated using sentLRSV
-    HG2-sentLRSV-ontR9:
-      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh38_HG2-sentLRSV-ontR9.norm.vcf.gz
-      bed_url:
-      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh38_HG2-sentLRSV-ontR9.norm.vcf.gz.tbi
-    HG2-sentLRSV-pbhifi:
-      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh38_HG2-sentLRSV-pbhifi.norm.vcf.gz
-      bed_url:
-      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh38_HG2-sentLRSV-pbhifi.norm.vcf.gz.tbi
-    HG2-sentLRSV-pbHiFichem2.2:
-      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh38_HG2-sentLRSV-pbHiFichem2.2.norm.vcf.gz
-      bed_url:
-      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh38_HG2-sentLRSV-pbHiFichem2.2.norm.vcf.gz.tbi
+      tbi_url: https://zenodo.org/record/6797328/files/NA24385_genotyping_bi_all.vcf.gz.tbi    
   CHM13v2.0:
     ## Query callset HG002 PCR-Free Illumina 50x mapped to chm13v2.0 using BWA and variant calling w/ DV from Andrew Carroll
     HG2-ILMN-CHM13v2:
