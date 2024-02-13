@@ -93,7 +93,7 @@ references:
       tsv: "GRCh38@all/GRCh38-all-stratifications.tsv"
   ## temporary location on S3 for chm13
   CHM13v2.0:
-    ref_url: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/reference/chm13v2.0_maskedY.fa.gz"
+    ref_url: "https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0/reference/chm13v2.0_maskedY_toupper.fa.gz"
     par_bed: "chm13v2.0_PAR-X.bed"
     adotto_db: "https://giab-data.s3.amazonaws.com/giab-test-data/adotto-dev-dbs/CHM13.adotto_TRregions_v1.0.bed.gz"
     exclusions:
