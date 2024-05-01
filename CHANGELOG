@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## Milestone v0.015 2024-02-15
+
+Version released a bit later ... 2024-05-01
+
+- version of codebase used to generate NIST_HG002_DraftBenchmark_defrabbV0.015-20240215
+- fixing overlap exclusions - was incorrectly removing duplicated regions [issue #146]
+- Converting reference sequence to uppercase in benchmark vcf [issue #144]
+- Modify fix genotypes rule to be more specific about changes [issue #145]
+- Added documentation for FTP release process [issue #142]
+
 ## Milestone v0.014 2024-02-09
 
 - using git lfs and cleaning up history for github mirror
