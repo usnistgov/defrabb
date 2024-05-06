@@ -1,14 +1,12 @@
 ################################################################################
-# Pipeline configuration overview
+#                 defrabb resource configuration file
 #
-# This is an example config file that controls how hap.py and the variant caller
-# (which for now is only dipcall) are run. See each section below for a
-# walkthrough and explanation of each option
-#
-# General notes:
-# - while not implemented yet, any URL field should theoretically allow
-#   filesystem urls (eg file://blablabla) to allow local preprocessing if
-#   desired
+# Includes
+# - parameters, threads, and memory for compute intensive steps
+# - urls for remote files: diploid assemblies, genome reference files, stratifications, 
+#   and callsets used to evaluate draft benchmark
+# - exclusion sets and how they are applied.
+# 
 ################################################################################
 analyses: "config/analyses.tsv"
 
@@ -210,92 +208,10 @@ assemblies:
 # Set of rule and processes applied to raw assembly based variant callsets used 
 # to convert them into vcf and bed files for use in benchmarking variant 
 # callsets and training variant calling algorithms.
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Defined sets of Genomic Regions to exclude from draft benchmark regions.
 #
-## Detailed description and justification - will want to integrate for documentation
-# exclusions:
-#   segdups:
-#     bed:
-#       file:
-#       md5:
-#       slop: 15000
-#       asm_intersect: true
-#     description: |
-#       breaks in the dip.bed in the repeat region including 15kb flanking regions
-#     justification: |
-#       The rationale is that breaks in the dip.bed are generally caused 
-#       by missing sequence or errors in the assembly or reference, or by large SVs 
-#       or CNVs where we don't have tools to benchmark small variants in these regions
-#   self-chains:
-#     bed:
-#       file:
-#       md5:
-#       slop: 15000
-#       asm_intersect: true
-#     description: |
-#       breaks in the dip.bed in the repeat region including 15kb flanking regions
-#     justification: |
-#       The rationale is that breaks in the dip.bed are generally caused 
-#       by missing sequence or errors in the assembly or reference, or by large SVs 
-#       or CNVs where we don't have tools to benchmark small variants in these regions
-#   tandem-repeats:
-#     bed:
-#       file:
-#       md5:
-#       slop: 15000
-#       asm_intersect: true
-#     description: |
-#       partially covered tandem repeats longer than 10kb + 15kb slop on each side
-#     justification: |
-#       The rationale is that breaks in the dip.bed are generally caused 
-#       by missing sequence or errors in the assembly or reference, or by large SVs 
-#       or CNVs where we don't have tools to benchmark small variants in these regions
-#   satellites:
-#     bed:
-#       file:
-#       md5:
-#       asm_intersect: true
-#     description: |
-#       breaks in the dip.bed in the repeat region including 15kb flanking regions
-#     justification: |
-#       The rationale is that breaks in the dip.bed are generally caused 
-#       by missing sequence or errors in the assembly or reference, or by large SVs 
-#       or CNVs where we don't have tools to benchmark small variants in these regions
-#   gaps:
-#     bed:
-#       file:
-#       md5:
-#       slop: 15000
-#       asm_agnostic: true
-#     description: Exclude 15kb around all gaps in reference genome
-#     justification: |
-#       There are often SVs and other alignment issues around breaks in the 
-#       reference assembly.
-#   flanks:
-#     bed:
-#       file:
-#       md5:
-#       ref_agnostic: true
-#     description: Exclude 15kb around all breaks in the dip.bed
-#     justification: |
-#       Breaks in the dip.bed are generally caused by missing sequence or errors 
-#       in the assembly or reference, or by large SVs or CNVs where we don't have 
-#       tools to benchmark small variants in these regions.
-#   svs:
-#     bed:
-#       file:
-#       md5:
-#       ref_agnostic: true
-#     description: |
-#       SVs and homopolymers and tandem repeats overlapping SVs.
-#       We exclude variants >49bp in the dip.vcf, as well as any 
-#       homopolymers or tandem repeats overlapping SVs +50bp on each side.
-#     justification: |
-#       Current small variant benchmarking tools are unable to robustly compare 
-#       different representations of small variants in and near SVs.
-
+# exclusion_set: name used in analyses table followed by list of exclusions to apply
+#
+# Regions section indicates how each exclusion will be applied
 
 exclusion_set:
   smvarall:
@@ -398,22 +314,27 @@ exclusion_set:
     - svs-and-simple-repeats
     - VDJ
 
-## Regions 
+## Regions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# regions with slop added to bed before applying exclusions
 exclusion_slop_regions:
   - tandem-repeats
   - gaps
   - self-chains
 
+# regions with slop added to bed and adjacent intervals within a defined threshold
+# are merged before applying exclusions
 exclusion_slopmerge_regions:
   - segdups
   - satellites
 
+# regions with intervals excluded that overlap breaks in the assembly-assembly alignments.
 exclusion_asm_intersect:
   - segdups
   - tandem-repeats
   - satellites
   - self-chains
 
+# regions who's intervals are excluded regardless of assembly-assembly alignment
 exclusion_asm_agnostic:
   - gaps
   - imperfecthomopol-gt30
@@ -423,6 +344,7 @@ exclusion_asm_agnostic:
   - XYdipcallmanualbugs
   - VDJ
 
+# exclusions defined solely by assembly-assembly alignment and variant calls
 exclusion_ref_agnostic:
   - flanks
   - svs-and-simple-repeats
