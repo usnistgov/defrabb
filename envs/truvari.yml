@@ -2,7 +2,7 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - truvari==4.1.0
+  - truvari==4.2.1
   - bcftools==1.14
   - trf==4.09.1
   - mafft==7.520
