@@ -336,7 +336,6 @@ exclusion_set:
     - satellites
     - gaps
     - flanks
-    - svs-and-simple-repeats
     - VDJ
     - dipcall-bugs-T2TACE
     - HG002Q100-pav-discrep-smvar
