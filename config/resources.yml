@@ -57,10 +57,6 @@ references:
       gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh37@all/OtherDifficult/GRCh37_gaps_slop15kb.bed.gz
       self-chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/SegmentalDuplications/GRCh37_chainSelf.bed.gz
       satellites: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh37@all/LowComplexity/GRCh37_satellites_slop5.bed.gz
-      homopolymers-gt20: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh37@all/LowComplexity/GRCh37_SimpleRepeat_homopolymer_ge21_slop5.bed.gz
-      imperfecthomopol-gt20: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh37@all/LowComplexity/GRCh37_SimpleRepeat_imperfecthomopolge21_slop5.bed.gz
-      imperfecthomopol-gt30: NO_LINK_NOT_ON_FTP
-      hifi-pacbioDV-XY-discrep: "https://gitlab.nist.gov/gitlab/bbd-human-genomics/defrabb/-/snippets/138/raw/main/GRCh38_HiFiDV-v4.2.1_T2T-XY-v2.7_dipcall-z2k_FP_merge30_slop50_gt2_FNINSgt2.bed"
       VDJ: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh37@all/OtherDifficult/GRCh37_VDJ.bed.gz"
     stratifications:
       id: "v3.3-stratifications-GRCh37"
@@ -78,11 +74,6 @@ references:
       gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh38@all/OtherDifficult/GRCh38_gaps_slop15kb.bed.gz
       self-chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
       satellites: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh38@all/LowComplexity/GRCh38_satellites_slop5.bed.gz
-      imperfecthomopol-gt30: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/imperfecthomopol-gt30.bed.gz
-      hifi-pacbioDV-XY-discrep: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/hifi-pacbioDV-XY-discrep.bed.gz
-      hifiasm-HPRC-T2Tdiscrep: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/grch38_hg2-hprc-20211005-xy_t2t-xy-v2.7_dipcall-z2k_inhprcbed_fporfn_slop50_merge1000_homopolandtrexpanded.bed.gz
-      XYelement-homopolymer-T2T-discrep: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/HG002_DV_Element_1_query_XY_draft_benchmark_FPorFN_homopolgt10_indel.bed.gz
-      XYdipcallmanualbugs: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/GRCh38_XY_dipcallbug_manualexclude.bed.gz
       VDJ: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh38@all/OtherDifficult/GRCh38_VDJ.bed.gz"
     stratifications:
       id: "v3.3-stratifications-GRCh38"
@@ -119,8 +110,6 @@ references:
       gaps: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/OtherDifficult/GRCh38_gaps_slop15kb.bed.gz
       self-chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.0/GRCh38/SegmentalDuplications/GRCh38_chainSelf.bed.gz
       satellites: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/GRCh38_satellites_slop5.bed.gz
-      imperfecthomopol-gt30: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/imperfecthomopol-gt30.bed.gz
-      hifi-pacbioDV-XY-discrep: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/hifi-pacbioDV-XY-discrep.bed.gz
     stratifications:
       id: "v3.3-stratifications-GRCh38"
       url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/genome-stratifications-GRCh38@all.tar.gz"
@@ -158,44 +147,7 @@ assemblies:
     paternal: https://giab-data.s3.amazonaws.com/giab-test-data/asm17aChr21/paternal.fa.gz
     is_male: true
     sample_id: "HG002"
-  ## T2T XY assemblies (maternal=X and paternal=Y)
-  T2T-XY-v2.7:
-    maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-v2.7_XY/chrX_v2.7.fa.gz
-    paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-v2.7_XY/chrY_v2.7.fa.gz
-    is_male: true
-    sample_id: "HG002"
-  ## chr X from T2Tv2.7 and CHM13v2.  For use with AI work
-  T2Tv2.7-CHM13v2_chrX:
-    maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2Tv2.7-CHM13v2_chrX/T2T-v2.7_HG2chrX.fa.gz
-    paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2Tv2.7-CHM13v2_chrX/chm13v2.0_CHM13chrX.fa.gz
-    is_male: false
-    sample_id: "HG002-CHM13"
-  ##latest assembly from HPRC
-  HG2-HPRC-20211005:
-    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/21edcb42-02c4-4e9f-b226-6773e62484a4--RU-HG002-commons/assembly/curated_round2/HG002.mat.cur.20211005.fasta.gz
-    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/submissions/21edcb42-02c4-4e9f-b226-6773e62484a4--RU-HG002-commons/assembly/curated_round2/HG002.pat.cur.20211005.fasta.gz
-    is_male: true
-    sample_id: "HG002"
-  HG2-verkko-053122:
-    maternal: https://giab-data.s3.amazonaws.com/giab-test-data/verkko-assembly/v1.0-updated-053122/assembly.updated_layout-haplotype1.fasta
-    paternal: https://giab-data.s3.amazonaws.com/giab-test-data/verkko-assembly/v1.0-updated-053122/assembly.updated_layout-haplotype2.fasta
-    is_male: true
-    sample_id: "HG002"
-  HG2-verrkoV1.1-V0.6:
-    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/T2T/scratch/HG002/assemblies/drafts/assembly.v0.6.maternal.fasta
-    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/T2T/scratch/HG002/assemblies/drafts/assembly.v0.6.paternal.fasta
-    is_male: true
-    sample_id: "HG002"
-  HG2-verrkoV1.1-V0.7:
-    maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/verkko/HG002/v1.1/assembly.v0.7_maternal.fasta.gz
-    paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/verkko/HG002/v1.1/assembly.v0.7_paternal.fasta.gz
-    is_male: true
-    sample_id: "HG002"
-  HG2-T2TQ100-V0.9:
-    maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/hg002v0.9_mat.fa.gz
-    paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/hg002v0.9_pat.fa.gz
-    is_male: true
-    sample_id: "HG002"
+  ## HG002 Q100 Assembly
   HG2-T2TQ100-V1.0:
     maternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/hg002v1.0_mat.fa.gz
     paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/hg002v1.0_pat.fa.gz
@@ -214,24 +166,7 @@ assemblies:
 # Regions section indicates how each exclusion will be applied
 
 exclusion_set:
-  smvarall:
-    - imperfecthomopol-gt30
-    - segdups
-    - tandem-repeats
-    - satellites
-    - gaps
-    - self-chains
-    - flanks
-    - svs-and-simple-repeats
-  smvarallCHM13:
-    - segdups
-    - tandem-repeats
-    - satellites
-    - gaps
-    - flanks
-    - svs-and-simple-repeats
   smvartest:
-    - imperfecthomopol-gt30
     - svs-and-simple-repeats
     - gaps
     - flanks
@@ -239,80 +174,6 @@ exclusion_set:
     - segdups
     - satellites
     - gaps
-  stvarall:
-    - imperfecthomopol-gt30
-    - segdups
-    - tandem-repeats
-    - satellites
-    - gaps
-    - self-chains
-    - flanks
-  smvarXYhifi:
-    - hifi-pacbioDV-XY-discrep
-    - imperfecthomopol-gt30
-    - segdups
-    - tandem-repeats
-    - satellites
-    - gaps
-    - self-chains
-    - flanks
-    - svs-and-simple-repeats
-  smvarXYdiscrep:
-    - XYelement-homopolymer-T2T-discrep
-    - XYdipcallmanualbugs
-    - hifiasm-HPRC-T2Tdiscrep
-    - hifi-pacbioDV-XY-discrep
-    - imperfecthomopol-gt30
-    - segdups
-    - tandem-repeats
-    - satellites
-    - gaps
-    - self-chains
-    - flanks
-    - svs-and-simple-repeats
-  stvarallwlongHP:
-    - segdups
-    - tandem-repeats
-    - satellites
-    - gaps
-    - self-chains
-    - flanks
-  smvarallwlongHP:
-    - segdups
-    - tandem-repeats
-    - satellites
-    - gaps
-    - self-chains
-    - flanks
-    - svs-and-simple-repeats
-  stvarallwlongHPnoSelfChain:
-    - segdups
-    - tandem-repeats
-    - satellites
-    - gaps
-    - flanks
-  smvarallwlongHPnoSelfChain:
-    - segdups
-    - tandem-repeats
-    - satellites
-    - gaps
-    - flanks
-    - svs-and-simple-repeats
-  stvarallwlongHPnoSelfChainExVDJ:
-    - segdups
-    - tandem-repeats
-    - satellites
-    - gaps
-    - flanks
-    - VDJ
-  smvarallwlongHPnoSelfChainExVDJ:
-    - segdups
-    - tandem-repeats
-    - satellites
-    - gaps
-    - flanks
-    - svs-and-simple-repeats
-    - VDJ
 
 ## Regions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # regions with slop added to bed before applying exclusions
@@ -337,11 +198,6 @@ exclusion_asm_intersect:
 # regions who's intervals are excluded regardless of assembly-assembly alignment
 exclusion_asm_agnostic:
   - gaps
-  - imperfecthomopol-gt30
-  - hifi-pacbioDV-XY-discrep
-  - hifiasm-HPRC-T2Tdiscrep
-  - XYelement-homopolymer-T2T-discrep
-  - XYdipcallmanualbugs
   - VDJ
 
 # exclusions defined solely by assembly-assembly alignment and variant calls
@@ -391,33 +247,26 @@ comparisons:
     # HG2 Hifi-DV contributed callset
     HG2-HifiDV:
       vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/analysis/PacBio_CCS_15kb_20kb_chemistry2_10312019/GRCh37/deepvariant_HG002_15kb_20kb_52X_SequelII.vcf.gz
-      bed_url:
       tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/analysis/PacBio_CCS_15kb_20kb_chemistry2_10312019/GRCh37/deepvariant_HG002_15kb_20kb_52X_SequelII.vcf.gz.tbi
     # HG2 HiFi Revio Callsets
     HG2-RevioDV:
       vcf_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.GRCh37.deepvariant.phased.vcf.gz
-      bed_url:
       tbi_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.GRCh37.deepvariant.phased.vcf.gz.tbi
     HG2-RevioPBSV:
       vcf_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.GRCh37.pbsv.phased.vcf.gz
-      bed_url:
       tbi_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.GRCh37.pbsv.phased.vcf.gz.tbi
     ## Sentieon contributed sv callsets
     HG2-sentLRSV-q20.guppy5.80x:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh37_HG2-sentLRSV-q20.guppy5.80x.norm.vcf.gz
-      bed_url:
       tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh37_HG2-sentLRSV-q20.guppy5.80x.norm.vcf.gz.tbi
     HG2-sentLRSV-ontR9:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh37_HG2-sentLRSV-ontR9.norm.vcf.gz
-      bed_url:
       tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh37_HG2-sentLRSV-ontR9.norm.vcf.gz.tbi
     HG2-sentLRSV-pbhifi:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh37_HG2-sentLRSV-pbhifi.norm.vcf.gz
-      bed_url:
       tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh37_HG2-sentLRSV-pbhifi.norm.vcf.gz.tbi
     HG2-sentLRSV-pbHiFichem2.2:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh37_HG2-sentLRSV-pbHiFichem2.2.norm.vcf.gz
-      bed_url:
       tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh37_HG2-sentLRSV-pbHiFichem2.2.norm.vcf.gz.tbi
   GRCh38:
     ## GIAB Benchmark Sets
@@ -433,7 +282,6 @@ comparisons:
     HG2-HPRC-20211005-XY:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip/asm_id~HG2-HPRC-20211005_ref~GRCh38_vc_cmd~dipcall_XY.dip.vcf.gz
       bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/GRCh38_HG2-HPRC-20211005_dipcall-z2k_XY.dip/asm_id~HG2-HPRC-20211005_ref~GRCh38_vc_cmd~dipcall_XY.dip.bed
-      tbi_url:
     HG2-HPRCcur.20211005-DB:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/draft-benchmarks/20220610_v0.008_HG002-HPRC-GRCh38/GRCh38_HG2-HPRC-20211005_dipcall-z2k.vcf.gz
       bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/draft-benchmarks/20220610_v0.008_HG002-HPRC-GRCh38/GRCh38_HG2-HPRC-20211005_dipcall-z2k.benchmark.bed
@@ -447,7 +295,6 @@ comparisons:
     HiFiDV-v4.2.1:
       vcf_url: https://nist-midas.s3.amazonaws.com/pdrsrv/mds2-2336/submission_vcfs/B1S5A/B1S5A_HG002.vcf.gz
       bed_url: http://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh38/HG002_GRCh38_1_22_v4.2.1_benchmark_noinconsistent.bed
-      tbi_url:
     CMRGv1.00-stvar:
       vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/StructuralVariant/HG002_GRCh38_CMRG_SV_v1.00.vcf.gz
       bed_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/CMRG_v1.00/GRCh38/StructuralVariant/HG002_GRCh38_CMRG_SV_v1.00.bed
@@ -455,21 +302,7 @@ comparisons:
     ## HG002 Hifi-DV contributed callsets
     HG2-HifiDV:
       vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/analysis/PacBio_CCS_15kb_20kb_chemistry2_10312019/GRCh38/deepvariant_HG002_GRCh38_15kb_20kb_53X_SequelII.vcf.gz
-      bed_url:
       tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/analysis/PacBio_CCS_15kb_20kb_chemistry2_10312019/GRCh38/deepvariant_HG002_GRCh38_15kb_20kb_53X_SequelII.vcf.gz.tbi
-    ## HG002 HPRC/Tgen pangenome
-    HG2-Pangenome-DV-38:
-      vcf_url: https:///s3-us-west-2.amazonaws.com/human-pangenomics/publications/PANGENOME_2022/DeepVariant/samples/HG002/HG002.30x_novaseq_pcrfree.giraffedv.vcf.gz
-      bed_url:
-      tbi_url: 
-    HG2-Pangenome-DT-38:
-      vcf_url: https://s3-us-west-2.amazonaws.com/human-pangenomics/publications/PANGENOME_2022/DeepTrio/samples/HG002/vcf/giraffe_deeptrio_trained/HG002_cohort.joint_called.trained_model.deeptrio.indel_realigned.unfiltered.vcf.gz
-      bed_url:
-      tbi_url: 
-    HG2-Pangenie-SV-38:
-      vcf_url: https://zenodo.org/record/6797328/files/NA24385_genotyping_bi_all.vcf.gz
-      bed_url:
-      tbi_url: https://zenodo.org/record/6797328/files/NA24385_genotyping_bi_all.vcf.gz.tbi
     ## Ultima HG002 Feb 2024 DeepVariant
     HG2-UltimaDV:
       vcf_url: https://giab-data.s3.amazonaws.com/ultima-GIAB-Feb-2024/DeepVariant_vcfs/NA24385-Z0027.annotated.AF.vcf.gz
@@ -478,11 +311,9 @@ comparisons:
     ## HG2 HiFi Revio Callsets
     HG2-RevioDV:
       vcf_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.GRCh38.deepvariant.phased.vcf.gz
-      bed_url:
       tbi_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.GRCh38.deepvariant.phased.vcf.gz.tbi
     HG2-RevioPBSV:
       vcf_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.GRCh38.pbsv.phased.vcf.gz
-      bed_url:
       tbi_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.GRCh38.pbsv.phased.vcf.gz.tbi
     HG2-sawfish:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/HG002_GRCh38_sawfish_example_vcf/genotyped.sv.vcf.gz
@@ -492,28 +323,19 @@ comparisons:
     ## Query callset HG002 PCR-Free Illumina 50x mapped to chm13v2.0 using BWA and variant calling w/ DV from Andrew Carroll
     HG2-ILMN-CHM13v2:
       vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/giab/chm13.HG002.novaseq.pcr-free.50x.chm13.vcf.gz
-      bed_url:
-      tbi_url:
     ## draft-benchmark dipcall output from defrabb run 20220426_v0.007-HG002-HPRC-CHM13v2
     HG2-HPRC-20211005-CHM13v2:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0_HG2-HPRC-20211005/dipcall/CHM13v2.0_HG2-HPRC-20211005_dipcall-z2k.dip.vcf.gz
       bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/CHM13v2.0_HG2-HPRC-20211005/dipcall/CHM13v2.0_HG2-HPRC-20211005_dipcall-z2k.dip.bed
-      tbi_url:
     ## Query callset HG002 HiFi DV mapping to CHM13v2.0 from Andrew Carroll
     HG2-Hifi-DV-CHM13v2:
       vcf_url: https://storage.googleapis.com/brain-genomics/awcarroll/misc/giab/HG002.pacbio.chm13.vcf.gz
-      bed_url:
-      tbi_url:
     HG2-Sniffles2-CHM13v2:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/hg002-chm13-sniffles2.vcf.gz
-      bed_url:
-      tbi_url:
     # HG2 HiFi Revio Callsets
     HG2-RevioDV:
       vcf_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.CHM13.deepvariant.phased.vcf.gz
-      bed_url:
       tbi_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.CHM13.deepvariant.phased.vcf.gz.tbi
     HG2-RevioPBSV:
       vcf_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.CHM13.pbsv.phased.vcf.gz
-      bed_url:
       tbi_url: https://giab-data.s3.amazonaws.com/AJTrio_PacBio-HiFi-Revio_20231031/pacbio-wdl-output/HG002.CHM13.pbsv.phased.vcf.gz.tbi
