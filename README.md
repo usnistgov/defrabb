@@ -6,6 +6,8 @@
 
 <!-- Background -->
 The GIAB benchmark set development framework is a snakemake bioinformatic pipeline for the development of transparent and reproducible genome assembly based small and structural variant benchmark sets.
+This pipeline is in activate development.
+Releases are used to capture version of code based used to generate shared versions of our draft benchmarks sets.
 
 ## Framework Diagrams
 
