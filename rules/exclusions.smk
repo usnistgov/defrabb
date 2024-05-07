@@ -1,9 +1,29 @@
 import pandas as pd
 
+genomic_regions = [
+    "all-tr-and-homopolymers",
+    "segdups",
+    "tandem-repeats",
+    "gaps",
+    "self-chains",
+    "satellites",
+    "hifi-pacbioDV-XY-discrep",
+    "imperfecthomopol-gt30",
+    "hifiasm-HPRC-T2Tdiscrep",
+    "XYelement-homopolymer-T2T-discrep",
+    "XYdipcallmanualbugs",
+    "VDJ",
+    "dipcall-bugs-T2TACE",
+    "HG002Q100-pav-discrep-smvar",
+    "HG002Q100-pav-discrep-stvar",
+    "HG002Q100-pav-inversions",
+    "TSPY2-segdups",
+]
+
 
 wildcard_constraints:
     ref_id="GRCh38|GRCh37|GRCh38_chr21|CHM13v2.0",
-    genomic_region="all-tr-and-homopolymers|segdups|tandem-repeats|gaps|self-chains|satellites|hifi-pacbioDV-XY-discrep|imperfecthomopol-gt30|hifiasm-HPRC-T2Tdiscrep|XYelement-homopolymer-T2T-discrep|XYdipcallmanualbugs|VDJ",
+    genomic_region="|".join(genomic_regions),
 
 
 # downloading beds used for exclusion

@@ -84,6 +84,11 @@ references:
       XYelement-homopolymer-T2T-discrep: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/HG002_DV_Element_1_query_XY_draft_benchmark_FPorFN_homopolgt10_indel.bed.gz
       XYdipcallmanualbugs: https://giab-data.s3.amazonaws.com/giab-test-data/exclusions_GRCh38/GRCh38_XY_dipcallbug_manualexclude.bed.gz
       VDJ: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh38@all/OtherDifficult/GRCh38_VDJ.bed.gz"
+      dipcall-bugs-T2TACE: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/manualdipcallbugs_T2TACE.bed"
+      HG002Q100-pav-discrep-smvar: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/pav10vsbench10corrXY_fnfp_slop5_merge1000_withoverlaprepeats.bed"
+      HG002Q100-pav-discrep-stvar: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/pav10vsbench10_truvarimafft_fnfp_slop50_merge10000_withoverlaprepeats.bed"
+      HG002Q100-pav-inversions: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/pav_HG002_INV_segdupexpanded_slop50.bed"
+      TSPY2-segdups: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/TSPY2segdups_chrXY-benchmark_exclusion.bed"
     stratifications:
       id: "v3.3-stratifications-GRCh38"
       url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/genome-stratifications-GRCh38@all.tar.gz"
@@ -312,6 +317,32 @@ exclusion_set:
     - flanks
     - svs-and-simple-repeats
     - VDJ
+  HG002Q100smvarv0.016:
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - flanks
+    - svs-and-simple-repeats
+    - VDJ
+    - dipcall-bugs-T2TACE
+    - HG002Q100-pav-discrep-smvar
+    - HG002Q100-pav-discrep-stvar
+    - HG002Q100-pav-inversions
+    - TSPY2-segdups
+  HG002Q100stvarv0.016:
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - flanks
+    - svs-and-simple-repeats
+    - VDJ
+    - dipcall-bugs-T2TACE
+    - HG002Q100-pav-discrep-smvar
+    - HG002Q100-pav-discrep-stvar
+    - HG002Q100-pav-inversions
+    - TSPY2-segdups
 
 ## Regions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # regions with slop added to bed before applying exclusions
@@ -341,7 +372,11 @@ exclusion_asm_agnostic:
   - hifiasm-HPRC-T2Tdiscrep
   - XYelement-homopolymer-T2T-discrep
   - XYdipcallmanualbugs
-  - VDJ
+  - dipcall-bugs-T2TACE
+  - HG002Q100-pav-discrep-smvar
+  - HG002Q100-pav-discrep-stvar
+  - HG002Q100-pav-inversions
+  - TSPY2-segdups  
 
 # exclusions defined solely by assembly-assembly alignment and variant calls
 exclusion_ref_agnostic:
