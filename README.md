@@ -139,11 +139,6 @@ Not including these files in the repository for now to avoid including large dat
 ## Testing Process
 
 ```sh
-## unittest
-cp rules/common.smk test/common.py
-python -m unittest test/common.py test/unit/config.py 
-rm test/common.py
-
 ## pytest
 pytest .tests
 
