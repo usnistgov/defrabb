@@ -127,7 +127,6 @@ references:
       tarball: "genome-stratifications-GRCh38@all.tar.gz"
       tsv: "GRCh38@all/GRCh38-all-stratifications.tsv"
 
-
 ################################################################################
 # Assemblies
 #
@@ -352,7 +351,7 @@ exclusion_ref_agnostic:
 ################################################################################
 # Comparisons
 #
-# We specify a variant callset for use in evaluating the draft benchmark sets 
+# We specify a variant callset for use in evaluating the draft benchmark sets
 # by supplying URLs to the .vcf.gz and optionally .bed and .vcf.gz.tbi files,
 # which will be used as truth inputs to hap.py downstream. We label the
 # comparison callsets with a unique identifier ('cmp-foo') that will be used to refer to
@@ -461,11 +460,11 @@ comparisons:
     HG2-Pangenome-DV-38:
       vcf_url: https:///s3-us-west-2.amazonaws.com/human-pangenomics/publications/PANGENOME_2022/DeepVariant/samples/HG002/HG002.30x_novaseq_pcrfree.giraffedv.vcf.gz
       bed_url:
-      tbi_url: 
+      tbi_url:
     HG2-Pangenome-DT-38:
       vcf_url: https://s3-us-west-2.amazonaws.com/human-pangenomics/publications/PANGENOME_2022/DeepTrio/samples/HG002/vcf/giraffe_deeptrio_trained/HG002_cohort.joint_called.trained_model.deeptrio.indel_realigned.unfiltered.vcf.gz
       bed_url:
-      tbi_url: 
+      tbi_url:
     HG2-Pangenie-SV-38:
       vcf_url: https://zenodo.org/record/6797328/files/NA24385_genotyping_bi_all.vcf.gz
       bed_url:
