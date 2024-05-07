@@ -2,8 +2,6 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - truvari==4.2.1
+  - truvari==4.2.2
   - bcftools==1.14
   - trf==4.09.1
-  - mafft==7.520
-  - repeatmasker
