@@ -3,10 +3,10 @@
 #
 # Includes
 # - parameters, threads, and memory for compute intensive steps
-# - urls for remote files: diploid assemblies, genome reference files, stratifications, 
+# - urls for remote files: diploid assemblies, genome reference files, stratifications,
 #   and callsets used to evaluate draft benchmark
 # - exclusion sets and how they are applied.
-# 
+#
 ################################################################################
 analyses: "config/analyses.tsv"
 
@@ -41,8 +41,8 @@ _truvari_refine_threads: 24
 ## Reference Data Files
 # Reference Genomes
 #   - Exclusions - subset of GIAB genome-stratifications (see below)
-#   - Stratifications - set of genomic regions used to calculate genomic context 
-#   dependent variant calling performance, 
+#   - Stratifications - set of genomic regions used to calculate genomic context
+#   dependent variant calling performance,
 #   see https://github.com/genome-in-a-bottle/genome-stratifications for description
 
 references:
@@ -139,7 +139,7 @@ references:
 # male (which will be used downstream by the variant caller). We give this
 # assembly a unique identifier, 'asm-foo', which will be use to refer to this
 # assembly in the output and in subsequent steps.
-# 
+#
 # We can specify additional assemblies like this
 # asm-another:
 #   maternal: https://another-maternal.fa
@@ -204,9 +204,9 @@ assemblies:
 
 ################################################################################
 # Benchmark Generation
-# 
-# Set of rule and processes applied to raw assembly based variant callsets used 
-# to convert them into vcf and bed files for use in benchmarking variant 
+#
+# Set of rule and processes applied to raw assembly based variant callsets used
+# to convert them into vcf and bed files for use in benchmarking variant
 # callsets and training variant calling algorithms.
 #
 # exclusion_set: name used in analyses table followed by list of exclusions to apply
