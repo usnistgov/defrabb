@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## Milestone v0.016 TBD
+
+- moving public facing version of repo to [https://github.com/usnistgov/defrabb](https://github.com/usnistgov/defrabb)
+- adding manually generated HG002 Q100 specific exclusions
+- migrating unittests to pytest for consistence
+- improving documentation and cleaning up resources.yaml
+- additional callsets for evaluation: sawfish pacbio sv, ...
+
 ## Milestone v0.015 2024-02-15
 
 Version released a bit later ... 2024-05-01
