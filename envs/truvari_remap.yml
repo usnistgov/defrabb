@@ -7,4 +7,6 @@ dependencies:
   - mafft==7.520
   - repeatmasker==4.1.5
   - edlib>=1.3.9
-  - truvari==4.2.2
+  - pip
+  - pip:
+    - Truvari==4.2.2
