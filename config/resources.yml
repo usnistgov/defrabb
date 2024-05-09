@@ -153,6 +153,11 @@ assemblies:
     paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/hg002v1.0_pat.fa.gz
     is_male: true
     sample_id: "HG002"
+  ## HG008-Normal
+  HG8N-HiFiAsm2024040317:
+    maternal: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/Harvard_Cheng_hifiasm-assemblies_20240317/HG008.normal.hap1.fa.gz
+    paternal: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/Harvard_Cheng_hifiasm-assemblies_20240317/HG008.normal.hap2.fa.gz
+    is_male: false
 
 ################################################################################
 # Benchmark Generation
@@ -174,6 +179,22 @@ exclusion_set:
     - segdups
     - satellites
     - gaps
+  smvarHG008Nv0.016:
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - flanks
+    - VDJ
+    - svs-and-simple-repeats
+  stvarHG008Nv0.016:
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - flanks
+    - VDJ
+    - svs-and-simple-repeats
 
 ## Regions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # regions with slop added to bed before applying exclusions
@@ -319,6 +340,13 @@ comparisons:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/HG002_GRCh38_sawfish_example_vcf/genotyped.sv.vcf.gz
       bed_url:
       tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/HG002_GRCh38_sawfish_example_vcf/genotyped.sv.vcf.gz.tbi
+    ## HG008 Normal Revio Callsets
+    HG8N-RevioDV:
+      vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analy%5B%E2%80%A6%5Dine_20240206/HG008-N-P.GRCh38.deepvariant.phased.vcf.gz
+      tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analy%5B%E2%80%A6%5Dine_20240206/HG008-N-P.GRCh38.deepvariant.phased.vcf.gz.tgi
+    HG8N-RevioPBSV:
+      vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analy%5B%E2%80%A6%5Dl_germline_20240206/HG008-N-P.GRCh38.pbsv.phased.vcf.gz
+      tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analy%5B%E2%80%A6%5Dl_germline_20240206/HG008-N-P.GRCh38.pbsv.phased.vcf.gz.tbi
   CHM13v2.0:
     ## Query callset HG002 PCR-Free Illumina 50x mapped to chm13v2.0 using BWA and variant calling w/ DV from Andrew Carroll
     HG2-ILMN-CHM13v2:
