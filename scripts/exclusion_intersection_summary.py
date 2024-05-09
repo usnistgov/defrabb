@@ -49,10 +49,8 @@ def generate_summary_data(dip_bed_path: str, exclusion_paths: List[str], interse
     total_dip_bp = calculate_total_bp(dip_bed)  
     summary_data.append({'genomic_region': 'initial', 'bp': total_dip_bp, 'pct_of_initial': 0})  
   
-    if exclusion_paths:  
-        output_dir = intersection_dir  
-        os.makedirs(output_dir, exist_ok=True)  
-        processed_exclusions = [process_exclusion(path, dip_bed, output_dir) for path in exclusion_paths]  
+    if exclusion_paths:   
+        processed_exclusions = [process_exclusion(path, dip_bed, intersection_dir) for path in exclusion_paths]  
         exclusion_filenames, intersections_bp = zip(*processed_exclusions)  
         intersection_pct = [(bp / total_dip_bp) * 100 for bp in intersections_bp]  
   
@@ -96,9 +94,10 @@ def parse_arguments() -> argparse.Namespace:
     return parser.parse_args()  
   
   
-def main(dip_bed_path: str, summary_table_path: str, exclusion_paths: List[str]):  
+def main(dip_bed_path: str, summary_table_path: str, exclusion_paths: List[str],intersection_dir: str):  
     logging.info("Starting script.")  
-    summary_data = generate_summary_data(dip_bed_path, exclusion_paths)  
+    os.makedirs(intersection_dir, exist_ok=True) 
+    summary_data = generate_summary_data(dip_bed_path, exclusion_paths, intersection_dir)  
     save_summary_table(summary_data, summary_table_path)  
     logging.info("Script finished.")  
   
