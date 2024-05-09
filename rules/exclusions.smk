@@ -213,19 +213,21 @@ rule subtract_exclusions:
         &> {log}
         """
 
-rule generate_intersection_summary:  
-    input:  
-        dip_bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",  
-        exclusions=get_exclusion_inputs,  
-    output:  
-        summary_table="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.exclusion_intersection_summary.csv",  
-    params:  
-        script=Path(workflow.basedir) / "scripts/exclusion_intersection_summary.py",  
-    log:  
-        "logs/exclusion-intersect/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",  
-    conda:  
-        "../envs/bedtools.yml",  
-    shell:  
+
+rule generate_intersection_summary:
+    input:
+        dip_bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
+        exclusions=get_exclusion_inputs,
+    output:
+        summary_table="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.exclusion_intersection_summary.csv",
+    params:
+        script=Path(workflow.basedir) / "scripts/exclusion_intersection_summary.py",
+        intersect_dir="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/exclusions/intersections/",
+    log:
+        "logs/exclusion-intersect/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
+    conda:
+        "../envs/bedtools.yml"
+    shell:
         """  
-        python {params.script} {input.dip_bed} {output.summary_table} {input.exclusions} &> {log}  
-        """  
+        python {params.script} {input.dip_bed} {output.summary_table} {params.intersection_dir} {input.exclusions} &> {log}  
+        """
