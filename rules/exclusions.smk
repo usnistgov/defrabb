@@ -219,7 +219,11 @@ rule generate_intersection_summary:
         dip_bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
         exclusions=get_exclusion_inputs,
     output:
-        summary_table="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.exclusion_intersection_summary.csv",
+        summary_table=report(
+            "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.exclusion_intersection_summary.csv",
+            caption="../report/exclusion_intersection.rst",
+            category="Exclusions",
+        ),
     params:
         script=Path(workflow.basedir) / "scripts/exclusion_intersection_summary.py",
         intersect_dir="results/draft_benchmarksets/{bench_id}/exclusions/intersections/",
