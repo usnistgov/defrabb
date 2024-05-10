@@ -1,0 +1,9 @@
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - quarto
+  - r-tidyverse>=2.0.0
+  - r-dt>=0.33
+  - r-jsonlite>=0.9.16
+  - r-sessioninfo>=1.2.2

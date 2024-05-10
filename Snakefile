@@ -144,6 +144,8 @@ rule all:
             vc_param_id=bench_excluded_tbl["vc_param_id"].tolist(),
         ),
         ## rules for report
+        "results/analysis.html",
+        "results/analysis_params.yml",
         expand(
             "results/report/assemblies/{asm_id}_{haplotype}_stats.txt",
             asm_id=ASMIDS,
