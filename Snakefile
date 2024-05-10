@@ -18,75 +18,6 @@ include: "rules/bench_vcf_processing.smk"
 
 
 ################################################################################
-# init resources
-
-
-configfile: workflow.source_path("config/resources.yml")
-
-
-validate(config, "schema/resources-schema.yml")
-
-asm_config = config["assemblies"]
-comp_config = config["comparisons"]
-ref_config = config["references"]
-
-################################################################################
-# init analyses
-
-## Loading analysis table with run information
-analyses = load_analyses(
-    workflow.source_path(config["analyses"]), "schema/analyses-schema.yml"
-)
-
-
-## Generating seperate tables for individual framework components
-## asm variant calls
-vc_params, vc_tbl = analyses_to_vc_tbl(analyses)
-
-## draft benchmark set generation
-bench_params, bench_tbl, bench_excluded_tbl = analyses_to_bench_tbls(analyses)
-
-## Setting index for analysis run lookup
-analyses = analyses.set_index("eval_id")
-
-################################################################################
-# init wildcard constraints
-
-## Wildcard variables and ids
-
-## Variables for assembly based variant calling
-VCIDS = set(vc_tbl.index.tolist())
-REFIDS = set(vc_tbl["ref"].tolist())
-ASMIDS = set(vc_tbl["asm_id"].tolist())
-VCCMDS = set(vc_tbl["vc_cmd"].tolist())
-VCPARAMIDS = set(vc_tbl["vc_param_id"].tolist())
-
-## Draft benchmark set generation variables
-BENCHIDS = set(bench_tbl.index.tolist())
-BENCHTYPS = set(bench_tbl["bench_type"].tolist())
-
-
-## Evaluations
-EVALIDS = set(analyses.index.tolist())
-EVALCOMPIDS = set(analyses["eval_comp_id"].tolist())
-
-
-# Only constrain the wildcards to match what is in the resources file. Anything
-# else that can be defined on the command line or in the analyses.tsv can is
-# unconstrained (for now).
-wildcard_constraints:
-    asm_id="|".join(ASMIDS),
-    comp_id="|".join(EVALCOMPIDS),
-    ref_id="|".join(REFIDS),
-    bench_id="|".join(BENCHIDS),
-    bench_type="|".join(BENCHTYPS),
-    eval_id="|".join(EVALIDS),
-    vc_id="|".join(VCIDS),
-    vc_cmd="|".join(VCCMDS),
-    vc_param_id="|".join(VCPARAMIDS),
-
-
-################################################################################
 # main rule
 #
 
@@ -111,16 +42,6 @@ localrules:
 
 ## Snakemake Report
 report: "report/workflow.rst"
-
-
-## Using zip in rule all to get config sets by config table rows
-
-# defining variables for cleaner rule all
-happy_analyses = analyses[analyses["eval_cmd"] == "happy"]
-truvari_analyses = analyses[analyses["eval_cmd"] == "truvari"]
-truvari_refine_analyses = analyses[analyses["eval_cmd"] == "truvari_refine"]
-dipcall_tbl = vc_tbl[vc_tbl["vc_cmd"] == "dipcall"]
-
 
 rule all:
     input:
