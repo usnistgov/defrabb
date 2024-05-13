@@ -258,15 +258,16 @@ rule render_report:
         ),
     params:
         qmd="scripts/reports/analysis.qmd",
-        results_qmp = "results/analysis.qmd",
+        results_qmd = "results/analysis.qmd",
         rundir=Path(workflow.basedir),
     log:
          "logs/render_report.log",
     conda:
         "../envs/quarto.yml"
     shell: """
-            cp {params.qmd} {params.results.qmd}
-            quarto render {params.qmd} \
+            cp {params.qmd} {params.results_qmd}
+            quarto render {params.results_qmd} \
+                --execute-dir {params.rundir} \
                 -P yaml_path:{input.report_params} \
                 --log {log} --log-level info --debug
     """
