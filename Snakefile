@@ -43,6 +43,7 @@ localrules:
 ## Snakemake Report
 report: "report/workflow.rst"
 
+
 rule all:
     input:
         expand(

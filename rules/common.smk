@@ -299,6 +299,7 @@ def get_processed_vcf(wildcards):
 ################################################################################
 # load config
 
+
 configfile: workflow.source_path("../config/resources.yml")
 
 
@@ -362,6 +363,7 @@ wildcard_constraints:
     vc_id="|".join(VCIDS),
     vc_cmd="|".join(VCCMDS),
     vc_param_id="|".join(VCPARAMIDS),
+
 
 ## Using zip in rule all to get config sets by config table rows
 

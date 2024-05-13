@@ -224,18 +224,18 @@ rule write_report_params:
         param1="value1",
         param2="value2",
     log:
-         "logs/write_report_params.log",
+        "logs/write_report_params.log",
     run:
         config_data = config
         analysis_table = f"../{config['analyses']}"
 
-        inputs_converted = {}  
-        for key, value in input.items():  
-            # Convert each input item to a string and ensure it's a list  
-            if isinstance(value, list):  
-                inputs_converted[key] = [str(v) for v in value]  
-            else:  
-                inputs_converted[key] = [str(value)]  
+        inputs_converted = {}
+        for key, value in input.items():
+            # Convert each input item to a string and ensure it's a list
+            if isinstance(value, list):
+                inputs_converted[key] = [str(v) for v in value]
+            else:
+                inputs_converted[key] = [str(value)]
 
         report_params_dict = {
             "inputs": inputs_converted,
@@ -245,7 +245,10 @@ rule write_report_params:
         }
 
         with open(output.report_params, "w") as f:
-            yaml.safe_dump(report_params_dict, f, default_flow_style=False, sort_keys=False)
+            yaml.safe_dump(
+                report_params_dict, f, default_flow_style=False, sort_keys=False
+            )
+
 
 rule render_report:
     input:
@@ -258,13 +261,14 @@ rule render_report:
         ),
     params:
         qmd="scripts/reports/analysis.qmd",
-        results_qmd = "results/analysis.qmd",
+        results_qmd="results/analysis.qmd",
         rundir=Path(workflow.basedir),
     log:
-         "logs/render_report.log",
+        "logs/render_report.log",
     conda:
         "../envs/quarto.yml"
-    shell: """
+    shell:
+        """
             cp {params.qmd} {params.results_qmd}
             quarto render {params.results_qmd} \
                 --execute-dir {params.rundir} \
