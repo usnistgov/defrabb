@@ -171,6 +171,7 @@ def execute_snakemake_pipeline(
     cmd = [
         "snakemake",
         "--use-conda",
+        "--printshellcmds",
         "--config",
         f"analyses={args.analyses}",
         "--directory",

@@ -147,6 +147,9 @@ snakemake --use-conda -j 1 --forceall
 
 ## Larger snakemake analysis run set
 snakemake --use-conda -j 1 --forceall --config analyses=config/analyses_fulltest.tsv
+
+## Test using run_defrabb script
+./run_defrabb -r 20240513_v0.016_test -a config/analyses.tsv -s pipe
 ```
 
 <!-- Resources/ Citations -->
