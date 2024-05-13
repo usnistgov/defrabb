@@ -243,13 +243,13 @@ rule write_report_params:
             "analysis_table": analysis_table,
             "variables": dict(params),
         }
-        print(report_params_dict)
+
         with open(output.report_params, "w") as f:
             yaml.safe_dump(report_params_dict, f, default_flow_style=False, sort_keys=False)
 
 rule render_report:
     input:
-        report_params="results/analysis_params.yml",
+        report_params=Path(workflow.basedir) / "results/analysis_params.yml",
     output:
         report_html=report(
             "results/analysis.html",
@@ -257,19 +257,16 @@ rule render_report:
             category="Analysis Report",
         ),
     params:
-        outdir = Path(workflow.basedir) / "results",
-        outfile = "analysis.html",
-        qmd=Path(workflow.basedir) / "scripts/reports/analysis.qmd",
+        qmd="scripts/reports/analysis.qmd",
+        results_qmp = "results/analysis.qmd",
         rundir=Path(workflow.basedir),
     log:
          "logs/render_report.log",
     conda:
         "../envs/quarto.yml"
     shell: """
+            cp {params.qmd} {params.results.qmd}
             quarto render {params.qmd} \
-                --execute-dir {params.outdir} \
-                --output {params.outfile} \
-                --output-dir {params.outdir} \
                 -P yaml_path:{input.report_params} \
                 --log {log} --log-level info --debug
     """
