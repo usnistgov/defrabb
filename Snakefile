@@ -444,9 +444,11 @@ rule run_dipcall:
         male_bed=get_dipcall_par_param,
         ts=config["_dipcall_threads"],
         make_jobs=config["_dipcall_jobs"],
-        extra=lambda wildcards: ""
-        if vc_tbl.loc[wildcards.vc_id]["vc_params"] == "default"
-        else vc_tbl.loc[wildcards.vc_id]["vc_params"],
+        extra=lambda wildcards: (
+            ""
+            if vc_tbl.loc[wildcards.vc_id]["vc_params"] == "default"
+            else vc_tbl.loc[wildcards.vc_id]["vc_params"]
+        ),
     log:
         multiext(
             "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
