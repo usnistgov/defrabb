@@ -158,6 +158,7 @@ assemblies:
     maternal: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/Harvard_Cheng_hifiasm-assemblies_20240317/HG008.normal.hap1.fa.gz
     paternal: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/Harvard_Cheng_hifiasm-assemblies_20240317/HG008.normal.hap2.fa.gz
     is_male: false
+    sample_id: "HG008N"
 
 ################################################################################
 # Benchmark Generation
