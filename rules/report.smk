@@ -260,7 +260,7 @@ rule render_report:
             category="Analysis Report",
         ),
     params:
-        qmd="scripts/reports/analysis.qmd",
+        qmd=Path(workflow.basedir) / "scripts/reports/analysis.qmd",
         results_qmd="results/analysis.qmd",
         rundir=Path(workflow.basedir),
     log:
