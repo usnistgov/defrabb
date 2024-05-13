@@ -284,9 +284,10 @@ truvari_summary_df <- truvari_summary_files %>%
         simplifyDataFrame = FALSE,
         simplifyMatrix = FALSE
     ) %>%
-    map(purrr::list_modify, "weighted" = NULL) %>%
-    map(purrr::list_modify, "gt_matrix" = NULL) %>%
-    map(compact) %>%
+    # Remove 'weighted' and 'gt_matrix' keys from each item  
+    map(~{.x$weighted <- NULL; .x$gt_matrix <- NULL; .x}) %>%  
+    # better handling nulls in list - mostly for test data set
+    map_depth(., 2, ~ifelse(is.null(.x), NA, .x)) %>% 
     map_dfr(as_data_frame, .id = "evaluation") %>% 
     ## Assumes evaluation naming convention used in analysis tables
   mutate(
@@ -297,8 +298,8 @@ truvari_summary_df <- truvari_summary_files %>%
   ) %>% 
   select(ref, truth, query, target_regions, c(2:16))
 
-DT::datatable(truvari_summary_df, rownames = FALSE) #%>%
-    # formatRound(c("precision", "recall", "f1", "gt_concordance"), 5) 
+DT::datatable(truvari_summary_df, rownames = FALSE) %>%
+    formatRound(c("precision", "recall", "f1", "gt_concordance"), 5) 
 
 ```
 
