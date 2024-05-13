@@ -6,6 +6,7 @@
 - adding manually generated HG002 Q100 specific exclusions
 - migrating unittests to pytest for consistence
 - improving documentation and cleaning up resources.yaml
+- incorporating quarto report for summary analysis of stats and output files
 - additional callsets for evaluation: sawfish pacbio sv, ...
 
 ## Milestone v0.015 2024-02-15
