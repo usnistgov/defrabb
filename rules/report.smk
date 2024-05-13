@@ -252,7 +252,7 @@ rule write_report_params:
 
 rule render_report:
     input:
-        report_params=Path(workflow.basedir) / "results/analysis_params.yml",
+        report_params="results/analysis_params.yml",
     output:
         report_html=report(
             "results/analysis.html",
