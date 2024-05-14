@@ -195,7 +195,6 @@ exclusion_set:
     - gaps
     - flanks
     - VDJ
-    - svs-and-simple-repeats
 
 ## Regions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # regions with slop added to bed before applying exclusions
