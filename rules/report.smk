@@ -255,14 +255,14 @@ rule render_report:
         report_params="results/analysis_params.yml",
     output:
         report_html=report(
-            "results/analysis.html",
+            "analysis.html",
             caption="../report/analysis.rst",
             category="Analysis Report",
         ),
     params:
         qmd=Path(workflow.basedir) / "scripts/reports/analysis.qmd",
-        results_qmd="results/analysis.qmd",
-        rundir=Path(workflow.basedir),
+        results_qmd="analysis.qmd",
+        rundir="../",
     log:
         "logs/render_report.log",
     conda:
@@ -271,7 +271,6 @@ rule render_report:
         """
             cp {params.qmd} {params.results_qmd}
             quarto render {params.results_qmd} \
-                --execute-dir {params.rundir} \
                 -P yaml_path:{input.report_params} \
                 --log {log} --log-level info --debug
     """
