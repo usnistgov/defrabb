@@ -4,4 +4,5 @@ channels:
 dependencies:
   - truvari==4.2.2
   - bcftools==1.14
+  - repeatmasker==4.1.5
   - trf==4.09.1
