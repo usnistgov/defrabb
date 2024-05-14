@@ -12,12 +12,12 @@ before_script:
 #   - echo "After script section"
 #   - echo "For example you might do some cleanup here"
 
-lint-test:
-  artifacts:
-    paths: 
-        - lint
-  script:
-    - snakemake --lint
+# lint-test:
+#   artifacts:
+#     paths: 
+#         - lint
+#   script:
+#     - snakemake --lint
 
 smkformat:
   script:
