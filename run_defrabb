@@ -298,7 +298,7 @@ def main() -> None:
 
     run_dir = os.path.join(args.outdir, args.runid)
     report_name = os.path.join(run_dir, f"snakemake_report_{args.runid}.html")
-    smk_archive_path = os.path.join(run_dir, f"{args.runid}.tar.gz")
+    smk_archive_path = os.path.join(run_dir, f"{args.runid}.tar")
     archive_dir = args.archive_dir
 
     # Set up logging to write to the run directory
