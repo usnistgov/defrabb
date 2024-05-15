@@ -3,11 +3,12 @@
 ## Milestone v0.016 TBD
 
 - moving public facing version of repo to [https://github.com/usnistgov/defrabb](https://github.com/usnistgov/defrabb)
-- adding manually generated HG002 Q100 specific exclusions
-- migrating unittests to pytest for consistence
+- adding manually generated HG002 Q100 specific exclusions [issues #153 #154 and #158]
+- migrating unittests to pytest for consistency [issue #117]
 - improving documentation and cleaning up resources.yaml
-- incorporating quarto report for summary analysis of stats and output files
-- additional callsets for evaluation: sawfish pacbio sv, ...
+- incorporating quarto report for summary analysis of stats and output files [issue #19]
+- additional callsets for evaluation: sawfish pacbio sv [issue #156]
+- initial HG008-Normal GRCh38 draft small variant and sv benchmark [issue #159]
 
 ## Milestone v0.015 2024-02-15
 
