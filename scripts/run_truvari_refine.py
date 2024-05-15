@@ -18,9 +18,11 @@ query_regions = f"--regions {snakemake.input.refine_bed}"
 ## Running Truvari
 shell(
     "rm -rf {snakemake.params.bench_output}/phab_bench && "
-    "truvari refine --threads {snakemake.threads} "
+    "truvari refine "
+    "--threads {snakemake.threads} "
+    "--use-region-coords "
+    "--use-original-vcfs "
     "--align mafft "
-    "--use-original "
     "--reference {snakemake.input.ref} "
     "{query_regions} "
     "{snakemake.params.bench_output} " + log
