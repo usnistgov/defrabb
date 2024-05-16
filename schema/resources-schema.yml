@@ -60,7 +60,7 @@ properties:
             description: The beds to use when generating the exclusions
             additionalProperties: false
             patternProperties:
-              ^all-tr-and-homopolymers|segdups|tandem-repeats|gaps|self-chains|satellites|hifi-pacbioDV-XY-discrep|hifiasm-HPRC-T2Tdiscrep|imperfecthomopol-gt30|imperfecthomopol-gt20|homopolymers-gt20|XYdipcallmanualbugs|XYelement-homopolymer-T2T-discrep|VDJ$:
+              ^[\w\.\-]*$:
                 type: string
                 format: uri
 
