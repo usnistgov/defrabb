@@ -1,9 +1,9 @@
 # process T2TXY_v2.7.dip.vcf to match hifiDV GT using JZ sed command
 rule fix_XY_genotype:
     input:
-        "results/asm_varcalls/{vc_id}/{prefix}.vcf.gz",
+        "results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz",
     output:
-        "results/asm_varcalls/{vc_id}/{prefix}.fix_XY_genotype.vcf.gz",
+        "results/asm_varcalls/{vc_id}/annotations/{prefix}.fix_XY_genotype.vcf.gz",
     conda:
         "../envs/dipcall.yml"
     log:
@@ -24,9 +24,9 @@ rule fix_XY_genotype:
 ##  Not current used - keeping here for potential future use
 rule dip_gap2homvarbutfiltered:
     input:
-        "results/asm_varcalls/{vc_id}/{prefix}.vcf.gz",
+        "results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz",
     output:
-        "results/asm_varcalls/{vc_id}/{prefix}.gap2homvarbutfiltered.vcf.gz",
+        "results/asm_varcalls/{vc_id}/annotations/{prefix}.gap2homvarbutfiltered.vcf.gz",
     conda:
         "../envs/download_remotes.yml"
     log:
@@ -43,9 +43,9 @@ rule dip_gap2homvarbutfiltered:
 ## Primarily for SVs
 rule split_multiallelic_sites:
     input:
-        "results/asm_varcalls/{vc_id}/{prefix}.vcf.gz",
+        "results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz",
     output:
-        vcf="results/asm_varcalls/{vc_id}/{prefix}.split_multi.vcf.gz",
+        vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.split_multi.vcf.gz",
     conda:
         "../envs/bcftools.yml"
     log:
