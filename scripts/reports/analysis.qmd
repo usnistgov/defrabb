@@ -75,7 +75,7 @@ From https://cdn.jsdelivr.net/gh/RealTimeGenomics/rtg-tools@master/installer/res
 
 
 
-```{r asmvar}
+```{r asmvartbl}
 asm_var_rtg_stat_files <- run_params$inputs$asm_var_rtg %>% 
   set_names(str_extract(., "(?<=asm_varcalls/).*(?=/)"))
 
@@ -93,7 +93,7 @@ asm_var_rtg_stat_df <- asm_var_rtg_stat_files %>%
 DT::datatable(asm_var_rtg_stat_df)
 ```
 
-```{r}
+```{r asmvarfigins}
 var_lengths_df <- asm_var_rtg_stat_files %>% 
   map_dfr(get_rtg_var_lengths, .id = "asm_varcalls") %>%
   separate(col = asm_varcalls, into = c("ref","asm_varcall"), sep = "_")
@@ -111,7 +111,7 @@ ggplot(var_lengths_df) +
 ```
 
 
-```{r}
+```{r asmvarinsdel}
 ggplot(var_lengths_df) + 
   geom_col(aes(x = var_length, y = Delete)) + 
   facet_grid(ref ~ ., scales = "free_x") + 
@@ -124,19 +124,20 @@ ggplot(var_lengths_df) +
 
 ## Benchmark Variants Summary
 
-```{r}
+```{r benchvardf}
 bench_var_rtg_stat_files <- run_params$inputs$bench_var_rtg %>%
   set_names(str_extract(., "(?<=benchmarksets/).*(?=/)"))
+
+bench_var_metrics_df <- bench_var_rtg_stat_files %>% 
+  map_dfr(get_rtg_metrics, .id = "benchmarkset") %>% 
+  pivot_wider(id_cols = benchmarkset, names_from = metric, values_from = value, values_fill = NA) %>% 
+  separate(col = benchmarkset, into = c("ref","asm_varcall", "bench_type"), sep = "_")
 ```
 
 ### Summary Statistics
 Summary statistics calculated using rtg-tools vcfstats.
 
-```{r}
-bench_var_metrics_df <- bench_var_rtg_stat_files %>% 
-  map_dfr(get_rtg_metrics, .id = "benchmarkset") %>% 
-  pivot_wider(id_cols = benchmarkset, names_from = metric, values_from = value, values_fill = NA) %>% 
-  separate(col = benchmarkset, into = c("ref","asm_varcall", "bench_type"), sep = "_")
+```{r benchvartbl}
 DT::datatable(bench_var_metrics_df)
 ```
 
@@ -145,7 +146,7 @@ DT::datatable(bench_var_metrics_df)
 
 #### SV length characterizations
 
-```{r}
+```{r benchvarfigins}
 var_lengths_df <- bench_var_rtg_stat_files %>% 
   map_dfr(get_rtg_var_lengths, .id = "benchmarkset") %>%
   separate(col = benchmarkset, into = c("ref","asm_varcall", "bench_type"), sep = "_")
@@ -160,11 +161,13 @@ ggplot(var_lengths_df) +
   theme(axis.text.x = element_text(angle = -45, hjust = 0)) + 
   scale_x_discrete(breaks = var_len_lvls[seq(from = 1, to = length(var_len_lvls), by = 10)]) +
   scale_y_log10()
+
+## TODO add bench var deletion figure
 ```
 
 
 ## Benchmark Regions Summary
-```{r}
+```{r exclusiontbl}
 exclusion_stats_files <- run_params$inputs$exclusion_summary %>%
   set_names(str_remove(., ".*-excluded/"))
 
@@ -212,7 +215,7 @@ TODO
 
 ### Summary By Chromosome
 
-```{r}
+```{r benchcovtbl}
 bench_genomecov_files <-
   run_params$inputs$bench_cov %>%
   set_names(str_extract(., "(?<=excluded/).*(?=.benchmark_bed)"))
@@ -249,7 +252,7 @@ ggplot(bench_genomecov_df) +
 ## Evaluation Results
 ### Happy Combined Summary Tables
 
-```{r}
+```{r evalsmvartbl}
 happy_summary_files <- run_params$inputs$happy_summary %>%
       set_names(str_extract(., "(?<=happy/).*(?=/)"))
 
@@ -275,7 +278,7 @@ Add figures for extended csv, see https://gitlab.nist.gov/gitlab/nolson/giab-nrg
 Truth and evaluation ids are based on evaluation id provided in eval_id defined in analysis table and not based on how truvari was run. 
 Will want to modify so values are based on truvari command to accurately reflect how truvari was run.
 
-```{r}
+```{r evalstvartbl}
 truvari_summary_files <- run_params$inputs$truvari_summary %>%
     set_names(str_extract(., "(?<=truvari/).*(?=/)"))
 truvari_summary_df <- truvari_summary_files %>%
@@ -308,13 +311,13 @@ The following sections (in addition to the header) provide the __WHO__ and __WHE
 <!-- ::: -->
 
 ## System Information
-```{r}
+```{r plat}
 sessioninfo::platform_info()
 ```
 
 
 ### Package Versions
-```{r}
+```{r pkgs}
 sessioninfo::package_info() %>% 
     filter(attached = TRUE) %>% 
     select(package, loadedversion, date, source) %>%
