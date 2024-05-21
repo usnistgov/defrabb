@@ -12,7 +12,7 @@ code-fold: true
 execute:
   warning: false
 params:
-  yaml_path: "na"
+  yaml_path: "results/analysis_params.yml"
 ---
 
 
@@ -28,8 +28,6 @@ library(sessioninfo)
 run_params <- read_yaml(params$yaml_path) 
 ```
 
-
-## defrabb run results
 <!-- ::: {.panel-tabset} -->
 
 ## Utils/ Functions 
@@ -41,7 +39,7 @@ get_var_allele_start <- function(rtg_stats_file){
 
 
 get_rtg_metrics <- function(rtg_stats_file) {
-  n_stat_rows <- get_var_allele_start(rtg_stats_file) - 1
+  n_stat_rows <- get_var_allele_start(rtg_stats_file) - 3
   read_delim(
     rtg_stats_file,
     n_max = n_stat_rows,
@@ -62,7 +60,7 @@ get_rtg_var_lengths <- function(rtg_stats_file) {
 
 ## Assembly-Based Variant Calls and Regions
 
-### Variant Calls
+### Asm Variant Calls Summary Stats
 Summary statistics calculated using rtg-tools vcfstats.
 
 From https://cdn.jsdelivr.net/gh/RealTimeGenomics/rtg-tools@master/installer/resources/tools/RTGOperationsManual.pdf
@@ -81,19 +79,24 @@ asm_var_rtg_stat_files <- run_params$inputs$asm_var_rtg %>%
 
 asm_var_rtg_stat_df <- asm_var_rtg_stat_files %>%
   map_dfr(get_rtg_metrics, .id = "asm_varcalls") %>%
+  separate(col = asm_varcalls,
+         into = c("ref", "asm_varcall"),
+         sep = "_") %>% 
   pivot_wider(
-    id_cols = asm_varcalls,
-    names_from = metric,
+    id_cols = c(ref, metric),
+    names_from = asm_varcall,
     values_from = value,
     values_fill = NA
-  ) %>%
-  separate(col = asm_varcalls,
-           into = c("ref", "asm_varcall"),
-           sep = "_")
-DT::datatable(asm_var_rtg_stat_df)
-```
+  )
 
-```{r asmvarfigins}
+DT::datatable(asm_var_rtg_stat_df,
+              caption = "Assembly variant calls: vcfstats summary",
+              rownames = FALSE,
+              options = list(pageLength = nrow(asm_var_rtg_stat_df)))
+```
+### Asm Variant Calls Allele Lengths
+
+```{r asmvardf}
 var_lengths_df <- asm_var_rtg_stat_files %>% 
   map_dfr(get_rtg_var_lengths, .id = "asm_varcalls") %>%
   separate(col = asm_varcalls, into = c("ref","asm_varcall"), sep = "_")
@@ -101,79 +104,218 @@ var_lengths_df <- asm_var_rtg_stat_files %>%
 var_len_lvls <- var_lengths_df$var_length %>% unique()
 var_lengths_df <- var_lengths_df %>% mutate(var_length = factor(var_length, levels = var_len_lvls))
 
-ggplot(var_lengths_df) + 
-  geom_col(aes(x = var_length, y = Insert)) + 
-  facet_grid(ref ~ ., scales = "free_x") + 
-  theme_bw() + 
-  theme(axis.text.x = element_text(angle = -45, hjust = 0)) + 
-  scale_x_discrete(breaks = var_len_lvls[seq(from = 1, to = length(var_len_lvls), by = 10)]) +
-  scale_y_log10()
+var_len_fig_df <- var_lengths_df %>% 
+  pivot_longer(cols = c(Delete, Insert),names_to = "var_type", values_to = "Count") %>% 
+  mutate(var_length = as.integer(str_remove(var_length, "-.*")),
+         var_length = if_else(var_type == "Delete", -var_length, var_length))
 ```
 
 
-```{r asmvarinsdel}
-ggplot(var_lengths_df) + 
-  geom_col(aes(x = var_length, y = Delete)) + 
-  facet_grid(ref ~ ., scales = "free_x") + 
-  theme_bw() + 
-  theme(axis.text.x = element_text(angle = -45, hjust = 0)) + 
-  scale_x_discrete(breaks = var_len_lvls[seq(from = 1, to = length(var_len_lvls), by = 10)]) +
-  scale_y_log10()
+
+```{r asmindelfig, fig.cap = "Variant allele size distributions for INDELS (SV < 100 bp)"}
+var_len_fig_df %>% 
+  filter(abs(var_length) <= 100) %>% 
+  ggplot() +
+    geom_col(aes(x = var_length, y = Count), fill = "grey60", color = "grey20") +
+    facet_grid(asm_varcall~ref, scales = "free") +
+    theme_bw() +
+    labs(x = "Allele Length Size Bin", y = "Count") +
+    scale_y_log10() +
+  annotation_logticks(sides = "lr")
 ```
 
+```{r asmvarlenfigs, fig.cap = "Size distribution of SVs (>100bp, <=10kb)"}
+svlen_fig <- var_len_fig_df %>%
+  filter(abs(var_length) > 100,
+         abs(var_length) <= 10000,
+         Count > 0) %>%
+  ggplot() +
+  geom_vline(aes(xintercept = 300), linetype = 2) + 
+  geom_vline(aes(xintercept = -300), linetype = 2) + 
+  geom_vline(aes(xintercept = 6000), linetype = 2) + 
+  geom_vline(aes(xintercept = -6000), linetype = 2) + 
+  geom_line(aes(x = var_length, y = Count)) +
+  geom_point(aes(x = var_length, y = Count), fill = "grey60", shape = 21) +
+  facet_grid(asm_varcall ~ ref, scales = "free") +
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  labs(x = "Allele Length Size Bin", y = "Count") +  
+  scale_y_log10() 
+plotly::ggplotly(svlen_fig)
+```
+```{r}
+var_lengths_df %>%
+  filter(str_detect(var_length, "0000")) %>% 
+  select(-SNP, -MNP) %>% 
+  DT::datatable(rownames = FALSE, caption = "SVs greater than 10kb")
+```
 
-## Benchmark Variants Summary
+### Asm Regions
+
+TODO - need to add bed cov file to params yaml
+
+```{r asmcovtbl}
+# asm_genomecov_files <-
+#   run_params$inputs$ %>%
+#   set_names(str_extract(., "(?<=excluded/).*(?=.benchmark_bed)"))
+# 
+# chroms <- c(1:22, "X","Y")
+# chroms <- c(chroms, paste0("chr", chroms))
+# 
+# bench_genomecov_df <- bench_genomecov_files %>%
+#   map_dfr(read_tsv, show_col_types = FALSE, .id = "benchmarkset") %>%
+#   separate(
+#     benchmarkset,
+#     sep = "_",
+#     into = c("refid", "asm_id", "bench_type", "varcall"),
+#     extra = "merge"
+#   ) %>% 
+#   filter(chrom %in% chroms) %>% 
+#   mutate(chrom = factor(chrom, levels = chroms))
+# 
+# ggplot(bench_genomecov_df) +
+#   geom_col(
+#     aes(x = chrom, y = total_ivl_bp, fill = bench_type),
+#     position = "dodge",
+#     color = "grey20"
+#   ) +
+#   facet_wrap( ~ paste(refid, asm_id, varcall),
+#               scales = "free_x",
+#               ncol = 1) +
+#   theme_bw() +
+#   theme(legend.position = "bottom") +
+#   labs(x = "Chromosome", y = "Total Region Size (bp)", fill = "Benchmarkset Type")
+```
+
+## Benchmark Set Characteristics
 
 ```{r benchvardf}
 bench_var_rtg_stat_files <- run_params$inputs$bench_var_rtg %>%
   set_names(str_extract(., "(?<=benchmarksets/).*(?=/)"))
 
-bench_var_metrics_df <- bench_var_rtg_stat_files %>% 
-  map_dfr(get_rtg_metrics, .id = "benchmarkset") %>% 
-  pivot_wider(id_cols = benchmarkset, names_from = metric, values_from = value, values_fill = NA) %>% 
-  separate(col = benchmarkset, into = c("ref","asm_varcall", "bench_type"), sep = "_")
+bench_var_metrics_df <- bench_var_rtg_stat_files %>%
+  map_dfr(get_rtg_metrics, .id = "benchmarkset") %>%
+  separate(
+    col = benchmarkset,
+    into = c("ref", "asm_varcall", "bench_type"),
+    sep = "_"
+  ) %>% 
+  pivot_wider(
+    id_cols = c(ref, metric),
+    names_from = c(asm_varcall, bench_type),
+    values_from = value,
+    values_fill = NA
+  )
 ```
 
-### Summary Statistics
+### Benchmark Variants Summary Statistics
 Summary statistics calculated using rtg-tools vcfstats.
 
 ```{r benchvartbl}
-DT::datatable(bench_var_metrics_df)
+DT::datatable(bench_var_metrics_df, rownames = FALSE)
 ```
 
 
 
 
-#### SV length characterizations
+### Benchmark Variants Allele Lengths
 
 ```{r benchvarfigins}
 var_lengths_df <- bench_var_rtg_stat_files %>% 
   map_dfr(get_rtg_var_lengths, .id = "benchmarkset") %>%
   separate(col = benchmarkset, into = c("ref","asm_varcall", "bench_type"), sep = "_")
 
-var_len_lvls <- var_lengths_df$var_length %>% unique()
-var_lengths_df <- var_lengths_df %>% mutate(var_length = factor(var_length, levels = var_len_lvls))
+var_len_fig_df <- var_lengths_df %>% 
+  pivot_longer(cols = c(Delete, Insert),names_to = "var_type", values_to = "Count") %>% 
+  mutate(var_length = as.integer(str_remove(var_length, "-.*")),
+         var_length = if_else(var_type == "Delete", -var_length, var_length))
+```
 
-ggplot(var_lengths_df) + 
-  geom_col(aes(x = var_length, y = Insert)) + 
-  facet_grid(ref ~ bench_type, scales = "free_x") + 
-  theme_bw() + 
-  theme(axis.text.x = element_text(angle = -45, hjust = 0)) + 
-  scale_x_discrete(breaks = var_len_lvls[seq(from = 1, to = length(var_len_lvls), by = 10)]) +
-  scale_y_log10()
 
-## TODO add bench var deletion figure
+
+```{r benchindelfig, fig.cap = "Variant allele size distributions for INDELS (SV < 100 bp)"}
+var_len_fig_df %>% 
+  filter(abs(var_length) <= 100) %>% 
+  ggplot() +
+    geom_col(aes(x = var_length, y = Count), fill = "grey60", color = "grey20") +
+    facet_grid(asm_varcall*bench_type~ref, scales = "free") +
+    theme_bw() +
+    labs(x = "Allele Length Size Bin", y = "Count") +
+    scale_y_log10() +
+  annotation_logticks(sides = "lr")
+```
+
+```{r benchvarlenfigs, fig.cap = "Size distribution of SVs (>100bp, <=10kb)"}
+svlen_fig <- var_len_fig_df %>%
+  filter(abs(var_length) > 100,
+         abs(var_length) <= 10000,
+         Count > 0) %>%
+  ggplot() +
+  geom_vline(aes(xintercept = 300), linetype = 2) + 
+  geom_vline(aes(xintercept = -300), linetype = 2) + 
+  geom_vline(aes(xintercept = 6000), linetype = 2) + 
+  geom_vline(aes(xintercept = -6000), linetype = 2) + 
+  geom_line(aes(x = var_length, y = Count)) +
+  geom_point(aes(x = var_length, y = Count), fill = "grey60", shape = 21) +
+  facet_grid(asm_varcall*bench_type ~ ref, scales = "free") +
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  labs(x = "Allele Length Size Bin", y = "Count") +  
+  scale_y_log10() 
+plotly::ggplotly(svlen_fig)
+```
+
+```{r benchlgsvtbl}
+var_lengths_df %>%
+  filter(str_detect(var_length, "0000")) %>% 
+  select(-SNP, -MNP) %>% 
+  DT::datatable(rownames = FALSE, caption = "SVs greater than 10kb")
 ```
 
 
 ## Benchmark Regions Summary
-```{r exclusiontbl}
-exclusion_stats_files <- run_params$inputs$exclusion_summary %>%
-  set_names(str_remove(., ".*-excluded/"))
 
-exclusion_stats_df <- exclusion_stats_files %>%
-  map_dfr(read_tsv, show_col_types = FALSE, .id = "benchmarkset") %>%
+### Exclusions
+
+```{r exclusionintcumtbl}
+exclusion_intersect_files <- run_params$inputs$exclusion_intersection_summary %>% 
+  set_names(str_remove(.,".*-excluded/"))
+
+exclusion_intersect_df <- exclusion_intersect_files %>% 
+  map_dfr(read_csv, show_col_types = FALSE, .id = "benchmarkset") %>% 
+  mutate(benchmarkset = str_remove(benchmarkset, ".exclusion_intersection_summary.csv"))  %>%
+  rename(dip_overlap_bp = bp,
+         dip_excluded_pct = pct_of_initial) 
+
+## Loading cumulative exclusion stats
+exclusion_stats_files <- run_params$inputs$exclusion_summary %>% 
+  set_names(str_remove(.,".*-excluded/"))
+
+exclusion_cum_df <- exclusion_stats_files %>%
+  map_dfr(read_tsv, show_col_types = FALSE, .id = "benchmarkset") %>% 
   mutate(benchmarkset = str_remove(benchmarkset, ".exclusion_stats.txt")) %>%
+  mutate(
+    exclusion = str_remove(exclusion, "resources/exclusions/.*/"),
+    exclusion = str_remove(exclusion, ".*/exclusions/")
+  )
+
+## Calculating cumulative exclusion pct
+initial_stats_df <- exclusion_cum_df %>% 
+  filter(exclusion == "initial") %>% 
+  select(-exclusion, -exclusion_length) %>% 
+  rename(initial_length = resulting_length)
+
+exclusion_cum_df <- exclusion_cum_df %>% 
+  left_join(initial_stats_df) %>% 
+  mutate(pct_of_initial = resulting_length/initial_length) %>% 
+  select(-initial_length)
+
+
+## Combined intersection and cumulative exclusion table
+exclusion_df <- exclusion_cum_df %>%
+  rename(genomic_region = exclusion,
+         new_excluded_bp = exclusion_length) %>%
+  full_join(exclusion_intersect_df) %>%
   separate(
     benchmarkset,
     sep = "_",
@@ -181,39 +323,55 @@ exclusion_stats_df <- exclusion_stats_files %>%
     extra = "merge"
   ) %>%
   mutate(
-    exclusion = str_remove(exclusion, ".*dipcall-z2k_"),
-    exclusion = str_remove(exclusion, "resources/exclusions/.*/"),
-    exclusion = str_remove(exclusion, "_.*bed")
+    asm_break = case_when(
+      str_detect(genomic_region, "start") ~ "start",
+      str_detect(genomic_region, "end") ~ "end",
+      TRUE ~ ""
+    ),
+    genomic_region = str_remove(genomic_region, ".*dipcall-z2k_"),
+    genomic_region = str_remove(genomic_region, "resources/exclusions/.*/"),
+    genomic_region = str_remove(genomic_region, "_.*bed")
   ) %>%
-  unite(ref_bench, refid, bench_type)
-
-initial_stats_df <- exclusion_stats_df %>% 
-  filter(exclusion == "initial") %>% 
-  select(-exclusion, -exclusion_length) %>% 
-  rename(initial_length = resulting_length)
-
-exclusion_stats_df <- exclusion_stats_df %>% 
-  left_join(initial_stats_df) %>% 
-  mutate(pct_of_initial = resulting_length/initial_length) %>% 
-  select(-initial_length)
-
-DT::datatable(
-  exclusion_stats_df,
-  rownames = FALSE,
-  extensions = 'RowGroup',
-  options = list(rowGroup = list(dataSrc = 0)),
-  selection = 'none'
-) %>% 
-  DT::formatRound(columns = c("exclusion_length", "resulting_length"), digits = 0) %>% 
-  DT::formatPercentage(columns = c("pct_of_initial"), digits = 1)
+  unite(ref_bench, refid, bench_type)%>%
+  mutate(genomic_region = if_else(genomic_region == "inital", "dip.bed", genomic_region)) %>%
+  select(
+    ref_bench,
+    asm_id,
+    varcall,
+    genomic_region,
+    asm_break,
+    dip_overlap_bp,
+    dip_excluded_pct,
+    new_excluded_bp,
+    resulting_length,
+    pct_of_initial
+  )
 ```
 
-TODO
+::: {.panel-tabset}
+```{r exclusiontbls}
+#| results: asis
+for(i in unique(exclusion_df$ref_bench)){
+  cat(sprintf("\n### %s \n\n", i))
+  print(htmltools::tagList(
+    exclusion_df %>% 
+    filter(ref_bench == {{i}}) %>% 
+    DT::datatable(.,
+      rownames = FALSE,
+      extensions = 'RowGroup',
+      options = list(rowGroup = list(dataSrc = 0)),
+      selection = 'none'
+    ) %>% 
+    DT::formatRound(columns = c("new_excluded_bp", "resulting_length"), digits = 0) %>% 
+    DT::formatPercentage(columns = c("dip_excluded_pct", "pct_of_initial"), digits = 1)
+    )
+  )
+}
+```
+:::
 
-- modify table for comparisons, separate tables by benchmark set?
-- calculate coverage based on non-gap ref bases
 
-### Summary By Chromosome
+### Benchmark Region Size by Chromosome
 
 ```{r benchcovtbl}
 bench_genomecov_files <-
@@ -305,8 +463,6 @@ DT::datatable(truvari_summary_df, rownames = FALSE) %>%
     formatRound(c("precision", "recall", "f1", "gt_concordance"), 5) 
 
 ```
-
-The following sections (in addition to the header) provide the __WHO__ and __WHERE__ for the analyses was performed. 
 
 <!-- ::: -->
 
