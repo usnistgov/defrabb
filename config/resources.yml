@@ -79,6 +79,8 @@ references:
       HG002Q100-pav-discrep-smvar: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/pav10vsbench10corrXY_fnfp_slop5_merge1000_withoverlaprepeats.bed.gz"
       HG002Q100-pav-discrep-stvar: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/pav10vsbench10_truvarimafft_fnfp_slop50_merge10000_withoverlaprepeats.bed.gz"
       HG002Q100-pav-inversions: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/pav_HG002_INV_segdupexpanded_slop50.bed.gz"
+      HG002Q100-errors: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/mergedQ100errorexclusionswithgithubissuesanddeeppolisher_240506_GRCh38_withoverlaprepeats.bed"
+      HG002Q100-mosaic: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/mergedQ100denovomosaicexclusions_240506_GRCh38_withoverlaprepeats.bed.gz"
       TSPY2-segdups: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/TSPY2segdups_chrXY-benchmark_exclusion.bed.gz"
     stratifications:
       id: "v3.3-stratifications-GRCh38"
@@ -221,6 +223,8 @@ exclusion_set:
     - HG002Q100-pav-discrep-smvar
     - HG002Q100-pav-discrep-stvar
     - HG002Q100-pav-inversions
+    - HG002Q100-errors
+    - HG002Q100-mosaic
     - TSPY2-segdups
   HG002Q100stvarv0.016:
     - segdups
@@ -233,6 +237,8 @@ exclusion_set:
     - HG002Q100-pav-discrep-smvar
     - HG002Q100-pav-discrep-stvar
     - HG002Q100-pav-inversions
+    - HG002Q100-errors
+    - HG002Q100-mosaic
     - TSPY2-segdups
 
 ## Regions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
