@@ -406,7 +406,7 @@ comparisons:
     HG2-DRAGENv4.3.4-smvar:
       vcf_url: https://giab-data.s3.amazonaws.com/HG002_GRCh38_DRAGEN-v4.3.4_2024-05-10/DRAGEN_4.3.4_PrecisionFDA_v2_HG002.hard-filtered.vcf.gz
     HG2-DRAGENv4.3.4-stvar:
-      var_url: https://giab-data.s3.amazonaws.com/HG002_GRCh38_DRAGEN-v4.3.4_2024-05-10/DRAGEN_4.3.4_PrecisionFDA_v2_HG002.sv.vcf.gz
+      vcf_url: https://giab-data.s3.amazonaws.com/HG002_GRCh38_DRAGEN-v4.3.4_2024-05-10/DRAGEN_4.3.4_PrecisionFDA_v2_HG002.sv.vcf.gz
     ## HG008 Normal Revio Callsets
     HG8N-RevioDV:
       vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/PacBio_Revio_20240125/pacbio-wgs-wdl_germline_20240206/HG008-N-P.GRCh38.deepvariant.phased.vcf.gz
