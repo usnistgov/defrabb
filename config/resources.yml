@@ -163,6 +163,16 @@ assemblies:
     paternal: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/Harvard_Cheng_hifiasm-assemblies_20240317/HG008.normal.hap2.fa.gz
     is_male: false
     sample_id: "HG008N"
+  HG8N-Verkko2024040516:
+    maternal: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/Verkko_assemblies_NCBI_05162024/HG008N_hifi_plus_hic/HG008N.haplotype1.fasta
+    paternal: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/Verkko_assemblies_NCBI_05162024/HG008N_hifi_plus_hic/HG008N.haplotype2.fasta
+    is_male: false
+    sample_id: "HG008N"
+  HG8T-Verkko2024040516:
+    maternal: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/Verkko_assemblies_NCBI_05162024/.HG008T/HG008T.haplotype1.fasta
+    paternal: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/Verkko_assemblies_NCBI_05162024/.HG008T/HG008T.haplotype2.fasta
+    is_male: false
+    sample_id: "HG008T"
 
 ################################################################################
 # Benchmark Generation
@@ -323,6 +333,25 @@ comparisons:
     HG2-sentLRSV-pbHiFichem2.2:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh37_HG2-sentLRSV-pbHiFichem2.2.norm.vcf.gz
       tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sention-svs/GRCh37_HG2-sentLRSV-pbHiFichem2.2.norm.vcf.gz.tbi
+    ## HKU ClairS 2024-03-17
+    HG8T-ClairS-ILL-SNV:
+      vcf_url: HG008_T_N-P_Ilmn_GRCh37_ClairS_v0.1.7_snv.vcf.gz
+      vcf_md5: c2794318bf32d10b424c6544bea40920
+      tbi_url: HG008_T_N-P_Ilmn_GRCh37_ClairS_v0.1.7_snv.vcf.gz.tbi
+      tbi_md5: 5a2e17eaed5e891072380c15c1939233
+      readme: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/HKU_HiFi_ClairS_v0.1.7-SNV-INDEL_20240326/README_HKU_ClairS.md
+    HG8T-ClairS-HiFi-SNV:
+      vcf_url: HG008_T_N-P_HiFi_GRCh37_ClairS_v0.1.7_snv.vcf.gz
+      vcf_md5: e6be710c4e1c36ab2609205c42c06dcb
+      tbi_url: HG008_T_N-P_HiFi_GRCh37_ClairS_v0.1.7_snv.vcf.gz.tbi
+      tbi_md5: b408a23494b5912695836ada25ddecf7
+      readme: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/HKU_HiFi_ClairS_v0.1.7-SNV-INDEL_20240326/README_HKU_ClairS.md
+    HG8T-ClairS-HiFi-INDEL:
+      vcf_url: HG008_T_N-P_HiFi_GRCh37_ClairS_v0.1.7_indel.vcf.gz
+      vcf_md5: 38e39f767dea6d6d3c753a9edf1a62a8
+      tbi_url: HG008_T_N-P_HiFi_GRCh37_ClairS_v0.1.7_indel.vcf.gz.tbi
+      tbi_md5: 6fd92dafd59992e1794ac9fd4aace952
+      readme: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/HKU_HiFi_ClairS_v0.1.7-SNV-INDEL_20240326/README_HKU_ClairS.md
   GRCh38:
     ## GIAB Benchmark Sets
     v4.2.1:
@@ -373,6 +402,11 @@ comparisons:
     HG2-sawfish:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/HG002_GRCh38_sawfish_example_vcf/genotyped.sv.vcf.gz
       tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/HG002_GRCh38_sawfish_example_vcf/genotyped.sv.vcf.gz.tbi
+    ## HG2 DRAGEN v4.3.4
+    HG2-DRAGENv4.3.4-smvar:
+      vcf_url: https://giab-data.s3.amazonaws.com/HG002_GRCh38_DRAGEN-v4.3.4_2024-05-10/DRAGEN_4.3.4_PrecisionFDA_v2_HG002.hard-filtered.vcf.gz
+    HG2-DRAGENv4.3.4-stvar:
+      var_url: https://giab-data.s3.amazonaws.com/HG002_GRCh38_DRAGEN-v4.3.4_2024-05-10/DRAGEN_4.3.4_PrecisionFDA_v2_HG002.sv.vcf.gz
     ## HG008 Normal Revio Callsets
     HG8N-RevioDV:
       vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/PacBio_Revio_20240125/pacbio-wgs-wdl_germline_20240206/HG008-N-P.GRCh38.deepvariant.phased.vcf.gz
@@ -380,6 +414,58 @@ comparisons:
     HG8N-RevioPBSV:
       vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/PacBio_Revio_20240125/pacbio-wgs-wdl_germline_20240206/HG008-N-P.GRCh38.pbsv.phased.vcf.gz
       tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/PacBio_Revio_20240125/pacbio-wgs-wdl_germline_20240206/HG008-N-P.GRCh38.pbsv.phased.vcf.gz.tbi
+    ## HG008-Tumor/Somatic ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #### Illumina DRAGEN v4.2.4 GRCh38
+    HG8T-DRAGENv4.2.4-graph-sv:  
+      vcf_url: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/DRAGEN-v4.2.4_ILMN-WGS_20240312/graph/dragen_4.2.4_HG008-mosaic_tumor.sv.vcf.gz    
+      tbi_url: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/DRAGEN-v4.2.4_ILMN-WGS_20240312/graph/dragen_4.2.4_HG008-mosaic_tumor.sv.vcf.gz.tbi
+      readme: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/DRAGEN-v4.2.4_ILMN-WGS_20240312/README_DRAGEN_20240312.md
+    HG8T-DRAGENv4.2.4-graph-cnv: 
+      vcf_url: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/DRAGEN-v4.2.4_ILMN-WGS_20240312/graph/dragen_4.2.4_HG008-mosaic_tumor.cnv.vcf.gz
+      tbi_url: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/DRAGEN-v4.2.4_ILMN-WGS_20240312/graph/dragen_4.2.4_HG008-mosaic_tumor.cnv.vcf.gz.tbi
+      readme: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/DRAGEN-v4.2.4_ILMN-WGS_20240312/README_DRAGEN_20240312.md
+    HG8T-DRAGENv4.2.4-graph-smvar: 
+      vcf_url: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/DRAGEN-v4.2.4_ILMN-WGS_20240312/graph/dragen_4.2.4_HG008-mosaic_tumor.hard-filtered.vcf.gz
+      tbi_url: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/DRAGEN-v4.2.4_ILMN-WGS_20240312/graph/dragen_4.2.4_HG008-mosaic_tumor.hard-filtered.vcf.gz.tbi
+      readme: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/DRAGEN-v4.2.4_ILMN-WGS_20240312/README_DRAGEN_20240312.md
+    HG8T-DRAGENv4.2.4-stdref-sv:  
+      vcf_url: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/DRAGEN-v4.2.4_ILMN-WGS_20240312/standard/dragen_4.2.4_HG008-mosaic_tumor.sv.vcf.gz    
+      tbi_url: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/DRAGEN-v4.2.4_ILMN-WGS_20240312/standard/dragen_4.2.4_HG008-mosaic_tumor.sv.vcf.gz.tbi
+      readme: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/DRAGEN-v4.2.4_ILMN-WGS_20240312/README_DRAGEN_20240312.md
+    HG8T-DRAGENv4.2.4-stdref-cnv: 
+      vcf_url: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/DRAGEN-v4.2.4_ILMN-WGS_20240312/standard/dragen_4.2.4_HG008-mosaic_tumor.cnv.vcf.gz
+      tbi_url: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/DRAGEN-v4.2.4_ILMN-WGS_20240312/standard/dragen_4.2.4_HG008-mosaic_tumor.cnv.vcf.gz.tbi
+      readme: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/DRAGEN-v4.2.4_ILMN-WGS_20240312/README_DRAGEN_20240312.md
+    HG8T-DRAGENv4.2.4-stdref-smvar: 
+      vcf_url: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/DRAGEN-v4.2.4_ILMN-WGS_20240312/standard/dragen_4.2.4_HG008-mosaic_tumor.hard-filtered.vcf.gz
+      tbi_url: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/DRAGEN-v4.2.4_ILMN-WGS_20240312/standard/dragen_4.2.4_HG008-mosaic_tumor.hard-filtered.vcf.gz.tbi
+      readme: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/DRAGEN-v4.2.4_ILMN-WGS_20240312/README_DRAGEN_20240312.md
+    #### HKU ClairS 2024-03-17
+    HG8T-ClairS-ILL-SNV:
+      vcf_url: HG008_T_N-P_Ilmn_GRCh38-GIABv3_ClairS_v0.1.7_snv.vcf.gz
+      vcf_md5: b2ff562812505831cf8002b8225b15b5
+      tbi_url: HG008_T_N-P_Ilmn_GRCh38-GIABv3_ClairS_v0.1.7_snv.vcf.gz.tbi
+      tbi_md5: 3d771d1d07affba51bc8b085676c0e49
+      readme: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/HKU_HiFi_ClairS_v0.1.7-SNV-INDEL_20240326/README_HKU_ClairS.md
+    HG8T-ClairS-HiFi-SNV:
+      vcf_url: HG008_T_N-P_HiFi_GRCh38-GIABv3_ClairS_v0.1.7_snv.vcf.gz
+      vcf_md5: 73c12abe6987acfe7e37da674b610ee5
+      tbi_url: HG008_T_N-P_HiFi_GRCh38-GIABv3_ClairS_v0.1.7_snv.vcf.gz.tbi
+      tbi_md5: 02fdfb75b6e8a1664d848073306a768d
+      readme: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/HKU_HiFi_ClairS_v0.1.7-SNV-INDEL_20240326/README_HKU_ClairS.md
+    HG8T-ClairS-HiFi-INDEL:
+      vcf_url: HG008_T_N-P_HiFi_GRCh38-GIABv3_ClairS_v0.1.7_indel.vcf.gz
+      vcf_md5: cd91f60f889892cc092c4a67500b809e
+      tbi_url: HG008_T_N-P_HiFi_GRCh38-GIABv3_ClairS_v0.1.7_indel.vcf.gz.tbi
+      tbi_md5: 9a1c454b71670d57cca47d5c56a7d5d2
+      readme: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/HKU_HiFi_ClairS_v0.1.7-SNV-INDEL_20240326/README_HKU_ClairS.md    
+    #### BCM Sniffles V2.2 SVs
+    HG8T-SnifflesV2.2-merge:
+      vcf_url: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/BCM_HiFi_ONT_Sniffles-v2.2_02282024/hg008_merge.vcf.gz
+      readme: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/BCM_HiFi_ONT_Sniffles-v2.2_02282024/BCM_Sniffles_README.md
+    HG8T-SnifflesV2.2-candidate:
+      vcf_url: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/BCM_HiFi_ONT_Sniffles-v2.2_02282024/hg008_merge_candidates.vcf.gz
+      readme: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/BCM_HiFi_ONT_Sniffles-v2.2_02282024/BCM_Sniffles_README.md
   CHM13v2.0:
     ## Query callset HG002 PCR-Free Illumina 50x mapped to chm13v2.0 using BWA and variant calling w/ DV from Andrew Carroll
     HG2-ILMN-CHM13v2:
@@ -400,4 +486,22 @@ comparisons:
     HG2-RevioPBSV:
       vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/analysis/PacBio_HiFi-Revio_20231031/pacbio-wgs-wdl_germline_20231031/HG002.CHM13.pbsv.phased.vcf.gz
       tbi_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/analysis/PacBio_HiFi-Revio_20231031/pacbio-wgs-wdl_germline_20231031/HG002.CHM13.pbsv.phased.vcf.gz.tbi
-    
+    ## HKU ClairS 2024-03-17
+    HG8T-ClairS-ILL-SNV:
+      vcf_url: HG008_T_N-P_Ilmn_CHM13v2.0_ClairS_v0.1.7_snv.vcf.gz
+      vcf_md5: e1bfbe3f94aa7ced590691d8fc0c39d4
+      tbi_url: HG008_T_N-P_Ilmn_CHM13v2.0_ClairS_v0.1.7_snv.vcf.gz.tbi
+      tbi_md5: 8e9f5f26233b3fb97fcb0ab8f1298b47
+      readme: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/HKU_HiFi_ClairS_v0.1.7-SNV-INDEL_20240326/README_HKU_ClairS.md
+    HG8T-ClairS-HiFi-SNV:
+      vcf_url: HG008_T_N-P_HiFi_CHM13v2.0_ClairS_v0.1.7_snv.vcf.gz
+      vcf_md5: 0d0834ef9df368eafd67c59363964e3d
+      tbi_url: HG008_T_N-P_HiFi_CHM13v2.0_ClairS_v0.1.7_snv.vcf.gz.tbi
+      tbi_md5: 142851c715e28b37c543772be3c0d5fe
+      readme: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/HKU_HiFi_ClairS_v0.1.7-SNV-INDEL_20240326/README_HKU_ClairS.md
+    HG8T-ClairS-HiFi-INDEL:
+      vcf_url: HG008_T_N-P_HiFi_CHM13v2.0_ClairS_v0.1.7_indel.vcf.gz
+      vcf_md5: aeb961a4f2cbe2feceeddaa2a9fe681a
+      tbi_url: HG008_T_N-P_HiFi_CHM13v2.0_ClairS_v0.1.7_indel.vcf.gz.tbi
+      tbi_md5: bf332cec595da09e5a6e9d545d97252a
+      readme: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/HKU_HiFi_ClairS_v0.1.7-SNV-INDEL_20240326/README_HKU_ClairS.md
