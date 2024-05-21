@@ -17,6 +17,8 @@ genomic_regions = [
     "HG002Q100-pav-discrep-smvar",
     "HG002Q100-pav-discrep-stvar",
     "HG002Q100-pav-inversions",
+    "HG002Q100-errors",
+    "HG002Q100-mosaic",
     "TSPY2-segdups",
 ]
 
