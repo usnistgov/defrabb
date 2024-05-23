@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Milestone v0.016 2024-05-22
+## Milestone v0.016 2024-05-23
 
 - moving public facing version of repo to [https://github.com/usnistgov/defrabb](https://github.com/usnistgov/defrabb)
 - adding manually generated HG002 Q100 specific exclusions [issues #153 #154 and #158]
