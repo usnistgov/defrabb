@@ -19,6 +19,7 @@ genomic_regions = [
     "HG002Q100-pav-inversions",
     "HG002Q100-errors",
     "HG002Q100-mosaic",
+    "HG002Q100-delins-errors",
     "TSPY2-segdups",
 ]
 
