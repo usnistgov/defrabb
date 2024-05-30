@@ -49,6 +49,10 @@ def setup_logging(run_dir: str, log_level: str) -> None:
     console.setFormatter(formatter)
     logging.getLogger("").addHandler(console)
 
+def load_config(config_path: str) -> dict:  
+    with open(config_path, 'r') as f:  
+        return json.load(f)  
+
 
 def parse_arguments() -> Tuple[argparse.Namespace, List[str]]:
     """
@@ -85,6 +89,25 @@ def parse_arguments() -> Tuple[argparse.Namespace, List[str]]:
         type=str,
         default=ARCHIVE_DIR,
         help="Directory to copy pipeline run output to for release. Primarily intended for internal NIST use.",
+    )
+    parser.add_argument(  
+        "--s3_bucket",  
+        type=str,  
+        default=None,  
+        help="S3 bucket for uploading files (default from config file)",  
+    )  
+    parser.add_argument(  
+        "--s3_path",  
+        type=str,  
+        default=None,  
+        help="S3 path for uploading files (default from config file)",  
+    )  
+    parser.add_argument(  
+        "--release_type",  
+        type=str,  
+        choices=["local", "s3", "both"],  
+        default="both",  
+        help="Type of release: local, s3, or both (default: both)",  
     )
     parser.add_argument(
         "--log-level",
@@ -228,6 +251,24 @@ def generate_snakemake_archive(
         logging.info(f"Command to generate archive: {' '.join(cmd)}")
         run_subprocess_command(cmd, "Error generating Snakemake archive")
 
+def upload_to_s3(run_id: str, run_dir: str, bucket_name: str) -> None:  
+    cmd = [  
+        "aws", "s3", "sync",  
+        run_dir, f"s3://{bucket_name}/defrabb_runs/{run_id}",  
+        "--exclude", "*",  
+        "--include", "results/*",  
+        "--include", "resources/comparison*",  
+        "--include", "resources/exclusions/*",  
+        "--include", "config/resources.yml",  
+        "--include", f"config/analyses_{run_id}.tsv",  
+        "--include", f"{run_id}.tar",  
+        "--include", "environment.yml",  
+        "--include", "run.log",  
+        "--include", "run_README.md",  
+        "--acl", "public-read"  
+    ]  
+    logging.info(f"Uploading to S3 with command: {' '.join(cmd)}")  
+    run_subprocess_command(cmd, "Error uploading to S3")  
 
 def release_run(args: argparse.Namespace, run_dir: str, archive_dir: str, bucket_name: str) -> None:  
     try:  
@@ -291,9 +332,9 @@ def log_conda_environment(run_dir: str) -> None:
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Error getting Conda environment details: {e}")
 
-def create_data_manifest(run_id: str, bucket_name: str, manifest_path: str) -> None:  
+def create_data_manifest(run_id: str, bucket_name: str, s3_path: str, manifest_path: str) -> None:  
     s3 = boto3.client('s3')  
-    prefix = f'defrabb_runs/{run_id}/'  
+    prefix = f'{s3_path}/{run_id}/'  
   
     def determine_analysis(key):  
         subdirs = key.split('/')  
@@ -354,29 +395,40 @@ def create_data_manifest(run_id: str, bucket_name: str, manifest_path: str) -> N
                 return ref.replace('v1.0.1', 'HG002Q100v1.0.1')  
         return 'NA'  
   
-    with open(manifest_path, 'w') as file:  
-        file.write("analysis\tfile_type\tref_id\tsize_Gb\ts3_uri\turl\n")  
-        continuation_token = None  
-        is_truncated = True  
-        while is_truncated:  
-            if continuation_token:  
-                response = s3.list_objects_v2(Bucket=bucket_name, Prefix=prefix, ContinuationToken=continuation_token)  
-            else:  
-                response = s3.list_objects_v2(Bucket=bucket_name, Prefix=prefix)  
-            for item in response.get('Contents', []):  
-                key = item['Key']  
-                size_gb = item['Size'] / (1024 ** 3)  
-                analysis = determine_analysis(key)  
-                file_type = determine_file_type(key)  
-                ref_id = determine_ref_id(key)  
-                s3_uri = f's3://{bucket_name}/{key}'  
-                url = f'https://{bucket_name}.s3.amazonaws.com/{key}'  
-                file.write(f"{analysis}\t{file_type}\t{ref_id}\t{size_gb:.2f}\t{s3_uri}\t{url}\n")  
-            is_truncated = response.get('IsTruncated', False)  
-            continuation_token = response.get('NextContinuationToken', None)  
+    try:  
+        with open(manifest_path, 'w') as file:  
+            file.write("analysis\tfile_type\tref_id\tsize_Gb\ts3_uri\turl\n")  
+            continuation_token = None  
+            is_truncated = True  
+            while is_truncated:  
+                if continuation_token:  
+                    response = s3.list_objects_v2(Bucket=bucket_name, Prefix=prefix, ContinuationToken=continuation_token)  
+                else:  
+                    response = s3.list_objects_v2(Bucket=bucket_name, Prefix=prefix)  
+                for item in response.get('Contents', []):  
+                    key = item['Key']  
+                    size_gb = item['Size'] / (1024 ** 3)  
+                    analysis = determine_analysis(key)  
+                    file_type = determine_file_type(key)  
+                    ref_id = determine_ref_id(key)  
+                    s3_uri = f's3://{bucket_name}/{key}'  
+                    url = f'https://{bucket_name}.s3.amazonaws.com/{key}'  
+                    file.write(f"{analysis}\t{file_type}\t{ref_id}\t{size_gb:.2f}\t{s3_uri}\t{url}\n")  
+                is_truncated = response.get('IsTruncated', False)  
+                continuation_token = response.get('NextContinuationToken', None)  
+    except Exception as e:  
+        logging.error(f"Error creating data manifest: {e}")  
+        raise  
 
 def main() -> None:
+    config = load_config("config/wrapper.json") 
     args, extra_args = parse_arguments()
+
+    if not args.s3_bucket:  
+        args.s3_bucket = config.get("default_s3_bucket")  
+    if not args.s3_path:  
+        args.s3_path = config.get("default_s3_path")  
+
     try:
         args = validate_and_set_defaults(args)
     except (InvalidRunIDError, InvalidDirectoryError) as e:
