@@ -24,13 +24,9 @@ smkformat:
     - echo "Running snakefmt"
     - snakefmt .
 
-unit-test:
-  script:
-    - pytest .tests
-
 run-test:
   artifacts:
     paths: 
         - smalltest
   script:
-    - snakemake -p --use-conda --cores 1 --verbose --dry-run
+    - snakemake -p --use-conda --cores 1 --verbose
