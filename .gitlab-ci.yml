@@ -25,4 +25,4 @@ run-test:
     paths: 
         - smalltest
   script:
-    - snakemake -p --use-conda --cores 1 --verbose
+    - snakemake -p --use-conda --conda-frontend mamba --cores 1 --verbose
