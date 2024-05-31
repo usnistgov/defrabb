@@ -1,0 +1,27 @@
+{  
+  "default_s3_bucket": "giab-data",
+  "default_s3_path": "defrabb_runs",
+  "release_rules": {  
+    "local": {  
+      "include": [  
+        "results/*",  
+        "resources/comparison*",  
+        "resources/exclusions/*",  
+        "config/resources.yml",  
+        "config/analyses_{RUNID}.tsv",  
+        "{RUNID}.tar",  
+        "environment.yml",  
+        "run.log",  
+        "run_README.md"  
+      ],  
+      "exclude": [  
+        ".snakemake",  
+        "resources",  
+        "GRCh37@all",  
+        "GRCh38@all",  
+        "CHM13@all"  
+      ]  
+    },  
+    "s3": "same as local"  
+  }  
+}

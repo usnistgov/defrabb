@@ -1,5 +1,0 @@
-{  
-  "default_s3_bucket": "giab-data",
-  "default_s3_path": "defrabb_runs",
-  "release_types": ["local", "s3", "both"]
-}
