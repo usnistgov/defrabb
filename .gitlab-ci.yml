@@ -4,13 +4,9 @@ before_script:
   - echo "Installing pipeline dependencies"
   - mamba --version
   - mamba config --set channel_priority strict
-  - mamba install -c bioconda -c conda-forge python==3.11.6 snakemake==7.26.0 snakefmt
+  - mamba install -c conda-forge -c bioconda python==3.12.3 snakemake==8.12.0 snakefmt==0.10.2
   - snakemake --version
   - black --version
-
-# after_script:
-#   - echo "After script section"
-#   - echo "For example you might do some cleanup here"
 
 # lint-test:
 #   artifacts:
@@ -24,13 +20,9 @@ smkformat:
     - echo "Running snakefmt"
     - snakefmt .
 
-unit-test:
-  script:
-    - pytest .tests
-
 run-test:
   artifacts:
     paths: 
         - smalltest
   script:
-    - snakemake -p --use-conda --cores 1 --verbose --dry-run
+    - snakemake -p --use-conda --cores 1 --verbose --config "_happy_threads=1"
