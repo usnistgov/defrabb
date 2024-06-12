@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 import argparse
-import sys
-import os
-import subprocess
 import datetime
-import logging
-import re
-from typing import List, Optional, Tuple
-import boto3
 import fnmatch
 import json
+import logging
+import os
+import re
+import subprocess
+import sys
+from typing import List, Optional, Tuple
 
+import boto3
 
 # Constants
 DEFAULT_OUTDIR = "/defrabb_runs/runs_in_progress/"
