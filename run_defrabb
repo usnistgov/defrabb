@@ -458,13 +458,10 @@ def create_data_manifest(
         for ref in [
             "GRCh37",
             "GRCh38",
-            "GRCh38-GIABv3",
-            "v1.0.1mat",
-            "v1.0.1pat",
-            "v1.0.1dip",
+            "CHM13",
         ]:
             if ref in key:
-                return ref.replace("v1.0.1", "HG002Q100v1.0.1")
+                return ref
         return "NA"
 
     try:
