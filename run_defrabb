@@ -301,7 +301,9 @@ def upload_to_s3(
             relative_path = os.path.relpath(file_path, run_dir)
             if should_include(relative_path):
                 s3_key = os.path.join(s3_path, run_id, relative_path)
-                s3.upload_file(file_path, bucket_name, s3_key,  ExtraArgs={'ACL':'public-read'})
+                s3.upload_file(
+                    file_path, bucket_name, s3_key, ExtraArgs={"ACL": "public-read"}
+                )
                 logging.info(f"Uploaded {file_path} to s3://{bucket_name}/{s3_key}")
 
 
