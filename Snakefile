@@ -607,11 +607,8 @@ rule run_truvari:
         ),
     log:
         "logs/run_travari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/truvari.log",
-    # TODO this tmp thing is a workaround for the fact that snakemake
-    # over-zealously makes output directories when tools like truvari expect
-    # them to not exist. Also, /tmp is only a thing on Linux (if that matters).
-    # Also^2, certain cluster admins (such as those that run Nisaba) don't like
-    # it when we use /tmp
+    benchmark:
+        "benchmark/run_truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.tsv"
     params:
         dir=lambda wildcards, output: Path(output[0]).parent,
         tmpdir=lambda wildcards: expand("truvari_{eval_id}", eval_id=wildcards.eval_id),
@@ -676,6 +673,8 @@ rule truvari_refine:
         "logs/run_travari_refine/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/truvari_refine.log",
     params:
         bench_output=lambda w, output: os.path.dirname(output[0]),
+    benchmark:
+        "benchmark/run_truvari_refine/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "envs/truvari.yml"
     threads: config["_truvari_refine_threads"]

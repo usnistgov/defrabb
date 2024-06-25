@@ -51,3 +51,4 @@ benchmark/**
 ## pytests files
 .tests/unit/__pycache__/**
 
+.Rproj.user
