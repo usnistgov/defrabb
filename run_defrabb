@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 import argparse
 import datetime
+<<<<<<< HEAD
 import fnmatch
+=======
+>>>>>>> 6c0c23b (sorting imports fixing release config arg)
 import json
 import logging
 import os
@@ -491,9 +494,16 @@ def create_data_manifest(
 
 
 def main() -> None:
+<<<<<<< HEAD
     args, extra_args = parse_arguments()
     release_config = load_release_config(args.release_config)
     release_rules = validate_and_expand_release_rules(release_config, args.release_type)
+=======
+    args, extra_args = parse_arguments()  
+    config_path = args.release_config  
+    config = load_config(config_path)  
+    release_rules = validate_and_expand_release_rules(config, args.release_type) 
+>>>>>>> 6c0c23b (sorting imports fixing release config arg)
 
     if not args.s3_bucket:
         args.s3_bucket = release_config.get("default_s3_bucket")
