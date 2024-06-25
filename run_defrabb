@@ -50,6 +50,11 @@ def setup_logging(run_dir: str, log_level: str) -> None:
     logging.getLogger("").addHandler(console)
 
 
+def load_config(config_path: str) -> dict:
+    with open(config_path, "r") as f:
+        return json.load(f)
+
+
 def parse_arguments() -> Tuple[argparse.Namespace, List[str]]:
     """
     Parse command-line arguments.
@@ -86,6 +91,31 @@ def parse_arguments() -> Tuple[argparse.Namespace, List[str]]:
         default=ARCHIVE_DIR,
         help="Directory to copy pipeline run output to for release. Primarily intended for internal NIST use.",
     )
+    parser.add_argument(
+        "--s3_bucket",
+        type=str,
+        default=None,
+        help="S3 bucket for uploading files (default from release config file)",
+    )
+    parser.add_argument(
+        "--s3_path",
+        type=str,
+        default=None,
+        help="S3 path for uploading files (default from release config file)",
+    )
+    parser.add_argument(
+        "--release_type",
+        type=str,
+        choices=["local", "s3", "both"],
+        default="both",
+        help="Type of release: local, s3, or both (default: both)",
+    )
+    parser.add_argument(  
+        "--release_config",  
+        type=str,  
+        default="config/release.json",  
+        help="Path to the configuration file (default: config/release.json)",  
+    )  
     parser.add_argument(
         "--log-level",
         type=str,
@@ -152,6 +182,20 @@ def validate_and_set_defaults(args: argparse.Namespace) -> argparse.Namespace:
     if args.steps not in VALID_STEPS:
         raise ValueError("Error: Invalid choice for --steps.")
     return args
+
+
+def validate_and_expand_release_rules(config: dict, release_type: str) -> dict: 
+    release_rules = config.get("release_rules", {})
+    for key, value in release_rules.items():
+        if value == "same as local":
+            release_rules[key] = release_rules["local"]
+        elif value == "same as s3":
+            release_rules[key] = release_rules["s3"]
+    
+    for key in ["local", "s3"]:  
+        if key in release_rules and ("include" not in release_rules[key] or "exclude" not in release_rules[key]):  
+            raise ValueError(f"Include and exclude patterns must be defined for {key}")        
+    return release_rules
 
 
 def find_core_limit() -> int:
@@ -229,30 +273,79 @@ def generate_snakemake_archive(
         run_subprocess_command(cmd, "Error generating Snakemake archive")
 
 
-def release_run(args: argparse.Namespace, run_dir: str, archive_dir: str) -> None:
-    """Release run by copying files to an archive directory."""
-    cmd = [
-        "rsync",
-        "-rlptoDv",
-        "--exclude=.snakemake",
-        "--exclude=resources",
-        "--exclude=GRCh37@all",
-        "--exclude=GRCh38@all",
-        "--exclude=CHM13@all",
-        f"{run_dir}",
-        f"{archive_dir}",
-    ]
-    try:
-        subprocess.run(cmd, check=True)
-        # Copy resources.yml and config file to the archive directory
-        subprocess.run(
-            ["cp", args.analyses, f"{archive_dir}/{args.runid}/"], check=True
-        )
-        subprocess.run(
-            ["cp", "config/resources.yml", f"{archive_dir}/{args.runid}/"], check=True
-        )
-    except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"Error releasing run: {e}")
+def upload_to_s3(
+    run_id: str, run_dir: str, bucket_name: str, s3_path: str, s3_rules: dict
+) -> None:
+    s3 = boto3.client("s3")
+    include_patterns = s3_rules["include"]
+    exclude_patterns = s3_rules["exclude"]
+
+    def should_include(file_path: str) -> bool:
+        for pattern in include_patterns:
+            if fnmatch.fnmatch(file_path, pattern.format(RUNID=run_id)):
+                return True
+        return False
+
+    def should_exclude(file_path: str) -> bool:
+        for pattern in exclude_patterns:
+            if fnmatch.fnmatch(file_path, pattern):
+                return True
+        return False
+
+    for root, _, files in os.walk(run_dir):
+        for file in files:
+            file_path = os.path.join(root, file)
+            relative_path = os.path.relpath(file_path, run_dir)
+            if should_include(relative_path) and not should_exclude(relative_path):
+                s3_key = os.path.join(s3_path, run_id, relative_path)
+                s3.upload_file(file_path, bucket_name, s3_key)
+                logging.info(f"Uploaded {file_path} to s3://{bucket_name}/{s3_key}")
+
+
+def release_run(
+    args: argparse.Namespace,
+    run_dir: str,
+    archive_dir: str,
+    bucket_name: str,
+    s3_path: str,
+    release_type: str,
+    release_rules: dict,
+) -> None:
+    if release_type in ["s3", "both"]:
+        try:
+            # Upload to S3
+            upload_to_s3(args.runid, run_dir, bucket_name, s3_path, release_rules["s3"])
+
+            # Create data manifest
+            manifest_path = os.path.join(run_dir, "data_manifest.tsv")
+            create_data_manifest(args.runid, bucket_name, s3_path, manifest_path)
+        except RuntimeError as e:
+            logging.error(f"S3 upload failed: {e}")
+            if release_type == "s3":
+                sys.exit(1)
+
+    if release_type in ["local", "both"]:
+        try:
+            # Copy files locally
+            local_rules = release_rules["local"]
+            cmd = ["rsync", "-rlptoDv"]
+            for pattern in local_rules["include"]:  
+                cmd.extend(["--include", pattern.format(RUNID=args.runid)]) 
+            for pattern in local_rules["exclude"]:
+                cmd.extend(["--exclude", pattern])
+            cmd.extend([f"{run_dir}/", f"{archive_dir}/"])
+            subprocess.run(cmd, check=True)
+            subprocess.run(
+                ["cp", args.analyses, f"{archive_dir}/{args.runid}/"], check=True
+            )
+            subprocess.run(
+                ["cp", "config/resources.yml", f"{archive_dir}/{args.runid}/"],
+                check=True,
+            )
+        except subprocess.CalledProcessError as e:
+            logging.error(f"Local copy failed: {e}")
+            if release_type == "local":
+                sys.exit(1)
 
 
 def log_git_status() -> None:
@@ -291,6 +384,118 @@ def log_conda_environment(run_dir: str) -> None:
         raise RuntimeError(f"Error getting Conda environment details: {e}")
 
 
+def create_data_manifest(
+    run_id: str, bucket_name: str, s3_path: str, manifest_path: str
+) -> None:
+    s3 = boto3.client("s3")
+    prefix = f"{s3_path}/{run_id}/"
+
+    def determine_analysis(key):
+        subdirs = key.split("/")
+        if "results" in key:
+            return subdirs[3]
+        if len(subdirs) > 3:
+            return subdirs[2]
+        return "NA"
+
+    def determine_file_type(key):
+        if key.endswith("tar"):
+            return "snakemake_archive"
+        if "README" in key and key.endswith(".md"):
+            return "README"
+        if "config/analyses_" in key and key.endswith(".tsv"):
+            return "analysis table"
+        if "config/resources.yml" in key:
+            return "config"
+        if "run.log" in key:
+            return "run.log"
+        if "environment.yml" in key:
+            return "mamba env"
+        if "resources/comparison" in key:
+            return "comparison vcfs"
+        if "resources/exclusions" in key:
+            return "exclusion bed"
+        if "results/asm_varcalls" in key and key.endswith("dip.bed"):
+            return "dip.bed"
+        if "results/asm_varcalls" in key and key.endswith("hap1.bam"):
+            return "hap1 bam"
+        if "results/asm_varcalls" in key and key.endswith("hap1.bam.bai"):
+            return "hap1 bam idx"
+        if "results/asm_varcalls" in key and key.endswith("hap2.bam"):
+            return "hap2 bam"
+        if "results/asm_varcalls" in key and key.endswith("hap2.bam.bai"):
+            return "hap2 bam idx"
+        if (
+            "draft_benchmarksets" in key
+            and "bench-vars" not in key
+            and key.endswith("vcf.gz")
+        ):
+            if "smvar" in key:
+                return "smvar benchmark vcf"
+            if "stvar" in key:
+                return "stvar benchmark vcf"
+        if (
+            "draft_benchmarksets" in key
+            and "bench-vars" not in key
+            and key.endswith("vcf.gz.tbi")
+        ):
+            if "smvar" in key:
+                return "smvar benchmark vcf idx"
+            if "stvar" in key:
+                return "stvar benchmark vcf idx"
+        if "draft_benchmarksets" in key and key.endswith("benchmark.bed"):
+            if "smvar" in key:
+                return "smvar benchmark bed"
+            if "stvar" in key:
+                return "stvar benchmark bed"
+        else:
+            return "other files"
+
+    def determine_ref_id(key):
+        for ref in [
+            "GRCh37",
+            "GRCh38",
+            "GRCh38-GIABv3",
+            "v1.0.1mat",
+            "v1.0.1pat",
+            "v1.0.1dip",
+        ]:
+            if ref in key:
+                return ref.replace("v1.0.1", "HG002Q100v1.0.1")
+        return "NA"
+
+    try:
+        with open(manifest_path, "w") as file:
+            file.write("analysis\tfile_type\tref_id\tsize_Gb\ts3_uri\turl\n")
+            continuation_token = None
+            is_truncated = True
+            while is_truncated:
+                if continuation_token:
+                    response = s3.list_objects_v2(
+                        Bucket=bucket_name,
+                        Prefix=prefix,
+                        ContinuationToken=continuation_token,
+                    )
+                else:
+                    response = s3.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
+                for item in response.get("Contents", []):
+                    key = item["Key"]
+                    size_gb = item["Size"] / (1024**3)
+                    analysis = determine_analysis(key)
+                    file_type = determine_file_type(key)
+                    ref_id = determine_ref_id(key)
+                    s3_uri = f"s3://{bucket_name}/{key}"
+                    url = f"https://{bucket_name}.s3.amazonaws.com/{key}"
+                    file.write(
+                        f"{analysis}\t{file_type}\t{ref_id}\t{size_gb:.2f}\t{s3_uri}\t{url}\n"
+                    )
+                is_truncated = response.get("IsTruncated", False)
+                continuation_token = response.get("NextContinuationToken", None)
+    except Exception as e:
+        logging.error(f"Error creating data manifest: {e}")
+        raise
+
+
 def main() -> None:
     args, extra_args = parse_arguments()  
     config_path = args.release_config  
@@ -312,6 +517,7 @@ def main() -> None:
     report_name = os.path.join(run_dir, f"snakemake_report_{args.runid}.html")
     smk_archive_path = os.path.join(run_dir, f"{args.runid}.tar")
     archive_dir = args.archive_dir
+    bucket_name = "giab-data"  # Define your S3 bucket name here
 
     # Set up logging to write to the run directory
     os.makedirs(run_dir, exist_ok=True)
@@ -348,7 +554,15 @@ def main() -> None:
             generate_snakemake_archive(args, run_dir, smk_archive_path, extra_args)
         if args.steps in ["all", "release"]:
             logging.info("Releasing Run")
-            release_run(args, run_dir, archive_dir)
+            release_run(
+                args,
+                run_dir,
+                archive_dir,
+                args.s3_bucket,
+                args.s3_path,
+                args.release_type,
+                release_rules,
+            )
 
         logging.info("DeFrABB execution complete!")
     except (RuntimeError, FileNotFoundError, subprocess.CalledProcessError) as e:
