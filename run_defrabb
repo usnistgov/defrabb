@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import argparse
 import datetime
+import fnmatch
 import json
 import logging
 import os
@@ -50,8 +51,8 @@ def setup_logging(run_dir: str, log_level: str) -> None:
     logging.getLogger("").addHandler(console)
 
 
-def load_config(config_path: str) -> dict:
-    with open(config_path, "r") as f:
+def load_release_config(release_config_path: str) -> dict:
+    with open(release_config_path, "r") as f:
         return json.load(f)
 
 
@@ -110,12 +111,12 @@ def parse_arguments() -> Tuple[argparse.Namespace, List[str]]:
         default="both",
         help="Type of release: local, s3, or both (default: both)",
     )
-    parser.add_argument(  
-        "--release_config",  
-        type=str,  
-        default="config/release.json",  
-        help="Path to the configuration file (default: config/release.json)",  
-    )  
+    parser.add_argument(
+        "--release_config",
+        type=str,
+        default="config/release.json",
+        help="Path to the configuration file (default: config/release.json)",
+    )
     parser.add_argument(
         "--log-level",
         type=str,
@@ -184,17 +185,19 @@ def validate_and_set_defaults(args: argparse.Namespace) -> argparse.Namespace:
     return args
 
 
-def validate_and_expand_release_rules(config: dict, release_type: str) -> dict: 
-    release_rules = config.get("release_rules", {})
+def validate_and_expand_release_rules(release_config: dict, release_type: str) -> dict:
+    release_rules = release_config.get("release_rules", {})
     for key, value in release_rules.items():
         if value == "same as local":
             release_rules[key] = release_rules["local"]
         elif value == "same as s3":
             release_rules[key] = release_rules["s3"]
-    
-    for key in ["local", "s3"]:  
-        if key in release_rules and ("include" not in release_rules[key] or "exclude" not in release_rules[key]):  
-            raise ValueError(f"Include and exclude patterns must be defined for {key}")        
+
+    for key in ["local", "s3"]:
+        if key in release_rules and (
+            "include" not in release_rules[key] or "exclude" not in release_rules[key]
+        ):
+            raise ValueError(f"Include and exclude patterns must be defined for {key}")
     return release_rules
 
 
@@ -328,9 +331,9 @@ def release_run(
         try:
             # Copy files locally
             local_rules = release_rules["local"]
-            cmd = ["rsync", "-rlptoDv"]
-            for pattern in local_rules["include"]:  
-                cmd.extend(["--include", pattern.format(RUNID=args.runid)]) 
+            cmd = ["rsync", "-rv"]
+            for pattern in local_rules["include"]:
+                cmd.extend(["--include", pattern.format(RUNID=args.runid)])
             for pattern in local_rules["exclude"]:
                 cmd.extend(["--exclude", pattern])
             cmd.extend([f"{run_dir}/", f"{archive_dir}/"])
@@ -455,13 +458,10 @@ def create_data_manifest(
         for ref in [
             "GRCh37",
             "GRCh38",
-            "GRCh38-GIABv3",
-            "v1.0.1mat",
-            "v1.0.1pat",
-            "v1.0.1dip",
+            "CHM13",
         ]:
             if ref in key:
-                return ref.replace("v1.0.1", "HG002Q100v1.0.1")
+                return ref
         return "NA"
 
     try:
@@ -497,15 +497,14 @@ def create_data_manifest(
 
 
 def main() -> None:
-    args, extra_args = parse_arguments()  
-    config_path = args.release_config  
-    config = load_config(config_path)  
-    release_rules = validate_and_expand_release_rules(config, args.release_type) 
+    args, extra_args = parse_arguments()
+    release_config = load_release_config(args.release_config)
+    release_rules = validate_and_expand_release_rules(release_config, args.release_type)
 
     if not args.s3_bucket:
-        args.s3_bucket = config.get("default_s3_bucket")
+        args.s3_bucket = release_config.get("default_s3_bucket")
     if not args.s3_path:
-        args.s3_path = config.get("default_s3_path")
+        args.s3_path = release_config.get("default_s3_path")
 
     try:
         args = validate_and_set_defaults(args)

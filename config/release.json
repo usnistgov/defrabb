@@ -15,11 +15,7 @@
         "run_README.md"  
       ],  
       "exclude": [  
-        ".snakemake",  
-        "resources",  
-        "GRCh37@all",  
-        "GRCh38@all",  
-        "CHM13@all"  
+        "*"
       ]  
     },  
     "s3": "same as local"  
