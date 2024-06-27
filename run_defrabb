@@ -299,7 +299,7 @@ def upload_to_s3(
         for file in files:
             file_path = os.path.join(root, file)
             relative_path = os.path.relpath(file_path, run_dir)
-            if should_include(relative_path) and not should_exclude(relative_path):
+            if should_include(relative_path):
                 s3_key = os.path.join(s3_path, run_id, relative_path)
                 s3.upload_file(file_path, bucket_name, s3_key)
                 logging.info(f"Uploaded {file_path} to s3://{bucket_name}/{s3_key}")
@@ -402,7 +402,7 @@ def create_data_manifest(
         return "NA"
 
     def determine_file_type(key):
-        if key.endswith("tar"):
+        if key.endswith("tar.gz"):
             return "snakemake_archive"
         if "README" in key and key.endswith(".md"):
             return "README"
