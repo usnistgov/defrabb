@@ -513,8 +513,8 @@ def main() -> None:
         sys.exit(1)
 
     run_dir = os.path.join(args.outdir, args.runid)
-    report_name = os.path.join(run_dir, f"snakemake_report_{args.runid}.html")
-    smk_archive_path = os.path.join(run_dir, f"{args.runid}.tar")
+    report_name = os.path.join(run_dir, f"snakemake_report_{args.runid}.zip")
+    smk_archive_path = os.path.join(run_dir, f"archive.tar.gz")
     archive_dir = args.archive_dir
     bucket_name = "giab-data"  # Define your S3 bucket name here
 
