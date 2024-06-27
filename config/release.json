@@ -4,12 +4,16 @@
   "release_rules": {  
     "local": {  
       "include": [  
-        "results/*",  
-        "resources/comparison*",  
-        "resources/exclusions/*",  
+        "results/",
+        "results/**",  
+        "resources/",
+        "resources/comparison/",
+        "resources/comparison/**",  
+        "resources/exclusions/",  
+        "resources/exclusions/**",  
         "config/resources.yml",  
         "config/analyses_{RUNID}.tsv",  
-        "{RUNID}.tar",  
+        "{RUNID}.tar.gz",  
         "environment.yml",  
         "run.log",  
         "run_README.md"  
