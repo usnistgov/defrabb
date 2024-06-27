@@ -437,31 +437,70 @@ Truth and evaluation ids are based on evaluation id provided in eval_id defined 
 Will want to modify so values are based on truvari command to accurately reflect how truvari was run.
 
 ```{r evalstvartbl}
-truvari_summary_files <- run_params$inputs$truvari_summary %>%
-    set_names(str_extract(., "(?<=truvari/).*(?=/)"))
-truvari_summary_df <- truvari_summary_files %>%
-    map(jsonlite::fromJSON,
-        simplifyVector = FALSE,
-        simplifyDataFrame = FALSE,
-        simplifyMatrix = FALSE
-    ) %>%
-    # Remove 'weighted' and 'gt_matrix' keys from each item  
-    map(~{.x$weighted <- NULL; .x$gt_matrix <- NULL; .x}) %>%  
-    # better handling nulls in list - mostly for test data set
-    map_depth(., 2, ~ifelse(is.null(.x), NA, .x)) %>% 
-    map_dfr(as_data_frame, .id = "evaluation") %>% 
-    ## Assumes evaluation naming convention used in analysis tables
-  mutate(
-    ref = str_remove(evaluation, "_.*"),
-    truth = str_extract(evaluation, "(?<=T~).*(?=_Q)"),
-    query = str_extract(evaluation, "(?<=Q~)[^_]*(?=_)"),
-    target_regions = str_extract(evaluation, "(?<=TR~)[^_]*(?=_)")
-  ) %>% 
-  select(ref, truth, query, target_regions, c(2:16))
+truvari_refine_files <- run_params$inputs$truvari_refine_summary %>%
+  set_names(str_extract(., "(?<=truvari/).*(?=/)"))
 
+truvari_bench_files <- run_params$inputs$truvari_summary %>%
+  set_names(str_extract(., "(?<=truvari/).*(?=/)"))
+
+## Including truvari bench files from truvari refine runs
+truvari_bench_files <- truvari_refine_files %>% 
+  map(str_remove, "refine.variant_") %>% 
+  c(truvari_bench_files)
+
+if (length(truvari_bench_files) > 0){
+  truvari_bench_df <- truvari_bench_files %>%
+      map(jsonlite::fromJSON,
+          simplifyVector = FALSE,
+          simplifyDataFrame = FALSE,
+          simplifyMatrix = FALSE
+      ) %>%
+      # Remove 'weighted' and 'gt_matrix' keys from each item  
+      map(~{.x$weighted <- NULL; .x$gt_matrix <- NULL; .x}) %>%  
+      # better handling nulls in list - mostly for test data set
+      map_depth(., 2, ~ifelse(is.null(.x), NA, .x)) %>% 
+      map_dfr(as_data_frame, .id = "evaluation") %>% 
+      ## Assumes evaluation naming convention used in analysis tables
+    mutate(
+      ref = str_remove(evaluation, "_.*"),
+      truth = str_extract(evaluation, "(?<=T~).*(?=_Q)"),
+      query = str_extract(evaluation, "(?<=Q~)[^_]*(?=_)"),
+      target_regions = str_extract(evaluation, "(?<=TR~)[^_]*(?=_)")
+    ) %>% 
+    select(ref, truth, query, target_regions, c(2:16)) %>%
+    add_column(method = "bench", .before = "target_regions")
+} else {
+  truvari_bench_df <- tibble()
+}
+
+if (length(truvari_refine_files) > 0){
+  truvari_refine_df <- truvari_refine_files %>%
+      map(jsonlite::fromJSON,
+          simplifyVector = FALSE,
+          simplifyDataFrame = FALSE,
+          simplifyMatrix = FALSE
+      ) %>%
+      # Remove 'weighted' and 'gt_matrix' keys from each item  
+      map(~{.x$weighted <- NULL; .x$gt_matrix <- NULL; .x}) %>%  
+      # better handling nulls in list - mostly for test data set
+      map_depth(., 2, ~ifelse(is.null(.x), NA, .x)) %>% 
+      map_dfr(as_data_frame, .id = "evaluation") %>% 
+      ## Assumes evaluation naming convention used in analysis tables
+    mutate(
+      ref = str_remove(evaluation, "_.*"),
+      truth = str_extract(evaluation, "(?<=T~).*(?=_Q)"),
+      query = str_extract(evaluation, "(?<=Q~)[^_]*(?=_)"),
+      target_regions = str_extract(evaluation, "(?<=TR~)[^_]*(?=_)")
+    ) %>% 
+    select(ref, truth, query, target_regions, c(2:14)) %>%
+    add_column(method = "refine", .before = "target_regions")
+} else {
+  truvari_refine_df <- tibble()
+}
+
+truvari_summary_df <- bind_rows(truvari_bench_df, truvari_refine_df)
 DT::datatable(truvari_summary_df, rownames = FALSE) %>%
     formatRound(c("precision", "recall", "f1", "gt_concordance"), 5) 
-
 ```
 
 <!-- ::: -->
