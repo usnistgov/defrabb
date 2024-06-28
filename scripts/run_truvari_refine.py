@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # Author: Nathan Olson
 from os import path
+
 from snakemake.shell import shell
 
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
@@ -20,6 +21,7 @@ shell(
     "rm -rf {snakemake.params.bench_output}/phab_bench && "
     "truvari refine "
     "--threads {snakemake.threads} "
+    "--recount "
     "--use-region-coords "
     "--use-original-vcfs "
     "--align mafft "
