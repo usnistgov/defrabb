@@ -11,9 +11,11 @@
         "resources/comparison/**",  
         "resources/exclusions/",  
         "resources/exclusions/**",  
+        "config/", 
+        "config/**",  
         "config/resources.yml",  
         "config/analyses_{RUNID}.tsv",  
-        "{RUNID}.tar.gz",  
+        "archive.tar.gz",  
         "environment.yml",  
         "run.log",  
         "run_README.md"  
