@@ -52,3 +52,11 @@ benchmark/**
 .tests/unit/__pycache__/**
 
 .Rproj.user
+
+## analysis report and run files
+analysis*
+archive*
+data_manifest.tsv
+environment.yml
+run.log
+snakemake_report*
