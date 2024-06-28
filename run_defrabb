@@ -108,7 +108,7 @@ def parse_arguments() -> Tuple[argparse.Namespace, List[str]]:
         "--release_type",
         type=str,
         choices=["local", "s3", "both"],
-        default="both",
+        default="s3",
         help="Type of release: local, s3, or both (default: both)",
     )
     parser.add_argument(
@@ -333,9 +333,9 @@ def release_run(
             local_rules = release_rules["local"]
             cmd = ["rsync", "-rv"]
             for pattern in local_rules["include"]:
-                cmd.extend([f"--include='{pattern.format(RUNID=args.runid)}'"])
+                cmd.extend([f"--include=\"{pattern.format(RUNID=args.runid)}\"'"])
             for pattern in local_rules["exclude"]:
-                cmd.extend([f"--exclude='{pattern}'"])
+                cmd.extend([f"--exclude=\"{pattern}\""])
             cmd.extend([f"{run_dir}", f"{archive_dir}/{args.runid}"])
             subprocess.run(cmd, check=True)
             subprocess.run(
