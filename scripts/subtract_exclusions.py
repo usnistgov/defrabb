@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 # Author: Nathan Dwarshuis
 import sys
+import warnings
+from itertools import accumulate
 from os import stat as os_stat
+
 import pandas as pd
 from pybedtools import BedTool
-from itertools import accumulate
-import warnings
 
 """
 subtract_exclusions script:
@@ -34,7 +35,7 @@ def count_bp(bedfile):
     Returns:
     - int: Total number of base pairs in the BED.
     """
-    df = bedfile.to_dataframe(names=["chr", "start", "end"])
+    df = bedfile.cut(indexes = [0,1,2]).to_dataframe(names=["chr", "start", "end"])
     ## To avoid error with empty bed files
     if len(df.index) < 1:
         return int(0)
