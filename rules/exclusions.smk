@@ -110,6 +110,26 @@ rule intersect_SVs_and_simple_repeats:
             1> {output} 2>{log}
         """
 
+## BED file with consecutive insertions and deletions from assembly-assembly bams
+rule get_consecutive_svs:
+    input:
+        hap1_bam=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.hap1.bam",
+        hap2_bam=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.hap1.bam"
+    output:
+       "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_consecutive-svs.bed",
+    log:
+        "benchmark/exclusions/consecutive-svs/{bench_id}_{ref_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.log"
+    conda:
+        "../envs/consecutive_svs.yml"
+    shell:
+        """
+        python scripts/get_dipcall_delins.py \
+            {input.hap1_bam} \
+            {input.hap2_bam} \
+            {output.bed} \
+            &> {log}
+        """
+    
 
 ## Expanding exclusion regions by 15kb
 rule add_slop:
