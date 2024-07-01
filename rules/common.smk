@@ -234,7 +234,10 @@ def get_exclusion_inputs(wildcards):
     exclusion_set_id = bench_tbl.loc[wildcards.bench_id, "exclusion_set"]
     if exclusion_set_id == "none":
         return []
-    exclusion_set = config["exclusion_set"][exclusion_set_id]
+    try:
+        exclusion_set = config["exclusion_set"][exclusion_set_id]
+    except KeyError:
+        print(f"{exclusion_set_id} is not defined in resources yaml")
 
     ## Initiating empty list for storing paths for beds to excluded from
     ## diploid assembled regions
