@@ -13,6 +13,7 @@ genomic_regions = [
     "XYelement-homopolymer-T2T-discrep",
     "XYdipcallmanualbugs",
     "VDJ",
+    "consecutive-svs",
     "dipcall-bugs-T2TACE",
     "HG002Q100-pav-discrep-smvar",
     "HG002Q100-pav-discrep-stvar",
