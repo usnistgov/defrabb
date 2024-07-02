@@ -52,12 +52,9 @@ def process_bam(aln_file: str) -> Dict[str, List[Tuple[int, str]]]:
                 and cigar_tuples[i + 1][1] >= 35
             ):
                 consecutive_svs[r.reference_name].append((loc, "INSDEL"))
-            if (
-                cigar_dict[cigar[0]] != "I"
-                and cigar_dict[cigar[0]] != "S"
-                and cigar_dict[cigar[0]] != "H"
-            ):
+            if cigar_dict[cigar[0]] not in ["I", "S", "H"]:
                 loc += cigar[1]
+
     return consecutive_svs
 
 
