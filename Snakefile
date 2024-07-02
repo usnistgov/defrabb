@@ -288,7 +288,7 @@ rule index_ref:
     resources:
         mem_mb=16000,
     wrapper:
-        "0.79.0/bio/samtools/faidx"
+        "v3.13.3/bio/samtools/faidx"
 
 
 rule bwa_index:
@@ -409,7 +409,7 @@ rule tabix:
     log:
         "logs/tabix/{filename}.log",
     wrapper:
-        "v1.0.0/bio/bcftools/index"
+        "v3.13.3/bio/bcftools/index"
 
 
 ################################################################################
@@ -503,7 +503,7 @@ rule index_dip_bam:
     log:
         "logs/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam.bai.log",
     wrapper:
-        "v1.1.0/bio/samtools/index"
+        "v3.13.3/bio/samtools/index"
 
 
 ################################################################################
