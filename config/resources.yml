@@ -160,6 +160,11 @@ assemblies:
     paternal: https://giab-data.s3.amazonaws.com/giab-test-data/T2T-assemblies/hg002v1.0_pat.fa.gz
     is_male: true
     sample_id: "HG002"
+  HG2-T2TQ100-V1.1:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/T2T/HG002/assemblies/hg002v1.1.mat.fasta.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/T2T/HG002/assemblies/hg002v1.1.pat.fasta.gz
+    is_male: true
+    sample_id: "HG002"
   ## HG008-Normal
   HG8N-HiFiAsm2024040317:
     maternal: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/Harvard_Cheng_hifiasm-assemblies_20240317/HG008.normal.hap1.fa.gz
