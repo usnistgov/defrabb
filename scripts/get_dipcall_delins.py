@@ -74,9 +74,11 @@ def write_intervals_to_bed(
     for c in intervals:
         for loc, sv_type in intervals[c]:
             bed_lines.append(f"{c}\t{loc-100}\t{loc+100}\t{sv_type}")
-
+    print("Num intervals:", len(bed_lines), file=sys.stderr)
+    
     bed = pybedtools.BedTool("\n".join(bed_lines), from_string=True)
-    bed = bed.sort().merge(c=3, o="distinct")
+    if len(bed_lines) > 0:
+       bed = bed.sort().merge(c=3, o="distinct")
     bed.saveas(bed_file)
 
 
@@ -84,14 +86,17 @@ def main():
     parser = argparse.ArgumentParser(
         description="Identify consecutive SVs from BAM files."
     )
-    parser.add_argument("hap1_bam", help="Path to the haplotype 1 BAM file")
-    parser.add_argument("hap2_bam", help="Path to the haplotype 2 BAM file")
-    parser.add_argument("output_bed", help="Path to the output BED file")
+    parser.add_argument("--hap1_bam", help="Path to the haplotype 1 BAM file")
+    parser.add_argument("--hap2_bam", help="Path to the haplotype 2 BAM file")
+    parser.add_argument("--output_bed", help="Path to the output BED file")
     args = parser.parse_args()
 
+    print("Processing haplotype 1 BAM file")
     hap1_svs = process_bam(args.hap1_bam)
+    print("Processing haplotype 2 BAM file")
     hap2_svs = process_bam(args.hap2_bam)
 
+    print("Combining haplotype 1 and haplotype 2 intervals and writing to BED file")
     combined_intervals = defaultdict(list)
     for c in hap1_svs:
         combined_intervals[c].extend(hap1_svs[c])
@@ -99,3 +104,6 @@ def main():
         combined_intervals[c].extend(hap2_svs[c])
 
     write_intervals_to_bed(combined_intervals, args.output_bed)
+
+if __name__ == "__main__":
+    main()
