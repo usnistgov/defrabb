@@ -1,78 +1,104 @@
+import argparse
 import sys
 from collections import defaultdict
+from typing import Dict, List, Tuple
 
 import pybedtools
 import pysam
 
-cigar_dict={
-    0:"M",
-    1:"I",
-    2:"D",
-    3:"N",
-    4:"S",
-    5:"H",
-    6:"P",
-    7:"=",
-    8:"X",
-    9:"B"
+cigar_dict = {
+    0: "M",
+    1: "I",
+    2: "D",
+    3: "N",
+    4: "S",
+    5: "H",
+    6: "P",
+    7: "=",
+    8: "X",
+    9: "B",
 }
- 
-def process_bam(aln_file): 
-    aln_bam= pysam.AlignmentFile(aln_file, "rb")
-    consecutive_insdels = defaultdict(list)
-    consecutive_delins = defaultdict(list)
-    
+
+
+def process_bam(aln_file: str) -> Dict[str, List[Tuple[int, str]]]:
+    """
+    Process a BAM file to identify consecutive SVs (DELINS and INSDEL).
+
+    Args:
+        aln_file (str): Path to the input BAM file.
+
+    Returns:
+        Dict[str, List[Tuple[int, str]]]: A dictionary containing consecutive SVs,
+            where the keys are reference names and the values are lists of tuples
+            containing the location and SV type.
+    """
+    aln_bam = pysam.AlignmentFile(aln_file, "rb")
+    consecutive_svs = defaultdict(list)
     for r in aln_bam.fetch():
         cigar_tuples = r.cigartuples
         loc = r.reference_start
         for i, cigar in enumerate(cigar_tuples[:-1]):
-            if cigar_dict[cigar[0]] == "D" and cigar_dict[cigar_tuples[i+1][0]] == "I" and cigar[1] >= 35 and cigar_tuples[i+1][1] >= 35:
-                consecutive_delins[r.reference_name].append(loc)
-            if cigar_dict[cigar[0]] == "I" and cigar_dict[cigar_tuples[i+1][0]] == "D" and cigar[1] >= 35 and cigar_tuples[i+1][1] >= 35:
-                consecutive_insdels[r.reference_name].append(loc)
-            if cigar_dict[cigar[0]] != "I" and cigar_dict[cigar[0]] != "S" and cigar_dict[cigar[0]] != "H":
+            if (
+                cigar_dict[cigar[0]] == "D"
+                and cigar_dict[cigar_tuples[i + 1][0]] == "I"
+                and cigar[1] >= 35
+                and cigar_tuples[i + 1][1] >= 35
+            ):
+                consecutive_svs[r.reference_name].append((loc, "DELINS"))
+            if (
+                cigar_dict[cigar[0]] == "I"
+                and cigar_dict[cigar_tuples[i + 1][0]] == "D"
+                and cigar[1] >= 35
+                and cigar_tuples[i + 1][1] >= 35
+            ):
+                consecutive_svs[r.reference_name].append((loc, "INSDEL"))
+            if (
+                cigar_dict[cigar[0]] != "I"
+                and cigar_dict[cigar[0]] != "S"
+                and cigar_dict[cigar[0]] != "H"
+            ):
                 loc += cigar[1]
-    print(f"{aln_file} insdels: {len(consecutive_insdels)}  delins: {len(consecutive_delins)}")
-    return consecutive_insdels, consecutive_delins
+    return consecutive_svs
 
-def write_intervals_to_bed(intervals, bed_file):
+
+def write_intervals_to_bed(
+    intervals: Dict[str, List[Tuple[int, str]]], bed_file: str
+) -> None:
+    """
+    Write the consecutive SV intervals to a BED file.
+
+    Args:
+        intervals (Dict[str, List[Tuple[int, str]]]): A dictionary containing consecutive SVs,
+            where the keys are reference names and the values are lists of tuples
+            containing the location and SV type.
+        bed_file (str): Path to the output BED file.
+    """
     bed_lines = []
     for c in intervals:
-        for loc in intervals[c]:
-            bed_lines.append(f"{c}\t{loc-100}\t{loc+100}")
+        for loc, sv_type in intervals[c]:
+            bed_lines.append(f"{c}\t{loc-100}\t{loc+100}\t{sv_type}")
 
     bed = pybedtools.BedTool("\n".join(bed_lines), from_string=True)
-    bed = bed.sort().merge()
+    bed = bed.sort().merge(c=3, o="distinct")
     bed.saveas(bed_file)
 
-hap1_bam = sys.argv[1]
-hap2_bam = sys.argv[2]
-output_bed = sys.argv[3]
 
-hap1_insdels, hap1_delins = process_bam(hap1_bam)
-hap2_insdels, hap2_delins = process_bam(hap2_bam)
+def main():
+    parser = argparse.ArgumentParser(
+        description="Identify consecutive SVs from BAM files."
+    )
+    parser.add_argument("hap1_bam", help="Path to the haplotype 1 BAM file")
+    parser.add_argument("hap2_bam", help="Path to the haplotype 2 BAM file")
+    parser.add_argument("output_bed", help="Path to the output BED file")
+    args = parser.parse_args()
 
-combined_intervals = defaultdict(list)
+    hap1_svs = process_bam(args.hap1_bam)
+    hap2_svs = process_bam(args.hap2_bam)
 
-svs_count = 0
-for c in hap1_insdels:
-    svs_count += len(hap1_insdels[c])
-    combined_intervals[c].extend(hap1_insdels[c])
-print(f"hap1 insdels: {svs_count}; total: {len(combined_intervals)}")
-svs_count = 0
-for c in hap2_insdels:
-    svs_count += len(hap2_insdels[c])
-    combined_intervals[c].extend(hap2_insdels[c])
-print(f"hap2 insdels: {svs_count}; total: {len(combined_intervals)}")
-svs_count = 0
-for c in hap1_delins:
-    svs_count += len(hap1_delins[c])
-    combined_intervals[c].extend(hap1_delins[c])
-print(f"hap1 delins: {svs_count}; total: {len(combined_intervals)}")
-svs_count = 0
-for c in hap2_delins:
-    svs_count += len(hap2_delins[c])
-    combined_intervals[c].extend(hap2_delins[c])
-print(f"hap2 delins: {svs_count}; total: {len(combined_intervals)}")
+    combined_intervals = defaultdict(list)
+    for c in hap1_svs:
+        combined_intervals[c].extend(hap1_svs[c])
+    for c in hap2_svs:
+        combined_intervals[c].extend(hap2_svs[c])
 
-write_intervals_to_bed(combined_intervals, output_bed)
+    write_intervals_to_bed(combined_intervals, args.output_bed)
