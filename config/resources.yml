@@ -58,6 +58,13 @@ references:
       self-chains: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.1/GRCh37/SegmentalDuplications/GRCh37_chainSelf.bed.gz
       satellites: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh37@all/LowComplexity/GRCh37_satellites_slop5.bed.gz
       VDJ: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/GRCh37@all/OtherDifficult/GRCh37_VDJ.bed.gz"
+      dipcall-bugs-T2TACE: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/GRCh37/manualdipcallbugs_T2TACE.bed.gz"
+      HG002Q100-pav-discrep-smvar: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/GRCh37/HG002Q100-pav-discrep-smvar.bed.gz"
+      HG002Q100-pav-discrep-stvar: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/GRCh37/HG002Q100-pav-discrep-stvar.bed.gz"
+      HG002Q100-pav-inversions: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/GRCh37/HG002Q100-pav-inversions.bed.gz"
+      HG002Q100-errors: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/GRCh37/HG002Q100-errors.bed.gz"
+      HG002Q100-mosaic: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/GRCh37/HG002Q100-mosaic.bed.gz"
+      TSPY2-segdups: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/GRCh37/TSPY2-segdups.bed.gz"
     stratifications:
       id: "v3.3-stratifications-GRCh37"
       url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/genome-stratifications-GRCh37@all.tar.gz"
@@ -100,6 +107,13 @@ references:
       gaps: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/OtherDifficult/CHM13_rDNA.bed.gz"
       satellites: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/LowComplexity/CHM13_satellites_slop5.bed.gz"
       VDJ: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/CHM13@all/OtherDifficult/CHM13_VDJ.bed.gz"
+      dipcall-bugs-T2TACE: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/CHM13/manualdipcallbugs_T2TACE.bed.gz"
+      HG002Q100-pav-discrep-smvar: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/CHM13/HG002Q100-pav-discrep-smvar.bed.gz"
+      HG002Q100-pav-discrep-stvar: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/CHM13/HG002Q100-pav-discrep-stvar.bed.gz"
+      HG002Q100-pav-inversions: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/CHM13/HG002Q100-pav-inversions.bed.gz"
+      HG002Q100-errors: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/CHM13/HG002Q100-errors.bed.gz"
+      HG002Q100-mosaic: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/CHM13/HG002Q100-mosaic.bed.gz"
+      TSPY2-segdups: "https://giab-data.s3.amazonaws.com/giab-test-data/HG002Q100_custom_exclusions_2024-05-07/CHM13/TSPY2-segdups.bed.gz"
     stratifications:
       id: "v3.3-stratifications-CHM13"
       url: "https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/genome-stratifications/v3.3/genome-stratifications-CHM13@all.tar.gz"
