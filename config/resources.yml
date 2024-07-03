@@ -248,6 +248,37 @@ exclusion_set:
     - HG002Q100-mosaic
     - HG002Q100-delins-errors
     - TSPY2-segdups
+  HG002Q100smvarv0.017:
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - flanks
+    - svs-and-simple-repeats
+    - VDJ
+    - consecutive-svs
+    - dipcall-bugs-T2TACE
+    - HG002Q100-pav-discrep-smvar
+    - HG002Q100-pav-discrep-stvar
+    - HG002Q100-pav-inversions
+    - HG002Q100-errors
+    - HG002Q100-mosaic
+    - TSPY2-segdups
+  HG002Q100stvarv0.017:
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - flanks
+    - VDJ
+    - consecutive-svs
+    - dipcall-bugs-T2TACE
+    - HG002Q100-pav-discrep-smvar
+    - HG002Q100-pav-discrep-stvar
+    - HG002Q100-pav-inversions
+    - HG002Q100-errors
+    - HG002Q100-mosaic
+    - TSPY2-segdups
 
 ## Regions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # regions with slop added to bed before applying exclusions
