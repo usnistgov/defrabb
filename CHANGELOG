@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## Milestone v0.017 2024-07-DD
+
+- adding HG002 Q100 specific exclusions [issues #153 #154 and #158]
+- adding exclusion for consecutive svs [issue #167]
+- new approach to running pipeline (cloning repo and running in new directory) [issue #165]
+- making exclusion code more robust [issues #164 and #166]
+- debugging wrapper s3 and local release code [issues #168 and #174]
+- adding unphased vcfs for evaluations
+- adding truvari refine output to analysis report
+- HG002 Q100 v1.1 draft benchmark [issue #175]
+
 ## Milestone v0.016 2024-05-23
 
 - moving public facing version of repo to [https://github.com/usnistgov/defrabb](https://github.com/usnistgov/defrabb)
