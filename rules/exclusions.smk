@@ -13,6 +13,7 @@ genomic_regions = [
     "XYelement-homopolymer-T2T-discrep",
     "XYdipcallmanualbugs",
     "VDJ",
+    "consecutive-svs",
     "dipcall-bugs-T2TACE",
     "HG002Q100-pav-discrep-smvar",
     "HG002Q100-pav-discrep-stvar",
@@ -108,6 +109,27 @@ rule intersect_SVs_and_simple_repeats:
             bedtools slop -i stdin -g {input.genome} -b 50 | \
             mergeBed -i stdin -d 1000 \
             1> {output} 2>{log}
+        """
+
+
+## BED file with consecutive insertions and deletions from assembly-assembly bams
+rule get_consecutive_svs:
+    input:
+        hap1_bam=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.hap1.bam",
+        hap2_bam=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.hap1.bam",
+    output:
+        bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_consecutive-svs.bed",
+    log:
+        "logs/exclusions/consecutive-svs/{bench_id}_{ref_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    conda:
+        "../envs/consecutive_svs.yml"
+    shell:
+        """
+        python scripts/get_dipcall_delins.py \
+            --hap1_bam {input.hap1_bam} \
+            --hap2_bam {input.hap2_bam} \
+            --output_bed {output.bed} \
+            &> {log}
         """
 
 

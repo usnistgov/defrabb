@@ -2,5 +2,5 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - bcftools==1.14
-  - gawk==5.1.0
+  - pybedtools=0.10.0
+  - pysam=0.22.1
