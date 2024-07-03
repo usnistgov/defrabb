@@ -527,7 +527,7 @@ comparisons:
     HG2-ONT-Snifpub-sniffles1:  
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh38_ont_50x_sniffles1.vcf.gz
       tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh38_ont_50x_sniffles1.vcf.gz.tbi
-    HG2-ONT-Snifpub-Sniffles2:  
+    HG2-ONT-Snifpub-sniffles2:  
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh38_ont_50x_sniffles2.vcf.gz
       tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh38_ont_50x_sniffles2.vcf.gz.tbi
     HG2-ONT-Snifpub-svim:  
