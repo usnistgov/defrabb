@@ -71,15 +71,51 @@ workflow steps:
 Any additional arguments provided will be passed directly to Snakemake.
 ```
 
-__For external users__ The default `output` and `release` directories in the `run_defrabb` 
+#### For internal NIST users
+
+##### Setting up and cloning repo
+
+Create specified directory move to new directory e.g.
+
+`run_id` - YYYYMMDD_milestone_brief-id, where milestone is the defrabb version
+tag and brief-id is a brief description (few words separated by '-') of the analysis.
+
+```bash
+## Directory for run
+DIR=/defrabb_runs/runs_in_progress/{run_id}
+mkdir $DIR
+cd $DIR
+
+## Clone repo
+git clone git@gitlab.nist.gov:bbd-human-genomics/defrabb.git .
+```
+
+##### Running pipeline
+
+Update config and run using
+
+```bash
+./run_defrabb \
+    -r {run_id} \
+    -o ../ -s pipe
+```
+
+Will not need to provide `-a` if using analysis table if using table that
+follows the run id naming convention.
+
+Run the pipeline with `-s all` or the rest of the steps individually to generate
+the report, snakemake archive, and share (release) the run.
+
+1. (For NIST internal run documentation) Fill out README with relevant run information - framework repo info - [milestone] tag (with some potential - hopefully minor-differences), who ran the framework and where/ how, justification / reasoning for analyses, JZ notes (what did we learn), use [defrabb run README template](https://docs.google.com/document/d/1yTXP-3OQxXfGl7kIyXWMTac-USMgiMNPhz10GXwBro0/edit?usp=sharing).
+1. (For NIST internal run documentation) Add run information to the [defrabb run log spreadsheet](https://docs.google.com/spreadsheets/d/183LuUat1VCJo2dL7fu0LFMOy8CBA5FTo4WyOVsx4U6o/edit?usp=sharing)
+
+#### For external users
+
+The default `output` and `release` directories in the `run_defrabb` 
 script are configured specifically for internal use.
 The `output` directory can be provided as a command line argument.
 The  `release` directory is hard coded to copy files to the NIST-GAIB team NAS. 
 You will need to modify the output directory path to a path that is appropriate for your setup.
-
-
-1. (For NIST internal run documentation) Fill out README with relevant run information - framework repo info - [milestone] tag (with some potential - hopefully minor-differences), who ran the framework and where/ how, justification / reasoning for analyses, JZ notes (what did we learn), use [defrabb run README template](https://docs.google.com/document/d/1yTXP-3OQxXfGl7kIyXWMTac-USMgiMNPhz10GXwBro0/edit?usp=sharing).
-1. (For NIST internal run documentation) Add run information to the [defrabb run log spreadsheet](https://docs.google.com/spreadsheets/d/183LuUat1VCJo2dL7fu0LFMOy8CBA5FTo4WyOVsx4U6o/edit?usp=sharing)
 
 ## DeFrABB Output
 
