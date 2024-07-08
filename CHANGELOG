@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Milestone v0.017 2024-07-DD
+## Milestone v0.017 2024-07-08
 
 - adding HG002 Q100 specific exclusions [issues #153 #154 and #158]
 - adding exclusion for consecutive svs [issue #167]
