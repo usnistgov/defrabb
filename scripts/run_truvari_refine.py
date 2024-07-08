@@ -8,8 +8,8 @@ from snakemake.shell import shell
 log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
 ## Optional parameters
-## - using candidate.refine.bed produced by truvari bench as 
-##   truvari refine hangs on bcftool consensus step when 
+## - using candidate.refine.bed produced by truvari bench as
+##   truvari refine hangs on bcftool consensus step when
 ##   bed file with large regions is used https://github.com/ACEnglish/truvari/issues/182
 # query_regions = snakemake.input.get("query_regions", "")
 # if query_regions:

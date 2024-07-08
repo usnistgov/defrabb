@@ -35,7 +35,7 @@ def count_bp(bedfile):
     Returns:
     - int: Total number of base pairs in the BED.
     """
-    df = bedfile.cut(indexes = [0,1,2]).to_dataframe(names=["chr", "start", "end"])
+    df = bedfile.cut(indexes=[0, 1, 2]).to_dataframe(names=["chr", "start", "end"])
     ## To avoid error with empty bed files
     if len(df.index) < 1:
         return int(0)

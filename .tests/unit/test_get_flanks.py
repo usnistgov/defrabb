@@ -26,22 +26,24 @@ def test_get_flanks():
         print(output, file=sys.stderr)
 
         # Run the test job.
-        sp.check_output([
-            "python",
-            "-m",
-            "snakemake", 
-            output,
-            "-f", 
-            "-j1",
-            "--keep-target-files",
-            "--touch",
-            "--use-conda",
-            "--directory",
-            workdir,
-        ])
+        sp.check_output(
+            [
+                "python",
+                "-m",
+                "snakemake",
+                output,
+                "-f",
+                "-j1",
+                "--keep-target-files",
+                "--touch",
+                "--use-conda",
+                "--directory",
+                workdir,
+            ]
+        )
 
         # Check the output byte by byte using cmp.
         # To modify this behavior, you can inherit from common.OutputChecker in here
-        # and overwrite the method `compare_files(generated_file, expected_file), 
+        # and overwrite the method `compare_files(generated_file, expected_file),
         # also see common.py.
         common.OutputChecker(data_path, expected_path, workdir).check()
