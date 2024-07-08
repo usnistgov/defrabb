@@ -75,10 +75,10 @@ def write_intervals_to_bed(
         for loc, sv_type in intervals[c]:
             bed_lines.append(f"{c}\t{loc-100}\t{loc+100}\t{sv_type}")
     print("Num intervals:", len(bed_lines), file=sys.stderr)
-    
+
     bed = pybedtools.BedTool("\n".join(bed_lines), from_string=True)
     if len(bed_lines) > 0:
-       bed = bed.sort().merge(c=3, o="distinct")
+        bed = bed.sort().merge(c=3, o="distinct")
     bed.saveas(bed_file)
 
 
@@ -104,6 +104,7 @@ def main():
         combined_intervals[c].extend(hap2_svs[c])
 
     write_intervals_to_bed(combined_intervals, args.output_bed)
+
 
 if __name__ == "__main__":
     main()
