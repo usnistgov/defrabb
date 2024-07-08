@@ -591,8 +591,6 @@ rule run_truvari:
             "fn.vcf.gz.tbi",
             "fp.vcf.gz",
             "fp.vcf.gz.tbi",
-            "query.vcf.gz",
-            "query.vcf.gz.tbi",
             "tp-base.vcf.gz",
             "tp-base.vcf.gz.tbi",
             "tp-comp.vcf.gz",
