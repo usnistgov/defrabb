@@ -502,6 +502,10 @@ comparisons:
       vcf_url: https://giab-data.s3.amazonaws.com/HG002_GRCh38_DRAGEN-v4.3.4_2024-05-10/DRAGEN_4.3.4_PrecisionFDA_v2_HG002.hard-filtered.vcf.gz
     HG2-DRAGENv4.3.4-stvar:
       vcf_url: https://giab-data.s3.amazonaws.com/HG002_GRCh38_DRAGEN-v4.3.4_2024-05-10/DRAGEN_4.3.4_PrecisionFDA_v2_HG002.sv.vcf.gz
+    HG2-DRAGENv4.3.4-smvar-gtfix:
+      vcf_url: https://giab-data.s3.amazonaws.com/HG002_GRCh38_DRAGEN-v4.3.4_2024-05-10/DRAGEN_4.3.4_PrecisionFDA_v2_HG002.hard-filtered_gtXYfix.vcf.gz
+    HG2-DRAGENv4.3.4-stvar-gtfix:
+      vcf_url: https://giab-data.s3.amazonaws.com/HG002_GRCh38_DRAGEN-v4.3.4_2024-05-10/DRAGEN_4.3.4_PrecisionFDA_v2_HG002.sv_gtXYfix.vcf.gz
     ## HG2 SV calls from Sniffles2 publication
     HG2-HiFi-Snifpub-CuteSV:  
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh38_hifi_30x_cutesv.vcf.gz
