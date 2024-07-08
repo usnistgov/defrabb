@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Milestone v0.017 2024-07-DD
+## Milestone v0.017 2024-07-08
 
 - adding HG002 Q100 specific exclusions [issues #153 #154 and #158]
 - adding exclusion for consecutive svs [issue #167]
@@ -21,6 +21,14 @@
 - additional callsets for evaluation: sawfish pacbio sv [issue #156], dragen v4.3.4 small variant and SVs
 - initial HG008-Normal GRCh38 draft small variant and sv benchmark [issue #159]
 - revised analysis report: incorporating exclusion intersection and improved var length plots
+- Q100 benchmark updates: this new version just excludes additional regions from the small variant and SV benchmark bed files based on initial evaluations by your team and others, as well as potential errors in the assembly identified by the T2T-Q100 team. Specifically, in addition to regions excluded in the previous version, we exclude regions with:
+	-	Differences between PAV and dipcall vcfs from Q100v1.0.1, using vcfeval for small variants and truvari refine for SVs. This excludes dipcall bugs (adjacent insertions and deletions in the alignments) as well as a few places where PAV and dipcall have large differences in their alignments of the assembly to the reference
+	- Regions with inversions called by PAV, because dipcall represents these as SNVs, insertions, and/or deletions or has breaks in the alignments, and these generally can be called and aligned in different ways that aren’t handled robustly by current benchmarking tools.
+	- Dipcall bugs identified by searching dipcall alignments for adjacent insertions and deletions
+	- A few manually identified dipcall bugs causing SV errors
+	- The TSPY2 translocation region identified in our XY benchmark work, because it is unclear how to best represent variants in this region
+	- Potential errors identified by aligning short and long reads to the Q100 assembly, calling variants, and curating a subset.
+	- Potential mosaic and de novo variants identified by aligning 300x illumina and xx HiFi reads from HG002 and parents to each haplotype of the assembly and performing tumor/normal calling with parents as normal and HG002 as child
 
 ## Milestone v0.015 2024-02-15
 

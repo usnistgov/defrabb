@@ -496,9 +496,9 @@ def main() -> None:
     release_rules = validate_and_expand_release_rules(release_config, args.release_type)
 
     if not args.s3_bucket:
-        args.s3_bucket = release_config.get("default_s3_bucket")
+        args.s3_bucket = config.get("default_s3_bucket")
     if not args.s3_path:
-        args.s3_path = release_config.get("default_s3_path")
+        args.s3_path = config.get("default_s3_path")
 
     try:
         args = validate_and_set_defaults(args)
