@@ -356,8 +356,7 @@ for(i in unique(exclusion_df$ref_bench)){
   print(htmltools::tagList(
     exclusion_df %>% 
     filter(ref_bench == {{i}}) %>% 
-    mutate(dip_excluded_pct = dip_excluded_pct/100,
-      pct_if_initial = pct_of_initial/100) %>%
+    mutate(dip_excluded_pct = dip_excluded_pct/100) %>%
     DT::datatable(.,
       rownames = FALSE,
       extensions = 'RowGroup',
