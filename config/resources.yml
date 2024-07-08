@@ -31,8 +31,8 @@ _dipcall_params:
 _par_bed_root: data/par_bed
 
 ## Happy Resources ################
-_happy_threads: 8
-_happy_mem: 32000
+_happy_threads: 12
+_happy_mem: 64000
 
 ## Truvari Resources ##############
 _truvari_refine_threads: 24
