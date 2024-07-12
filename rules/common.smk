@@ -101,7 +101,7 @@ def get_sample_id(wildcards):
     return asm_config[wildcards.asm_id]["sample_id"]
 
 
-def get_male_bed(wildcards):
+def get_par_bed(wildcards):
     root = config["_par_bed_root"]
     filename = ref_config[wildcards.ref_id]["par_bed"]
     return Path(workflow.basedir) / root / filename
@@ -109,7 +109,7 @@ def get_male_bed(wildcards):
 
 def get_dipcall_par_param(wildcards):
     is_male = asm_config[wildcards.asm_id]["is_male"]
-    par_path = get_male_bed(wildcards)
+    par_path = get_par_bed(wildcards)
     return f"-x {par_path}" if is_male else ""
 
 
