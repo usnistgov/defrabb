@@ -1,21 +1,18 @@
 # process T2TXY_v2.7.dip.vcf to match hifiDV GT using JZ sed command
 rule fix_XY_genotype:
     input:
-        "results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz",
+        vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz",
+        par_bed=get_par_bed,
+        genome=get_genome_file,
     output:
         "results/asm_varcalls/{vc_id}/annotations/{prefix}.fix_XY_genotype.vcf.gz",
-    conda:
-        "../envs/dipcall.yml"
     log:
         "logs/fix_XY_genotype/{vc_id}_{prefix}.log",
     conda:
-        "../envs/download_remotes.yml"
+        "../envs/bcftools_and_bedtools.yml"
     shell:
         """
-        gunzip -c {input} \
-            | sed '/^\(chr\)\?\(X\|Y\)/ s/\.|1:0,1/1:1/; /^\(chr\)\?\(X\|Y\)/ s/1|\.:0,1/1:1/'  \
-            | bgzip -c \
-            1> {output} 2> {log}
+        bash scripts/fix_xy_gt.sh -i {input.vcf} -o {output} -p {input.par_bed} -g {input.genome} > {log}
         """
 
 
