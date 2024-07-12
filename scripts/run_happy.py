@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Author: Nathan Olson
-from os import path
 import sys
+from os import path
+
 from snakemake.shell import shell
 
 sys.stdout = open(snakemake.log[0], "a")
@@ -20,6 +21,8 @@ if truth_regions:
 target_regions = snakemake.input.get("target_regions", "")
 if target_regions:
     target_regions = f"-T {target_regions}"
+
+gender = snakemake.params.get("gender_param", "")
 
 ## Extracting stratification tarball
 ## Can add if statement with eval_params to see if starts are used
@@ -42,6 +45,7 @@ shell(
     "    --threads {snakemake.params.threads} "
     "    {engine} "
     "    {snakemake.params.engine_extra} "
+    "    {gender} "
     "    -r {snakemake.input.genome}  "
     "    {truth_regions} "
     "    --stratification {strat_tsv} "
