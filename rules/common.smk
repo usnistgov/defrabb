@@ -114,6 +114,11 @@ def get_dipcall_par_param(wildcards):
 
 
 ## Happy Inputs and Parameters
+def get_happy_gender_param(wildcards):
+    is_male = asm_config[wildcards.asm_id]["is_male"]
+    sex = "male" if is_male else "female"
+    return f"--gender {sex}"
+
 def get_happy_inputs(analyses, config, wildcards):
     return get_happy_inputs_inner(
         wildcards.ref_id,
