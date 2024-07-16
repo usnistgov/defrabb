@@ -25,6 +25,7 @@ library(DT)
 library(jsonlite)
 library(yaml)
 library(sessioninfo)
+library(here)
 run_params <- read_yaml(params$yaml_path) 
 source(here("scripts","happy_giab.R"))
 ```
