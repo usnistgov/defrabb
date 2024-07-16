@@ -26,6 +26,7 @@ library(jsonlite)
 library(yaml)
 library(sessioninfo)
 run_params <- read_yaml(params$yaml_path) 
+source(here("scripts","happy_giab.R"))
 ```
 
 <!-- ::: {.panel-tabset} -->
@@ -409,7 +410,9 @@ ggplot(bench_genomecov_df) +
 
 
 ## Evaluation Results
-### Happy Combined Summary Tables
+### Happy 
+
+#### Combined Summary Tables
 
 ```{r evalsmvartbl}
 happy_summary_files <- run_params$inputs$happy_summary %>%
@@ -430,7 +433,76 @@ happy_summary_df <- happy_summary_files %>%
 DT::datatable(happy_summary_df)
 ```
 
-Add figures for extended csv, see https://gitlab.nist.gov/gitlab/nolson/giab-nrg-variant-calling/-/blob/master/scratch/varcalls_repeats.qmd?ref_type=heads for example code
+
+### Combined Extended Tables
+
+```{r evalsmvarexttbl}
+subsets <- c(
+        "AllAutosomes",
+        "AllHomopolymers_ge7bp_imperfectge11bp_slop5",
+        "AllTandemRepeats",
+        "AllTandemRepeats_201to10000bp_slop5",
+        "AllTandemRepeatsandHomopolymers_slop5",
+        "alldifficultregions",
+        "alllowmapandsegdupregions",
+        "chrX_PAR",
+        "chrX_nonPAR",
+        "chrY_PAR",
+        "chrY_nonPAR",
+        "lowmappabilityall",
+        "notinAllHomopolymers_ge7bp_imperfectge11bp_slop5",
+        "notinAllTandemRepeatsandHomopolymers_slop5",
+        "notinallTandemRepeats",
+        "notinalldifficultregions",
+        "notinalllowmapandsegdupregions",
+        "notinlowmappabilityall",
+        "notinsatellites_slop5",
+        "notinsegdups_gt10kb",
+        "rDNA",
+        "refseq_cds",
+        "satellites_slop5",
+        "segdups_gt10kb",
+        "telomeres"
+)
+
+metrics_to_keep <-
+        c(
+                "METRIC.Recall",
+                "METRIC.Frac_NA",
+                "METRIC.Precision",
+                "FP.al",
+                "FP.gt",
+                "Subset.Size",
+                "Subset.IS_CONF.Size",
+                "TRUTH.TOTAL",
+                "TRUTH.TP",
+                "TRUTH.FN",
+                "QUERY.TOTAL",
+                "QUERY.TP",
+                "QUERY.FP",
+                "QUERY.UNK"
+        )
+
+happy_extended_df <- run_params$inputs$happy_extended %>%
+        set_names(str_extract(., "(?<=happy/).*(?=/)")) %>%
+        map_dfr(
+                load_happy_extended,
+                filter = TRUE,
+                subsets = subsets,
+                metrics = metrics_to_keep,
+                .id = "evaluation"
+        ) %>%
+        ## Assumes evaluation naming convention used in analysis tables
+        mutate(
+                ref = str_remove(evaluation, "_.*"),
+                truth = str_extract(evaluation, "(?<=T~).*(?=_Q)"),
+                query = str_extract(evaluation, "(?<=Q~)[^_]*(?=_)"),
+                target_regions = str_extract(evaluation, "(?<=TR~)[^_]*(?=_)")
+        ) %>%
+        select(ref, truth, query, target_regions, c(2, 4:15))
+
+DT::datatable(happy_extended_df)
+```
 
 ### Truvari Combined Summary Table
 
