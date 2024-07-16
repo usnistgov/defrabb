@@ -18,11 +18,11 @@
 #
 ## Input
 # - VCF file to fix
-# - non-PAR XY bed
-# - compliment of non-PAR XY bed
+# - PAR XY bed
+# - genome file
 
 # Usage
-# ./fix_xy_gt.sh -i <input.vcf.gz> -o <output.vcf.gz> -b <non-par-xy.bed> -c <non-par-xy_comp.bed>
+# ./fix_xy_gt.sh -i <input.vcf.gz> -o <output.vcf.gz> -p <non-par-xy.bed> -g <genome>
 
 # Author: ND Olson
 # Date: 7/10/2024
