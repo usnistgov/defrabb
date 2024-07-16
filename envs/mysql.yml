@@ -1,4 +1,0 @@
-channels:
-  - conda-forge
-dependencies:
-  - mysql=8.0.27

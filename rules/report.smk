@@ -55,23 +55,6 @@ rule get_bed_stats:
         "bedtools summary -i {input.bed} -g {input.genome} 1> {output} 2> {log}"
 
 
-## Not currently being used
-rule get_exclusion_coverage:
-    input:
-        "results/draft_benchmarksets/{draft_bench}_exclusions/{prefix}.bed",
-    # output: report("results/draft_benchmarksets/{draft_bench}_exclusions/{prefix}_stats.tsv", caption = "report/exclusion_stats.rst", category = "Exclusion Stats")
-    output:
-        "results/draft_benchmarksets/{draft_bench}_exclusions/{prefix}_stats.tsv",
-    log:
-        "logs/get_exclusion_coverage/{draft_bench}_{prefix}.log",
-    conda:
-        "../envs/bedtools.yml"
-    shell:
-        """
-        multiIntersectBed -header -i
-        """
-
-
 ## Variant Callset Stats
 rule get_bcftools_stats:
     input:
@@ -107,20 +90,6 @@ rule get_rtg_vcf_stats:
         "../envs/rtgtools.yml"
     shell:
         " rtg vcfstats --allele-lengths {input} 1> {output} 2> {log}"
-
-
-## Not currently being used
-rule summarize_exclusions:
-    input:
-        lambda wildcards: f"results/draft_benchmarksets/{{bench_id}}/{{ref_id}}_{vc_tbl.loc[(wildcards.vc_id, 'asm_id')]}_{vc_tbl.loc[(wildcards.vc_id, 'vc_cmd')]}-{vc_tbl.loc[(wildcards.vc_id, 'vc_param_id')]}.excluded_stats.txt",
-    output:
-        "results/report/{bench_id}/{ref_id}_{vc_id}-{exclusion_set}.html",
-    conda:
-        "../envs/rmd.yml"
-    log:
-        "logs/summarise_exclusions/{bench_id}_{ref_id}_{vc_id}-{exclusion_set}.log",
-    script:
-        "../scripts/reports/exclusions.Rmd"
 
 
 rule write_report_params:
