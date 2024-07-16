@@ -5,14 +5,15 @@ rule fix_XY_genotype:
         par_bed=get_par_bed,
         genome=get_genome_file,
     output:
-        "results/asm_varcalls/{vc_id}/annotations/{prefix}.fix_XY_genotype.vcf.gz",
+        vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.fix_XY_genotype.vcf.gz",
+        tbi="results/asm_varcalls/{vc_id}/annotations/{prefix}.fix_XY_genotype.vcf.gz.tbi",
     log:
         "logs/fix_XY_genotype/{vc_id}_{prefix}.log",
     conda:
         "../envs/bcftools_and_bedtools.yml"
     shell:
         """
-        bash scripts/fix_xy_gt.sh -i {input.vcf} -o {output} -p {input.par_bed} -g {input.genome} > {log}
+        bash scripts/fix_xy_gt.sh -i {input.vcf} -o {output.vcf} -p {input.par_bed} -g {input.genome} > {log}
         """
 
 
