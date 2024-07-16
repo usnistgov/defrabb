@@ -103,7 +103,8 @@ def get_sample_id(wildcards):
 
 def get_par_bed(wildcards):
     root = config["_par_bed_root"]
-    filename = ref_config[wildcards.ref_id]["par_bed"]
+    ref_id = get_ref_id(wildcards)
+    filename = ref_config[ref_id]["par_bed"]
     return Path(workflow.basedir) / root / filename
 
 
