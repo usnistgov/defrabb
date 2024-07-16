@@ -282,3 +282,16 @@ rule generate_intersection_summary:
         """  
         python {params.script} {input.dip_bed} {output.summary_table} {params.intersect_dir} {input.exclusions} &> {log}  
         """
+
+## Used when no exclusions are applied
+rule postprocess_bed:
+    input:
+        lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
+    output:
+        bed="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.benchmark.bed",
+    log:
+        "logs/process_benchmark_bed/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
+    conda:
+        "envs/download_remotes.yml"
+    shell:
+        "cp {input} {output} &> {log}"
