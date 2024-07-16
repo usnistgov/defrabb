@@ -283,6 +283,7 @@ rule generate_intersection_summary:
         python {params.script} {input.dip_bed} {output.summary_table} {params.intersect_dir} {input.exclusions} &> {log}  
         """
 
+
 ## Used when no exclusions are applied
 rule postprocess_bed:
     input:

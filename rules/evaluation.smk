@@ -35,7 +35,7 @@ rule run_happy:
         threads=config["_happy_threads"],
         engine="vcfeval",
         engine_extra=lambda wildcards: f"--engine-vcfeval-template resources/references/{wildcards.ref_id}.sdf",
-        gender_param=get_happy_gender_param
+        gender_param=get_happy_gender_param,
     resources:
         mem_mb=config["_happy_mem"],
     threads: config["_happy_threads"]

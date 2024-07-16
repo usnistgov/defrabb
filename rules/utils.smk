@@ -54,6 +54,7 @@ rule index_ref_sdf:
     shell:
         "rtg format -o {output} {input} &>{log}"
 
+
 ## General indexing rule for vcfs
 rule tabix:
     input:
@@ -67,6 +68,7 @@ rule tabix:
     wrapper:
         "v3.13.3/bio/bcftools/index"
 
+
 rule sort_bed:
     input:
         in_file="{prefix}.bed",
@@ -78,6 +80,7 @@ rule sort_bed:
     wrapper:
         "0.74.0/bio/bedtools/sort"
 
+
 rule index_dip_bam:
     input:
         "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam",
@@ -87,6 +90,7 @@ rule index_dip_bam:
         "logs/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.{hap}.bam.bai.log",
     wrapper:
         "v3.13.3/bio/samtools/index"
+
 
 ## General rule for compressing vcfs
 ## - bcftools sort based rule to ensure vcf is sorted
