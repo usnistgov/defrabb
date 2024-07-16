@@ -9,3 +9,4 @@ dependencies:
   - r-jsonlite>=0.9.16
   - r-sessioninfo>=1.2.2
   - r-plotly>=4.10.0
+  - r-here>=1.0.0
