@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## Milestone v0.018 2024-07-16
+
+- XY GT fix - new script for GT fixing, more transparent as GT change documented in VCF header [issue #170].
+- Using hap.py `--gender` option so XY chromosome genotypes are handled appropriately [36931fb2 and 9dc339c4].
+- Adding hap.py extended csv to analysis.qmd [issue #41]
+- Cleaning up codebase to better follow snakemake best practices [issue #176].
+
 ## Milestone v0.017 2024-07-08
 
 - adding HG002 Q100 specific exclusions [issues #153 #154 and #158]
