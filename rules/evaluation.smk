@@ -44,9 +44,9 @@ rule run_happy:
     benchmark:
         "benchmark/run_happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
-        "envs/happy.yml"
+        "../envs/happy.yml"
     script:
-        "scripts/run_happy.py"
+        "../scripts/run_happy.py"
 
 
 ################################################################################
@@ -82,7 +82,7 @@ rule run_truvari:
         dir=lambda wildcards, output: Path(output[0]).parent,
         tmpdir=lambda wildcards: expand("truvari_{eval_id}", eval_id=wildcards.eval_id),
     conda:
-        "envs/truvari.yml"
+        "../envs/truvari.yml"
     shell:
         """
         ## Removing temp directory before starting run
@@ -134,7 +134,7 @@ rule truvari_refine:
     benchmark:
         "benchmark/run_truvari_refine/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
-        "envs/truvari.yml"
+        "../envs/truvari.yml"
     threads: config["_truvari_refine_threads"]
     script:
-        "scripts/run_truvari_refine.py"
+        "../scripts/run_truvari_refine.py"

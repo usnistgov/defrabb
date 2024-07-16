@@ -37,7 +37,7 @@ rule index_ref_mmi:
     resources:
         mem_mb=2400,
     conda:
-        "envs/dipcall.yml"
+        "../envs/dipcall.yml"
     shell:
         "minimap2 -x asm5 -d {output} {input} &> {log}"
 
@@ -50,7 +50,7 @@ rule index_ref_sdf:
     log:
         "logs/index_ref_sdf/{ref_id}.log",
     conda:
-        "envs/rtgtools.yml"
+        "../envs/rtgtools.yml"
     shell:
         "rtg format -o {output} {input} &>{log}"
 

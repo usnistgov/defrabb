@@ -24,7 +24,7 @@ rule run_dipcall:
         bam1="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1.bam",
         bam2="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.hap2.bam",
     conda:
-        "envs/dipcall.yml"
+        "../envs/dipcall.yml"
     params:
         prefix="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
         male_bed=get_dipcall_par_param,

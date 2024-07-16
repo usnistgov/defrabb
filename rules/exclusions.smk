@@ -292,6 +292,6 @@ rule postprocess_bed:
     log:
         "logs/process_benchmark_bed/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     conda:
-        "envs/download_remotes.yml"
+        "../envs/download_remotes.yml"
     shell:
         "cp {input} {output} &> {log}"

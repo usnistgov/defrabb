@@ -16,7 +16,7 @@ rule get_assemblies:
     log:
         "logs/get_assemblies/{asm_id}_{haplotype}.log",
     conda:
-        "envs/download_remotes.yml"
+        "../envs/download_remotes.yml"
     shell:
         """
         curl -f -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log};
@@ -32,7 +32,7 @@ rule get_ref:
     log:
         "logs/get_ref/{ref_id}.log",
     conda:
-        "envs/download_remotes.yml"
+        "../envs/download_remotes.yml"
     shell:
         """
         curl -f --connect-timeout 120 -L {params.url} 2> {log} \
@@ -51,7 +51,7 @@ rule get_strats:
     log:
         "logs/get_strats/{ref_id}_{strat_id}.log",
     conda:
-        "envs/download_remotes.yml"
+        "../envs/download_remotes.yml"
     shell:
         "curl -f -L -o {output} {params.url} &> {log}"
 
@@ -70,7 +70,7 @@ rule get_comparison_vcf:
     log:
         "logs/get_comparisons/{ref_id}_{comp_id}_vcf.log",
     conda:
-        "envs/download_remotes.yml"
+        "../envs/download_remotes.yml"
     shell:
         "curl -f -L -o {output} {params.url} &> {log}"
 
