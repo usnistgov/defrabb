@@ -119,6 +119,7 @@ def get_happy_gender_param(wildcards):
     sex = "male" if is_male else "female"
     return f"--gender {sex}"
 
+
 def get_happy_inputs(analyses, config, wildcards):
     return get_happy_inputs_inner(
         wildcards.ref_id,
