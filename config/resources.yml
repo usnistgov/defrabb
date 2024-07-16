@@ -465,6 +465,10 @@ comparisons:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/draft-benchmarks/20220610_v0.008_HG002-HPRC-GRCh38/GRCh38_HG2-HPRC-20211005_dipcall-z2k.vcf.gz
       bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/draft-benchmarks/20220610_v0.008_HG002-HPRC-GRCh38/GRCh38_HG2-HPRC-20211005_dipcall-z2k.benchmark.bed
       tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/draft-benchmarks/20220610_v0.008_HG002-HPRC-GRCh38/GRCh38_HG2-HPRC-20211005_dipcall-z2k.vcf.gz.tbi
+    HG2-HPRCcur.20211005-DB-gtfix:
+      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/draft-benchmarks/20220610_v0.008_HG002-HPRC-GRCh38/GRCh38_HG2-HPRC-20211005_dipcall-z2k_gtfix.vcf.gz
+      bed_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/draft-benchmarks/20220610_v0.008_HG002-HPRC-GRCh38/GRCh38_HG2-HPRC-20211005_dipcall-z2k.benchmark.bed
+      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/benchmarksets/HG002/draft-benchmarks/20220610_v0.008_HG002-HPRC-GRCh38/GRCh38_HG2-HPRC-20211005_dipcall-z2k_gtfix.vcf.gz.tbi
     ## HG2 verkko draft benchmark from defrabb run 20220613_v0.008_HG002-verkko053122-GRCh38 for comparison with HPRC
     HG2-verkko-v1.0-053122-DB:
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/verkko-assembly/draft-benchmark/GRCh38_HG2-verkko-053122_dipcall-z2k.vcf.gz
