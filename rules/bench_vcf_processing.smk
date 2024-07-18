@@ -156,7 +156,7 @@ rule run_truvari_anno_trf:
     log:
         "logs/truvari_anno_trf/{vc_id}_{prefix}.log",
     conda:
-        "../envs/truvari.yml"
+        "../envs/truvari_remap.yml"
     params:
         min_length=20,
     threads: 5
@@ -204,7 +204,7 @@ rule run_truvari_anno_repmask:
     log:
         "logs/truvari_anno_repmask/{vc_id}_{prefix}.log",
     conda:
-        "../envs/truvari.yml"
+        "../envs/truvari_remap.yml"
     threads: 5
     params:
         min_length=20,
