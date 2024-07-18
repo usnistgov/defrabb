@@ -82,7 +82,7 @@ nonparxyvcffixed=${TEMPDIR}/non-par-xy_fixed.vcf.gz
 }
 
 # Creating non-par xy bed and compliment
-grep -P "^chr[XY]\t" ${genome} \
+grep -P "[XY]\t" ${genome} \
     | awk '{OFS="\t"} {print $1,0,$2}' \
     > ${xy}
 
