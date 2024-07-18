@@ -13,7 +13,11 @@ rule fix_XY_genotype:
         "../envs/bcftools_and_bedtools.yml"
     shell:
         """
-        bash scripts/fix_xy_gt.sh -i {input.vcf} -o {output.vcf} -p {input.par_bed} -g {input.genome} > {log}
+        bash scripts/fix_xy_gt.sh \
+            -i {input.vcf} -o {output.vcf} \
+            -p {input.par_bed} \
+            -g {input.genome} \
+            &> {log}
         """
 
 
