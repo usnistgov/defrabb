@@ -121,11 +121,11 @@ bcftools index -f ${nonparxycompvcf}
 printf "\n\nSanity check..." >&2
 ## Comparing total XY input variants to variants in the vcf subsets
 echo "Input XY variants:" >&2
-bcftools index -s -a ${input_vcf} | grep -P "^chr[XY]"$'\t'
+bcftools index -s ${input_vcf} | grep -P "[XY]"$'\t'
 echo "non-PAR XYvariants:" >&2
-bcftools index -s -a ${nonparxyvcf}
+bcftools index -s ${nonparxyvcf}
 echo "Others:" >&2
-bcftools index -s -a ${nonparxycompvcf} | grep "^chrX"
+bcftools index -s ${nonparxycompvcf} | grep -P "[XY]"$'\t'
 
 # Fix genotypes in non-PAR XY
 printf "\n\nFixing genotypes in non-PAR XY...\n" >&2
