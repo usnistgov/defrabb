@@ -1,7 +1,7 @@
 image: condaforge/mambaforge:23.3.1-1
 
 before_script:
-  - apt-get install --yes make
+  - apt update && apt install --yes make
   - echo "Installing pipeline dependencies"
   - mamba --version
   - mamba config --set channel_priority strict
