@@ -26,7 +26,7 @@ rule run_happy:
         ),
         report(
             "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.summary.csv",
-            caption="report/happy_summary.rst",
+            caption="../report/happy_summary.rst",
             category="Happy",
         ),
     params:
@@ -59,7 +59,7 @@ rule run_truvari:
     output:
         report(
             "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/summary.json",
-            caption="report/truvari_summary.rst",
+            caption="../report/truvari_summary.rst",
             category="Truvari",
         ),
         multiext(
@@ -116,7 +116,7 @@ rule truvari_refine:
     output:
         report(
             "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/refine.variant_summary.json",
-            caption="report/truvari_refine_summary.rst",
+            caption="../report/truvari_refine_summary.rst",
             category="Truvari",
         ),
         multiext(
