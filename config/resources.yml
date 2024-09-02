@@ -633,6 +633,10 @@ comparisons:
     HG8T-SnifflesV2.2-candidate:
       vcf_url: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/BCM_HiFi_ONT_Sniffles-v2.2_02282024/hg008_merge_candidates.vcf.gz
       readme: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/BCM_HiFi_ONT_Sniffles-v2.2_02282024/BCM_Sniffles_README.md
+    #### HG001
+    HG1-Sniffles-PP:
+      vcf_url: https://giab-data.s3.amazonaws.com/palladium-genomes/variants/sniffles2_ont/GRCh38/NA12878.sniffles.vcf.gz
+      tbi_url: https://giab-data.s3.amazonaws.com/palladium-genomes/variants/sniffles2_ont/GRCh38/NA12878.sniffles.vcf.gz.tbi
   CHM13v2.0:
     ## Query callset HG002 PCR-Free Illumina 50x mapped to chm13v2.0 using BWA and variant calling w/ DV from Andrew Carroll
     HG2-ILMN-CHM13v2:
