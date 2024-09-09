@@ -500,6 +500,7 @@ happy_extended_df <- run_params$inputs$happy_extended %>%
                 query = str_extract(evaluation, "(?<=Q~)[^_]*(?=_)"),
                 target_regions = str_extract(evaluation, "(?<=TR~)[^_]*(?=_)")
         ) %>%
+        filter(Subtype == "*") %>%
         select(ref, truth, query, target_regions, c(2, 4:15))
 
 DT::datatable(happy_extended_df)
