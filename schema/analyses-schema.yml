@@ -62,11 +62,7 @@ properties:
     description: |
       The target regions for the evaluation tool. When provided the evaluation tool will only compare variant calls in the defined region.
       If 'true,' the bed file associated with the query variant callset will be used as the target region.
-      If a string, the value will be interpreted as a path to the bed file to use (relative to
-      ./manual/target_regions); note the string must be a filename ending in
-      ".bed." If 'false,' the evaluation tool will run in an untargetted mode.
-    type: string
-    pattern: ^.*\.bed|(?i:true)|(?i:false)$
+    type: boolean
 
   bench_id:
     description: |
