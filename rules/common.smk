@@ -8,13 +8,13 @@ import pandas as pd
 
 
 def load_df(path, schema):
-    df = pd.read_table(path, dtype={"eval_target_regions": str})
+    df = pd.read_table(path, dtype={"eval_target_regions": bool})
     validate(df, schema)
     return df
 
 
 def load_analyses(path, schema):
-    return load_df(path, schema).astype(dtype={"eval_target_regions": str})
+    return load_df(path, schema).astype(dtype={"eval_target_regions": bool})
 
 
 def _filter_subtable(df, filter_re, id_cols, new_index):
@@ -156,7 +156,7 @@ def get_happy_inputs_inner(ref_id, eval_id, analyses, config):
     comp_bed = "resources/comparison_variant_callsets/{ref_id}_{comp_id}.bed"
 
     ## Determining which callsets and regions are used as truth
-    if analyses.loc[eval_id, "eval_comp_id_is_truth"] == True:
+    if analyses.loc[eval_id, "eval_comp_id_is_truth"]:
         query = "draft_bench"
     else:
         query = "comp"
@@ -176,19 +176,35 @@ def get_happy_inputs_inner(ref_id, eval_id, analyses, config):
         inputs["truth_regions"] = draft_bench_bed
 
     ## Determining Target regions
-    trs = analyses.loc[eval_id, "eval_target_regions"]
-    if trs.lower() != "false":
-        if trs.lower() == "true":
-            if query == "draft_bench":
-                inputs["target_regions"] = draft_bench_bed
-            else:
-                inputs["target_regions"] = comp_bed
+    if analyses.loc[eval_id, "eval_target_regions"]:
+        if query == "draft_bench":
+            inputs["target_regions"] = draft_bench_bed
         else:
-            tr_dir = "resources/manual/target_regions"
-            inputs["target_regions"] = workflow.source_path(f"../{tr_dir}/{trs}")
+            inputs["target_regions"] = comp_bed
 
     ## Returning happy inputs
     return inputs
+
+
+def get_eval_beds(analyses, wildcards):
+    bench_id = analyses.loc[wildcards.eval_id, "bench_id"]
+    ref_id = analyses.loc[wildcards.eval_id, "ref"]
+    asm_id = analyses.loc[wildcards.eval_id, "asm_id"]
+    bench_type = analyses.loc[wildcards.eval_id, "bench_type"]
+    vc_cmd = analyses.loc[wildcards.eval_id, "vc_cmd"]
+    vc_param_id = analyses.loc[wildcards.eval_id, "vc_param_id"]
+    comp_id = analyses.loc[wildcards.eval_id, "eval_comp_id"]
+
+    ## Getting draft benchmark bed
+    if analyses.loc[wildcards.eval_id, "exclusion_set"] == "none":
+        bench_bed = f"results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.bed"
+    else:
+        bench_bed = f"results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.benchmark.bed"
+
+    ## Getting comparison bed
+    comp_bed = f"resources/comparison_variant_callsets/{ref_id}_{comp_id}.bed"
+
+    return {"left": bench_bed, "right": comp_bed}
 
 
 def get_truvari_inputs(analyses, config, wildcards):
@@ -213,9 +229,9 @@ def get_truvari_inputs_inner(ref_id, eval_id, analyses, config):
     comp_vcfidx = "resources/comparison_variant_callsets/{ref_id}_{comp_id}.vcf.gz.tbi"
     comp_bed = "resources/comparison_variant_callsets/{ref_id}_{comp_id}.bed"
 
-    draft_is_query = analyses.loc[eval_id, "eval_comp_id_is_truth"] == True
-    truth_regions = analyses.loc[eval_id, "eval_truth_regions"] == True
-    query_regions = analyses.loc[eval_id, "eval_target_regions"] == True
+    draft_is_query = bool(analyses.loc[eval_id, "eval_comp_id_is_truth"])
+    truth_regions = bool(analyses.loc[eval_id, "eval_truth_regions"])
+    query_regions = bool(analyses.loc[eval_id, "eval_target_regions"])
 
     inputs = {
         "query": draft_bench_vcf if draft_is_query else comp_vcf,
@@ -226,11 +242,18 @@ def get_truvari_inputs_inner(ref_id, eval_id, analyses, config):
         "genome_index": f"resources/references/{ref_id}.fa.fai",
     }
 
-    ## Defining Truth and Query Regions
+    ## Defining Evaluation Regions
     if truth_regions:
-        inputs["truth_regions"] = comp_bed if draft_is_query else draft_bench_bed
-    if query_regions:
-        inputs["query_regions"] = draft_bench_bed if draft_is_query else comp_bed
+        if query_regions:
+            inputs["eval_regions"] = (
+                "results/evaluations/truvari/{eval_id}_{bench_id}/eval_regions.bed"
+            )
+        else:
+            inputs["eval_regions"] = comp_bed if draft_is_query else draft_bench_bed
+    elif query_regions:
+        inputs["eval_regions"] = draft_bench_bed if draft_is_query else comp_bed
+    else:
+        inputs["eval_regions"] = "NOT DEFINED ERROR"
 
     return inputs
 

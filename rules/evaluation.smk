@@ -51,7 +51,14 @@ rule run_happy:
 
 ################################################################################
 ## Run Truvari
-
+rule region_intersection:
+    input:
+        unpack(partial(get_eval_beds, analyses)),
+    output:
+        intersect_regions="results/evaluations/truvari/{eval_id}_{bench_id}/eval_regions.bed"
+    log: "logs/region_intersection/{eval_id}_{bench_id}.log",
+    wrapper:
+        "v4.6.0/bio/bedtools/intersect"
 
 rule run_truvari:
     input:
@@ -98,7 +105,7 @@ rule run_truvari:
             -r 2000 \
             -C 5000 \
             -f {input.genome} \
-            --includebed {input.truth_regions} \
+            --includebed {input.eval_regions} \
         &> {log}
 
         mv {params.tmpdir}/* {params.dir}

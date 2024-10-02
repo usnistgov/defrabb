@@ -76,7 +76,7 @@ rule get_comparison_vcf:
         "curl -f -L -o {output} {params.url} &> {log}"
 
 
-use rule get_comparison_vcf as get_comparison_bed with:
+rule get_comparison_bed:
     output:
         "resources/comparison_variant_callsets/{ref_id}_{comp_id}.bed",
     params:
@@ -85,3 +85,13 @@ use rule get_comparison_vcf as get_comparison_bed with:
         ],
     log:
         "logs/get_comparisons/{ref_id}_{comp_id}_bed.log",
+    conda:
+        "../envs/download_remotes.yml"
+    shell: """
+        if [[ "{params.url}" == *gz ]]; then
+            curl -f -L {params.url} |
+                gunzip - 1> {output} 2> {log}
+        else
+            curl -f -L -o {output} {params.url} &> {log}
+        fi
+    """
