@@ -91,10 +91,18 @@ asm_var_rtg_stat_df <- asm_var_rtg_stat_files %>%
     values_fill = NA
   )
 
-DT::datatable(asm_var_rtg_stat_df,
-              caption = "Assembly variant calls: vcfstats summary",
-              rownames = FALSE,
-              options = list(pageLength = nrow(asm_var_rtg_stat_df)))
+DT::datatable(
+        asm_var_rtg_stat_df,
+        caption = "Assembly variant calls: vcfstats summary",
+        rownames = FALSE,
+        filter = 'top',
+        extensions = "Buttons",
+        options = list(
+                pageLength = nrow(asm_var_rtg_stat_df),
+                dom = 'Bfrtip',
+                buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+        )
+)
 ```
 ### Asm Variant Calls Allele Lengths
 
@@ -145,10 +153,17 @@ svlen_fig <- var_len_fig_df %>%
   scale_y_log10() 
 plotly::ggplotly(svlen_fig)
 ```
+
 ```{r}
 var_lengths_df %>%
-  filter(str_detect(var_length, "0000")) %>% 
-  select(-SNP, -MNP) %>% 
+  filter(str_detect(var_length, "0000")) %>%
+  separate(
+    var_length,
+    into = c("len_min", "len_max"),
+    sep = "-",
+    convert = TRUE
+  ) %>%
+  select(-SNP,-MNP) %>%
   DT::datatable(rownames = FALSE, caption = "SVs greater than 10kb")
 ```
 
@@ -214,7 +229,16 @@ bench_var_metrics_df <- bench_var_rtg_stat_files %>%
 Summary statistics calculated using rtg-tools vcfstats.
 
 ```{r benchvartbl}
-DT::datatable(bench_var_metrics_df, rownames = FALSE)
+DT::datatable(
+  bench_var_metrics_df, 
+  rownames = FALSE, 
+  extensions = 'Buttons',
+  filter = 'top',
+  options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+  )
+)
 ```
 
 
@@ -269,9 +293,24 @@ plotly::ggplotly(svlen_fig)
 
 ```{r benchlgsvtbl}
 var_lengths_df %>%
-  filter(str_detect(var_length, "0000")) %>% 
-  select(-SNP, -MNP) %>% 
-  DT::datatable(rownames = FALSE, caption = "SVs greater than 10kb")
+  filter(str_detect(var_length, "0000")) %>%
+  separate(
+    var_length,
+    into = c("len_min", "len_max"),
+    sep = "-",
+    convert = TRUE
+  ) %>%
+  select(-SNP,-MNP) %>%
+  DT::datatable(
+    rownames = FALSE,
+    caption = "SVs greater than 10kb",
+    filter = "top",
+    extensions = 'Buttons',
+    options = list(
+      dom = 'Bfrtip',
+      buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+    )
+  )
 ```
 
 
@@ -353,20 +392,42 @@ exclusion_df <- exclusion_cum_df %>%
 ::: {.panel-tabset}
 ```{r exclusiontbls}
 #| results: asis
-for(i in unique(exclusion_df$ref_bench)){
+for(i in unique(exclusion_df$ref_bench)) {
   cat(sprintf("\n### %s \n\n", i))
-  print(htmltools::tagList(
-    exclusion_df %>% 
-    filter(ref_bench == {{i}}) %>% 
-    mutate(dip_excluded_pct = dip_excluded_pct/100) %>%
-    DT::datatable(.,
-      rownames = FALSE,
-      extensions = 'RowGroup',
-      options = list(rowGroup = list(dataSrc = 0)),
-      selection = 'none'
-    ) %>% 
-    DT::formatRound(columns = c("new_excluded_bp", "resulting_length"), digits = 0) %>% 
-    DT::formatPercentage(columns = c("dip_excluded_pct", "pct_of_initial"), digits = 1)
+  print(
+    htmltools::tagList(
+      exclusion_df %>%
+        filter(ref_bench == {
+          {
+            i
+          }
+        }) %>%
+        mutate(dip_excluded_pct = dip_excluded_pct / 100) %>%
+        DT::datatable(
+          .,
+          rownames = FALSE,
+          filter = 'top',
+          extensions = list('Buttons', 'ColReorder','FixedColumns'),
+          options = list(
+            dom = 'Bfrtip',
+            buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+            pageLength = nrow(.),
+            colReorder = TRUE,
+            scrollX = TRUE,
+            fixedColumns = list(leftColumns = 5)
+          ),
+          selection = 'none'
+        ) %>%
+        DT::formatRound(
+          columns = c("new_excluded_bp",
+                      "resulting_length",
+                      "dip_overlap_bp"),
+          digits = 0
+        ) %>%
+        DT::formatPercentage(
+          columns = c("dip_excluded_pct", "pct_of_initial"),
+          digits = 1
+        )
     )
   )
 }
@@ -431,7 +492,20 @@ happy_summary_df <- happy_summary_files %>%
   ) %>% 
   select(ref, truth, query, target_regions, c(2, 4:15))
 
-DT::datatable(happy_summary_df)
+DT::datatable(
+  happy_summary_df,
+  rownames = FALSE,
+  filter = 'top',
+  extensions = list('Buttons', 'ColReorder', 'FixedColumns'),
+  options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+    pageLength = nrow(happy_summary_df),
+    colReorder = TRUE,
+    scrollX = TRUE,
+    fixedColumns = list(leftColumns = 5)
+  )
+)
 ```
 
 
@@ -439,71 +513,82 @@ DT::datatable(happy_summary_df)
 
 ```{r evalsmvarexttbl}
 subsets <- c(
-        "AllAutosomes",
-        "AllHomopolymers_ge7bp_imperfectge11bp_slop5",
-        "AllTandemRepeats",
-        "AllTandemRepeats_201to10000bp_slop5",
-        "AllTandemRepeatsandHomopolymers_slop5",
-        "alldifficultregions",
-        "alllowmapandsegdupregions",
-        "chrX_PAR",
-        "chrX_nonPAR",
-        "chrY_PAR",
-        "chrY_nonPAR",
-        "lowmappabilityall",
-        "notinAllHomopolymers_ge7bp_imperfectge11bp_slop5",
-        "notinAllTandemRepeatsandHomopolymers_slop5",
-        "notinallTandemRepeats",
-        "notinalldifficultregions",
-        "notinalllowmapandsegdupregions",
-        "notinlowmappabilityall",
-        "notinsatellites_slop5",
-        "notinsegdups_gt10kb",
-        "rDNA",
-        "refseq_cds",
-        "satellites_slop5",
-        "segdups_gt10kb",
-        "telomeres"
+  "AllAutosomes",
+  "AllHomopolymers_ge7bp_imperfectge11bp_slop5",
+  "AllTandemRepeats",
+  "AllTandemRepeats_201to10000bp_slop5",
+  "AllTandemRepeatsandHomopolymers_slop5",
+  "alldifficultregions",
+  "alllowmapandsegdupregions",
+  "chrX_PAR",
+  "chrX_nonPAR",
+  "chrY_PAR",
+  "chrY_nonPAR",
+  "lowmappabilityall",
+  "notinAllHomopolymers_ge7bp_imperfectge11bp_slop5",
+  "notinAllTandemRepeatsandHomopolymers_slop5",
+  "notinallTandemRepeats",
+  "notinalldifficultregions",
+  "notinalllowmapandsegdupregions",
+  "notinlowmappabilityall",
+  "notinsatellites_slop5",
+  "notinsegdups_gt10kb",
+  "rDNA",
+  "refseq_cds",
+  "satellites_slop5",
+  "segdups_gt10kb",
+  "telomeres"
 )
 
 metrics_to_keep <-
-        c(
-                "METRIC.Recall",
-                "METRIC.Frac_NA",
-                "METRIC.Precision",
-                "FP.al",
-                "FP.gt",
-                "Subset.Size",
-                "Subset.IS_CONF.Size",
-                "TRUTH.TOTAL",
-                "TRUTH.TP",
-                "TRUTH.FN",
-                "QUERY.TOTAL",
-                "QUERY.TP",
-                "QUERY.FP",
-                "QUERY.UNK"
-        )
+  c(
+    "METRIC.Recall",
+    "METRIC.Frac_NA",
+    "METRIC.Precision",
+    "FP.al",
+    "FP.gt",
+    "Subset.Size",
+    "Subset.IS_CONF.Size",
+    "TRUTH.TOTAL",
+    "TRUTH.TP",
+    "TRUTH.FN",
+    "QUERY.TOTAL",
+    "QUERY.TP",
+    "QUERY.FP",
+    "QUERY.UNK"
+  )
 
 happy_extended_df <- run_params$inputs$happy_extended %>%
-        set_names(str_extract(., "(?<=happy/).*(?=/)")) %>%
-        map_dfr(
-                load_happy_extended,
-                filter = TRUE,
-                subsets = subsets,
-                metrics = metrics_to_keep,
-                .id = "evaluation"
-        ) %>%
-        ## Assumes evaluation naming convention used in analysis tables
-        mutate(
-                ref = str_remove(evaluation, "_.*"),
-                truth = str_extract(evaluation, "(?<=T~).*(?=_Q)"),
-                query = str_extract(evaluation, "(?<=Q~)[^_]*(?=_)"),
-                target_regions = str_extract(evaluation, "(?<=TR~)[^_]*(?=_)")
-        ) %>%
-        filter(Subtype == "*") %>%
-        select(ref, truth, query, target_regions, c(2, 4:15))
+  set_names(str_extract(., "(?<=happy/).*(?=/)")) %>%
+  map_dfr(
+    load_happy_extended,
+    filter = TRUE,
+    subsets = subsets,
+    metrics = metrics_to_keep,
+    .id = "evaluation"
+  ) %>%
+  ## Assumes evaluation naming convention used in analysis tables
+  mutate(
+    ref = str_remove(evaluation, "_.*"),
+    truth = str_extract(evaluation, "(?<=T~).*(?=_Q)"),
+    query = str_extract(evaluation, "(?<=Q~)[^_]*(?=_)"),
+    target_regions = str_extract(evaluation, "(?<=TR~)[^_]*(?=_)")
+  ) %>%
+  select(ref, truth, query, target_regions, c(2:15))
 
-DT::datatable(happy_extended_df)
+DT::datatable(
+  happy_extended_df,
+  rownames = FALSE,
+  filter = 'top',
+  extensions = list('Buttons', 'ColReorder', 'FixedColumns'),
+  options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+    colReorder = TRUE,
+    scrollX = TRUE,
+    fixedColumns = list(leftColumns = 7)
+  )
+)
 ```
 
 ### Truvari Combined Summary Table
@@ -574,8 +659,20 @@ if (length(truvari_refine_files) > 0){
 }
 
 truvari_summary_df <- bind_rows(truvari_bench_df, truvari_refine_df)
-DT::datatable(truvari_summary_df, rownames = FALSE) %>%
-    formatRound(c("precision", "recall", "f1", "gt_concordance"), 5) 
+DT::datatable(
+  truvari_summary_df,
+  rownames = FALSE,
+  filter = 'top',
+  extensions = list('Buttons', 'ColReorder','FixedColumns'),
+  options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+    pageLength = nrow(truvari_summary_df),
+    colReorder = TRUE,
+    fixedColumns = list(leftColumns = 5)
+  )
+) %>%
+  formatRound(c("precision", "recall", "f1", "gt_concordance"), 5) 
 ```
 
 <!-- ::: -->
