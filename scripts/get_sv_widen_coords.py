@@ -10,10 +10,10 @@ Date: 2023-09-22
 """
 
 import argparse
+import gzip
 import logging
 import sys
-import os
-import gzip
+
 from pybedtools import BedTool
 
 
@@ -46,6 +46,26 @@ def extract_info_from_vcf_line(line):
     return chrom, pos, ref, alt, trf_start, trf_end
 
 
+def check_trf_annotation(input_vcf):
+    is_compressed = input_vcf.endswith(".gz")
+    open_method = gzip.open if is_compressed else open
+    mode = "rt"
+
+    if input_vcf == "-":
+        open_method = lambda x, y: sys.stdin
+
+    with open_method(input_vcf, mode) as f:
+        for line in f:
+            if line.startswith(
+                '##INFO=<ID=TRF,Number=0,Type=Flag,Description="Entry hits a tandem repeat region">'
+            ):
+                return True
+            if not line.startswith("#"):  # Stop reading after header
+                break
+
+    return False
+
+
 def main(
     input_vcf,
     output_bed,
@@ -71,6 +91,11 @@ def main(
         logging.basicConfig(filename=log_file, level=logging_level, format=log_format)
     else:
         logging.basicConfig(level=logging_level, format=log_format)
+
+    ## Ensure vcf includes truvari trf annotations
+    if not check_trf_annotation(input_vcf):
+        print("Error: Input VCF does not contain TRF annotations from Truvari.")
+        sys.exit(1)
 
     # Determine if input is compressed based on file extension
     is_compressed = input_vcf.endswith(".gz")
