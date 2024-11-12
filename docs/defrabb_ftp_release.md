@@ -26,29 +26,25 @@ Copying benchmark vcfs, bed, and exclusion stats files. Only vcf for small varia
 ```sh
 rsync -v \
    --exclude="*bench-vars*" \
-   --exclude="*stvar*vcf.gz*" \
+   --exclude="*exclusion_stats.txt" \
    --include="*vcf.gz*" \
    --include="*benchmark.bed" \
-   --include="*exclusion_stats.txt" \
    --exclude="*" \
    --no-relative --no-R --no-d \
    results/draft_benchmarksets/**/* \
    ftp_release/ 
 ```
 
-Removing "smvar" from vcf`_dipcall-z2k` file names
-
 ```sh
-rename 's/_smvar//' ftp_release/*vcf.gz*
 rename 's/_dipcall-z2k//' ftp_release/*
 ```
 
 ## Defrabb files
 
 ```sh
-cp *.tar.gz \
+cp archive.tar.gz \
    environment.yml \
-   snakemake_report_*.html \
+   snakemake_report_*.zip \
    ftp_release/defrabb_files/
 ```
 
@@ -67,7 +63,7 @@ cp \
 
 ```sh
 cp \
-   results/asm_varcalls/*_HG002-T2TQ100v1.0-dipz2k/*{dip.bed,dip.vcf.gz,dip.vcf.gz.tbi,hap1.bam,hap1.bam.bai,hap2.bam,hap2.bam.bai} \
+   results/asm_varcalls/*/*{dip.bed,dip.vcf.gz,dip.vcf.gz.tbi,hap1.bam,hap1.bam.bai,hap2.bam,hap2.bam.bai} \
    ftp_release/dipcall_output/
 ```
 
