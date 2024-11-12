@@ -34,7 +34,7 @@
 #'
 annotation_phredticks <- function(base = 10, sides = "bl", outside = FALSE, scaled = TRUE,
                                 short = unit(0.1, "cm"), mid = unit(0.2, "cm"), long = unit(0.3, "cm"),
-                                colour = "black", size = 0.5, linetype = 1, alpha = 1, color = NULL, ...)
+                                colour = "black", linewidth = 0.5, linetype = 1, alpha = 1, color = NULL, ...)
 {
     if (!is.null(color))
         colour <- color
@@ -56,7 +56,7 @@ annotation_phredticks <- function(base = 10, sides = "bl", outside = FALSE, scal
             mid = mid,
             long = long,
             colour = colour,
-            size = size,
+            linewidth = linewidth,
             linetype = linetype,
             alpha = alpha,
             ...
@@ -89,7 +89,7 @@ GeomPhredticks <- ggproto("GeomPhredticks", Geom,
                             mid   <- grid::convertUnit(mid,   "cm", valueOnly = TRUE)
                             long  <- grid::convertUnit(long,  "cm", valueOnly = TRUE)
 
-                            if (grepl("[b|t]", sides)) {
+                            if (grepl("[b|t]", sides) && all(is.finite(panel_params$x.range))) {
 
                                 # Get positions of x tick marks
                                 xticks <- calc_phredticks(
@@ -113,26 +113,26 @@ GeomPhredticks <- ggproto("GeomPhredticks", Geom,
                                     xticks$end = -xticks$end
 
                                 # Make the grobs
-                                if (grepl("b", sides)) {
+                                if (grepl("b", sides) && nrow(xticks) > 0) {
                                     ticks$x_b <- with(data, grid::segmentsGrob(
                                         x0 = unit(xticks$x, "native"), x1 = unit(xticks$x, "native"),
                                         y0 = unit(xticks$start, "cm"), y1 = unit(xticks$end, "cm"),
-                                        gp = grid::gpar(col = alpha(colour, alpha), lty = linetype, lwd = size * .pt)
+                                        gp = grid::gpar(col = alpha(colour, alpha), lty = linetype, lwd = linewidth)
                                     ))
                                 }
-                                if (grepl("t", sides)) {
+                                if (grepl("t", sides) && nrow(xticks) > 0) {
                                     ticks$x_t <- with(data, grid::segmentsGrob(
                                         x0 = unit(xticks$x, "native"), x1 = unit(xticks$x, "native"),
                                         y0 = unit(1, "npc") - unit(xticks$start, "cm"), y1 = unit(1, "npc") - unit(xticks$end, "cm"),
-                                        gp = grid::gpar(col = alpha(colour, alpha), lty = linetype, lwd = size * .pt)
+                                        gp = grid::gpar(col = alpha(colour, alpha), lty = linetype, lwd = linewidth)
                                     ))
                                 }
                             }
 
-                        if (grepl("[l|r]", sides)) {
+                        if (grepl("[l|r]", sides) && all(is.finite(panel_params$y.range))) {
                             yticks <- calc_phredticks(
-                                minphred = 0,#floor(panel_params$y.range[1]),
-                                maxphred = 30,#ceiling(panel_params$y.range[2]),
+                                minphred = floor(panel_params$y.range[1]),
+                                maxphred = ceiling(panel_params$y.range[2]),
                                 start = 0,
                                 shortend = short,
                                 midend = mid,
@@ -155,14 +155,14 @@ GeomPhredticks <- ggproto("GeomPhredticks", Geom,
                                     ticks$y_l <- with(data, grid::segmentsGrob(
                                         y0 = unit(yticks$y, "native"), y1 = unit(yticks$y, "native"),
                                         x0 = unit(yticks$start, "cm"), x1 = unit(yticks$end, "cm"),
-                                        gp = grid::gpar(col = alpha(colour, alpha), lty = linetype, lwd = size * .pt)
+                                        gp = grid::gpar(col = alpha(colour, alpha), lty = linetype, lwd = linewidth)
                                     ))
                                 }
                                 if (grepl("r", sides)) {
                                     ticks$y_r <- with(data, grid::segmentsGrob(
                                         y0 = unit(yticks$y, "native"), y1 = unit(yticks$y, "native"),
                                         x0 = unit(1, "npc") - unit(yticks$start, "cm"), x1 = unit(1, "npc") - unit(yticks$end, "cm"),
-                                        gp = grid::gpar(col = alpha(colour, alpha), lty = linetype, lwd = size * .pt)
+                                        gp = grid::gpar(col = alpha(colour, alpha), lty = linetype, lwd = linewidth)
                                     ))
                                 }
                             }
@@ -170,7 +170,7 @@ GeomPhredticks <- ggproto("GeomPhredticks", Geom,
                             grid::gTree(children = do.call("gList", ticks))
                         },
 
-                        default_aes = aes(colour = "black", size = 0.5, linetype = 1, alpha = 1)
+                        default_aes = aes(colour = "black", linewidth = 0.5, linetype = 1, alpha = 1)
 )
 
 
@@ -210,13 +210,11 @@ calc_phredticks <- function(
         )
 
     ## Limiting to data range
-    tickdf <- ggplot2:::new_data_frame(
-        list(
+    tickdf <- ggplot2:::data_frame0(
             value = tick_df$phred_x,
             start = tick_df$start,
-            end = tick_df$tickend
-        ),
-        n = nrow(tick_df)
+            end = tick_df$tickend,
+            .size = length(tick_df$phred_x)
     )
     return(tickdf)
 }

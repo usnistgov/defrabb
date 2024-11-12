@@ -50,7 +50,7 @@ filter_happy_extended <-
            subsets = NULL,
            metrics = NULL,
            subtypes = NULL,
-           min.subset.size = 0,
+           min.subset.size = 10,
            filter_pass = TRUE) {
     ## Subsetting to defined stratification set
     if (!is.null(subsets)) {
@@ -96,6 +96,7 @@ tidy_happy_extended <- function(happy_df, scale_phred = TRUE) {
       Type,
       Subtype,
       Subset,
+      Filter,
       METRIC.Recall,
       METRIC.Precision,
       TRUTH.TP,
@@ -112,7 +113,7 @@ tidy_happy_extended <- function(happy_df, scale_phred = TRUE) {
 
   ##
   ci_happy_df <- long_happy_df %>%
-    group_by(Type, Subtype, Subset, metric) %>%
+    group_by(Type, Subtype, Subset, Filter, metric) %>%
     mutate(metric_ci = list(
       get_metric_ci(metric,
         alpha = 0.05,
