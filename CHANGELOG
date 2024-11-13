@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Milestone v0.019 TBD
+## Milestone v0.019 2024-11-13
 
 - Using smvar vcf with trf annotations for SV exclusion
 - Fixing issue truvari evaluations now use target regions
