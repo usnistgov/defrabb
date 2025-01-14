@@ -124,7 +124,7 @@ rule get_consecutive_svs:
     log:
         "logs/exclusions/consecutive-svs/{bench_id}_{ref_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     params:
-        min_bp=10
+        min_bp=10,
     conda:
         "../envs/consecutive_svs.yml"
     shell:

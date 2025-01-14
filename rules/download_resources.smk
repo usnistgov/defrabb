@@ -87,7 +87,8 @@ rule get_comparison_bed:
         "logs/get_comparisons/{ref_id}_{comp_id}_bed.log",
     conda:
         "../envs/download_remotes.yml"
-    shell: """
+    shell:
+        """
         if [[ "{params.url}" == *gz ]]; then
             curl -f -L {params.url} |
                 gunzip - 1> {output} 2> {log}
