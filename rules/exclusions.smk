@@ -123,11 +123,14 @@ rule get_consecutive_svs:
         bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_consecutive-svs.bed",
     log:
         "logs/exclusions/consecutive-svs/{bench_id}_{ref_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+    params:
+        min_bp=10,
     conda:
         "../envs/consecutive_svs.yml"
     shell:
         """
         python scripts/get_dipcall_delins.py \
+            --min_bp {params.min_bp} \
             --hap1_bam {input.hap1_bam} \
             --hap2_bam {input.hap2_bam} \
             --output_bed {output.bed} \

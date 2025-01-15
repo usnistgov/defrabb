@@ -20,7 +20,7 @@ cigar_dict = {
 }
 
 
-def process_bam(aln_file: str) -> Dict[str, List[Tuple[int, str]]]:
+def process_bam(aln_file: str, min_bp: int) -> Dict[str, List[Tuple[int, str]]]:
     """
     Process a BAM file to identify consecutive SVs (DELINS and INSDEL).
 
@@ -41,25 +41,31 @@ def process_bam(aln_file: str) -> Dict[str, List[Tuple[int, str]]]:
             if (
                 cigar_dict[cigar[0]] == "D"
                 and cigar_dict[cigar_tuples[i + 1][0]] == "I"
-                and cigar[1] >= 35
-                and cigar_tuples[i + 1][1] >= 35
+                and cigar[1] >= min_bp
+                and cigar_tuples[i + 1][1] >= min_bp
             ):
-                consecutive_svs[r.reference_name].append((loc, "DELINS"))
+                consecutive_svs[r.reference_name].append(
+                    (loc, loc + cigar[1], "DELINS")
+                )
+
             if (
                 cigar_dict[cigar[0]] == "I"
                 and cigar_dict[cigar_tuples[i + 1][0]] == "D"
-                and cigar[1] >= 35
-                and cigar_tuples[i + 1][1] >= 35
+                and cigar[1] >= min_bp
+                and cigar_tuples[i + 1][1] >= min_bp
             ):
-                consecutive_svs[r.reference_name].append((loc, "INSDEL"))
-            if cigar_dict[cigar[0]] not in ["I", "S", "H"]:
+                consecutive_svs[r.reference_name].append(
+                    (loc, loc + cigar_tuples[i + 1][1], "INSDEL")
+                )
+
+            if cigar_dict[cigar[0]] not in ["I", "S", "H", "P"]:
                 loc += cigar[1]
 
     return consecutive_svs
 
 
 def write_intervals_to_bed(
-    intervals: Dict[str, List[Tuple[int, str]]], bed_file: str
+    intervals: Dict[str, List[Tuple[int, int, str]]], bed_file: str
 ) -> None:
     """
     Write the consecutive SV intervals to a BED file.
@@ -72,13 +78,13 @@ def write_intervals_to_bed(
     """
     bed_lines = []
     for c in intervals:
-        for loc, sv_type in intervals[c]:
-            bed_lines.append(f"{c}\t{loc-100}\t{loc+100}\t{sv_type}")
+        for start, end, sv_type in intervals[c]:
+            bed_lines.append(f"{c}\t{start-100}\t{end+100}\t{sv_type}")
     print("Num intervals:", len(bed_lines), file=sys.stderr)
 
     bed = pybedtools.BedTool("\n".join(bed_lines), from_string=True)
     if len(bed_lines) > 0:
-        bed = bed.sort().merge(c=3, o="distinct")
+        bed = bed.sort().merge(c=4, o="distinct")
     bed.saveas(bed_file)
 
 
@@ -86,15 +92,21 @@ def main():
     parser = argparse.ArgumentParser(
         description="Identify consecutive SVs from BAM files."
     )
+    parser.add_argument(
+        "--min_bp",
+        help="Minimum bp for consecutive INS and DEL excluded",
+        default=35,
+        type=int,
+    )
     parser.add_argument("--hap1_bam", help="Path to the haplotype 1 BAM file")
     parser.add_argument("--hap2_bam", help="Path to the haplotype 2 BAM file")
     parser.add_argument("--output_bed", help="Path to the output BED file")
     args = parser.parse_args()
 
     print("Processing haplotype 1 BAM file")
-    hap1_svs = process_bam(args.hap1_bam)
+    hap1_svs = process_bam(args.hap1_bam, args.min_bp)
     print("Processing haplotype 2 BAM file")
-    hap2_svs = process_bam(args.hap2_bam)
+    hap2_svs = process_bam(args.hap2_bam, args.min_bp)
 
     print("Combining haplotype 1 and haplotype 2 intervals and writing to BED file")
     combined_intervals = defaultdict(list)

@@ -2,6 +2,11 @@
 
 ## Milestone v0.019 2024-11-13
 
+- Fixing bug in consecutive SV exclusion script [issue #181]
+- Changing minimum INS and DEL size for consecutive SVs to 10bp
+
+## Milestone v0.019 2024-11-13
+
 - Using smvar vcf with trf annotations for SV exclusion
 - Fixing issue truvari evaluations now use target regions
 - Fixing happy extended report in analysis.html, now only includes '*' Subtype
