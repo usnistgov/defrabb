@@ -223,7 +223,6 @@ exclusion_set:
     - gaps
     - flanks
     - consecutive-svs
-    - self-discrep
   stvartest:
     - segdups
     - satellites
