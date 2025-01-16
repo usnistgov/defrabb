@@ -151,9 +151,9 @@ rule self_discrep_happy:
             "results/draft_benchmarksets/{bench_id}/exclusions/self-discrep/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}",
             ".runinfo.json",
             ".vcf.gz",
-            ".summary.csv" ".extended.csv",
-            ".metrics.json.gz",
-            ".roc.all.csv.gz",
+            ".vcf.gz.tbi",
+            ".summary.csv", 
+            ".extended.csv",
         ),
     log:
         "logs/exclusions/self-discrep-happy/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
@@ -161,7 +161,7 @@ rule self_discrep_happy:
         ## Fix to not hard code and use output prefix
         prefix="results/draft_benchmarksets/{bench_id}/exclusions/self-discrep/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}",
         engine="vcfeval",
-        gender_param=get_happy_gender_param,
+        gender=get_happy_gender_param,
     resources:
         mem_mb=config["_happy_mem"],
     threads: config["_happy_threads"]
@@ -177,13 +177,14 @@ rule self_discrep_happy:
             -R {input.bed}  \
             -r {input.ref}  \
             -o {params.prefix} \
+            {params.gender} \
             --pass-only \
             --no-roc \
             --no-json \
             --engine=vcfeval \
             --engine-vcfeval-template {input.sdf} \
             --threads={threads} \
-            > {log}
+            &> {log}
         """
 
 
@@ -207,7 +208,7 @@ rule self_discrep_extract_fpfns:
                 bcftools query -f "%CHROM\t%POS0\t%END" |
                 bedtools merge -i - | 
                 bedtools sort -faidx {input.faidx} -i - \
-            1> {output.bed} 2> {log}
+            1> {output} 2> {log}
         """
 
 
@@ -215,7 +216,7 @@ rule self_discrep_intersect_slop:
     input:
         bed="results/draft_benchmarksets/{bench_id}/exclusions/self-discrep/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.fpfns.bed",
         simple_repeat_bed="resources/exclusions/{ref_id}/all-tr-and-homopolymers_sorted.bed",
-        faidx=get_ref_index,
+        genome=get_genome_file,
     output:
         "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_self-discrep.bed",
     log:
@@ -234,7 +235,7 @@ rule self_discrep_intersect_slop:
                 -a {input.simple_repeat_bed} \
                 -b {input.bed} | \
             bedtools multiinter -i stdin {input.bed} | \
-            bedtools slop -i stdin -faidx {input.faidx} -b {params.slop} | \
+            bedtools slop -b {params.slop} -i stdin -g {input.genome} | \
             mergeBed -i stdin -d {params.merge_d} \
             1> {output} 2>{log}
         """
