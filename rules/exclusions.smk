@@ -22,6 +22,7 @@ genomic_regions = [
     "HG002Q100-mosaic",
     "HG002Q100-delins-errors",
     "TSPY2-segdups",
+    "self-discrep",
 ]
 
 
@@ -135,6 +136,107 @@ rule get_consecutive_svs:
             --hap2_bam {input.hap2_bam} \
             --output_bed {output.bed} \
             &> {log}
+        """
+
+
+## Excluding self comparison
+rule self_discrep_happy:
+    input:
+        vcf=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.vcf.gz",
+        bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
+        ref=get_ref_file,
+        sdf=get_ref_sdf,
+    output:
+        multiext(
+            "results/draft_benchmarksets/{bench_id}/exclusions/self-discrep/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}",
+            ".runinfo.json",
+            ".vcf.gz",
+            ".summary.csv" ".extended.csv",
+            ".metrics.json.gz",
+            ".roc.all.csv.gz",
+        ),
+    log:
+        "logs/exclusions/self-discrep-happy/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
+    params:
+        ## Fix to not hard code and use output prefix
+        prefix="results/draft_benchmarksets/{bench_id}/exclusions/self-discrep/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}",
+        engine="vcfeval",
+        gender_param=get_happy_gender_param,
+    resources:
+        mem_mb=config["_happy_mem"],
+    threads: config["_happy_threads"]
+    benchmark:
+        "benchmark/self-discrep-happy/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.tsv"
+    conda:
+        "../envs/happy.yml"
+    shell:
+        """
+        hap.py \
+            {input.vcf} \
+            {input.vcf} \
+            -R {input.bed}  \
+            -r {input.ref}  \
+            -o {params.prefix} \
+            --pass-only \
+            --no-roc \
+            --no-json \
+            --engine=vcfeval \
+            --engine-vcfeval-template {input.sdf} \
+            --threads={threads} \
+            > {log}
+        """
+
+
+rule self_discrep_extract_fpfns:
+    input:
+        vcf="results/draft_benchmarksets/{bench_id}/exclusions/self-discrep/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz",
+        faidx=get_ref_index,
+    output:
+        "results/draft_benchmarksets/{bench_id}/exclusions/self-discrep/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.fpfns.bed",
+    log:
+        "logs/exclusions/self-discrep-fpfns/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
+    params:
+        max_indel=50,
+    conda:
+        "../envs/bcftools_and_bedtools.yml"
+    shell:
+        """
+        bcftools filter \
+            --include 'MAX(ILEN)<={params.max_indel} && MIN(ILEN) >= -{params.max_indel} && (FMT/BD=="FN" || FMT/BD=="FP")' \
+            {input.vcf} |
+                bcftools query -f "%CHROM\t%POS0\t%END" |
+                bedtools merge -i - | 
+                bedtools sort -faidx {input.faidx} -i - \
+            1> {output.bed} 2> {log}
+        """
+
+
+rule self_discrep_intersect_slop:
+    input:
+        bed="results/draft_benchmarksets/{bench_id}/exclusions/self-discrep/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.fpfns.bed",
+        simple_repeat_bed="resources/exclusions/{ref_id}/all-tr-and-homopolymers_sorted.bed",
+        faidx=get_ref_index,
+    output:
+        "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_self-discrep.bed",
+    log:
+        "logs/exclusions/self-discrep-intersect/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
+    params:
+        slop=50,
+        merge_d=1000,
+    benchmark:
+        "benchmark/exclusions/{bench_id}_self-discrep_{ref_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
+    conda:
+        "../envs/bedtools.yml"
+    shell:
+        """
+        ## TODO make slop conditional, don't add for intersected vars
+        bedtools intersect -wa \
+                -a {input.simple_repeat_bed} \
+                -b {input.bed} | \
+            bedtools multiinter -i stdin {input.bed} | \
+            bedtools slop -i stdin -faidx {input.faidx} -b {params.slop} | \
+            mergeBed -i stdin -d {params.merge_d} \
+            1> {output} 2>{log}
         """
 
 

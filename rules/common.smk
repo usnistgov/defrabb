@@ -84,6 +84,11 @@ def get_genome_file(wildcards):
     return workflow.source_path(f"../resources/references/{ref_id}.genome")
 
 
+def get_ref_sdf(wildcards):
+    ref_id = get_ref_id(wildcards)
+    return f"resources/references/{ref_id}.sdf"
+
+
 def get_ref_trdb(wildcards):
     ref_id = get_ref_id(wildcards)
     return f"resources/references/{ref_id}_adotto_trf.bed.gz"
