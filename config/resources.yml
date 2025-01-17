@@ -622,7 +622,21 @@ comparisons:
       vcf_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/smvar/callsets/google-deepvariant/google.deepvariants.vcf.gz
       tbi_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/smvar/callsets/google-deepvariant/google.deepvariants.vcf.gz.tbi
     ### stvar ------------------------------------------------------------------
-    ## TODO
+    HG2Q100EE-svdss2:
+      vcf_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/stvar/callsets/comenius-svdss2/svdss2.vcf.gz
+      tbi_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/stvar/callsets/comenius-svdss2/svdss2.vcf.gz.tbi
+    HG2Q100EE-illumina-dragen-sv:
+      vcf_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/stvar/callsets/illumina-dragen/DRAGEN_4.4.x_NIST_HG002.sv.vcf.gz
+      tbi_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/stvar/callsets/illumina-dragen/DRAGEN_4.4.x_NIST_HG002.sv.vcf.gz.tbi
+    HG2Q100EE-iter-dragen:
+      vcf_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/stvar/callsets/iter-dragen/HG002.hg38.sv.vcf.gz
+      tbi_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/stvar/callsets/iter-dragen/HG002.hg38.sv.vcf.gz.tbi
+    HG2Q100EE-pacbio-sawfish:
+      vcf_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/stvar/callsets/pacbio-sawfish/genotyped.sv.vcf.gz
+      tbi_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/stvar/callsets/pacbio-sawfish/genotyped.sv.vcf.gz.tbi
+    HG2Q100EE-baylor-ont:
+      vcf_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/stvar/callsets/baylor-ont/hg002_ONT_BCM_GRCh38.vcf.gz
+      tbi_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/stvar/callsets/baylor-ont/hg002_ONT_BCM_GRCh38.vcf.gz.tbi
     ## HG008 Normal Revio Callsets
     HG8N-RevioDV:
       vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/PacBio_Revio_20240125/pacbio-wgs-wdl_germline_20240206/HG008-N-P.GRCh38.deepvariant.phased.vcf.gz
