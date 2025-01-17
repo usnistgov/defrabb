@@ -323,6 +323,23 @@ exclusion_set:
     - VDJ
     - consecutive-svs
     - TSPY2-segdups
+  HG002Q100smvarv0.020:
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - flanks
+    - svs-and-simple-repeats
+    - VDJ
+    - consecutive-svs
+    - dipcall-bugs-T2TACE
+    - HG002Q100-pav-discrep-smvar
+    - HG002Q100-pav-discrep-stvar
+    - HG002Q100-pav-inversions
+    - HG002Q100-errors
+    - HG002Q100-mosaic
+    - TSPY2-segdups
+    - self-discrep
 
 ## Regions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # regions with slop added to bed before applying exclusions
@@ -362,6 +379,7 @@ exclusion_ref_agnostic:
   - flanks
   - svs-and-simple-repeats
   - consecutive-svs
+  - self-discrep
 
 ################################################################################
 # Comparisons
