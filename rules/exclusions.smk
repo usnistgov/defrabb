@@ -205,7 +205,7 @@ rule self_discrep_extract_fpfns:
         bcftools filter \
             --include 'MAX(ILEN)<={params.max_indel} && MIN(ILEN) >= -{params.max_indel} && (FMT/BD=="FN" || FMT/BD=="FP")' \
             {input.vcf} |
-                bcftools query -f "%CHROM\t%POS0\t%END" |
+                bcftools query -f "%CHROM\t%POS0\t%END\n" |
                 bedtools merge -i - | 
                 bedtools sort -faidx {input.faidx} -i - \
             1> {output} 2> {log}
