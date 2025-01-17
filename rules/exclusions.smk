@@ -152,7 +152,7 @@ rule self_discrep_happy:
             ".runinfo.json",
             ".vcf.gz",
             ".vcf.gz.tbi",
-            ".summary.csv", 
+            ".summary.csv",
             ".extended.csv",
         ),
     log:
