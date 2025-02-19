@@ -191,8 +191,8 @@ assemblies:
     is_male: false
     sample_id: "HG008N"
   HG8N-VerrkoHiFiHerroHiC20250218:
-    maternal: https://giab-data.s3.amazonaws.com/HG008N_verkko2.2_HiFi-HERRO-HiC_20250218/assembly.haplotype1.fasta
-    paternal: https://giab-data.s3.amazonaws.com/HG008N_verkko2.2_HiFi-HERRO-HiC_20250218/assembly.haplotype2.fasta
+    maternal: https://giab-data.s3.amazonaws.com/HG008N_verkko2.2_HiFi-HERRO-HiC_20250218/assembly.haplotype1.fasta.gz
+    paternal: https://giab-data.s3.amazonaws.com/HG008N_verkko2.2_HiFi-HERRO-HiC_20250218/assembly.haplotype2.fasta.gz
     is_male: false
     sample_id: "HG008N"
   ## HG008-Tumor
