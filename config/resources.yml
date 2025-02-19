@@ -190,6 +190,12 @@ assemblies:
     paternal: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/Verkko_assemblies_NCBI_05162024/HG008N_hifi_plus_hic/HG008N.haplotype2.fasta
     is_male: false
     sample_id: "HG008N"
+  HG8N-VerrkoHiFiHerroHiC20250218:
+    maternal: https://giab-data.s3.amazonaws.com/HG008N_verkko2.2_HiFi-HERRO-HiC_20250218/assembly.haplotype1.fasta
+    paternal: https://giab-data.s3.amazonaws.com/HG008N_verkko2.2_HiFi-HERRO-HiC_20250218/assembly.haplotype2.fasta
+    is_male: false
+    sample_id: "HG008N"
+  ## HG008-Tumor
   HG8T-Verkko2024040516:
     maternal: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/Verkko_assemblies_NCBI_05162024/.HG008T/HG008T.haplotype1.fasta
     paternal: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/Verkko_assemblies_NCBI_05162024/.HG008T/HG008T.haplotype2.fasta
@@ -338,6 +344,27 @@ exclusion_set:
     - HG002Q100-pav-inversions
     - HG002Q100-errors
     - HG002Q100-mosaic
+    - TSPY2-segdups
+    - self-discrep
+  HG008Nsmvarv0.020:
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - flanks
+    - svs-and-simple-repeats
+    - VDJ
+    - consecutive-svs
+    - TSPY2-segdups
+    - self-discrep
+  HG008Nstvarv0.020:
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - flanks
+    - VDJ
+    - consecutive-svs
     - TSPY2-segdups
     - self-discrep
 
