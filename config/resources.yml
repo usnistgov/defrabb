@@ -502,37 +502,6 @@ comparisons:
     HG2-ONT-Snifpub-svim:  
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_ont_50x_svim.vcf.gz
       tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_ont_50x_svim.vcf.gz.tbi
-    ## HG2 SV calls from Sniffles2 publication
-    HG2-HiFi-Snifpub-CuteSV:
-      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_hifi_30x_cutesv.vcf.gz
-      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_hifi_30x_cutesv.vcf.gz.tbi
-    HG2-HiFi-Snifpub-pbsv:  
-      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_hifi_30x_pbsv.vcf.gz
-      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_hifi_30x_pbsv.vcf.gz.tbi
-    HG2-HiFi-Snifpub-sniffles1:  
-      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_hifi_30x_sniffles1.vcf.gz
-      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_hifi_30x_sniffles1.vcf.gz.tbi
-    HG2-HiFi-Snifpub-sniffles2:  
-      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_hifi_30x_sniffles2.vcf.gz
-      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_hifi_30x_sniffles2.vcf.gz.tbi
-    HG2-HiFi-Snifpub-svim:  
-      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_hifi_30x_svim.vcf.gz
-      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_hifi_30x_svim.vcf.gz.tbi
-    HG2-ONT-Snifpub-CuteSV:  
-      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_ont_50x_cutesv.vcf.gz
-      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_ont_50x_cutesv.vcf.gz.tbi
-    HG2-ONT-Snifpub-pbsv:  
-      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_ont_50x_pbsv.vcf.gz
-      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_ont_50x_pbsv.vcf.gz.tbi
-    HG2-ONT-Snifpub-sniffles1:  
-      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_ont_50x_sniffles1.vcf.gz
-      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_ont_50x_sniffles1.vcf.gz.tbi
-    HG2-ONT-Snifpub-sniffles2:  
-      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_ont_50x_sniffles2.vcf.gz
-      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_ont_50x_sniffles2.vcf.gz.tbi
-    HG2-ONT-Snifpub-svim:  
-      vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_ont_50x_svim.vcf.gz
-      tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh37_ont_50x_svim.vcf.gz.tbi
     ## HKU ClairS 2024-03-17
     HG8T-ClairS-ILL-SNV:
       vcf_url: HG008_T_N-P_Ilmn_GRCh37_ClairS_v0.1.7_snv.vcf.gz
@@ -615,6 +584,10 @@ comparisons:
       vcf_url: https://giab-data.s3.amazonaws.com/HG002_GRCh38_DRAGEN-v4.3.4_2024-05-10/DRAGEN_4.3.4_PrecisionFDA_v2_HG002.hard-filtered.vcf.gz
     HG2-DRAGENv4.3.4-stvar:
       vcf_url: https://giab-data.s3.amazonaws.com/HG002_GRCh38_DRAGEN-v4.3.4_2024-05-10/DRAGEN_4.3.4_PrecisionFDA_v2_HG002.sv.vcf.gz
+    HG2-DRAGENv4.3.4-smvar-gtfix:
+      vcf_url: https://giab-data.s3.amazonaws.com/HG002_GRCh38_DRAGEN-v4.3.4_2024-05-10/DRAGEN_4.3.4_PrecisionFDA_v2_HG002.hard-filtered_gtXYfix.vcf.gz
+    HG2-DRAGENv4.3.4-stvar-gtfix:
+      vcf_url: https://giab-data.s3.amazonaws.com/HG002_GRCh38_DRAGEN-v4.3.4_2024-05-10/DRAGEN_4.3.4_PrecisionFDA_v2_HG002.sv_gtXYfix.vcf.gz
     ## HG2 SV calls from Sniffles2 publication
     HG2-HiFi-Snifpub-CuteSV:  
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh38_hifi_30x_cutesv.vcf.gz
@@ -640,12 +613,57 @@ comparisons:
     HG2-ONT-Snifpub-sniffles1:  
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh38_ont_50x_sniffles1.vcf.gz
       tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh38_ont_50x_sniffles1.vcf.gz.tbi
-    HG2-ONT-Snifpub-Sniffles2:  
+    HG2-ONT-Snifpub-sniffles2:  
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh38_ont_50x_sniffles2.vcf.gz
       tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh38_ont_50x_sniffles2.vcf.gz.tbi
     HG2-ONT-Snifpub-svim:  
       vcf_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh38_ont_50x_svim.vcf.gz
       tbi_url: https://giab-data.s3.amazonaws.com/giab-test-data/sniffles2_sv_vcfs/HG002_GRCh38_ont_50x_svim.vcf.gz.tbi
+    ############################################################################
+    ## HG002 Callsets for 20241113 Q100v1.1 external evaluations
+    ### smvar ------------------------------------------------------------------
+    # Same as HG2-UltimaDV
+    HG2Q100EE-ultima-ug:
+      vcf_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/smvar/callsets/ultima-ug/NA24385-Z0027.annotated.AF.vcf.gz 
+      tbi_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/smvar/callsets/ultima-ug/NA24385-Z0027.annotated.AF.vcf.gz.tbi
+      bed_url: https://giab-data.s3.amazonaws.com/ultima-GIAB-Feb-2024/UG-High-Confidence-Regions/v2.1/ug_hcr.bed
+    HG2Q100EE-sention-hybrid:
+      vcf_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/smvar/callsets/sentieon-hybrid/Sentieon-hybrid_element-long-insert-38x_HiFi-30x.vcf.gz
+      tbi_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/smvar/callsets/sentieon-hybrid/Sentieon-hybrid_element-long-insert-38x_HiFi-30x.vcf.gz.tbi
+    HG2Q100EE-roche-neusomatic:
+      vcf_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/smvar/callsets/roche-neusomatic/RN_HG002_Illumina_PacBio_Oxford.vcf.gz
+      tbi_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/smvar/callsets/roche-neusomatic/RN_HG002_Illumina_PacBio_Oxford.vcf.gz.tbi
+    HG2Q100EE-pacbio-deepvariant:
+      vcf_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/smvar/callsets/pacbio-deepvariant/HG002.GRCh38-GIABv3.small_variants.phased.vcf.gz
+      tbi_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/smvar/callsets/pacbio-deepvariant/HG002.GRCh38-GIABv3.small_variants.phased.vcf.gz.tbi
+    HG2Q100EE-ont-clair3:
+      vcf_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/smvar/callsets/ont-clair3/HG002.supV5.60X.wf_snp.vcf.gz
+      tbi_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/smvar/callsets/ont-clair3/HG002.supV5.60X.wf_snp.vcf.gz.tbi
+    HG2Q100EE-jhu-imputefirst:
+      vcf_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/smvar/callsets/jhu-imputefirst/HG002_impute-first-BBBC530x_GRCh38_14Dec2024.vcf.gz
+      tbi_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/smvar/callsets/jhu-imputefirst/HG002_impute-first-BBBC530x_GRCh38_14Dec2024.vcf.gz.tbi
+    HG2Q100EE-illumina-dragen:
+      vcf_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/smvar/callsets/illumina-dragen/DRAGEN_4.4.x_NIST_HG002.hard-filtered.vcf.gz
+      tbi_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/smvar/callsets/illumina-dragen/DRAGEN_4.4.x_NIST_HG002.hard-filtered.vcf.gz.tbi
+    HG2Q100EE-google-deepvariant:
+      vcf_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/smvar/callsets/google-deepvariant/google.deepvariants.vcf.gz
+      tbi_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/smvar/callsets/google-deepvariant/google.deepvariants.vcf.gz.tbi
+    ### stvar ------------------------------------------------------------------
+    HG2Q100EE-svdss2:
+      vcf_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/stvar/callsets/comenius-svdss2/svdss2.vcf.gz
+      tbi_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/stvar/callsets/comenius-svdss2/svdss2.vcf.gz.tbi
+    HG2Q100EE-illumina-dragen-sv:
+      vcf_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/stvar/callsets/illumina-dragen/DRAGEN_4.4.x_NIST_HG002.sv.vcf.gz
+      tbi_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/stvar/callsets/illumina-dragen/DRAGEN_4.4.x_NIST_HG002.sv.vcf.gz.tbi
+    HG2Q100EE-iter-dragen:
+      vcf_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/stvar/callsets/iter-dragen/HG002.hg38.sv.vcf.gz
+      tbi_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/stvar/callsets/iter-dragen/HG002.hg38.sv.vcf.gz.tbi
+    HG2Q100EE-pacbio-sawfish:
+      vcf_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/stvar/callsets/pacbio-sawfish/genotyped.sv.vcf.gz
+      tbi_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/stvar/callsets/pacbio-sawfish/genotyped.sv.vcf.gz.tbi
+    HG2Q100EE-baylor-ont:
+      vcf_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/stvar/callsets/baylor-ont/hg002_ONT_BCM_GRCh38.vcf.gz
+      tbi_url: https://giab-data.s3.amazonaws.com/external_evaluations/20241113_v0.019_HG002Q100v1.1/evaluations/stvar/callsets/baylor-ont/hg002_ONT_BCM_GRCh38.vcf.gz.tbi
     ## HG008 Normal Revio Callsets
     HG8N-RevioDV:
       vcf_url: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/PacBio_Revio_20240125/pacbio-wgs-wdl_germline_20240206/HG008-N-P.GRCh38.deepvariant.phased.vcf.gz
