@@ -1,10 +1,12 @@
 # CHANGELOG
 
-## Milestone v0.020 2025-01-DD
+## Milestone v0.020 2025-03-05
 
 - Fixing bug in consecutive SV exclusion script [issue #181]
 - Changing minimum INS and DEL size for consecutive SVs to 10bp
 - Adding exclusion for self discrepancies, asm-varcall variant representations not correctly handled by hap.py [issue #182]
+- Fixing divergent git histories between github and gitlab repos
+- New draft HG002Q100 and HG008N benchmarks
 
 ## Milestone v0.019 2024-11-13
 
