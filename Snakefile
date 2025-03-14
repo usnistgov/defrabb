@@ -34,7 +34,6 @@ localrules:
     get_comparison_bed,
     get_strats,
     download_bed_gz,
-    copy_asm_vcf_to_annotations,
 
 
 ## Snakemake Report

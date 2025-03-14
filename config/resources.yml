@@ -37,6 +37,8 @@ _pav_config:
     merge_del: "nr::exact"
     merge_inv: "nr::exact:ro(0.5):szro(0.5,200):match"
 
+_pav_threads: 24
+
 ## Happy Resources ################
 _happy_threads: 12
 _happy_mem: 64000

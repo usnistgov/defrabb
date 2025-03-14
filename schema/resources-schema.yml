@@ -15,6 +15,7 @@ required:
   - _dipcall_mem
   - _dipcall_params
   - _pav_config
+  - _pav_threads
   - _happy_threads
   - _happy_mem
   - _truvari_refine_threads
@@ -256,6 +257,11 @@ properties:
   _pav_config:
     description: parameters for pav config file
     type: object
+
+  _pav_threads:
+    description: the number of threads for pav (sub pipeline)
+    exclusiveMinimum: 0
+    type: integer
 
   _happy_threads:
     description: the number of threads for happy runs

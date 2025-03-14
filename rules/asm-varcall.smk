@@ -77,15 +77,20 @@ rule run_pav:
         hap1=lambda wildcards: f"resources/assemblies/{vc_tbl.loc[wildcards.vc_id]['asm_id']}/paternal.fa",
         hap2=lambda wildcards: f"resources/assemblies/{vc_tbl.loc[wildcards.vc_id]['asm_id']}/maternal.fa",
     output:
-        vcf="results/asm_varcalls/{vc_id}/results/{asm_id}.vcf.gz",
-        vcfidx="results/asm_varcalls/{vc_id}/results/{asm_id}.vcf.gz.tbi",
+        vcf="results/asm_varcalls/{vc_id}/{sample_id}.vcf.gz",
+        vcfidx="results/asm_varcalls/{vc_id}/{sample_id}.vcf.gz.tbi",
+        h1_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable_regions_h1_500.bed.gz",
+        h2_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable_regions_h2_500.bed.gz",
     params:
         outdir="results/asm_varcalls/{vc_id}",
         pav_config=lambda wildcards: config["_pav_config"][
             vc_tbl.loc[wildcards.vc_id]["vc_param_id"]
         ],
-        name=lambda wildcards: vc_tbl.loc[wildcards.vc_id]["asm_id"],
+        name=lambda wildcards: asm_config[vc_tbl.loc[wildcards.vc_id]["asm_id"]][
+            "sample_id"
+        ],
     container:
         "docker://becklab/pav:latest"
-    threads: 8
-    script: "../scripts/run_pav.py"
+    threads: config["_pav_threads"]
+    script:
+        "../scripts/run_pav.py"

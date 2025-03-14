@@ -50,9 +50,9 @@ def get_ref_id(wildcards):
         return wildcards.get("ref", "")
     if wildcards.get("ref_id", ""):
         return wildcards.get("ref_id", "")
-    if wildcards.get("vc_id",""):
+    if wildcards.get("vc_id", ""):
         return vc_tbl.loc[wildcards.vc_id]["ref"]
-    if wildcards.get("prefix",""):
+    if wildcards.get("prefix", ""):
         prefix = wildcards.get("prefix", "")
         for id in REFIDS:
             if id in prefix:
