@@ -45,20 +45,22 @@ def analyses_to_bench_tbls(analyses):
 ################################################################################
 ## Rule parameters
 def get_ref_id(wildcards):
-    ref = wildcards.get("ref", "")
-    if ref:
-        ref_id = ref
-    else:
-        ref_id = wildcards.get("ref_id", "")
-        if not ref_id:
-            prefix = wildcards.get("prefix", "")
-            for id in REFIDS:
-                if id in prefix:
-                    ref_id = id
-    if not ref_id:
-        print(f"ref_id could not be determined from wildcards or {prefix}")
-
-    return ref_id
+    ref_id = ""
+    if wildcards.get("ref", ""):
+        return wildcards.get("ref", "")
+    if wildcards.get("ref_id", ""):
+        return wildcards.get("ref_id", "")
+    if wildcards.get("vc_id",""):
+        return vc_tbl.loc[wildcards.vc_id]["ref"]
+    if wildcards.get("prefix",""):
+        prefix = wildcards.get("prefix", "")
+        for id in REFIDS:
+            if id in prefix:
+                return id
+    try:
+        ref_id != ""
+    except:
+        return f"Ref ID could not be determined from {wildcards}"
 
 
 def get_ref_file(wildcards):

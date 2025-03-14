@@ -106,9 +106,7 @@ properties:
   vc_cmd:
     description: the variant caller to use
     type: string
-    # TODO for now only dipcall supported
-    # pattern: ^dipcall|PAV$
-    pattern: ^dipcall$
+    pattern: ^dipcall|pav$
 
   vc_param_id:
     ## Will want to use "default" with vc_params="", when using default parameters

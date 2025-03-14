@@ -14,6 +14,7 @@ required:
   - _dipcall_jobs
   - _dipcall_mem
   - _dipcall_params
+  - _pav_config
   - _happy_threads
   - _happy_mem
   - _truvari_refine_threads
@@ -250,6 +251,10 @@ properties:
 
   _dipcall_params:
     description: command line parameters used for dipcall run
+    type: object
+
+  _pav_config:
+    description: parameters for pav config file
     type: object
 
   _happy_threads:
