@@ -30,6 +30,13 @@ _dipcall_params:
   # the root of the par file for dipcall (and friends)
 _par_bed_root: data/par_bed
 
+## PAV Resources ##############
+_pav_config: 
+  giab:
+    merge_ins: "nr::exact"
+    merge_del: "nr::exact"
+    merge_inv: "nr::exact:ro(0.5):szro(0.5,200):match"
+
 ## Happy Resources ################
 _happy_threads: 12
 _happy_mem: 64000
