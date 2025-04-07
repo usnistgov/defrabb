@@ -86,9 +86,9 @@ rule run_pav:
         pav_config=lambda wildcards: config["_pav_config"][
             vc_tbl.loc[wildcards.vc_id]["vc_param_id"]
         ],
-        name=lambda wildcards: asm_config[vc_tbl.loc[wildcards.vc_id]["asm_id"]][
-            "sample_id"
-        ],
+        name=get_sample_id,
+    wildcard_constraints:
+        sample_id=get_sample_id
     container:
         "docker://becklab/pav:latest"
     threads: config["_pav_threads"]
@@ -98,10 +98,7 @@ rule run_pav:
 
 rule standardize_pav_output:
     input:
-        vcf="results/asm_varcalls/{vc_id}/{sample_id}.vcf.gz",
-        vcfidx="results/asm_varcalls/{vc_id}/{sample_id}.vcf.gz.tbi",
-        h1_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable_regions_h1_500.bed.gz",
-        h2_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable_regions_h2_500.bed.gz",
+        unpack(get_pav_outputs)
     output:
         standardized_vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
         standardized_vcfidx="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi",
@@ -124,10 +121,17 @@ rule standardize_dipcall_output:
         standardized_vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
         standardized_vcfidx="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi",
         standardized_bed="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.baseline.bed",
+    conda:
+        "../envs/bcftools.yml"
     shell:
         """
-        cp {input.vcf} {output.standardized_vcf}
-        cp {input.vcfidx} {output.standardized_vcfidx}
+        echo "syndip {params}\n" | \
+            bcftools reheader \
+            -s -\
+            -o {output} \
+            {input.vcf} \
+            &> {log}
+        bcftools index -t {output.standardized_vcf}
         cp {input.bed} {output.standardized_bed}
         """
 

@@ -142,7 +142,7 @@ rule get_consecutive_svs:
 ## Excluding self comparison
 rule self_discrep_happy:
     input:
-        **get_draft_benchmark_inputs,
+        unpack(get_draft_benchmark_inputs),
         ref=get_ref_file,
         sdf=get_ref_sdf,
     output:

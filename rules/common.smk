@@ -339,6 +339,9 @@ def get_processed_vcf(wildcards):
 def get_standardized_vcf(wildcards):
     return f"results/asm_varcalls/{wildcards.vc_id}/{wildcards.ref_id}_{wildcards.asm_id}_{wildcards.vc_cmd}-{wildcards.vc_param_id}.vcf.gz"
 
+def get_standardized_vcfidx(wildcards):
+    return f"results/asm_varcalls/{wildcards.vc_id}/{wildcards.ref_id}_{wildcards.asm_id}_{wildcards.vc_cmd}-{wildcards.vc_param_id}.vcf.gz.tbi"
+
 def get_standardized_bed(wildcards):
     return f"results/asm_varcalls/{wildcards.vc_id}/{wildcards.ref_id}_{wildcards.asm_id}_{wildcards.vc_cmd}-{wildcards.vc_param_id}.baseline.bed"
 
@@ -346,7 +349,19 @@ def get_standardized_bed(wildcards):
 def get_draft_benchmark_inputs(wildcards):
     return {
         "vcf": get_standardized_vcf(wildcards),
+        "vcfidx": get_standardized_vcfidx(wildcards),
         "bed": get_standardized_bed(wildcards),
+    }
+
+def get_pav_outputs(wildcards):
+    asm_id = vc_tbl[wildcards.vc_id]["asm_id"]
+    sample_id = asm_config[asm_id]["sample_id"]
+    base_path=f"results/asm_varcalls/{wildcards.vc_id}/{sample_id}"
+    return {
+        "vcf": f"{base_path}.vcf.gz",
+        "vcfidx": f"{base_path}.vcf.gz.tbi",
+        "h1_bed": f"{base_path}/callable_regions_h1_500.bed.gz",
+        "h2_bed": f"{base_path}/callable_regions_h2_500.bed.gz",
     }
 
 ################################################################################
