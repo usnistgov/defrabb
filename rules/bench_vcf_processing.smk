@@ -269,7 +269,7 @@ rule run_truvari_anno_lcr:
 
 rule copy_pav_vcf_to_annotations:
     input:
-        "results/asm_varcalls/{vc_id}/results/{sample_id}.vcf.gz",
+        lambda wildcards: get_draft_benchmark_inputs(wildcards)['vcf'],
     output:
         "results/asm_varcalls/{vc_id}/annotations/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
     log:
@@ -282,7 +282,7 @@ rule copy_pav_vcf_to_annotations:
 
 rule copy_dipcall_vcf_to_annotations:
     input:
-        "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
+        lambda wildcards: get_draft_benchmark_inputs(wildcards)['vcf'],
     output:
         "results/asm_varcalls/{vc_id}/annotations/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
     log:

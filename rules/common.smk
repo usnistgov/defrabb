@@ -336,6 +336,19 @@ def get_processed_vcf(wildcards):
         return f"results/asm_varcalls/{vc_id}/annotations/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.{vcf_suffix}.vcf.gz"
 
 
+def get_standardized_vcf(wildcards):
+    return f"results/asm_varcalls/{wildcards.vc_id}/{wildcards.ref_id}_{wildcards.asm_id}_{wildcards.vc_cmd}-{wildcards.vc_param_id}.vcf.gz"
+
+def get_standardized_bed(wildcards):
+    return f"results/asm_varcalls/{wildcards.vc_id}/{wildcards.ref_id}_{wildcards.asm_id}_{wildcards.vc_cmd}-{wildcards.vc_param_id}.baseline.bed"
+
+# Update draft benchmark generation to use standardized outputs
+def get_draft_benchmark_inputs(wildcards):
+    return {
+        "vcf": get_standardized_vcf(wildcards),
+        "bed": get_standardized_bed(wildcards),
+    }
+
 ################################################################################
 # load config
 

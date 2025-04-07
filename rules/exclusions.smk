@@ -142,8 +142,7 @@ rule get_consecutive_svs:
 ## Excluding self comparison
 rule self_discrep_happy:
     input:
-        vcf=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip.vcf.gz",
-        bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
+        **get_draft_benchmark_inputs,
         ref=get_ref_file,
         sdf=get_ref_sdf,
     output:
