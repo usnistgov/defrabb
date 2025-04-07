@@ -269,7 +269,7 @@ rule run_truvari_anno_lcr:
 
 rule copy_std_asm_vcf_to_annotations:
     input:
-        get_standardized_vcf,
+        "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
     output:
         "results/asm_varcalls/{vc_id}/annotations/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
     log:

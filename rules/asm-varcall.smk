@@ -68,6 +68,22 @@ rule run_dipcall:
         make -j{params.ts} -f {output.make} &>>{log.rulelog}
         """
 
+rule rename_dipcall_vcf_sample:
+    input:
+        vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
+    output:
+        vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.rename.vcf.gz",
+    conda:
+        "../envs/bcftools.yml"
+    shell:
+        """
+        echo "syndip {params}\n" | \
+            bcftools reheader \
+            -s -\
+            -o {output.vcf} \
+            {input.vcf} \
+            &> {log}
+        """
 
 ## Running the PAV assembly variant caller
 rule run_pav:
@@ -88,70 +104,47 @@ rule run_pav:
         ],
         name=get_sample_id,
     wildcard_constraints:
-        sample_id=get_sample_id
+        sample_id=get_sample_id,
     container:
         "docker://becklab/pav:latest"
     threads: config["_pav_threads"]
     script:
         "../scripts/run_pav.py"
 
-
-rule standardize_pav_output:
+rule intersect_pav_callable_regions:
     input:
-        unpack(get_pav_outputs)
+        h1_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable_regions_h2_500.bed.gz",
+        h2_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable_regions_h2_500.bed.gz",
     output:
-        standardized_vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
-        standardized_vcfidx="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi",
-        standardized_h1_bed="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1_callable.bed.gz",
-        standardized_h2_bed="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.hap2_callable.bed.gz",
+        baseline_bed="results/asm_varcalls/{vc_id}/{sample_id}.diploid_regions.bed.gz",
+    conda:
+        "../envs/bcftools_and_bedtools.yml"
+    params:
+        intersect_opts=config.get("intersect_opts", ""),
+    threads: config.get("intersect_threads", 1)
+    resources:
+        mem_mb=config.get("intersect_mem_mb", 1024),
+    log:
+        "logs/asm_varcalls/{vc_id}/{sample_id}_intersect.log",
     shell:
         """
-        cp {input.vcf} {output.standardized_vcf}
-        cp {input.vcfidx} {output.standardized_vcfidx}
-        cp {input.h1_bed} {output.standardized_h1_bed}
-        cp {input.h2_bed} {output.standardized_h2_bed}
+        bedtools intersect {params.intersect_opts} -a {input.h1_bed} -b {input.h2_bed} > {output.baseline_bed} 2> {log}
         """
 
-rule standardize_dipcall_output:
+rule standardize_vcasm_output:
     input:
-        vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
-        vcfidx="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz.tbi",
-        bed="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.bed",
+        unpack(branch(
+            is_pav,
+            then = get_pav_outputs,
+            otherwise = get_dipcall_outputs 
+        )),
     output:
         standardized_vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
         standardized_vcfidx="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi",
         standardized_bed="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.baseline.bed",
-    conda:
-        "../envs/bcftools.yml"
     shell:
         """
-        echo "syndip {params}\n" | \
-            bcftools reheader \
-            -s -\
-            -o {output} \
-            {input.vcf} \
-            &> {log}
-        bcftools index -t {output.standardized_vcf}
+        cp {input.vcf} {output.standardized_vcf}
+        cp {input.vcfidx} {output.standardized_vcfidx}
         cp {input.bed} {output.standardized_bed}
-        """
-
-rule intersect_pav_callable_regions:
-    input:
-        h1_bed="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1_callable.bed.gz",
-        h2_bed="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.hap2_callable.bed.gz",
-    output:
-        baseline_bed="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.baseline.bed",
-    conda:
-        "../envs/bcftools_and_bedtools.yml",
-    params:
-        intersect_opts=config.get("intersect_opts", ""),
-    threads:
-        config.get("intersect_threads", 1),
-    resources:
-        mem_mb=config.get("intersect_mem_mb", 1024),
-    log:
-        "logs/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_intersect.log",
-    shell:
-        """
-        bedtools intersect {params.intersect_opts} -a {input.h1_bed} -b {input.h2_bed} > {output.baseline_bed} 2> {log}
         """

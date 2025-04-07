@@ -336,14 +336,28 @@ def get_processed_vcf(wildcards):
         return f"results/asm_varcalls/{vc_id}/annotations/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.{vcf_suffix}.vcf.gz"
 
 
+def get_std_base(wildcards):
+    vc_id = wildcards.vc_id
+    ref_id = wildcards.ref_id
+    asm_id = wildcards.asm_id
+    vc_cmd = wildcards.vc_cmd
+    vc_param_id = wildcards.vc_param_id
+    return f"results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}"
+
 def get_standardized_vcf(wildcards):
-    return f"results/asm_varcalls/{wildcards.vc_id}/{wildcards.ref_id}_{wildcards.asm_id}_{wildcards.vc_cmd}-{wildcards.vc_param_id}.vcf.gz"
+    basename = get_std_base(wildcards)
+    return f"{basename}.vcf.gz"
+
 
 def get_standardized_vcfidx(wildcards):
-    return f"results/asm_varcalls/{wildcards.vc_id}/{wildcards.ref_id}_{wildcards.asm_id}_{wildcards.vc_cmd}-{wildcards.vc_param_id}.vcf.gz.tbi"
+    basename = get_std_base(wildcards)
+    return f"{basename}.vcf.gz.tbi"
+
 
 def get_standardized_bed(wildcards):
-    return f"results/asm_varcalls/{wildcards.vc_id}/{wildcards.ref_id}_{wildcards.asm_id}_{wildcards.vc_cmd}-{wildcards.vc_param_id}.baseline.bed"
+    basename = get_std_base(wildcards)
+    return f"{basename}.baseline.bed"
+
 
 # Update draft benchmark generation to use standardized outputs
 def get_draft_benchmark_inputs(wildcards):
@@ -353,16 +367,51 @@ def get_draft_benchmark_inputs(wildcards):
         "bed": get_standardized_bed(wildcards),
     }
 
-def get_pav_outputs(wildcards):
-    asm_id = vc_tbl[wildcards.vc_id]["asm_id"]
+
+def get_pav_outpath(vc_id):
+    asm_id = vc_tbl[vc_id]["asm_id"]
     sample_id = asm_config[asm_id]["sample_id"]
-    base_path=f"results/asm_varcalls/{wildcards.vc_id}/{sample_id}"
+    return f"results/asm_varcalls/{vc_id}/{sample_id}"
+
+
+def get_pav_hap1_bed(wildcards):
+    base_path = get_pav_outpath(wildcards.vc_id)
+    return f"{base_path}/callable_regions_h1_500.bed.gz"
+
+
+def get_pav_hap2_bed(wildcards):
+    base_path = get_pav_outpath(wildcards.vc_id)
+    return f"{base_path}/callable_regions_h2_500.bed.gz"
+
+
+def get_pav_outputs(wildcards):
+    base_path = get_pav_outpath(wildcards.vc_id)
     return {
         "vcf": f"{base_path}.vcf.gz",
         "vcfidx": f"{base_path}.vcf.gz.tbi",
-        "h1_bed": f"{base_path}/callable_regions_h1_500.bed.gz",
-        "h2_bed": f"{base_path}/callable_regions_h2_500.bed.gz",
+        "bed": f"{base_path}.diploid_regions.bed.gz",
     }
+
+
+def get_dipcall_basename(wildcards):
+    vc_id = wildcards.vc_id
+    ref_id = wildcards.ref_id
+    asm_id = wildcards.asm_id
+    vc_cmd = wildcards.vc_cmd
+    vc_param_id = wildcards.vc_param_id
+    return f"results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip"
+
+
+def get_dipcall_outputs(wildcards):
+    base_name = get_dipcall_basename(wildcards)
+    return {
+        "vcf": f"{base_name}.rename.vcf.gz",
+        "vcfidx": f"{base_name}.rename.vcf.gz.tbi",
+        "bed": f"{base_name}.bed",
+    }
+
+def is_pav(wildcards):
+    return wildcards.vc_cmd == "pav"
 
 ################################################################################
 # load config
