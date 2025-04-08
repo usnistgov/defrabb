@@ -221,6 +221,7 @@ def execute_snakemake_pipeline(
     cmd = [
         "snakemake",
         "--use-conda",
+        "--use-apptainer",
         "--printshellcmds",
         "--config",
         f"analyses={args.analyses}",
@@ -263,6 +264,7 @@ def generate_snakemake_archive(
         cmd = [
             "snakemake",
             "--use-conda",
+            "--use-apptainer",
             "--config",
             f"analyses={args.analyses}",
             "--directory",
