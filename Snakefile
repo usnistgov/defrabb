@@ -3,7 +3,7 @@ from pathlib import Path
 from snakemake.utils import min_version, validate
 
 
-min_version("7.26.0")
+min_version("8.30.0")
 
 
 ## Rule ordering for ambiguous rules
