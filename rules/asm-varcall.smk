@@ -76,7 +76,7 @@ rule rename_dipcall_vcf_sample:
         vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.rename.vcf.gz",
     params:
         get_sample_id,
-    log:    
+    log:
         "logs/rename_dipcall/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     conda:
         "../envs/bcftools.yml"
@@ -95,16 +95,16 @@ rule run_pav:
         hap1=lambda wildcards: f"resources/assemblies/{vc_tbl.loc[wildcards.vc_id]['asm_id']}/paternal.fa",
         hap2=lambda wildcards: f"resources/assemblies/{vc_tbl.loc[wildcards.vc_id]['asm_id']}/maternal.fa",
     output:
-        vcf="results/asm_varcalls/{vc_id}/pav_{sample_id}.vcf.gz",
-        vcfidx="results/asm_varcalls/{vc_id}/pav_{sample_id}.vcf.gz.tbi",
-        h1_bed="results/asm_varcalls/{vc_id}/results/pav_{sample_id}/callable_regions_h1_500.bed.gz",
-        h2_bed="results/asm_varcalls/{vc_id}/results/pav_{sample_id}/callable_regions_h2_500.bed.gz",
+        vcf="results/asm_varcalls/{vc_id}/{sample_id}.vcf.gz",
+        vcfidx="results/asm_varcalls/{vc_id}/{sample_id}.vcf.gz.tbi",
+        h1_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable/callable_regions_h1_500.bed.gz",
+        h2_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable/callable_regions_h2_500.bed.gz",
     params:
         outdir="results/asm_varcalls/{vc_id}",
         pav_config=lambda wildcards: config["_pav_config"][
             vc_tbl.loc[wildcards.vc_id]["vc_param_id"]
         ],
-        name=lambda wildcards: f"pav_{vc_tbl.loc[wildcards.vc_id]['asm_id']}",
+        name=lambda wildcards: f"{asm_config[vc_tbl.loc[wildcards.vc_id, 'asm_id']]["sample_id"]}",
     container:
         "docker://becklab/pav:latest"
     threads: config["_pav_threads"]
@@ -114,8 +114,8 @@ rule run_pav:
 
 rule intersect_pav_callable_regions:
     input:
-        h1_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable_regions_h2_500.bed.gz",
-        h2_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable_regions_h2_500.bed.gz",
+        h1_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable/callable_regions_h2_500.bed.gz",
+        h2_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable/callable_regions_h2_500.bed.gz",
     output:
         baseline_bed="results/asm_varcalls/{vc_id}/{sample_id}.diploid_regions.bed.gz",
     conda:

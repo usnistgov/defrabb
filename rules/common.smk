@@ -373,7 +373,7 @@ def get_pav_basename(wildcards):
     vc_id = wildcards.vc_id
     asm_id = vc_tbl.loc[vc_id, "asm_id"]
     sample_id = asm_config[asm_id]["sample_id"]
-    base_name = f"results/asm_varcalls/{vc_id}/pav_{sample_id}"
+    base_name = f"results/asm_varcalls/{vc_id}/{sample_id}"
     return base_name
 
 
@@ -462,6 +462,7 @@ REFIDS = set(vc_tbl["ref"].tolist())
 ASMIDS = set(vc_tbl["asm_id"].tolist())
 VCCMDS = set(vc_tbl["vc_cmd"].tolist())
 VCPARAMIDS = set(vc_tbl["vc_param_id"].tolist())
+SAMPLEIDS = set([asm_config[asm]["sample_id"] for asm in ASMIDS])
 
 ## Draft benchmark set generation variables
 BENCHIDS = set(bench_tbl.index.tolist())
@@ -486,6 +487,7 @@ wildcard_constraints:
     vc_id="|".join(VCIDS),
     vc_cmd="|".join(VCCMDS),
     vc_param_id="|".join(VCPARAMIDS),
+    sample_id="|".join(SAMPLEIDS),
 
 
 ## Using zip in rule all to get config sets by config table rows
