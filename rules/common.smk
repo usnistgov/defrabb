@@ -45,20 +45,22 @@ def analyses_to_bench_tbls(analyses):
 ################################################################################
 ## Rule parameters
 def get_ref_id(wildcards):
-    ref = wildcards.get("ref", "")
-    if ref:
-        ref_id = ref
-    else:
-        ref_id = wildcards.get("ref_id", "")
-        if not ref_id:
-            prefix = wildcards.get("prefix", "")
-            for id in REFIDS:
-                if id in prefix:
-                    ref_id = id
-    if not ref_id:
-        print(f"ref_id could not be determined from wildcards or {prefix}")
-
-    return ref_id
+    ref_id = ""
+    if wildcards.get("ref", ""):
+        return wildcards.get("ref", "")
+    if wildcards.get("ref_id", ""):
+        return wildcards.get("ref_id", "")
+    if wildcards.get("vc_id", ""):
+        return vc_tbl.loc[wildcards.vc_id]["ref"]
+    if wildcards.get("prefix", ""):
+        prefix = wildcards.get("prefix", "")
+        for id in REFIDS:
+            if id in prefix:
+                return id
+    try:
+        ref_id != ""
+    except:
+        return f"Ref ID could not be determined from {wildcards}"
 
 
 def get_ref_file(wildcards):
@@ -334,6 +336,89 @@ def get_processed_vcf(wildcards):
         return f"results/asm_varcalls/{vc_id}/annotations/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.{vcf_suffix}.vcf.gz"
 
 
+def get_std_base(wildcards):
+    vc_id = wildcards.vc_id
+    ref_id = wildcards.ref_id
+    asm_id = wildcards.asm_id
+    vc_cmd = wildcards.vc_cmd
+    vc_param_id = wildcards.vc_param_id
+    return f"results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}"
+
+
+def get_standardized_vcf(wildcards):
+    basename = get_std_base(wildcards)
+    return f"{basename}.vcf.gz"
+
+
+def get_standardized_vcfidx(wildcards):
+    basename = get_std_base(wildcards)
+    return f"{basename}.vcf.gz.tbi"
+
+
+def get_standardized_bed(wildcards):
+    basename = get_std_base(wildcards)
+    return f"{basename}.baseline.bed"
+
+
+# Update draft benchmark generation to use standardized outputs
+def get_draft_benchmark_inputs(wildcards):
+    return {
+        "vcf": get_standardized_vcf(wildcards),
+        "vcfidx": get_standardized_vcfidx(wildcards),
+        "bed": get_standardized_bed(wildcards),
+    }
+
+
+def get_pav_basename(wildcards):
+    vc_id = wildcards.vc_id
+    asm_id = vc_tbl.loc[vc_id, "asm_id"]
+    sample_id = asm_config[asm_id]["sample_id"]
+    base_name = f"results/asm_varcalls/{vc_id}/{sample_id}"
+    return base_name
+
+
+def get_pav_hap1_bed(wildcards):
+    base_name = get_pav_basename(wildcards.vc_id)
+    return f"{base_name}/callable_regions_h1_500.bed.gz"
+
+
+def get_pav_hap2_bed(wildcards):
+    base_name = get_pav_basename(wildcards.vc_id)
+    return f"{base_name}/callable_regions_h2_500.bed.gz"
+
+
+def get_pav_outputs(wildcards):
+    base_name = get_pav_basename(wildcards)
+    outdict = {
+        "vcf": f"{base_name}.vcf.gz",
+        "vcfidx": f"{base_name}.vcf.gz.tbi",
+        "bed": f"{base_name}.diploid_regions.bed.gz",
+    }
+    return outdict
+
+
+def get_dipcall_basename(wildcards):
+    vc_id = wildcards.vc_id
+    ref_id = wildcards.ref_id
+    asm_id = wildcards.asm_id
+    vc_cmd = wildcards.vc_cmd
+    vc_param_id = wildcards.vc_param_id
+    return f"results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip"
+
+
+def get_dipcall_outputs(wildcards):
+    base_name = get_dipcall_basename(wildcards)
+    return {
+        "vcf": f"{base_name}.rename.vcf.gz",
+        "vcfidx": f"{base_name}.rename.vcf.gz.tbi",
+        "bed": f"{base_name}.bed",
+    }
+
+
+def is_pav(wildcards):
+    return wildcards.vc_cmd == "pav"
+
+
 ################################################################################
 # load config
 
@@ -377,6 +462,7 @@ REFIDS = set(vc_tbl["ref"].tolist())
 ASMIDS = set(vc_tbl["asm_id"].tolist())
 VCCMDS = set(vc_tbl["vc_cmd"].tolist())
 VCPARAMIDS = set(vc_tbl["vc_param_id"].tolist())
+SAMPLEIDS = set([asm_config[asm]["sample_id"] for asm in ASMIDS])
 
 ## Draft benchmark set generation variables
 BENCHIDS = set(bench_tbl.index.tolist())
@@ -401,6 +487,7 @@ wildcard_constraints:
     vc_id="|".join(VCIDS),
     vc_cmd="|".join(VCCMDS),
     vc_param_id="|".join(VCPARAMIDS),
+    sample_id="|".join(SAMPLEIDS),
 
 
 ## Using zip in rule all to get config sets by config table rows

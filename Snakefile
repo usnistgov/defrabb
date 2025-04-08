@@ -3,11 +3,11 @@ from pathlib import Path
 from snakemake.utils import min_version, validate
 
 
-min_version("7.26.0")
+min_version("8.30.0")
 
 
 ## Rule ordering for ambiguous rules
-ruleorder: make_gaps_bed > download_bed_gz > sort_bed > fix_XY_genotype > tabix
+ruleorder: make_gaps_bed > download_bed_gz > sort_bed > fix_XY_genotype > run_pav > tabix
 
 
 ## Loading external rules
@@ -34,7 +34,6 @@ localrules:
     get_comparison_bed,
     get_strats,
     download_bed_gz,
-    copy_asm_vcf_to_annotations,
 
 
 ## Snakemake Report

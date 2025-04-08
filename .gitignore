@@ -61,3 +61,7 @@ data_manifest.tsv
 environment.yml
 run.log
 snakemake_report*
+results*
+
+## PAV cache
+.cache/**

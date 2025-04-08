@@ -267,9 +267,9 @@ rule run_truvari_anno_lcr:
         """
 
 
-rule copy_asm_vcf_to_annotations:
+rule copy_std_asm_vcf_to_annotations:
     input:
-        "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
+        "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
     output:
         "results/asm_varcalls/{vc_id}/annotations/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
     log:
@@ -280,26 +280,17 @@ rule copy_asm_vcf_to_annotations:
         "cp {input} {output} &> {log}"
 
 
-rule rename_and_move_processed_draft_bench_vcf:
+rule move_processed_draft_bench_vcf:
     input:
         get_processed_vcf,
     output:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz",
     log:
-        "logs/rename_and_move_processed_draft_bench_vcf/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
+        "logs/move_processed_draft_bench_vcf/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     conda:
-        "../envs/bcftools.yml"
-    params:
-        get_sample_id,
+        "../envs/download_remotes.yml"
     shell:
-        """
-        echo "syndip {params}\n" | \
-            bcftools reheader \
-            -s -\
-            -o {output} \
-            {input} \
-            &> {log}
-        """
+        "cp {input} {output} &> {log}"
 
 
 ## Filtering vcf to only include variants in benchmark regions

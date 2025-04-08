@@ -30,6 +30,15 @@ _dipcall_params:
   # the root of the par file for dipcall (and friends)
 _par_bed_root: data/par_bed
 
+## PAV Resources ##############
+_pav_config: 
+  giab:
+    merge_ins: "nr::exact"
+    merge_del: "nr::exact"
+    merge_inv: "nr::exact:ro(0.5):szro(0.5,200):match"
+
+_pav_threads: 24
+
 ## Happy Resources ################
 _happy_threads: 12
 _happy_mem: 64000
@@ -195,12 +204,23 @@ assemblies:
     paternal: https://giab-data.s3.amazonaws.com/HG008N_verkko2.2_HiFi-HERRO-HiC_20250218/assembly.haplotype2.fasta.gz
     is_male: false
     sample_id: "HG008N"
+  HG8N-VerrkoHiFiHerroOntStdHiC20250310:
+    maternal: https://nist-giab.s3.us-east-1.amazonaws.com/giab_tumor-normal/analysis/HG008/NIST_asm_dev/HG008T_verkko_v2.2.1_PBhifi20kbBCMhifi_UL_ONTq26_herro_curated250310/HG008T_verkko_v2.2.1_PBhifi20kbBCMhifi_UL_ONTq26_herro_curated250310.haplotype1.corrhap.fasta.gz
+    paternal: https://nist-giab.s3.us-east-1.amazonaws.com/giab_tumor-normal/analysis/HG008/NIST_asm_dev/HG008T_verkko_v2.2.1_PBhifi20kbBCMhifi_UL_ONTq26_herro_curated250310/HG008T_verkko_v2.2.1_PBhifi20kbBCMhifi_UL_ONTq26_herro_curated250310.haplotype2.corrhap.fasta.gz
+    is_male: false
+    sample_id: "HG008N"
   ## HG008-Tumor
   HG8T-Verkko2024040516:
     maternal: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/Verkko_assemblies_NCBI_05162024/.HG008T/HG008T.haplotype1.fasta
     paternal: https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/Verkko_assemblies_NCBI_05162024/.HG008T/HG008T.haplotype2.fasta
     is_male: false
     sample_id: "HG008T"
+  HG8T-VerrkoHiFiHerroOntUlHiC20250310:
+    maternal: https://nist-giab.s3.us-east-1.amazonaws.com/giab_tumor-normal/analysis/HG008/NIST_asm_dev/HG008N_hifi_hic_ONTstdherro_verkko_v2.2_20250218/HG008_N_asm_manual_paths_curated/HG008_N_asm_hifiherrohic_verkko2.2_250218_curated250310.haplotype1.fasta.gz
+    paternal: https://nist-giab.s3.us-east-1.amazonaws.com/giab_tumor-normal/analysis/HG008/NIST_asm_dev/HG008N_hifi_hic_ONTstdherro_verkko_v2.2_20250218/HG008_N_asm_manual_paths_curated/HG008_N_asm_hifiherrohic_verkko2.2_250218_curated250310.haplotype2.fasta.gz
+    is_male: false
+    sample_id: "HG008T"
+  ## NA12878 PP
   NA12878PP-verkko:
     maternal: https://giab-data.s3.amazonaws.com/palladium-genomes/assemblies/NA12878/verkko/1.3.1/assembly.haplotype1_plus-unassigned.fasta.gz
     paternal: https://giab-data.s3.amazonaws.com/palladium-genomes/assemblies/NA12878/verkko/1.3.1/assembly.haplotype2_plus-unassigned.fasta.gz
