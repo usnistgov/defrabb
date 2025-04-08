@@ -337,7 +337,10 @@ def get_processed_vcf(wildcards):
 
 
 def get_std_base(wildcards):
-    vc_id = wildcards.vc_id
+    if wildcards.get("vc_id", ""):
+        vc_id = wildcards.vc_id
+    else:
+        vc_id = bench_tbl.loc[wildcards.bench_id, "vc_id"]
     ref_id = wildcards.ref_id
     asm_id = wildcards.asm_id
     vc_cmd = wildcards.vc_cmd
