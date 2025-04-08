@@ -1,4 +1,4 @@
-image: condaforge/mambaforge:23.3.1-1
+image: condaforge/mambaforge:24.9.2-0
 
 before_script:
   - apt update && apt install --yes build-essential
