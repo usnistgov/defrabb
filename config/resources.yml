@@ -366,7 +366,7 @@ exclusion_set:
     - HG002Q100-mosaic
     - TSPY2-segdups
     - self-discrep
-  HG008Nsmvarv0.020:
+  HG008smvarv0.021:
     - segdups
     - tandem-repeats
     - satellites
@@ -377,7 +377,7 @@ exclusion_set:
     - consecutive-svs
     - TSPY2-segdups
     - self-discrep
-  HG008Nstvarv0.020:
+  HG008stvarv0.021:
     - segdups
     - tandem-repeats
     - satellites
