@@ -4,7 +4,7 @@ before_script:
   - apt update && apt install --yes build-essential
   - echo "Installing pipeline dependencies"
   - mamba --version
-  - mamba install -c conda-forge -c bioconda --strict-channel-priority python==3.12.3 snakemake==8.30.0 snakefmt==0.10.2
+  - mamba install -c conda-forge -c bioconda --strict-channel-priority python==3.12.3 snakemake==8.30.0 snakefmt==0.10.2 apptainer==1.3.6
   - snakemake --version
   - black --version
 
@@ -25,4 +25,4 @@ run-test:
     paths: 
         - smalltest
   script:
-    - snakemake -p --use-conda --cores 1 --verbose --config "_happy_threads=1"
+    - snakemake -p --use-conda --use-apptainer--cores 1 --verbose --config "_happy_threads=1"
