@@ -7,7 +7,7 @@ min_version("8.30.0")
 
 
 ## Rule ordering for ambiguous rules
-ruleorder: make_gaps_bed > download_bed_gz > sort_bed > fix_XY_genotype > standardize_vcasm_output > tabix
+ruleorder: make_gaps_bed > download_bed_gz > sort_bed > fix_XY_genotype > standardize_vcasm_output > run_pav > tabix
 
 
 ## Loading external rules
