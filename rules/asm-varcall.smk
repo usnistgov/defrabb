@@ -68,6 +68,7 @@ rule run_dipcall:
         make -j{params.ts} -f {output.make} &>>{log.rulelog}
         """
 
+
 rule rename_dipcall_vcf_sample:
     input:
         vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
@@ -85,6 +86,7 @@ rule rename_dipcall_vcf_sample:
             &> {log}
         """
 
+
 ## Running the PAV assembly variant caller
 rule run_pav:
     input:
@@ -93,23 +95,22 @@ rule run_pav:
         hap1=lambda wildcards: f"resources/assemblies/{vc_tbl.loc[wildcards.vc_id]['asm_id']}/paternal.fa",
         hap2=lambda wildcards: f"resources/assemblies/{vc_tbl.loc[wildcards.vc_id]['asm_id']}/maternal.fa",
     output:
-        vcf="results/asm_varcalls/{vc_id}/{sample_id}.vcf.gz",
-        vcfidx="results/asm_varcalls/{vc_id}/{sample_id}.vcf.gz.tbi",
-        h1_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable_regions_h1_500.bed.gz",
-        h2_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable_regions_h2_500.bed.gz",
+        vcf="results/asm_varcalls/{vc_id}/pav_{sample_id}.vcf.gz",
+        vcfidx="results/asm_varcalls/{vc_id}/pav_{sample_id}.vcf.gz.tbi",
+        h1_bed="results/asm_varcalls/{vc_id}/results/pav_{sample_id}/callable_regions_h1_500.bed.gz",
+        h2_bed="results/asm_varcalls/{vc_id}/results/pav_{sample_id}/callable_regions_h2_500.bed.gz",
     params:
         outdir="results/asm_varcalls/{vc_id}",
         pav_config=lambda wildcards: config["_pav_config"][
             vc_tbl.loc[wildcards.vc_id]["vc_param_id"]
         ],
-        name=get_sample_id,
-    wildcard_constraints:
-        sample_id=get_sample_id,
+        name=lambda wildcards: f"pav_{vc_tbl.loc[wildcards.vc_id]['asm_id']}",
     container:
         "docker://becklab/pav:latest"
     threads: config["_pav_threads"]
     script:
         "../scripts/run_pav.py"
+
 
 rule intersect_pav_callable_regions:
     input:
@@ -131,13 +132,10 @@ rule intersect_pav_callable_regions:
         bedtools intersect {params.intersect_opts} -a {input.h1_bed} -b {input.h2_bed} > {output.baseline_bed} 2> {log}
         """
 
+
 rule standardize_vcasm_output:
     input:
-        unpack(branch(
-            is_pav,
-            then = get_pav_outputs,
-            otherwise = get_dipcall_outputs 
-        )),
+        unpack(branch(is_pav, then=get_pav_outputs, otherwise=get_dipcall_outputs)),
     output:
         standardized_vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
         standardized_vcfidx="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi",
