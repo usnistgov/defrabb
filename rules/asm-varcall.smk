@@ -78,12 +78,8 @@ rule rename_dipcall_vcf_sample:
         "../envs/bcftools.yml"
     shell:
         """
-        echo "syndip {params}\n" | \
-            bcftools reheader \
-            -s -\
-            -o {output.vcf} \
-            {input.vcf} \
-            &> {log}
+        echo "syndip {params}\n" \
+            | bcftools reheader -s - -o {output.vcf} {input.vcf} &> {log}
         """
 
 
