@@ -77,7 +77,7 @@ rule rename_dipcall_vcf_sample:
     params:
         get_sample_id,
     log:    
-        "logs/rename_dipcall/{vc_id}.log",
+        "logs/rename_dipcall/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     conda:
         "../envs/bcftools.yml"
     shell:
