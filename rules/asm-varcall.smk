@@ -74,6 +74,10 @@ rule rename_dipcall_vcf_sample:
         vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
     output:
         vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.rename.vcf.gz",
+    params:
+        get_sample_id,
+    log:    
+        "logs/rename_dipcall/{vc_id}.log",
     conda:
         "../envs/bcftools.yml"
     shell:
