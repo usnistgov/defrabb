@@ -387,6 +387,17 @@ exclusion_set:
     - consecutive-svs
     - TSPY2-segdups
     - self-discrep
+  HG008smvarv0.021pav:
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - flanks
+    - svs-and-simple-repeats
+    - VDJ
+    - consecutive-svs
+    - TSPY2-segdups
+
 
 ## Regions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # regions with slop added to bed before applying exclusions
