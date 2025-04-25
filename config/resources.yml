@@ -397,7 +397,15 @@ exclusion_set:
     - VDJ
     - consecutive-svs
     - TSPY2-segdups
-
+  HG008stvarv0.021pav:
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - flanks
+    - VDJ
+    - consecutive-svs
+    - TSPY2-segdups
 
 ## Regions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # regions with slop added to bed before applying exclusions
