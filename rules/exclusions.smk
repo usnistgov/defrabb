@@ -67,14 +67,14 @@ rule get_sv_widen_coords:
         vcf=get_processed_vcf,
         genome=get_genome_file,
     output:
-        bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_dip_SVs.bed",
-        tbl="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_dip_SVs.tsv",
+        bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_SVs.bed",
+        tbl="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_SVs.tsv",
     conda:
         "../envs/sv_widen_coords.yml"
     params:
         script=Path(workflow.basedir) / "scripts/get_sv_widen_coords.py",
     log:
-        "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_dip_SV_coords.log",
+        "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_SV_coords.log",
     shell:
         """
         python {params.script} \
@@ -90,7 +90,7 @@ rule get_sv_widen_coords:
 
 rule intersect_SVs_and_simple_repeats:
     input:
-        sv_bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_dip_SVs.bed",
+        sv_bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_SVs.bed",
         simple_repeat_bed="resources/exclusions/{ref_id}/all-tr-and-homopolymers_sorted.bed",
         genome=get_genome_file,
     output:
@@ -289,7 +289,7 @@ rule add_slop_and_merge:
 ## Finding breaks in assemblies for excluded regions
 rule intersect_start_and_end:
     input:
-        dip=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
+        baseline_bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.baseline.bed",
         xregions="resources/exclusions/{ref_id}/{excluded_region}.bed",
         genome=get_genome_file,
     output:
@@ -303,22 +303,22 @@ rule intersect_start_and_end:
         "../envs/bedtools.yml"
     shell:
         """
-        awk '{{FS=OFS="\t"}} {{print $1, $2, $2+1}}' {input.dip} \
+        awk '{{FS=OFS="\t"}} {{print $1, $2, $2+1}}' {input.baseline_bed} \
             | bedtools intersect -u -wa -a {input.xregions} -b stdin \
             | bedtools sort -g {input.genome} -i stdin \
             1> {output.start} 2> {log}
 
-        awk '{{FS=OFS="\t"}} {{print $1, $3-1, $3}}' {input.dip} \
+        awk '{{FS=OFS="\t"}} {{print $1, $3-1, $3}}' {input.baseline_bed} \
             | bedtools intersect -u -wa -a {input.xregions} -b stdin  \
             | bedtools sort -g {input.genome} -i stdin \
             1> {output.end} 2>> {log}
         """
 
 
-# Generate bed with 15kb regions around assembly breaks (non-dip coverage)
+# Generate bed with 15kb regions around assembly breaks (non-diploid coverage)
 rule get_flanks:
     input:
-        bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
+        baseline_bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.baseline.bed",
         genome=get_genome_file,
     output:
         "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_flanks.bed",
@@ -330,7 +330,7 @@ rule get_flanks:
         "../envs/bedtools.yml"
     shell:
         """
-        bedtools complement -i {input.bed} -g {input.genome} |
+        bedtools complement -i {input.baseline_bed} -g {input.genome} |
             bedtools flank -i stdin -g {input.genome} -b {params.bases} \
             1> {output} 2> {log}
         """
@@ -340,7 +340,7 @@ rule get_flanks:
 ## for draft benchmark regions
 rule subtract_exclusions:
     input:
-        dip_bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
+        baseline_bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.baseline.bed",
         other_beds=get_exclusion_inputs,
     output:
         rpt=report(
@@ -360,7 +360,7 @@ rule subtract_exclusions:
     shell:
         """
         python {params.script} \
-        {input.dip_bed} \
+        {input.baseline_bed} \
         {output.bed} \
         {output.rpt} \
         {input.other_beds} \
@@ -370,7 +370,7 @@ rule subtract_exclusions:
 
 rule generate_intersection_summary:
     input:
-        dip_bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
+        baseline_bed=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.baseline.bed",
         exclusions=get_exclusion_inputs,
     output:
         summary_table=report(
@@ -387,14 +387,14 @@ rule generate_intersection_summary:
         "../envs/bedtools.yml"
     shell:
         """  
-        python {params.script} {input.dip_bed} {output.summary_table} {params.intersect_dir} {input.exclusions} &> {log}  
+        python {params.script} {input.baseline_bed} {output.summary_table} {params.intersect_dir} {input.exclusions} &> {log}  
         """
 
 
 ## Used when no exclusions are applied
 rule postprocess_bed:
     input:
-        lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.dip_sorted.bed",
+        lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[wildcards.bench_id, 'vc_id']}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.baseline.bed",
     output:
         bed="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.bed",
     log:
