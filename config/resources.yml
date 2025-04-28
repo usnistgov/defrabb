@@ -205,8 +205,8 @@ assemblies:
     is_male: false
     sample_id: "HG008N"
   HG8N-VerrkoHiFiHerroOntStdHiC20250310:
-    maternal: https://nist-giab.s3.us-east-1.amazonaws.com/giab_tumor-normal/analysis/HG008/NIST_asm_dev/HG008T_verkko_v2.2.1_PBhifi20kbBCMhifi_UL_ONTq26_herro_curated250310/HG008T_verkko_v2.2.1_PBhifi20kbBCMhifi_UL_ONTq26_herro_curated250310.haplotype1.corrhap.fasta.gz
-    paternal: https://nist-giab.s3.us-east-1.amazonaws.com/giab_tumor-normal/analysis/HG008/NIST_asm_dev/HG008T_verkko_v2.2.1_PBhifi20kbBCMhifi_UL_ONTq26_herro_curated250310/HG008T_verkko_v2.2.1_PBhifi20kbBCMhifi_UL_ONTq26_herro_curated250310.haplotype2.corrhap.fasta.gz
+    maternal: https://nist-giab.s3.us-east-1.amazonaws.com/giab_tumor-normal/analysis/HG008/NIST_asm_dev/HG008N_hifi_hic_ONTstdherro_verkko_v2.2_20250218/HG008_N_asm_manual_paths_curated/HG008_N_asm_hifiherrohic_verkko2.2_250218_curated250310.haplotype1.fasta.gz
+    paternal: https://nist-giab.s3.us-east-1.amazonaws.com/giab_tumor-normal/analysis/HG008/NIST_asm_dev/HG008N_hifi_hic_ONTstdherro_verkko_v2.2_20250218/HG008_N_asm_manual_paths_curated/HG008_N_asm_hifiherrohic_verkko2.2_250218_curated250310.haplotype2.fasta.gz
     is_male: false
     sample_id: "HG008N"
   ## HG008-Tumor
@@ -216,8 +216,8 @@ assemblies:
     is_male: false
     sample_id: "HG008T"
   HG8T-VerrkoHiFiHerroOntUlHiC20250310:
-    maternal: https://nist-giab.s3.us-east-1.amazonaws.com/giab_tumor-normal/analysis/HG008/NIST_asm_dev/HG008N_hifi_hic_ONTstdherro_verkko_v2.2_20250218/HG008_N_asm_manual_paths_curated/HG008_N_asm_hifiherrohic_verkko2.2_250218_curated250310.haplotype1.fasta.gz
-    paternal: https://nist-giab.s3.us-east-1.amazonaws.com/giab_tumor-normal/analysis/HG008/NIST_asm_dev/HG008N_hifi_hic_ONTstdherro_verkko_v2.2_20250218/HG008_N_asm_manual_paths_curated/HG008_N_asm_hifiherrohic_verkko2.2_250218_curated250310.haplotype2.fasta.gz
+    maternal: https://nist-giab.s3.us-east-1.amazonaws.com/giab_tumor-normal/analysis/HG008/NIST_asm_dev/HG008T_verkko_v2.2.1_PBhifi20kbBCMhifi_UL_ONTq26_herro_curated250310/HG008T_verkko_v2.2.1_PBhifi20kbBCMhifi_UL_ONTq26_herro_curated250310.haplotype1.corrhap.fasta.gz
+    paternal: https://nist-giab.s3.us-east-1.amazonaws.com/giab_tumor-normal/analysis/HG008/NIST_asm_dev/HG008T_verkko_v2.2.1_PBhifi20kbBCMhifi_UL_ONTq26_herro_curated250310/HG008T_verkko_v2.2.1_PBhifi20kbBCMhifi_UL_ONTq26_herro_curated250310.haplotype2.corrhap.fasta.gz
     is_male: false
     sample_id: "HG008T"
   ## NA12878 PP
