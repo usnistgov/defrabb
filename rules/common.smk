@@ -414,7 +414,7 @@ def get_dipcall_outputs(wildcards):
     return {
         "vcf": f"{base_name}.rename.vcf.gz",
         "vcfidx": f"{base_name}.rename.vcf.gz.tbi",
-        "bed": f"{base_name}.bed",
+        "bed": f"{base_name}_sorted.bed",
     }
 
 

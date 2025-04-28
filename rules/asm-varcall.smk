@@ -116,8 +116,9 @@ rule intersect_pav_callable_regions:
     input:
         h1_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable/callable_regions_h2_500.bed.gz",
         h2_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable/callable_regions_h2_500.bed.gz",
+        faidx=get_ref_index,
     output:
-        baseline_bed="results/asm_varcalls/{vc_id}/{sample_id}.diploid_regions.bed.gz",
+        diploid_regions="results/asm_varcalls/{vc_id}/{sample_id}.diploid_regions.bed.gz",
     conda:
         "../envs/bcftools_and_bedtools.yml"
     params:
@@ -129,7 +130,10 @@ rule intersect_pav_callable_regions:
         "logs/asm_varcalls/{vc_id}/{sample_id}_intersect.log",
     shell:
         """
-        bedtools intersect {params.intersect_opts} -a {input.h1_bed} -b {input.h2_bed} > {output.baseline_bed} 2> {log}
+        bedtools intersect {params.intersect_opts} 
+            -a {input.h1_bed} -b {input.h2_bed} \
+            bedtools sort -faidx {input.faidx} -i - \
+            > {output.diploid_regions} 2> {log}
         """
 
 
