@@ -395,7 +395,6 @@ exclusion_set:
     - flanks
     - svs-and-simple-repeats
     - VDJ
-    - consecutive-svs
     - TSPY2-segdups
   HG008stvarv0.021pav:
     - segdups
@@ -404,7 +403,6 @@ exclusion_set:
     - gaps
     - flanks
     - VDJ
-    - consecutive-svs
     - TSPY2-segdups
 
 ## Regions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
