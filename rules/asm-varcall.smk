@@ -120,7 +120,7 @@ rule intersect_pav_callable_regions:
     output:
         diploid_regions="results/asm_varcalls/{vc_id}/{sample_id}.diploid_regions.bed.gz",
     conda:
-        "../envs/bcftools_and_bedtools.yml"
+        "../envs/bedtools.yml"
     params:
         intersect_opts=config.get("intersect_opts", ""),
     threads: config.get("intersect_threads", 1)
@@ -132,7 +132,7 @@ rule intersect_pav_callable_regions:
         """
         bedtools intersect {params.intersect_opts} 
             -a {input.h1_bed} -b {input.h2_bed} \
-            | bedtools sort -faidx {input.faidx} -i - \
+            | bedtools sort -faidx {input.faidx} -i stdin \
             > {output.diploid_regions} 2> {log}
         """
 
