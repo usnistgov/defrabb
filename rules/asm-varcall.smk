@@ -132,7 +132,7 @@ rule intersect_pav_callable_regions:
         """
         bedtools intersect {params.intersect_opts} 
             -a {input.h1_bed} -b {input.h2_bed} \
-            bedtools sort -faidx {input.faidx} -i - \
+            | bedtools sort -faidx {input.faidx} -i - \
             > {output.diploid_regions} 2> {log}
         """
 
