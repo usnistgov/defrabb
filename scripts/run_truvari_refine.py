@@ -21,11 +21,8 @@ shell(
     "rm -rf {snakemake.params.bench_output}/phab_bench && "
     "truvari refine "
     "--threads {snakemake.threads} "
-    "--recount "
-    "--use-region-coords "
     "--use-original-vcfs "
     "--align mafft "
     "--reference {snakemake.input.ref} "
-    "{query_regions} "
     "{snakemake.params.bench_output} " + log
 )
