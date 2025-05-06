@@ -169,6 +169,7 @@ rule run_truvari_anno_trf:
             -f {input.ref} \
             -t {threads} \
             --min-length {params.min_length} \
+            --trf-params "3 7 7 80 5 40 500 -h -ngs -l 20" \
             -e trf &> {log}
         """
 
