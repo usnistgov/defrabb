@@ -104,6 +104,20 @@ rule normalize_vars:
             | bcftools sort -m{resources.mem_mb}m -Oz > {output} 2>> {log}
         """
 
+## Adding END INFO tag missing from PAV callsets
+rule add_end_info_header:
+    input:
+        vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz"
+    output:
+        vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.end_info.vcf.gz"
+    conda:
+        "../envs/bcftools.yml"
+    log:
+        "logs/add_end_info/{vc_id}_{prefix}.log"
+    shell:
+        """
+        bcftools +fill-tags {input.vcf} -Oz -o {output.vcf} -- -t END &> {log}
+        """
 
 ## Using Adotto as tr catalogue for SV annotations
 rule get_adotto_tr_anno_db:
