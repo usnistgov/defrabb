@@ -257,7 +257,7 @@ rule exclude_pav_inversions:
     benchmark:
         "benchmark/exclusions/{bench_id}_pav-inv_{ref_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
-        "../envs/bcftools.yml"
+        "../envs/bcftools_and_bedtools.yml"
     shell:
         """
         bcftools filter -e 'ALT="<INV>"' {input.vcf} \
