@@ -23,6 +23,7 @@ genomic_regions = [
     "HG002Q100-delins-errors",
     "TSPY2-segdups",
     "self-discrep",
+    "pav-inv"
 ]
 
 
@@ -241,6 +242,32 @@ rule self_discrep_intersect_slop:
             1> {output} 2>{log}
         """
 
+rule exclude_pav_inversions:
+    ## TODO fix to work with dipcall as well
+    input:
+        vcf=get_standardized_vcf,
+        vcfidx=get_standardized_vcfidx,
+        genome=get_genome_file,
+        segdups=get_segdups,
+    output:
+        bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_pav-inv.bed",
+    params:
+        slop=50,
+        merge_d=1000,
+    benchmark:
+        "benchmark/exclusions/{bench_id}_pav-inv_{ref_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
+    conda:
+        "../envs/bcftools.yml"
+    shell:
+        """
+        bcftools filter -e 'ALT="<INV>"' {input.vcf} \
+            | bcftools query -f '%CHROM\t%POS\t%INFO/SVLEN\n' \
+            | awk  '{FS=OFS="\t"} {print $1, $2, $2+$3}' \
+            | bedtools slop -b {params.slop} -i stdin -g {input.genome} \
+            | bedtools multiinter -i stdin {input.segdups} \
+            | mergeBed -i stdin -d {params.merge_d} \
+            1> {output.bed} 2>{log}
+        """
 
 ## Expanding exclusion regions by 15kb
 rule add_slop:

@@ -396,6 +396,7 @@ exclusion_set:
     - svs-and-simple-repeats
     - VDJ
     - TSPY2-segdups
+    - pav-inv
   HG008stvarv0.021pav:
     - segdups
     - tandem-repeats
@@ -444,6 +445,7 @@ exclusion_ref_agnostic:
   - svs-and-simple-repeats
   - consecutive-svs
   - self-discrep
+  - pav-inv
 
 ################################################################################
 # Comparisons
