@@ -122,7 +122,7 @@ def get_dipcall_par_param(wildcards):
 
 def get_segdups(wildcards):
     ref_id = get_ref_id(wildcards)
-    return f"resources/{ref_id}/segdups_slopmerge_sorted.bed"
+    return f"resources/exclusions/{ref_id}/segdups_slopmerge_sorted.bed"
 
 ## Happy Inputs and Parameters
 def get_happy_gender_param(wildcards):
