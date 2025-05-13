@@ -16,7 +16,7 @@ if engine:
 
 truth_regions = snakemake.input.get("truth_regions", "")
 if truth_regions:
-    truth_regions = f"-f {truth_regions}"
+    truth_regions = f"-R {truth_regions}"
 
 target_regions = snakemake.input.get("target_regions", "")
 if target_regions:
