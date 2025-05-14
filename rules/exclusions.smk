@@ -239,7 +239,7 @@ rule self_discrep_intersect_slop:
             bedtools multiinter -i stdin {input.bed} | \
             bedtools slop -b {params.slop} -i stdin -g {input.genome} | \
             mergeBed -i stdin -d {params.merge_d} \
-            1> {output} 2>{log}
+            1> {output} 2> {log}
         """
 
 rule exclude_pav_inversions:
@@ -251,6 +251,8 @@ rule exclude_pav_inversions:
         segdups=get_segdups,
     output:
         bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_pav-inv.bed",
+    log:
+        "logs/exclusions/exclude_pav_inversions/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     params:
         slop=50,
         merge_d=1000,
@@ -261,9 +263,9 @@ rule exclude_pav_inversions:
     shell:
         """
         bcftools filter -e 'ALT="<INV>"' {input.vcf} \
-            | bcftools query -f '%CHROM\t%POS\t%INFO/SVLEN\n' \
-            | awk  '{FS=OFS="\t"} {print $1, $2, $2+$3}' \
+            | bcftools query -f '%CHROM\t%POS0\t%END\n' \
             | bedtools slop -b {params.slop} -i stdin -g {input.genome} \
+            | bedtools sort -g {input.genome} -i - \
             | bedtools multiinter -i stdin {input.segdups} \
             | mergeBed -i stdin -d {params.merge_d} \
             1> {output.bed} 2>{log}
