@@ -262,7 +262,7 @@ rule exclude_pav_inversions:
         "../envs/bcftools_and_bedtools.yml"
     shell:
         """
-        bcftools filter -e 'ALT="<INV>"' {input.vcf} \
+        bcftools filter -i 'ALT="<INV>"' {input.vcf} \
             | bcftools query -f '%CHROM\t%POS0\t%END\n' \
             | bedtools slop -b {params.slop} -i stdin -g {input.genome} \
             | bedtools sort -g {input.genome} -i - \

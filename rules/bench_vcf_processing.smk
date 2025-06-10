@@ -209,6 +209,20 @@ rule run_truvari_anno_svinfo:
             &> {log}
         """
 
+rule install_dfam_hmm:
+    output:
+        touch("installed_dfam_hmm")
+    conda: "../envs/truvari.yml"
+    run:
+        rmdir = f"{env.CONDA_PREFIX}/share/RepeatMasker"
+        # fetch the curated‐only HMM
+        shell(f"""
+          cd {rmdir}/Libaries/famdb/
+          wget -qO- https://www.dfam.org/releases/current/families/FamDB/dfam39_full.5.h5.gz
+          gunzip dfam39_full.5.h5.gz
+          cd {rmdir}
+          perl ./configure
+        """)
 
 rule run_truvari_anno_repmask:
     input:
@@ -281,6 +295,20 @@ rule run_truvari_anno_lcr:
             &> {log}
         """
 
+rule remove_inv:
+    input:
+        vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz",
+        vcfidx="results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz.tbi",
+    output:
+        vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.no_inv.vcf.gz",
+    log:
+        "logs/remove_inv/{vc_id}_{prefix}.log",
+    conda:
+        "../envs/bcftools.yml"
+    shell:
+        """
+        bcftools view -e 'ALT="<INV>"' -Oz -o {output.vcf} {input.vcf} &> {log}
+        """
 
 rule copy_std_asm_vcf_to_annotations:
     input:
