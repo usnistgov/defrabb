@@ -398,7 +398,7 @@ def get_pav_outputs(wildcards):
     outdict = {
         "vcf": f"{base_name}.vcf.gz",
         "vcfidx": f"{base_name}.vcf.gz.tbi",
-        "bed": f"{base_name}.diploid_regions.bed.gz",
+        "bed": f"{base_name}.diploid_regions.bed",
     }
     return outdict
 
