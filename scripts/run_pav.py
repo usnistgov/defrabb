@@ -35,5 +35,5 @@ with open(f"{outdir}/config.json", "w") as file:
 ## calling pav ----------------------------------------------------------
 shell(
     "cd {snakemake._params_store.outdir};"
-    "snakemake -s /opt/pav/Snakefile --ri -k -w 20 -j {snakemake.threads} --config ignore_env_file=True"
+    "snakemake -s /opt/pav/Snakefile --ri -k -w 20 --rerun-triggers mtime -c {snakemake.threads} --config ignore_env_file=True"
 )
