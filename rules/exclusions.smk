@@ -75,7 +75,7 @@ rule get_sv_widen_coords:
     params:
         script=Path(workflow.basedir) / "scripts/get_sv_widen_coords.py",
     log:
-        "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_SV_coords.log",
+        "logs/exclusions/sv_widen_coords/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_SV_coords.log",
     shell:
         """
         python {params.script} \
@@ -85,7 +85,7 @@ rule get_sv_widen_coords:
             --table \
             --sort-merge \
             --genome {input.genome} \
-            --log {log} 2>> {log}
+            --log {log}
         """
 
 
@@ -97,7 +97,7 @@ rule intersect_SVs_and_simple_repeats:
     output:
         "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_svs-and-simple-repeats.bed",
     log:
-        "logs/exclusions/{bench_id}_SVs_{ref_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
+        "logs/exclusions/SVs/{bench_id}_SVs_{ref_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
         "benchmark/exclusions/{bench_id}_SVs_{ref_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
@@ -106,10 +106,10 @@ rule intersect_SVs_and_simple_repeats:
         """
         intersectBed -wa \
                 -a {input.simple_repeat_bed} \
-                -b {input.sv_bed} | \
-            multiIntersectBed -i stdin {input.sv_bed} | \
-            bedtools slop -i stdin -g {input.genome} -b 50 | \
-            mergeBed -i stdin -d 1000 \
+                -b {input.sv_bed} \
+            | multiIntersectBed -i stdin {input.sv_bed} \
+            | bedtools slop -i stdin -g {input.genome} -b 50 \
+            | mergeBed -i stdin -d 1000 \
             1> {output} 2>{log}
         """
 
@@ -204,13 +204,13 @@ rule self_discrep_extract_fpfns:
         "../envs/bcftools_and_bedtools.yml"
     shell:
         """
+        echo "Filtering VCF for indels <={params.max_indel} and extracting FP/FN regions" >> {log}
         bcftools filter \
-            --include 'MAX(ILEN)<={params.max_indel} && MIN(ILEN) >= -{params.max_indel} && (FMT/BD=="FN" || FMT/BD=="FP")' \
-            {input.vcf} |
-                bcftools query -f "%CHROM\t%POS0\t%END\n" |
-                bedtools merge -i - |
-                bedtools sort -faidx {input.faidx} -i - \
-            1> {output} 2> {log}
+            --include 'ABS(ILEN)<={params.max_indel} && (FMT/BD=="FN" || FMT/BD=="FP")' {input.vcf} 2>> {log} \
+                | bcftools query -f "%CHROM\t%POS0\t%END\n" 2>> {log} \
+                | bedtools merge -i - 2>> {log} \
+                | bedtools sort -faidx {input.faidx} -i - 1> {output} 2>> {log}
+        echo "Completed successfully" >> {log}
         """
 
 
@@ -235,10 +235,10 @@ rule self_discrep_intersect_slop:
         ## TODO make slop conditional, don't add for intersected vars
         bedtools intersect -wa \
                 -a {input.simple_repeat_bed} \
-                -b {input.bed} | \
-            bedtools multiinter -i stdin {input.bed} | \
-            bedtools slop -b {params.slop} -i stdin -g {input.genome} | \
-            mergeBed -i stdin -d {params.merge_d} \
+                -b {input.bed} \
+            | bedtools multiinter -i stdin {input.bed} \
+            | bedtools slop -b {params.slop} -i stdin -g {input.genome} \
+            | mergeBed -i stdin -d {params.merge_d} \
             1> {output} 2> {log}
         """
 
@@ -310,9 +310,9 @@ rule add_slop_and_merge:
         "../envs/bedtools.yml"
     shell:
         """
-        bedtools sort -i {input.bed} -g {input.genome} |
-            bedtools slop -i stdin -g {input.genome} -b {params.slop} |
-            bedtools merge -i stdin -d {params.dist} \
+        bedtools sort -i {input.bed} -g {input.genome} \
+            | bedtools slop -i stdin -g {input.genome} -b {params.slop} \
+            | bedtools merge -i stdin -d {params.dist} \
             1> {output} 2> {log}
         """
 
@@ -361,8 +361,8 @@ rule get_flanks:
         "../envs/bedtools.yml"
     shell:
         """
-        bedtools complement -i {input.baseline_bed} -g {input.genome} |
-            bedtools flank -i stdin -g {input.genome} -b {params.bases} \
+        bedtools complement -i {input.baseline_bed} -g {input.genome} \
+            | bedtools flank -i stdin -g {input.genome} -b {params.bases} \
             1> {output} 2> {log}
         """
 
@@ -391,11 +391,11 @@ rule subtract_exclusions:
     shell:
         """
         python {params.script} \
-        {input.baseline_bed} \
-        {output.bed} \
-        {output.rpt} \
-        {input.other_beds} \
-        &> {log}
+            {input.baseline_bed} \
+            {output.bed} \
+            {output.rpt} \
+            {input.other_beds} \
+            &> {log}
         """
 
 
