@@ -114,7 +114,7 @@ rule run_pav:
 
 rule intersect_pav_callable_regions:
     input:
-        h1_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable/callable_regions_h2_500.bed.gz",
+        h1_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable/callable_regions_h1_500.bed.gz",
         h2_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable/callable_regions_h2_500.bed.gz",
         faidx=get_ref_index,
     output:

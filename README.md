@@ -96,6 +96,8 @@ Test references for the bundled chr21 dataset are already tracked under `.tests/
 
 Versioned example analyses are kept in `config/analyses_*.tsv` and can be used as templates for new runs.
 
+For a concise local setup and validation checklist, see `docs/developer-quickstart.md`.
+
 ## Internal-only notes
 
 Some documents in `docs/` and some release defaults in the wrapper assume NIST infrastructure (NAS paths, S3 destinations, and internal run documentation practices). Treat those as internal operational references rather than general public setup instructions.

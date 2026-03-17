@@ -278,35 +278,39 @@ def generate_snakemake_archive(
         run_subprocess_command(cmd, "Error generating Snakemake archive")
 
 
+def matches_release_patterns(file_path: str, run_id: str, patterns: List[str]) -> bool:
+    """Return True when a release path matches any configured pattern."""
+    return any(
+        fnmatch.fnmatch(file_path, pattern.format(RUNID=run_id)) for pattern in patterns
+    )
+
+
+def should_release_file(file_path: str, run_id: str, release_rules: dict) -> bool:
+    """Apply include/exclude release rules with rsync-compatible precedence."""
+    if matches_release_patterns(file_path, run_id, release_rules["include"]):
+        return True
+    if matches_release_patterns(file_path, run_id, release_rules["exclude"]):
+        return False
+    return False
+
+
 def upload_to_s3(
     run_id: str, run_dir: str, bucket_name: str, s3_path: str, s3_rules: dict
 ) -> None:
     s3 = boto3.client("s3")
-    include_patterns = s3_rules["include"]
-    exclude_patterns = s3_rules["exclude"]
-
-    def should_include(file_path: str) -> bool:
-        for pattern in include_patterns:
-            if fnmatch.fnmatch(file_path, pattern.format(RUNID=run_id)):
-                return True
-        return False
-
-    def should_exclude(file_path: str) -> bool:
-        for pattern in exclude_patterns:
-            if fnmatch.fnmatch(file_path, pattern):
-                return True
-        return False
 
     for root, _, files in os.walk(run_dir):
         for file in files:
             file_path = os.path.join(root, file)
             relative_path = os.path.relpath(file_path, run_dir)
-            if should_include(relative_path):
-                s3_key = os.path.join(s3_path, run_id, relative_path)
-                s3.upload_file(
-                    file_path, bucket_name, s3_key, ExtraArgs={"ACL": "public-read"}
-                )
-                logging.info(f"Uploaded {file_path} to s3://{bucket_name}/{s3_key}")
+            if not should_release_file(relative_path, run_id, s3_rules):
+                continue
+
+            s3_key = os.path.join(s3_path, run_id, relative_path)
+            s3.upload_file(
+                file_path, bucket_name, s3_key, ExtraArgs={"ACL": "public-read"}
+            )
+            logging.info(f"Uploaded {file_path} to s3://{bucket_name}/{s3_key}")
 
 
 def release_run(
@@ -326,6 +330,22 @@ def release_run(
             # Create data manifest
             manifest_path = os.path.join(run_dir, "data_manifest.tsv")
             create_data_manifest(args.runid, bucket_name, s3_path, manifest_path)
+
+            if should_release_file(
+                os.path.basename(manifest_path), args.runid, release_rules["s3"]
+            ):
+                manifest_key = os.path.join(
+                    s3_path, args.runid, os.path.basename(manifest_path)
+                )
+                boto3.client("s3").upload_file(
+                    manifest_path,
+                    bucket_name,
+                    manifest_key,
+                    ExtraArgs={"ACL": "public-read"},
+                )
+                logging.info(
+                    f"Uploaded {manifest_path} to s3://{bucket_name}/{manifest_key}"
+                )
         except RuntimeError as e:
             logging.error(f"S3 upload failed: {e}")
             if release_type == "s3":
@@ -339,7 +359,7 @@ def release_run(
             for pattern in local_rules["include"]:
                 cmd.extend(["--include", f"{pattern.format(RUNID=args.runid)}"])
             for pattern in local_rules["exclude"]:
-                cmd.extend([f"--exclude", pattern])
+                cmd.extend(["--exclude", f"{pattern.format(RUNID=args.runid)}"])
             cmd.extend([f"{run_dir}/", f"{archive_dir}/{args.runid}/"])
             print(" ".join(cmd))
             subprocess.call(cmd)
@@ -514,7 +534,6 @@ def main() -> None:
     report_name = os.path.join(run_dir, f"snakemake_report_{args.runid}.zip")
     smk_archive_path = os.path.join(run_dir, f"archive.tar.gz")
     archive_dir = args.archive_dir
-    bucket_name = "giab-data"  # Define your S3 bucket name here
 
     # Set up logging to write to the run directory
     os.makedirs(run_dir, exist_ok=True)

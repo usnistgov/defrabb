@@ -17,6 +17,7 @@
         "config/analyses_{RUNID}.tsv",  
         "archive.tar.gz",  
         "environment.yml",  
+        "data_manifest.tsv",
         "run.log",  
         "run_README.md"  
       ],  
