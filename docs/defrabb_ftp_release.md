@@ -1,94 +1,109 @@
-# Releasing Draft Benchmark on FTP
+# Releasing a Draft Benchmark to FTP
 
-Internal NIST notes for structuring, documenting, and submitting draft benchmark for sharing on ftp site.
+Internal NIST notes for staging a DeFrABB run for FTP release. This is a manual packaging checklist, not an automated public release workflow.
 
-1. Create directory and subdirectories staging files with name of ftp location
-2. Files to include
-   1. small and sv benchmark regions
-   2. benchmark vcfs and index files (use small variant vcfs, vcf will be for both small and structural variants)
-   3. exclusion stats files
-   4. defrabb files - snakemake archive (tar.gz), snakemake report, env yaml, resources yaml, and analysis tsv
-   5. dipcall files - dip.bed, dip.vcf.gz, dip.vcf.gz.tbi, {hap1,hap2}.bam, and {hap1,hap2}.bam.bai
-3. Using previous release README as starting point for README.
-4. Creating md5s
-5. Uploading to ftp
+## Scope
 
-## Directory setup
+Use this after a run has completed and the final outputs have been reviewed. The current wrapper outputs expected here are:
+
+- `archive.tar.gz`
+- `snakemake_report_<RUNID>.zip`
+- `environment.yml`
+- `run.log`
+- `results/`
+- `resources/`
+
+If a run-specific `run_README.md` was prepared, include it with the release package.
+
+## Suggested staging layout
 
 ```sh
-mkdir -p ftp_release/{defrabb_files,dipcall_output}
+mkdir -p ftp_release/{benchmark_files,defrabb_files,dipcall_output}
 ```
 
 ## Benchmark files
 
-Copying benchmark vcfs, bed, and exclusion stats files. Only vcf for small variants as small and structural variant vcfs are the same files.
+Stage benchmark VCFs, indexes, benchmark beds, and supporting exclusion summaries from the run directory:
 
 ```sh
-rsync -v \
-   --exclude="*bench-vars*" \
-   --exclude="*exclusion_stats.txt" \
-   --include="*vcf.gz*" \
-   --include="*benchmark.bed" \
-   --exclude="*" \
-   --no-relative --no-R --no-d \
-   results/draft_benchmarksets/**/* \
-   ftp_release/ 
+rsync -rv \
+  --exclude="*bench-vars*" \
+  --include="*.vcf.gz" \
+  --include="*.vcf.gz.tbi" \
+  --include="*.benchmark.bed" \
+  --include="*.exclusion_intersection_summary.csv" \
+  --exclude="*" \
+  --no-relative --no-R --no-d \
+  results/draft_benchmarksets/**/* \
+  ftp_release/benchmark_files/
 ```
 
-```sh
-rename 's/_dipcall-z2k//' ftp_release/*
-```
+If release naming needs cleanup for a specific milestone, rename staged files after copying rather than modifying run outputs in place.
 
-## Defrabb files
+## DeFrABB provenance files
 
-```sh
-cp archive.tar.gz \
-   environment.yml \
-   snakemake_report_*.zip \
-   ftp_release/defrabb_files/
-```
-
-Current snakemake archives do not include pipeline code like expected.
-
-Need to manually copy config files, e.g.
+Stage workflow provenance and run documentation:
 
 ```sh
 cp \
-   /defrabb_runs/code_base/defrabb/config/analyses_20240215_v0.015_HG002.tsv \
-   /defrabb_runs/code_base/defrabb/config/resources.yml \
-   ftp_release/defrabb_files/
+  archive.tar.gz \
+  environment.yml \
+  snakemake_report_*.zip \
+  run.log \
+  ftp_release/defrabb_files/
 ```
 
-## dipcall files
+Also stage the exact config files used for the run. Prefer copies from the run directory if present; otherwise copy them from the checked-out repo used to launch the run:
+
+```sh
+cp config/analyses_<RUNID>.tsv config/resources.yml ftp_release/defrabb_files/
+```
+
+If present, also include:
+
+```sh
+cp run_README.md data_manifest.tsv ftp_release/defrabb_files/
+```
+
+## Dipcall outputs
+
+Stage the core dipcall deliverables:
 
 ```sh
 cp \
-   results/asm_varcalls/*/*{dip.bed,dip.vcf.gz,dip.vcf.gz.tbi,hap1.bam,hap1.bam.bai,hap2.bam,hap2.bam.bai} \
-   ftp_release/dipcall_output/
+  results/asm_varcalls/*/*{dip.bed,dip.vcf.gz,dip.vcf.gz.tbi,hap1.bam,hap1.bam.bai,hap2.bam,hap2.bam.bai} \
+  ftp_release/dipcall_output/
 ```
 
-## README
+## Release README
 
-Using previous version of the README as a template revise and update as appropriate. 
+Start from the previous public release README when available, then update:
+
+- release name and date
+- DeFrABB version or tag
+- run ID
+- assemblies, references, and comparison callsets used
+- notable exclusions or evaluation choices
+- directory contents and file descriptions
+
+## Checksums
+
+Generate checksums from inside the staged release directory:
 
 ```sh
-wget https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data/AshkenazimTrio/analysis/NIST_HG002_DraftBenchmark_defrabbV0.012-20231107/README.md`
+cd ftp_release
+find . -type f -exec md5sum '{}' \; > checksum.md5
 ```
 
-## Generating MD5s
+## Upload
 
-```sh
-find -type f -exec md5sum '{}' \; > checksum.md5
-```
-
-## Uploading to FTP
-
-Using NIST wrapper script for upload via aspera.
-Example command
+Upload using the current NIST-approved FTP transfer process. If the local Aspera helper is still the approved path, a typical command is:
 
 ```sh
 bash ~/projects_ndo/giab-utils/handy_scripts/aspera_scripts/ftp_sra_transfer.sh \
-   -m upload -r ftp \
-   -d NIST_HG002_DraftBenchmark_defrabbV0.015-20240215/ \
-   -l .
+  -m upload -r ftp \
+  -d <FTP_RELEASE_DIR>/ \
+  -l ftp_release
 ```
+
+Replace `<FTP_RELEASE_DIR>` with the destination directory name for the release.
