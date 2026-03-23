@@ -78,7 +78,7 @@ rule sort_bed:
     log:
         "logs/sort_bed/{prefix}.log",
     wrapper:
-        "0.74.0/bio/bedtools/sort"
+        "v8.1.1/bio/bedtools/sort"
 
 
 rule index_dip_bam:
