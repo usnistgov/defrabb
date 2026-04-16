@@ -3,6 +3,6 @@ channels:
   - bioconda
 dependencies:
   - bedtools=2.31.0
-  - pybedtools=0.8.2
+  - pybedtools=0.10.0
   - mawk=1.3.4
   - htslib
