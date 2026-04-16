@@ -1,5 +1,82 @@
 # CHANGELOG
 
+## Milestone v0.021 2026-04-16
+
+Major release adding PAV as a second supported assembly variant caller,
+introducing HG008 Normal/Tumor benchmark configurations, migrating the
+test data S3 bucket, and consolidating release/report flow with a
+dedicated stabilization pass.
+
+### Variant calling
+
+- Added PAV (Phased Assembly Variant caller) as an alternative to dipcall
+  via the Apptainer container `becklab/pav`; new rules and configuration
+  hooks under `rules/asm-varcall.smk` and supporting changes in
+  `rules/exclusions.smk` and `rules/bench_vcf_processing.smk`
+- Refactored PAV and dipcall rules to use standardized input/output
+  paths so downstream rules can treat callers interchangeably
+- Added PAV exclusion handling (PAV-vs-dipcall discrepancies, PAV
+  callable-region intersection)
+- Numerous PAV bug fixes: missing INFO field, region BED merging,
+  baseline BED sorting, ambiguous name errors, long-runtime mitigations
+  (skipping remap, removing repmask/smvar trfanno), inversion exclusions
+- Fix `intersect_pav_callable_regions` to use the hap1 callable BED for
+  `h1_bed` (was using the wrong bed)
+
+### Benchmarks and assemblies
+
+- Added HG008 Normal/Tumor assemblies and analysis tables
+  (`config/analyses_20250408_v0.021_HG008TN.tsv` through
+  `config/analyses_20250708_v0.021_HG008TN.tsv`)
+- Added HG002 v1.1 CI test configuration
+  (`config/analyses_20260323_v0.020_HG002v1.1-CI.tsv`)
+- Updated/curated 20250516 assemblies; HG008 assembly URL refreshes
+
+### Test data S3 bucket migration
+
+- Migrated all test data resource URLs from `giab-data` to
+  `giab-test-data-public` in `config/resources.yml`. Migration helper
+  script and supporting docs are pending in a follow-up PR
+
+### Release flow and wrapper
+
+- `run_defrabb` now respects configured release inputs instead of a
+  hardcoded S3 bucket
+- Apply include/exclude release filtering during S3 upload
+- Ensure `data_manifest.tsv` is uploaded as part of the release flow;
+  added to `config/release.json`
+- Make the root `analysis.qmd` the canonical report source; removed the
+  duplicate at `scripts/reports/analysis.qmd`
+
+### Environments and tooling
+
+- Updated Truvari version pin
+- Conda mirror version bump and env updates for the remote source
+- Streamlined mamba install command (channel priority consolidation)
+- Added Apptainer dependency for PAV rules
+- Updated `.gitignore` for PAV cache and result directories
+
+### Documentation
+
+- Added `docs/developer-quickstart.md` for a concise local setup +
+  validation checklist
+- Tracked previously-uncommitted reference docs:
+  `docs/architecture-diagram.md` (Mermaid flowchart and ER diagram),
+  `docs/development-roadmap.md` (phased refactoring plan),
+  `docs/TODO-pre-development.md` (20-item prioritized checklist),
+  `docs/claude-code-recommendations.md` (advisory),
+  `docs/giab_test_data_new_bucket_migration_plan.md`,
+  `docs/giab_test_data_s3_archive_recovery.md`
+- Tracked per-tool agent guides at the repo root: `CLAUDE.md`,
+  `AGENTS.md`, `GEMINI.md`
+- Removed stale `.github/workflows/` (snakemake template artifacts —
+  GitLab is the canonical CI)
+
+### Tests
+
+- Added `test_stabilization_pr.py` regression coverage for the
+  stabilization pass
+
 ## Milestone v0.020 2025-03-05
 
 - Fixing bug in consecutive SV exclusion script [issue #181]

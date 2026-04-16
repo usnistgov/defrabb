@@ -10,6 +10,15 @@ DeFrABB is a Snakemake workflow used by the NIST/GIAB team to develop transparen
 
 This repository is maintained primarily for internal benchmark-development work and is made public for transparency and reproducibility. It is not currently packaged as a broadly supported end-user toolkit. External issues and pull requests are welcome, but support and review are best-effort.
 
+## Recent changes (v0.021)
+
+- PAV (Phased Assembly Variant caller) is now supported alongside dipcall as an assembly variant caller (PAV runs in an Apptainer container).
+- Added HG002 v1.1 and HG008 Normal/Tumor analysis configurations.
+- Test data has moved from the `giab-data` S3 bucket to `giab-test-data-public`. Resource URLs in `config/resources.yml` have been updated; if you have local mirrors or scripts referencing the old bucket, please update them.
+- Stabilization fixes to the release flow in `run_defrabb`, the PAV callable-region intersection, and report source unification.
+
+See `CHANGELOG` for the full v0.021 notes, `docs/architecture-diagram.md` for a visual overview of the rule structure, and `docs/development-roadmap.md` for the planned next refactoring phases.
+
 ## Repository layout
 
 - `Snakefile` - workflow entry point.
