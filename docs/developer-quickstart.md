@@ -50,9 +50,20 @@ Useful overrides outside the NIST environment include:
 
 ## test data caveats
 
-- The bundled pytest suite expects local chr21 reference inputs under `.tests/integration/resources/references`.
-- Those references are already tracked in this repository and are copied into temporary work directories by the generated rule tests.
-- If you add new rule tests, prefer small fixtures under `.tests/unit/<rule>/data` and keep expected outputs under the matching `expected/` directory.
+- The bundled pytest suite currently exercises Python helpers and release-flow logic only (see `.tests/unit/test_stabilization_pr.py`). The Snakemake-7-era auto-generated rule tests have been removed.
+- The chr21 reference inputs under `.tests/integration/resources/references` are still tracked and used by the end-to-end smoke test (`snakemake --use-conda --use-apptainer --cores 1`).
+- New tests should be plain Python unit tests targeting helpers in `scripts/` or `rules/common.smk`, or structural checks via `snakemake -n`, `--lint`, `--dag`, `--rulegraph`, `--filegraph`.
+
+## pre-commit hooks
+
+A `.pre-commit-config.yaml` is provided that runs `black`, `snakefmt`, and a few generic hygiene hooks before each commit. To enable locally:
+
+```sh
+pip install pre-commit
+pre-commit install
+```
+
+Hook versions are pinned to match the CI toolchain.
 
 ## useful references
 
