@@ -73,7 +73,7 @@ GeomPhredticks <- ggproto("GeomPhredticks", Geom,
                         handle_na = function(data, params) {
                             data
                         },
-            
+
                         draw_panel = function(data, panel_params, coord, base = 10, sides = "bl",
                                               outside = FALSE, scaled = TRUE, short = unit(0.1, "cm"),
                                               mid = unit(0.2, "cm"), long = unit(0.3, "cm"))
@@ -103,7 +103,7 @@ GeomPhredticks <- ggproto("GeomPhredticks", Geom,
                                 # TODO implement for phred
                                 #if (scaled)
                                 #    xticks$value <- log(xticks$value, base)
-                        
+
                                 # Rename to 'x' for coordinates$transform
                                 names(xticks)[names(xticks) == "value"] <- x_name
                                 xticks <- coord$transform(xticks, panel_params)

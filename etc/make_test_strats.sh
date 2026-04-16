@@ -2,7 +2,7 @@
 for strat in GRCh38/ancestry/GRCh38_ancestry_Neanderthal.bed.gz \
 	GRCh38/union/GRCh38_alldifficultregions.bed.gz \
 	GRCh38/union/GRCh38_notinalldifficultregions.bed.gz \
-	GRCh38/OtherDifficult/GRCh38_population_CNV_FP_regions.bed.gz ; 
+	GRCh38/OtherDifficult/GRCh38_population_CNV_FP_regions.bed.gz ;
 	do
 		bedtools intersect -a ${strat} -b test/resources/chr21.bed \
 			> test/resources/stratifications/${strat}

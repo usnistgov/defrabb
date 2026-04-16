@@ -15,7 +15,7 @@ benchmark/**
 .snakemake/**
 .mamba/**
 
-## Resources - use -f to add 
+## Resources - use -f to add
 resources/**
 ## Unzipped stratifications on workstation
 GRCh38/**
@@ -39,7 +39,7 @@ giab-tibanna-runs
 ## Slurm config
 etc/slurm/__pycache__/**
 
-## Scratch 
+## Scratch
 scratch/**
 
 ## Rproject files

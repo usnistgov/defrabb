@@ -1,30 +1,30 @@
-{  
+{
   "default_s3_bucket": "giab-data",
   "default_s3_path": "defrabb_runs",
-  "release_rules": {  
-    "local": {  
-      "include": [  
+  "release_rules": {
+    "local": {
+      "include": [
         "results/",
-        "results/**",  
+        "results/**",
         "resources/",
         "resources/comparison/",
-        "resources/comparison/**",  
-        "resources/exclusions/",  
-        "resources/exclusions/**",  
-        "config/", 
-        "config/**",  
-        "config/resources.yml",  
-        "config/analyses_{RUNID}.tsv",  
-        "archive.tar.gz",  
-        "environment.yml",  
+        "resources/comparison/**",
+        "resources/exclusions/",
+        "resources/exclusions/**",
+        "config/",
+        "config/**",
+        "config/resources.yml",
+        "config/analyses_{RUNID}.tsv",
+        "archive.tar.gz",
+        "environment.yml",
         "data_manifest.tsv",
-        "run.log",  
-        "run_README.md"  
-      ],  
-      "exclude": [  
+        "run.log",
+        "run_README.md"
+      ],
+      "exclude": [
         "*"
-      ]  
-    },  
-    "s3": "same as local"  
-  }  
+      ]
+    },
+    "s3": "same as local"
+  }
 }

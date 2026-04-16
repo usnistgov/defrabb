@@ -11,7 +11,7 @@ before_script:
 
 # lint-test:
 #   artifacts:
-#     paths: 
+#     paths:
 #         - lint
 #   script:
 #     - snakemake --lint
@@ -28,7 +28,7 @@ pytest:
 
 run-test:
   artifacts:
-    paths: 
+    paths:
         - smalltest
   script:
     - snakemake -p --use-conda --use-apptainer --cores 1 --verbose --config "_happy_threads=1"

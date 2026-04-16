@@ -46,9 +46,9 @@ class FakeS3Client:
 class StabilizationPRTests(unittest.TestCase):
     def test_intersect_pav_callable_regions_uses_distinct_haplotype_inputs(self):
         asm_varcall_rules = (REPO_ROOT / "rules" / "asm-varcall.smk").read_text()
-        intersect_rule = asm_varcall_rules.split("rule intersect_pav_callable_regions:")[
-            1
-        ]
+        intersect_rule = asm_varcall_rules.split(
+            "rule intersect_pav_callable_regions:"
+        )[1]
         intersect_rule = intersect_rule.split("rule standardize_vcasm_output:")[0]
 
         self.assertIn(
@@ -88,9 +88,7 @@ class StabilizationPRTests(unittest.TestCase):
             (run_dir / "data_manifest.tsv").write_text("analysis\tfile_type\n")
             (run_dir / "skip.txt").write_text("skip me")
 
-            with mock.patch.object(
-                module.boto3, "client", return_value=fake_s3_client
-            ):
+            with mock.patch.object(module.boto3, "client", return_value=fake_s3_client):
                 module.upload_to_s3(
                     run_id,
                     str(run_dir),

@@ -29,7 +29,7 @@ _Prepared: 2026-03-17_
 
 ### Proposed tasks
 
-1. Add architecture and roadmap docs.  
+1. Add architecture and roadmap docs.
    _This is now started in `docs/`.*
 2. Create a developer bootstrap doc for:
    - base environment expectations
@@ -211,4 +211,3 @@ The best next step is a small stabilization PR that does **not** change scientif
 - add a short list of known limitations
 
 After that, start the VCF-processing profile refactor.
-

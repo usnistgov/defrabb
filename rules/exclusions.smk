@@ -23,7 +23,7 @@ genomic_regions = [
     "HG002Q100-delins-errors",
     "TSPY2-segdups",
     "self-discrep",
-    "pav-inv"
+    "pav-inv",
 ]
 
 
@@ -208,7 +208,7 @@ rule self_discrep_extract_fpfns:
             --include 'MAX(ILEN)<={params.max_indel} && MIN(ILEN) >= -{params.max_indel} && (FMT/BD=="FN" || FMT/BD=="FP")' \
             {input.vcf} |
                 bcftools query -f "%CHROM\t%POS0\t%END\n" |
-                bedtools merge -i - | 
+                bedtools merge -i - |
                 bedtools sort -faidx {input.faidx} -i - \
             1> {output} 2> {log}
         """
@@ -242,6 +242,7 @@ rule self_discrep_intersect_slop:
             1> {output} 2> {log}
         """
 
+
 rule exclude_pav_inversions:
     ## TODO fix to work with dipcall as well
     input:
@@ -270,6 +271,7 @@ rule exclude_pav_inversions:
             | mergeBed -i stdin -d {params.merge_d} \
             1> {output.bed} 2>{log}
         """
+
 
 ## Expanding exclusion regions by 15kb
 rule add_slop:
@@ -415,8 +417,8 @@ rule generate_intersection_summary:
     conda:
         "../envs/bedtools.yml"
     shell:
-        """  
-        python {params.script} {input.baseline_bed} {output.summary_table} {params.intersect_dir} {input.exclusions} &> {log}  
+        """
+        python {params.script} {input.baseline_bed} {output.summary_table} {params.intersect_dir} {input.exclusions} &> {log}
         """
 
 

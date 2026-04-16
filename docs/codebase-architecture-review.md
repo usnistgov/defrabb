@@ -233,4 +233,3 @@ DeFrABB already has the right major workflow components. The main opportunity is
 The highest-value theme for refactoring is:
 
 > move from string-encoded pipeline behavior toward typed, named, and testable workflow concepts.
-

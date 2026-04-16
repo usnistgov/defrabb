@@ -57,7 +57,7 @@ properties:
             format: uri
             description: |
               url for adotto TR database used in tandem repeat annotation with `truvari anno trf`
-          
+
           exclusions:
             description: The beds to use when generating the exclusions
             additionalProperties: false
@@ -143,7 +143,7 @@ properties:
               bed_url:
                 format: uri
                 description: |
-                  the url to the comparison bed file, 
+                  the url to the comparison bed file,
                   e.g. benchmark regions for benchmark sets.
 
               tbi_url:
@@ -167,7 +167,7 @@ properties:
 
   exclusion_slop_regions:
     description: |
-      Exclusions regions where slop is applied before exclusion or 
+      Exclusions regions where slop is applied before exclusion or
       identification of diploid assembly coverage.
     additionalProperties: false
     patternProperties:
@@ -181,7 +181,7 @@ properties:
 
   exclusion_slopmerge_regions:
     description: |
-      Exclusion regions where where slop is applied then merged 
+      Exclusion regions where where slop is applied then merged
       before exclusion or identification of diploid assembly coverage.
     additionalProperties: false
     patternProperties:

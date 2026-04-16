@@ -1,4 +1,4 @@
-#!/bin/sh -x 
+#!/bin/sh -x
 ## upload defrabb run to s3
 RUNID="20240523_v0.016_HG002Q100"
 aws s3 sync \
@@ -14,4 +14,3 @@ aws s3 sync \
     --include "run.log" \
     --include "run_README.md" \
     --acl "public-read" "$@"
-    
