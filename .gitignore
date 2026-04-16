@@ -57,6 +57,7 @@ benchmark/**
 ## analysis report and run files
 analysis*
 archive*
+!docs/archive/
 data_manifest.tsv
 environment.yml
 run.log

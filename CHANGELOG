@@ -34,9 +34,14 @@ dedicated stabilization pass.
 
 ### Test data S3 bucket migration
 
-- Migrated all test data resource URLs from `giab-data` to
-  `giab-test-data-public` in `config/resources.yml`. Migration helper
-  script and supporting docs are pending in a follow-up PR
+- Migrated test data resource URLs from the `giab-data/giab-test-data/`
+  prefix to a dedicated `giab-test-data` bucket in `config/resources.yml`,
+  so the test data is no longer affected by the bucket-wide
+  Intelligent-Tiering rule on `giab-data`. Other resource URLs that live
+  outside the `giab-test-data/` prefix (e.g., HG008N assemblies, NA12878
+  palladium, external-evaluation callsets) remain in `giab-data`.
+- Migration plan and archive-recovery procedures are kept under
+  `docs/archive/` for historical reference
 
 ### Release flow and wrapper
 

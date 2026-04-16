@@ -1,5 +1,16 @@
 # giab-test-data archive recovery
 
+> **Status: archived (2026-04-16).** The recovery procedure described
+> below was used during the `giab-data/giab-test-data/` →
+> `giab-test-data` bucket migration. Test data now lives in the
+> dedicated `giab-test-data` bucket and is no longer subject to the
+> Intelligent-Tiering archive rule, so this procedure should not be
+> needed for current pipeline runs. The `manage_giab_test_data_s3.py`
+> script referenced below was a one-off admin tool and is **not**
+> maintained inside this repository — it lives outside the codebase as
+> personal tooling. This document is retained here for historical
+> reference.
+
 `giab-data/giab-test-data` currently contains objects in `INTELLIGENT_TIERING` with `ArchiveStatus=DEEP_ARCHIVE_ACCESS`. Public HTTPS reads against those objects fail with `403 InvalidObjectState`, which matches the pipeline download failure mode.
 
 Verified examples:

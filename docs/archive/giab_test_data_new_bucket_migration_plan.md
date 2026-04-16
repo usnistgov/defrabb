@@ -1,5 +1,14 @@
 # plan: move `giab-test-data/` to a dedicated public bucket
 
+> **Status: completed and archived (2026-04-16).** The migration described
+> here has been executed; test data now lives in the dedicated
+> `giab-test-data` bucket and `config/resources.yml` has been updated to
+> match. The `manage_giab_test_data_s3.py` helper script referenced
+> throughout this document was a one-off admin tool used during the
+> migration and is **not** maintained inside this repository — it lives
+> outside the codebase as personal tooling. This document is retained
+> here for historical reference only.
+
 This document outlines a post-restore migration plan for moving `s3://giab-data/giab-test-data/` into a separate bucket so the data remains directly downloadable over HTTPS and is no longer affected by the bucket-wide `archiving` Intelligent-Tiering rule in `giab-data`.
 
 ## goal
