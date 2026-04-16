@@ -3,6 +3,6 @@ channels:
   - conda-forge
 dependencies:
   - bedtools=2.30.0
-  - pybedtools=0.8.2
+  - pybedtools=0.10.0
   - bcftools==1.17
   - gawk==5.1.0
