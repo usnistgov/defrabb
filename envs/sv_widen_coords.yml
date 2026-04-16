@@ -2,7 +2,7 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - python=3.8
-  - pybedtools
+  - python=3.12
+  - pybedtools=0.10.0
   - bedtools
   - htslib
