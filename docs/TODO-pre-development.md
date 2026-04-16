@@ -17,30 +17,30 @@ pipeline.
 **File:** `.github/workflows/main.yml` (removed)
 **Impact:** CI/CD, contributor experience
 
-### 2. Reconcile conda environment version inconsistencies
+### 2. Reconcile conda environment version inconsistencies — ✅ Done
 
-Multiple environments pin different versions of the same tools:
-- `bcftools`: 1.14 (bcftools.yml) vs 1.17 (bcftools_and_bedtools.yml)
-- `rtg-tools`: 3.10.1 (rtgtools.yml) vs 3.12.1 (happy.yml)
-- `truvari`: 5.3.0 (truvari.yml, conda) vs 4.2.2 (truvari_remap.yml, pip)
-- `pybedtools`: 0.8.2 vs 0.10.0
-- `python`: 3.8 (sv_widen_coords.yml) vs 3.12+ elsewhere
+Resolved across commits `b64af75`–`e4a1335` (2026-04-16):
+- `bcftools`: aligned on 1.17 (truvari envs deferred to item 3)
+- `rtg-tools`: aligned on 3.12.1
+- `pybedtools`: aligned on 0.10.0
+- `python`: sv_widen_coords bumped 3.8 → 3.12
 
-Decide on canonical versions for each tool and align all envs. The Truvari 4.2.2 vs 5.3.0 split is especially risky — different major versions may produce different annotation outputs.
+Truvari version split is being addressed by user separately (see item 3).
 
-**Files:** `envs/*.yml`
+**Files:** `envs/bcftools.yml`, `envs/rtgtools.yml`, `envs/bedtools.yml`, `envs/bcftools_and_bedtools.yml`, `envs/sv_widen_coords.yml`
 **Impact:** Reproducibility, correctness
 
-### 3. Resolve truvari_remap.yml mixed conda/pip install — recommended next env fix
+### 3. Resolve truvari_remap.yml mixed conda/pip install — 🚧 In progress (user)
 
-`truvari_remap.yml` installs Truvari 4.2.2 via pip while `truvari.yml`
-installs 5.3.0 via conda. The pip install bypasses conda's dependency
-resolution and was the source of the FIPS OpenSSL conflict.
+`truvari_remap.yml` previously installed Truvari 4.2.2 via pip while
+`truvari.yml` installed 5.3.0 via conda. The pip install bypassed
+conda's dependency resolution and was the source of the FIPS OpenSSL
+conflict.
 
 **Update (2026-04-16):** Truvari **4.3** fixed the FIPS OpenSSL issue,
-so upgrading `envs/truvari_remap.yml` to ≥4.3 (preferably via conda)
-resolves both the pip-vs-conda divergence and the FIPS workaround in one
-shot. This is the highest-leverage env fix to do next.
+so upgrading `envs/truvari_remap.yml` to ≥4.3 via conda resolves both
+the pip-vs-conda divergence and the FIPS workaround in one shot. The
+user is editing this file directly to switch to the conda install.
 
 **File:** `envs/truvari_remap.yml`
 **Impact:** FIPS compatibility, version consistency
@@ -55,9 +55,12 @@ the FIPS issue after the Truvari upgrade.
 
 **Impact:** All rules using conda envs with OpenSSL on FIPS systems
 
-### 5. Upgrade sv_widen_coords.yml from Python 3.8
+### 5. Upgrade sv_widen_coords.yml from Python 3.8 — ✅ Done
 
-`envs/sv_widen_coords.yml` pins Python 3.8, which is EOL (Oct 2024). This env is used by `get_sv_widen_coords` (SV exclusion logic). Upgrade to 3.12+ and verify the script still works.
+Resolved in commit `b64af75` (2026-04-16). Python 3.8 → 3.12,
+pybedtools pinned to 0.10.0 to match other envs. Script
+(`scripts/get_sv_widen_coords.py`) only uses argparse/gzip/logging/sys/
+pybedtools — all available in 3.12.
 
 **File:** `envs/sv_widen_coords.yml`
 **Impact:** Security, compatibility
@@ -147,18 +150,29 @@ under `scripts/reports/analysis.qmd` was removed.
 
 ## Testing & Quality
 
-### 16. Add pytest to CI
+### 16. Add pytest to CI — ✅ Done
 
-Neither GitHub Actions nor GitLab CI runs `pytest .tests`. The unit test suite exists but isn't exercised in CI. Add a pytest job to the canonical CI pipeline.
+Resolved in commit `c995786` (2026-04-16). Added a `pytest` job to
+`.gitlab-ci.yml` that installs pytest into the existing mamba env and
+runs `pytest .tests`. As part of the same commit, the 29 broken
+Snakemake-7-era auto-generated unit tests were removed (they used the
+deprecated `--keep-target-files` flag and had been silently broken
+since the Snakemake 8 migration). Only `test_stabilization_pr.py`
+(5 working tests) remains.
 
-**Files:** `.github/workflows/main.yml` or `.gitlab-ci.yml`
+**Files:** `.gitlab-ci.yml`, `.tests/unit/`
 **Impact:** Regression prevention
 
-### 17. Enable skipped config validation test
+### 17. Enable skipped config validation test — ✅ Resolved (deleted)
 
-`.tests/unit/test_eval_config.skip` is explicitly skipped. Either fix the underlying issue and enable it, or document why it's skipped. Config validation is critical for new genome work.
+`.tests/unit/test_eval_config.skip` was deleted as part of commit
+`c995786` along with the other broken Snakemake-7-era tests. The test
+referenced hardcoded `eval1`/`eval6` IDs that no longer match the
+current `analyses.tsv`, and reusing the pattern was not worthwhile.
+Future config-validation coverage should be written as plain Python
+unit tests against `rules/common.smk` helpers (see item 19).
 
-**File:** `.tests/unit/test_eval_config.skip`
+**File:** `.tests/unit/test_eval_config.skip` (removed)
 **Impact:** Config safety
 
 ### 18. Add tests for run_defrabb wrapper
@@ -200,17 +214,14 @@ This directly supports the planned workflow of running multiple parameter config
 
 ## Priority Order
 
-For the planned new-genome development work, address in this order
-(items 1, 7, 15 already done; 16 superseded by retiring `.github/workflows/`
-in favor of GitLab CI):
+Foundation items (1, 2, 5, 7, 15, 16, 17) completed 2026-03–04.
+Item 3 (Truvari) in progress by user. Item 4 effectively closed by item 3.
+Also added (not in original list): pre-commit hook config (`.pre-commit-config.yaml`).
 
-1. **Item 3** — Upgrade Truvari to ≥4.3 in `envs/truvari_remap.yml`
-   (closes 4 in passing; smallest high-value change)
-2. **Items 2, 5** — Reconcile remaining conda env version
-   inconsistencies (bcftools, rtg-tools, pybedtools, Python 3.8 in
-   `sv_widen_coords.yml`)
-3. **Items 8, 9** — Config validation (prevents wasted compute on bad configs)
-4. **Items 11, 12, 13** — Processing profiles and exclusion externalization (enables parameter optimization)
-5. **Items 17, 18, 19** — Testing and quality (prevents regressions during optimization)
-6. **Items 6, 10, 14** — CLI and modularity improvements (improves operator velocity)
-7. **Item 20** — Evaluation comparison utility (enables systematic optimization)
+Remaining items, in recommended order:
+
+1. **Items 8, 9** — Config validation (prevents wasted compute on bad configs)
+2. **Items 11, 12, 13** — Processing profiles and exclusion externalization (enables parameter optimization)
+3. **Items 18, 19** — Testing and quality (prevents regressions during optimization)
+4. **Items 6, 10, 14** — CLI and modularity improvements (improves operator velocity)
+5. **Item 20** — Evaluation comparison utility (enables systematic optimization)
