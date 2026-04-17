@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 from snakemake.utils import validate
 import pandas as pd
@@ -458,6 +459,13 @@ bench_params, bench_tbl, bench_excluded_tbl = analyses_to_bench_tbls(analyses)
 
 ## Setting index for analysis run lookup
 analyses = analyses.set_index("eval_id")
+
+# Cross-reference validation: catches asm_id/ref/comp_id/exclusion_set
+# typos in analyses.tsv before any rule expansion.
+sys.path.insert(0, str(Path(workflow.basedir) / "scripts"))
+from validate_configs import validate_cross_references
+
+validate_cross_references(config, analyses)
 
 ################################################################################
 # init wildcard constraints
