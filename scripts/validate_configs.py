@@ -22,12 +22,17 @@ def validate_cross_references(config, analyses):
 
     asm_ids = set(config["assemblies"])
     ref_ids = set(config["references"])
+    excl_set_ids = set(config["exclusion_set"])
 
     for eval_id, row in analyses.iterrows():
         if row["asm_id"] not in asm_ids:
             errors["assemblies"].setdefault(row["asm_id"], []).append(eval_id)
         if row["ref"] not in ref_ids:
             errors["references"].setdefault(row["ref"], []).append(eval_id)
+        if row["exclusion_set"] != "none" and row["exclusion_set"] not in excl_set_ids:
+            errors["exclusion_sets"].setdefault(row["exclusion_set"], []).append(
+                eval_id
+            )
 
     if any(errors.values()):
         raise WorkflowError(_format_grouped_errors(errors))
@@ -48,6 +53,13 @@ def _format_grouped_errors(errors):
             _format_section(
                 "Missing references (resources.yml:references)",
                 errors["references"],
+            )
+        )
+    if errors["exclusion_sets"]:
+        sections.append(
+            _format_section(
+                "Missing exclusion sets (resources.yml:exclusion_set)",
+                errors["exclusion_sets"],
             )
         )
     return (
