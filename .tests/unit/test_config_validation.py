@@ -179,3 +179,48 @@ def test_missing_ref_does_not_double_report_comp_id():
     assert "GRCh38_NOTREAL" in msg
     # comp_id error should NOT appear since the ref is missing
     assert "Missing comparisons" not in msg
+
+
+def test_multiple_errors_grouped_in_single_raise():
+    from snakemake.exceptions import WorkflowError
+
+    config = _minimal_config()
+    analyses = _analyses_df(
+        [
+            {
+                "eval_id": "eval_a",
+                "asm_id": "HG002_TYPO",  # missing asm
+                "ref": "GRCh38",
+                "eval_comp_id": "HG002_v4.2.1",
+                "exclusion_set": "smvar",
+            },
+            {
+                "eval_id": "eval_b",
+                "asm_id": "HG002_TYPO",  # same missing asm — should group
+                "ref": "GRCh38",
+                "eval_comp_id": "HG002_v4.2.1",
+                "exclusion_set": "smvar",
+            },
+            {
+                "eval_id": "eval_c",
+                "asm_id": "HG002_v1.0",
+                "ref": "GRCh38_TYPO",  # missing ref (different section)
+                "eval_comp_id": "HG002_v4.2.1",
+                "exclusion_set": "smvar",
+            },
+        ]
+    )
+    with pytest.raises(WorkflowError) as exc_info:
+        validate_cross_references(config, analyses)
+    msg = str(exc_info.value)
+
+    # Both sections present
+    assert "Missing assemblies" in msg
+    assert "Missing references" in msg
+
+    # Same missing asm grouped on one line, both eval_ids listed
+    assert "HG002_TYPO" in msg
+    assert "eval_a" in msg
+    assert "eval_b" in msg
+    # Only one occurrence of the missing asm token in the asm section
+    assert msg.count("HG002_TYPO") == 1
