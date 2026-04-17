@@ -3,6 +3,7 @@
 This module was developed with assistance from Claude (Anthropic). All code
 has been reviewed and tested by the primary author.
 """
+
 from snakemake.exceptions import WorkflowError
 
 
@@ -33,10 +34,12 @@ def validate_cross_references(config, analyses):
 def _format_grouped_errors(errors):
     sections = []
     if errors["assemblies"]:
-        sections.append(_format_section(
-            "Missing assemblies (resources.yml:assemblies)",
-            errors["assemblies"],
-        ))
+        sections.append(
+            _format_section(
+                "Missing assemblies (resources.yml:assemblies)",
+                errors["assemblies"],
+            )
+        )
     return (
         "Config validation failed: missing cross-references in resources.yml.\n\n"
         + "\n\n".join(sections)

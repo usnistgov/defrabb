@@ -3,6 +3,7 @@
 This module was developed with assistance from Claude (Anthropic). All code
 has been reviewed and tested by the primary author.
 """
+
 import sys
 from pathlib import Path
 
@@ -33,15 +34,17 @@ def _analyses_df(rows):
 
 def test_happy_path_returns_none():
     config = _minimal_config()
-    analyses = _analyses_df([
-        {
-            "eval_id": "eval1",
-            "asm_id": "HG002_v1.0",
-            "ref": "GRCh38",
-            "eval_comp_id": "HG002_v4.2.1",
-            "exclusion_set": "smvar",
-        }
-    ])
+    analyses = _analyses_df(
+        [
+            {
+                "eval_id": "eval1",
+                "asm_id": "HG002_v1.0",
+                "ref": "GRCh38",
+                "eval_comp_id": "HG002_v4.2.1",
+                "exclusion_set": "smvar",
+            }
+        ]
+    )
     assert validate_cross_references(config, analyses) is None
 
 
@@ -49,15 +52,17 @@ def test_missing_asm_id_raises_with_eval_id_in_message():
     from snakemake.exceptions import WorkflowError
 
     config = _minimal_config()
-    analyses = _analyses_df([
-        {
-            "eval_id": "eval_typo",
-            "asm_id": "HG002_TYPO",
-            "ref": "GRCh38",
-            "eval_comp_id": "HG002_v4.2.1",
-            "exclusion_set": "smvar",
-        }
-    ])
+    analyses = _analyses_df(
+        [
+            {
+                "eval_id": "eval_typo",
+                "asm_id": "HG002_TYPO",
+                "ref": "GRCh38",
+                "eval_comp_id": "HG002_v4.2.1",
+                "exclusion_set": "smvar",
+            }
+        ]
+    )
     with pytest.raises(WorkflowError) as exc_info:
         validate_cross_references(config, analyses)
     msg = str(exc_info.value)
