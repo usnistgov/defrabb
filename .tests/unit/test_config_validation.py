@@ -131,3 +131,51 @@ def test_exclusion_set_none_is_valid():
         ]
     )
     assert validate_cross_references(config, analyses) is None
+
+
+def test_missing_comp_id_for_existing_ref_raises():
+    from snakemake.exceptions import WorkflowError
+
+    config = _minimal_config()
+    analyses = _analyses_df(
+        [
+            {
+                "eval_id": "eval_badcomp",
+                "asm_id": "HG002_v1.0",
+                "ref": "GRCh38",
+                "eval_comp_id": "v4.2.1_TYPO",
+                "exclusion_set": "smvar",
+            }
+        ]
+    )
+    with pytest.raises(WorkflowError) as exc_info:
+        validate_cross_references(config, analyses)
+    msg = str(exc_info.value)
+    assert "v4.2.1_TYPO" in msg
+    assert "GRCh38" in msg
+    assert "eval_badcomp" in msg
+    assert "comparisons" in msg
+
+
+def test_missing_ref_does_not_double_report_comp_id():
+    """If ref itself is missing, we don't also flag the comp_id under it."""
+    from snakemake.exceptions import WorkflowError
+
+    config = _minimal_config()
+    analyses = _analyses_df(
+        [
+            {
+                "eval_id": "eval_double",
+                "asm_id": "HG002_v1.0",
+                "ref": "GRCh38_NOTREAL",
+                "eval_comp_id": "anything",
+                "exclusion_set": "smvar",
+            }
+        ]
+    )
+    with pytest.raises(WorkflowError) as exc_info:
+        validate_cross_references(config, analyses)
+    msg = str(exc_info.value)
+    assert "GRCh38_NOTREAL" in msg
+    # comp_id error should NOT appear since the ref is missing
+    assert "Missing comparisons" not in msg

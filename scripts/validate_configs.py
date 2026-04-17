@@ -33,6 +33,14 @@ def validate_cross_references(config, analyses):
             errors["exclusion_sets"].setdefault(row["exclusion_set"], []).append(
                 eval_id
             )
+        # Only check comparisons[ref][comp_id] if ref is itself valid;
+        # otherwise the missing-ref error already covers the situation.
+        if row["ref"] in ref_ids:
+            comp_for_ref = set(config.get("comparisons", {}).get(row["ref"], {}))
+            if row["eval_comp_id"] not in comp_for_ref:
+                errors["comparisons"].setdefault(
+                    (row["ref"], row["eval_comp_id"]), []
+                ).append(eval_id)
 
     if any(errors.values()):
         raise WorkflowError(_format_grouped_errors(errors))
@@ -62,6 +70,13 @@ def _format_grouped_errors(errors):
                 errors["exclusion_sets"],
             )
         )
+    if errors["comparisons"]:
+        lines = ["Missing comparisons (resources.yml:comparisons):"]
+        for (ref, comp_id), eval_ids in errors["comparisons"].items():
+            lines.append(
+                f"  - {ref} / {comp_id} (used by eval_ids: {', '.join(eval_ids)})"
+            )
+        sections.append("\n".join(lines))
     return (
         "Config validation failed: missing cross-references in resources.yml.\n\n"
         + "\n\n".join(sections)
