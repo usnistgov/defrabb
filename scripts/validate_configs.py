@@ -10,6 +10,12 @@ from snakemake.exceptions import WorkflowError
 def validate_cross_references(config, analyses):
     """Verify every ID referenced in analyses.tsv exists in resources.yml.
 
+    Assumes ``config`` has already passed schema validation, which guarantees
+    the ``references``, ``assemblies``, ``comparisons``, and ``exclusion_set``
+    sections are present (see ``schema/resources-schema.yml``). Callers
+    outside the Snakemake workflow load path must run
+    ``snakemake.utils.validate(config, ...)`` first.
+
     Raises WorkflowError with a single grouped message if any IDs are missing.
     Returns None on success.
     """
@@ -36,7 +42,7 @@ def validate_cross_references(config, analyses):
         # Only check comparisons[ref][comp_id] if ref is itself valid;
         # otherwise the missing-ref error already covers the situation.
         if row["ref"] in ref_ids:
-            comp_for_ref = set(config.get("comparisons", {}).get(row["ref"], {}))
+            comp_for_ref = set(config["comparisons"].get(row["ref"], {}))
             if row["eval_comp_id"] not in comp_for_ref:
                 errors["comparisons"].setdefault(
                     (row["ref"], row["eval_comp_id"]), []
