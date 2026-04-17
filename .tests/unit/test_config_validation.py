@@ -69,3 +69,26 @@ def test_missing_asm_id_raises_with_eval_id_in_message():
     assert "HG002_TYPO" in msg
     assert "eval_typo" in msg
     assert "assemblies" in msg
+
+
+def test_missing_ref_raises_with_eval_id_in_message():
+    from snakemake.exceptions import WorkflowError
+
+    config = _minimal_config()
+    analyses = _analyses_df(
+        [
+            {
+                "eval_id": "eval_badref",
+                "asm_id": "HG002_v1.0",
+                "ref": "GRCh38_TYPO",
+                "eval_comp_id": "HG002_v4.2.1",
+                "exclusion_set": "smvar",
+            }
+        ]
+    )
+    with pytest.raises(WorkflowError) as exc_info:
+        validate_cross_references(config, analyses)
+    msg = str(exc_info.value)
+    assert "GRCh38_TYPO" in msg
+    assert "eval_badref" in msg
+    assert "references" in msg

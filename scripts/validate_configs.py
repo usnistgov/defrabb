@@ -21,10 +21,13 @@ def validate_cross_references(config, analyses):
     }
 
     asm_ids = set(config["assemblies"])
+    ref_ids = set(config["references"])
 
     for eval_id, row in analyses.iterrows():
         if row["asm_id"] not in asm_ids:
             errors["assemblies"].setdefault(row["asm_id"], []).append(eval_id)
+        if row["ref"] not in ref_ids:
+            errors["references"].setdefault(row["ref"], []).append(eval_id)
 
     if any(errors.values()):
         raise WorkflowError(_format_grouped_errors(errors))
@@ -38,6 +41,13 @@ def _format_grouped_errors(errors):
             _format_section(
                 "Missing assemblies (resources.yml:assemblies)",
                 errors["assemblies"],
+            )
+        )
+    if errors["references"]:
+        sections.append(
+            _format_section(
+                "Missing references (resources.yml:references)",
+                errors["references"],
             )
         )
     return (
