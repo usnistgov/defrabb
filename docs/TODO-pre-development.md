@@ -236,17 +236,23 @@ stdout/stderr inside `validate_only()` and only emit it on failure.
 **File:** `run_defrabb`
 **Impact:** Operator UX for the validation flow
 
-### 22. Defensive top-level config access in validator
+### 22. Defensive top-level config access in validator — ✅ Won't fix (2026-04-17)
 
-`scripts/validate_configs.py` does direct `config["assemblies"]`,
-`config["references"]`, `config["exclusion_set"]` access. If a future
-config refactor (e.g., item 11) removes or renames a section, the user
-gets a bare `KeyError` instead of a friendly `WorkflowError`. Match the
-defensive `config.get("comparisons", {})` pattern already used in the
-comparisons branch.
+The reviewer was concerned about bare `KeyError` if a future refactor
+removed a top-level section. After re-checking, `schema/resources-schema.yml`
+already marks `references`, `assemblies`, `comparisons`, and `exclusion_set`
+as `required`, and `rules/common.smk:438` runs schema validation **before**
+`validate_cross_references` (line 468). Adding defensive `.get()` would
+guard a scenario the schema already prevents.
+
+Resolved by (a) documenting the schema-first contract in
+`validate_cross_references`'s docstring, and (b) dropping the now-redundant
+outer `.get()` from the comparisons branch for consistency. If a future
+refactor relaxes the schema, that change should re-introduce defensiveness
+explicitly rather than relying on a `.get()` to mask the drift silently.
 
 **File:** `scripts/validate_configs.py`
-**Impact:** Failure mode quality during config evolution
+**Impact:** Code clarity, schema/validator contract
 
 ### 23. `--validate-only` should not require `--runid`
 
@@ -273,4 +279,4 @@ Remaining items, in recommended order:
 3. **Items 18, 19** — Testing and quality (prevents regressions during optimization)
 4. **Items 6, 10, 14** — CLI and modularity improvements (improves operator velocity)
 5. **Item 20** — Evaluation comparison utility (enables systematic optimization)
-6. **Items 21, 22, 23** — Polish on the new config validator (small, do opportunistically)
+6. **Items 21, 23** — Polish on the new config validator (small, do opportunistically). Item 22 closed as won't-fix on 2026-04-17.
