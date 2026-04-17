@@ -85,16 +85,22 @@ hardcoded bucket name.
 **File:** `run_defrabb`
 **Impact:** External contributor usability
 
-### 8. Add a `--validate-only` flag to run_defrabb
+### 8. Add a `--validate-only` flag to run_defrabb — ✅ Done
 
-Before running the full pipeline on a new genome, users need to validate their analyses TSV and resources.yml configuration. Add a `--validate-only` mode that loads configs, validates schemas, checks that referenced assemblies/references/comparisons exist in resources.yml, and reports issues without executing any rules.
+Resolved 2026-04-17. `run_defrabb --validate-only` invokes
+`snakemake --list-target-rules --quiet` so the workflow loads and
+`validate_cross_references` runs (see item 9), without executing rules.
 
 **File:** `run_defrabb`
 **Impact:** Parameter optimization workflow, error prevention
 
-### 9. Improve error messages for missing config entries
+### 9. Improve error messages for missing config entries — ✅ Done
 
-When an asm_id, ref, or comp_id in analyses.tsv doesn't exist in resources.yml, the pipeline fails deep inside Snakemake with a cryptic KeyError. Add early validation in `rules/common.smk` that produces clear error messages listing exactly which IDs are missing and from which config section.
+Resolved 2026-04-17. `scripts/validate_configs.py` now provides
+`validate_cross_references`, called from `rules/common.smk` after the
+existing schema validation. Reports missing asm_id, ref, eval_comp_id,
+and exclusion_set with grouped errors that name the offending IDs and
+the eval_ids that reference them.
 
 **File:** `rules/common.smk`
 **Impact:** New genome onboarding, debugging time
@@ -220,7 +226,7 @@ Also added (not in original list): pre-commit hook config (`.pre-commit-config.y
 
 Remaining items, in recommended order:
 
-1. **Items 8, 9** — Config validation (prevents wasted compute on bad configs)
+1. ~~Items 8, 9~~ — Config validation completed 2026-04-17.
 2. **Items 11, 12, 13** — Processing profiles and exclusion externalization (enables parameter optimization)
 3. **Items 18, 19** — Testing and quality (prevents regressions during optimization)
 4. **Items 6, 10, 14** — CLI and modularity improvements (improves operator velocity)
