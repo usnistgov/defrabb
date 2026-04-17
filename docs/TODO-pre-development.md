@@ -218,6 +218,48 @@ This directly supports the planned workflow of running multiple parameter config
 
 ---
 
+## Follow-ups from config validation (2026-04-17)
+
+Flagged during the final code review of the config-validation feature
+(commits `88473b5..a74ffdf`). Deferred deliberately — the feature
+shipped clean enough to be useful as-is.
+
+### 21. Quiet `--validate-only` output
+
+`./run_defrabb --validate-only` currently emits ~160 KB of Snakemake
+load output (warnings, source-cache messages, full analyses DataFrame
+repr, full resources.yml dict) before printing `Config validation
+passed.`. Snakemake 8's `--quiet` flag does not suppress this.
+Options: try `--quiet all` (Snakemake 8 syntax), or capture
+stdout/stderr inside `validate_only()` and only emit it on failure.
+
+**File:** `run_defrabb`
+**Impact:** Operator UX for the validation flow
+
+### 22. Defensive top-level config access in validator
+
+`scripts/validate_configs.py` does direct `config["assemblies"]`,
+`config["references"]`, `config["exclusion_set"]` access. If a future
+config refactor (e.g., item 11) removes or renames a section, the user
+gets a bare `KeyError` instead of a friendly `WorkflowError`. Match the
+defensive `config.get("comparisons", {})` pattern already used in the
+comparisons branch.
+
+**File:** `scripts/validate_configs.py`
+**Impact:** Failure mode quality during config evolution
+
+### 23. `--validate-only` should not require `--runid`
+
+Running `./run_defrabb --validate-only` still requires a (made-up)
+`-r/--runid` value even though the runid is unused in the validation
+path. Either skip the runid requirement when `--validate-only` is set
+or document the workaround.
+
+**File:** `run_defrabb`
+**Impact:** Validation workflow ergonomics
+
+---
+
 ## Priority Order
 
 Foundation items (1, 2, 5, 7, 15, 16, 17) completed 2026-03–04.
@@ -231,3 +273,4 @@ Remaining items, in recommended order:
 3. **Items 18, 19** — Testing and quality (prevents regressions during optimization)
 4. **Items 6, 10, 14** — CLI and modularity improvements (improves operator velocity)
 5. **Item 20** — Evaluation comparison utility (enables systematic optimization)
+6. **Items 21, 22, 23** — Polish on the new config validator (small, do opportunistically)
