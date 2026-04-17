@@ -126,9 +126,10 @@ def parse_arguments() -> Tuple[argparse.Namespace, List[str]]:
     )
     # Create an argument group for better formatting
     group = parser.add_argument_group("workflow steps")
+    mode_mutex = group.add_mutually_exclusive_group()
 
     # Add the 'steps' argument with a detailed description using line breaks
-    group.add_argument(
+    mode_mutex.add_argument(
         "-s",
         "--steps",
         type=str,
@@ -141,6 +142,11 @@ def parse_arguments() -> Tuple[argparse.Namespace, List[str]]:
     report: generating the snakemake run report
     archive: generating snakemake archive tarball
     release: copy run output to NAS for upload to Google Drive (internal NIST use-case)""",
+    )
+    mode_mutex.add_argument(
+        "--validate-only",
+        action="store_true",
+        help="Only validate analyses.tsv and resources.yml; do not run the pipeline.",
     )
     args, unknown_args = parser.parse_known_args()
     return args, unknown_args
@@ -212,6 +218,27 @@ def run_subprocess_command(cmd: List[str], error_message: str) -> None:
         subprocess.run(cmd, check=True)
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"{error_message}: {e}")
+
+
+def validate_only(args: argparse.Namespace) -> int:
+    """Run config validation only (no pipeline execution).
+
+    Triggers Snakemake's workflow load (which runs validate_cross_references
+    in rules/common.smk) but does not resolve the DAG or execute any rule.
+    Returns the exit code.
+    """
+    cmd = [
+        "snakemake",
+        "--list-target-rules",
+        "--quiet",
+        "--config",
+        f"analyses={args.analyses}",
+    ]
+    logging.info(f"Validation command: {' '.join(cmd)}")
+    result = subprocess.run(cmd)
+    if result.returncode == 0:
+        logging.info("Config validation passed.")
+    return result.returncode
 
 
 def execute_snakemake_pipeline(
@@ -516,6 +543,21 @@ def create_data_manifest(
 
 def main() -> None:
     args, extra_args = parse_arguments()
+
+    # --validate-only is the simplest path: parse args, validate the analyses file
+    # exists, then shell out to snakemake. No release config, no run dir, no logging.
+    if args.validate_only:
+        if not args.analyses:
+            args.analyses = f"config/analyses_{args.runid}.tsv"
+        if not os.path.exists(args.analyses):
+            print(
+                f"Error: Analyses file '{args.analyses}' does not exist.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        logging.basicConfig(level=logging.INFO, format="%(message)s")
+        sys.exit(validate_only(args))
+
     release_config = load_release_config(args.release_config)
     release_rules = validate_and_expand_release_rules(release_config, args.release_type)
 
