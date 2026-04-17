@@ -8,6 +8,4 @@ dependencies:
   - pywfa >=0.5.1
   - repeatmasker==4.1.5
   - edlib>=1.3.9
-  - pip
-  - pip:
-    - Truvari==4.2.2
+  - Truvari==4.3
