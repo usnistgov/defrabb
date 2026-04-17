@@ -224,3 +224,18 @@ def test_multiple_errors_grouped_in_single_raise():
     assert "eval_b" in msg
     # Only one occurrence of the missing asm token in the asm section
     assert msg.count("HG002_TYPO") == 1
+
+
+def test_real_repo_configs_validate():
+    """Smoke: the actual repo config + default analyses.tsv must pass validation."""
+    import yaml
+
+    resources_path = REPO_ROOT / "config" / "resources.yml"
+    analyses_path = REPO_ROOT / "config" / "analyses.tsv"
+
+    with resources_path.open() as fh:
+        config = yaml.safe_load(fh)
+
+    analyses_df = pd.read_table(analyses_path).set_index("eval_id")
+
+    assert validate_cross_references(config, analyses_df) is None
