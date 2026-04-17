@@ -220,7 +220,7 @@ def execute_snakemake_pipeline(
     """Execute Snakemake pipeline."""
     cmd = [
         "snakemake",
-        "--use-conda",
+        "--sdm conda",
         "--use-apptainer",
         "--printshellcmds",
         "--config",
