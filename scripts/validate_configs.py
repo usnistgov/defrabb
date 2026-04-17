@@ -12,4 +12,39 @@ def validate_cross_references(config, analyses):
     Raises WorkflowError with a single grouped message if any IDs are missing.
     Returns None on success.
     """
+    errors = {
+        "assemblies": {},
+        "references": {},
+        "exclusion_sets": {},
+        "comparisons": {},
+    }
+
+    asm_ids = set(config["assemblies"])
+
+    for eval_id, row in analyses.iterrows():
+        if row["asm_id"] not in asm_ids:
+            errors["assemblies"].setdefault(row["asm_id"], []).append(eval_id)
+
+    if any(errors.values()):
+        raise WorkflowError(_format_grouped_errors(errors))
     return None
+
+
+def _format_grouped_errors(errors):
+    sections = []
+    if errors["assemblies"]:
+        sections.append(_format_section(
+            "Missing assemblies (resources.yml:assemblies)",
+            errors["assemblies"],
+        ))
+    return (
+        "Config validation failed: missing cross-references in resources.yml.\n\n"
+        + "\n\n".join(sections)
+    )
+
+
+def _format_section(title, missing):
+    lines = [f"{title}:"]
+    for missing_id, eval_ids in missing.items():
+        lines.append(f"  - {missing_id} (used by eval_ids: {', '.join(eval_ids)})")
+    return "\n".join(lines)
