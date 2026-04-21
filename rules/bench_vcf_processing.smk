@@ -178,6 +178,7 @@ rule run_truvari_anno_trf:
     threads: 5
     shell:
         """
+	OPENSSL_CONF=/dev/null \
         truvari anno trf \
             -i {input.vcf} \
             -o {output.vcf} \
@@ -185,7 +186,7 @@ rule run_truvari_anno_trf:
             -f {input.ref} \
             -t {threads} \
             --min-length {params.min_length} \
-            --trf-params "3 7 7 80 5 40 500 -h -ngs -l 20" \
+            --trf-params "3 7 7 80 5 40 500 -h -ngs -l0.25" \
             -e trf &> {log}
         """
 
