@@ -121,6 +121,7 @@ Replace the dot-separated `bench_vcf_processing` strings with a named profile re
 
 **Files:** `config/resources.yml`, `rules/common.smk`, `rules/bench_vcf_processing.smk`
 **Impact:** Config clarity, new genome onboarding, parameter optimization
+**Related issues:** GitLab #177 (programmatic id definition) — folded into this scope on 2026-04-27 when stale draft MR !138 was closed.
 
 ### 12. Externalize exclusion slop/merge constants
 
