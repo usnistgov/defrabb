@@ -90,6 +90,27 @@ results/
 └── analysis_params.yml              # Serialized analysis config
 ```
 
+## Directory Layout
+
+```
+.
+├── .tests/             # Unit and integration tests (pytest)
+├── analysis_files/     # Curated analyses table inputs
+├── config/             # analyses.tsv, resources.yml, release.json
+├── data/               # Test/example input data
+├── docs/               # Architecture, roadmap, TODO, debugging references
+├── envs/               # Per-rule conda environment specs
+├── etc/                # Additional configs
+├── report/             # Report templates (analysis.qmd)
+├── resources/          # Downloaded external resources (output of download rules)
+├── results/            # Pipeline outputs (asm_varcalls/, draft_benchmarksets/, evaluations/)
+├── rules/              # Snakemake rule modules (common, utils, asm-varcall, exclusions, ...)
+├── schema/             # Config validation schemas
+├── scripts/            # Helper Python/shell scripts
+├── Snakefile           # Workflow entry point
+└── run_defrabb         # NIST-flavored wrapper (run_id, S3 upload, archiving)
+```
+
 ## Coding Conventions
 
 - Python: Black formatting, 4-space indentation, `snake_case`
