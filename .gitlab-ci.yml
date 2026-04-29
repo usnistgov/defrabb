@@ -1,13 +1,13 @@
-image: condaforge/mambaforge:24.9.2-0
-
 before_script:
-  - apt update && apt install --yes build-essential
-  - echo "Installing pipeline dependencies"
+  - source /home/gitlab-runner/miniforge3/etc/profile.d/conda.sh
+  - conda activate defrabb-ci
+  - echo "Pipeline tools (from pre-built defrabb-ci env)"
   - mamba --version
-  - mamba install -c conda-forge -c bioconda --strict-channel-priority python==3.12.3 snakemake==8.30.0 snakefmt==0.10.2 apptainer==1.3.6 pytest==8.3.3
   - snakemake --version
+  - snakefmt --version
   - black --version
   - pytest --version
+  - apptainer --version
 
 # lint-test:
 #   artifacts:
