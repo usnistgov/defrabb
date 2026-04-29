@@ -56,6 +56,7 @@ benchmark/**
 
 ## analysis report and run files
 analysis*
+!analysis.qmd
 archive*
 !docs/archive/
 data_manifest.tsv

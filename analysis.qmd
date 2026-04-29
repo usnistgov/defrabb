@@ -1,0 +1,692 @@
+---
+title: "defrabb run analysis summary"
+date: '`r Sys.Date()`'
+format:
+  html:
+    theme: flatly
+    page-layout: full
+    toc: true
+    self-contained: true
+editor: source
+code-fold: true
+execute:
+  warning: false
+params:
+  yaml_path: "results/analysis_params.yml"
+---
+
+
+
+```{r setup}
+#| include=FALSE,
+#| echo=TRUE
+library(tidyverse)
+library(DT)
+library(jsonlite)
+library(yaml)
+library(sessioninfo)
+library(here)
+run_params <- read_yaml(params$yaml_path) 
+source(here("scripts","happy_giab.R"))
+```
+
+<!-- ::: {.panel-tabset} -->
+
+## Utils/ Functions 
+```{r utils}
+get_var_allele_start <- function(rtg_stats_file){
+  stat_file_lines <- read_lines(rtg_stats_file)
+  grep("Variant Allele Lengths", stat_file_lines)
+}
+
+
+get_rtg_metrics <- function(rtg_stats_file) {
+  n_stat_rows <- get_var_allele_start(rtg_stats_file) - 3
+  read_delim(
+    rtg_stats_file,
+    n_max = n_stat_rows,
+    skip = 1,
+    delim = ":",
+    trim_ws = TRUE,
+    col_names = c("metric", "value"),
+    col_types = "cc"
+  )
+}
+
+get_rtg_var_lengths <- function(rtg_stats_file) {
+  var_row_start <- get_var_allele_start(rtg_stats_file)
+  read_tsv(rtg_stats_file, skip = var_row_start, col_types = "cddddd") %>%
+    rename(var_length = length)
+}
+```
+
+## Assembly-Based Variant Calls and Regions
+
+### Asm Variant Calls Summary Stats
+Summary statistics calculated using rtg-tools vcfstats.
+
+From https://cdn.jsdelivr.net/gh/RealTimeGenomics/rtg-tools@master/installer/resources/tools/RTGOperationsManual.pdf
+
+- SNPs: can include variants with length greater than 1 bp but with only a mismatch in the first or last base.  
+- MNPs: Cases where multiple bases change, but the lengths of the two alleles do not are considered to be MNPs
+- Insersions/Deletions: Cases where there is pure addition or removal of bases are classified as Insertions or Deletions respectively
+- Indels: there there is a length change between the REF and ALT, but it is not pure
+
+
+
+
+```{r asmvartbl}
+asm_var_rtg_stat_files <- run_params$inputs$asm_var_rtg %>% 
+  set_names(str_extract(., "(?<=asm_varcalls/).*(?=/)"))
+
+asm_var_rtg_stat_df <- asm_var_rtg_stat_files %>%
+  map_dfr(get_rtg_metrics, .id = "asm_varcalls") %>%
+  separate(col = asm_varcalls,
+         into = c("ref", "asm_varcall"),
+         sep = "_") %>% 
+  pivot_wider(
+    id_cols = c(ref, metric),
+    names_from = asm_varcall,
+    values_from = value,
+    values_fill = NA
+  )
+
+DT::datatable(
+        asm_var_rtg_stat_df,
+        caption = "Assembly variant calls: vcfstats summary",
+        rownames = FALSE,
+        filter = 'top',
+        extensions = "Buttons",
+        options = list(
+                pageLength = nrow(asm_var_rtg_stat_df),
+                dom = 'Bfrtip',
+                buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+        )
+)
+```
+### Asm Variant Calls Allele Lengths
+
+```{r asmvardf}
+var_lengths_df <- asm_var_rtg_stat_files %>% 
+  map_dfr(get_rtg_var_lengths, .id = "asm_varcalls") %>%
+  separate(col = asm_varcalls, into = c("ref","asm_varcall"), sep = "_")
+
+var_len_lvls <- var_lengths_df$var_length %>% unique()
+var_lengths_df <- var_lengths_df %>% mutate(var_length = factor(var_length, levels = var_len_lvls))
+
+var_len_fig_df <- var_lengths_df %>% 
+  pivot_longer(cols = c(Delete, Insert),names_to = "var_type", values_to = "Count") %>% 
+  mutate(var_length = as.integer(str_remove(var_length, "-.*")),
+         var_length = if_else(var_type == "Delete", -var_length, var_length))
+```
+
+
+
+```{r asmindelfig, fig.cap = "Variant allele size distributions for INDELS (SV < 100 bp)"}
+var_len_fig_df %>% 
+  filter(abs(var_length) <= 100) %>% 
+  ggplot() +
+    geom_col(aes(x = var_length, y = Count), fill = "grey60", color = "grey20") +
+    facet_grid(asm_varcall~ref, scales = "free") +
+    theme_bw() +
+    labs(x = "Allele Length Size Bin", y = "Count") +
+    scale_y_log10() +
+  annotation_logticks(sides = "lr")
+```
+
+```{r asmvarlenfigs, fig.cap = "Size distribution of SVs (>100bp, <=10kb)"}
+svlen_fig <- var_len_fig_df %>%
+  filter(abs(var_length) > 100,
+         abs(var_length) <= 10000,
+         Count > 0) %>%
+  ggplot() +
+  geom_vline(aes(xintercept = 300), linetype = 2) + 
+  geom_vline(aes(xintercept = -300), linetype = 2) + 
+  geom_vline(aes(xintercept = 6000), linetype = 2) + 
+  geom_vline(aes(xintercept = -6000), linetype = 2) + 
+  geom_line(aes(x = var_length, y = Count)) +
+  geom_point(aes(x = var_length, y = Count), fill = "grey60", shape = 21) +
+  facet_grid(asm_varcall ~ ref, scales = "free") +
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  labs(x = "Allele Length Size Bin", y = "Count") +  
+  scale_y_log10() 
+plotly::ggplotly(svlen_fig)
+```
+
+```{r}
+var_lengths_df %>%
+  filter(str_detect(var_length, "0000")) %>%
+  separate(
+    var_length,
+    into = c("len_min", "len_max"),
+    sep = "-",
+    convert = TRUE
+  ) %>%
+  select(-SNP,-MNP) %>%
+  DT::datatable(rownames = FALSE, caption = "SVs greater than 10kb")
+```
+
+### Asm Regions
+
+TODO - need to add bed cov file to params yaml
+
+```{r asmcovtbl}
+# asm_genomecov_files <-
+#   run_params$inputs$ %>%
+#   set_names(str_extract(., "(?<=excluded/).*(?=.benchmark_bed)"))
+# 
+# chroms <- c(1:22, "X","Y")
+# chroms <- c(chroms, paste0("chr", chroms))
+# 
+# bench_genomecov_df <- bench_genomecov_files %>%
+#   map_dfr(read_tsv, show_col_types = FALSE, .id = "benchmarkset") %>%
+#   separate(
+#     benchmarkset,
+#     sep = "_",
+#     into = c("refid", "asm_id", "bench_type", "varcall"),
+#     extra = "merge"
+#   ) %>% 
+#   filter(chrom %in% chroms) %>% 
+#   mutate(chrom = factor(chrom, levels = chroms))
+# 
+# ggplot(bench_genomecov_df) +
+#   geom_col(
+#     aes(x = chrom, y = total_ivl_bp, fill = bench_type),
+#     position = "dodge",
+#     color = "grey20"
+#   ) +
+#   facet_wrap( ~ paste(refid, asm_id, varcall),
+#               scales = "free_x",
+#               ncol = 1) +
+#   theme_bw() +
+#   theme(legend.position = "bottom") +
+#   labs(x = "Chromosome", y = "Total Region Size (bp)", fill = "Benchmarkset Type")
+```
+
+## Benchmark Set Characteristics
+
+```{r benchvardf}
+bench_var_rtg_stat_files <- run_params$inputs$bench_var_rtg %>%
+  set_names(str_extract(., "(?<=benchmarksets/).*(?=/)"))
+
+bench_var_metrics_df <- bench_var_rtg_stat_files %>%
+  map_dfr(get_rtg_metrics, .id = "benchmarkset") %>%
+  separate(
+    col = benchmarkset,
+    into = c("ref", "asm_varcall", "bench_type"),
+    sep = "_"
+  ) %>% 
+  pivot_wider(
+    id_cols = c(ref, metric),
+    names_from = c(asm_varcall, bench_type),
+    values_from = value,
+    values_fill = NA
+  )
+```
+
+### Benchmark Variants Summary Statistics
+Summary statistics calculated using rtg-tools vcfstats.
+
+```{r benchvartbl}
+DT::datatable(
+  bench_var_metrics_df, 
+  rownames = FALSE, 
+  extensions = 'Buttons',
+  filter = 'top',
+  options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+  )
+)
+```
+
+
+
+
+### Benchmark Variants Allele Lengths
+
+```{r benchvarfigins}
+var_lengths_df <- bench_var_rtg_stat_files %>% 
+  map_dfr(get_rtg_var_lengths, .id = "benchmarkset") %>%
+  separate(col = benchmarkset, into = c("ref","asm_varcall", "bench_type"), sep = "_")
+
+var_len_fig_df <- var_lengths_df %>% 
+  pivot_longer(cols = c(Delete, Insert),names_to = "var_type", values_to = "Count") %>% 
+  mutate(var_length = as.integer(str_remove(var_length, "-.*")),
+         var_length = if_else(var_type == "Delete", -var_length, var_length))
+```
+
+
+
+```{r benchindelfig, fig.cap = "Variant allele size distributions for INDELS (SV < 100 bp)"}
+var_len_fig_df %>% 
+  filter(abs(var_length) <= 100) %>% 
+  ggplot() +
+    geom_col(aes(x = var_length, y = Count), fill = "grey60", color = "grey20") +
+    facet_grid(asm_varcall*bench_type~ref, scales = "free") +
+    theme_bw() +
+    labs(x = "Allele Length Size Bin", y = "Count") +
+    scale_y_log10() +
+  annotation_logticks(sides = "lr")
+```
+
+```{r benchvarlenfigs, fig.cap = "Size distribution of SVs (>100bp, <=10kb)"}
+svlen_fig <- var_len_fig_df %>%
+  filter(abs(var_length) > 100,
+         abs(var_length) <= 10000,
+         Count > 0) %>%
+  ggplot() +
+  geom_vline(aes(xintercept = 300), linetype = 2) + 
+  geom_vline(aes(xintercept = -300), linetype = 2) + 
+  geom_vline(aes(xintercept = 6000), linetype = 2) + 
+  geom_vline(aes(xintercept = -6000), linetype = 2) + 
+  geom_line(aes(x = var_length, y = Count)) +
+  geom_point(aes(x = var_length, y = Count), fill = "grey60", shape = 21) +
+  facet_grid(asm_varcall*bench_type ~ ref, scales = "free") +
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  labs(x = "Allele Length Size Bin", y = "Count") +  
+  scale_y_log10() 
+plotly::ggplotly(svlen_fig)
+```
+
+```{r benchlgsvtbl}
+var_lengths_df %>%
+  filter(str_detect(var_length, "0000")) %>%
+  separate(
+    var_length,
+    into = c("len_min", "len_max"),
+    sep = "-",
+    convert = TRUE
+  ) %>%
+  select(-SNP,-MNP) %>%
+  DT::datatable(
+    rownames = FALSE,
+    caption = "SVs greater than 10kb",
+    filter = "top",
+    extensions = 'Buttons',
+    options = list(
+      dom = 'Bfrtip',
+      buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+    )
+  )
+```
+
+
+## Benchmark Regions Summary
+
+### Exclusions
+
+```{r exclusionintcumtbl}
+exclusion_intersect_files <- run_params$inputs$exclusion_intersection_summary %>% 
+  set_names(str_remove(.,".*-excluded/"))
+
+exclusion_intersect_df <- exclusion_intersect_files %>% 
+  map_dfr(read_csv, show_col_types = FALSE, .id = "benchmarkset") %>% 
+  mutate(benchmarkset = str_remove(benchmarkset, ".exclusion_intersection_summary.csv"))  %>%
+  rename(dip_overlap_bp = bp,
+         dip_excluded_pct = pct_of_initial) 
+
+## Loading cumulative exclusion stats
+exclusion_stats_files <- run_params$inputs$exclusion_summary %>% 
+  set_names(str_remove(.,".*-excluded/"))
+
+exclusion_cum_df <- exclusion_stats_files %>%
+  map_dfr(read_tsv, show_col_types = FALSE, .id = "benchmarkset") %>% 
+  mutate(benchmarkset = str_remove(benchmarkset, ".exclusion_stats.txt")) %>%
+  mutate(
+    exclusion = str_remove(exclusion, "resources/exclusions/.*/"),
+    exclusion = str_remove(exclusion, ".*/exclusions/")
+  )
+
+## Calculating cumulative exclusion pct
+initial_stats_df <- exclusion_cum_df %>% 
+  filter(exclusion == "initial") %>% 
+  select(-exclusion, -exclusion_length) %>% 
+  rename(initial_length = resulting_length)
+
+exclusion_cum_df <- exclusion_cum_df %>% 
+  left_join(initial_stats_df) %>% 
+  mutate(pct_of_initial = resulting_length/initial_length) %>% 
+  select(-initial_length)
+
+
+## Combined intersection and cumulative exclusion table
+exclusion_df <- exclusion_cum_df %>%
+  rename(genomic_region = exclusion,
+         new_excluded_bp = exclusion_length) %>%
+  full_join(exclusion_intersect_df) %>%
+  separate(
+    benchmarkset,
+    sep = "_",
+    into = c("refid", "asm_id", "bench_type", "varcall"),
+    extra = "merge"
+  ) %>%
+  mutate(
+    asm_break = case_when(
+      str_detect(genomic_region, "start") ~ "start",
+      str_detect(genomic_region, "end") ~ "end",
+      TRUE ~ ""
+    ),
+    genomic_region = str_remove(genomic_region, ".*dipcall-z2k_"),
+    genomic_region = str_remove(genomic_region, "resources/exclusions/.*/"),
+    genomic_region = str_remove(genomic_region, "_.*bed")
+  ) %>%
+  unite(ref_bench, refid, bench_type)%>%
+  mutate(genomic_region = if_else(genomic_region == "inital", "dip.bed", genomic_region)) %>%
+  select(
+    ref_bench,
+    asm_id,
+    varcall,
+    genomic_region,
+    asm_break,
+    dip_overlap_bp,
+    dip_excluded_pct,
+    new_excluded_bp,
+    resulting_length,
+    pct_of_initial
+  )
+```
+
+::: {.panel-tabset}
+```{r exclusiontbls}
+#| results: asis
+for(i in unique(exclusion_df$ref_bench)) {
+  cat(sprintf("\n### %s \n\n", i))
+  print(
+    htmltools::tagList(
+      exclusion_df %>%
+        filter(ref_bench == {
+          {
+            i
+          }
+        }) %>%
+        mutate(dip_excluded_pct = dip_excluded_pct / 100) %>%
+        DT::datatable(
+          .,
+          rownames = FALSE,
+          filter = 'top',
+          extensions = list('Buttons', 'ColReorder','FixedColumns'),
+          options = list(
+            dom = 'Bfrtip',
+            buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+            pageLength = nrow(.),
+            colReorder = TRUE,
+            scrollX = TRUE,
+            fixedColumns = list(leftColumns = 5)
+          ),
+          selection = 'none'
+        ) %>%
+        DT::formatRound(
+          columns = c("new_excluded_bp",
+                      "resulting_length",
+                      "dip_overlap_bp"),
+          digits = 0
+        ) %>%
+        DT::formatPercentage(
+          columns = c("dip_excluded_pct", "pct_of_initial"),
+          digits = 1
+        )
+    )
+  )
+}
+```
+:::
+
+
+### Benchmark Region Size by Chromosome
+
+```{r benchcovtbl}
+bench_genomecov_files <-
+  run_params$inputs$bench_cov %>%
+  set_names(str_extract(., "(?<=excluded/).*(?=.benchmark_bed)"))
+
+chroms <- c(1:22, "X","Y")
+chroms <- c(chroms, paste0("chr", chroms))
+
+bench_genomecov_df <- bench_genomecov_files %>%
+  map_dfr(read_tsv, show_col_types = FALSE, .id = "benchmarkset") %>%
+  separate(
+    benchmarkset,
+    sep = "_",
+    into = c("refid", "asm_id", "bench_type", "varcall"),
+    extra = "merge"
+  ) %>% 
+  filter(chrom %in% chroms) %>% 
+  mutate(chrom = factor(chrom, levels = chroms))
+
+ggplot(bench_genomecov_df) +
+  geom_col(
+    aes(x = chrom, y = total_ivl_bp, fill = bench_type),
+    position = "dodge",
+    color = "grey20"
+  ) +
+  facet_wrap( ~ paste(refid, asm_id, varcall),
+              scales = "free_x",
+              ncol = 1) +
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  labs(x = "Chromosome", y = "Total Region Size (bp)", fill = "Benchmarkset Type")
+```
+
+
+## Evaluation Results
+### Happy 
+
+#### Combined Summary Tables
+
+```{r evalsmvartbl}
+happy_summary_files <- run_params$inputs$happy_summary %>%
+      set_names(str_extract(., "(?<=happy/).*(?=/)"))
+
+happy_summary_df <- happy_summary_files %>%
+    map_dfr(read_csv, show_col_types = FALSE, .id = "evaluation") %>%
+    filter(Filter == "PASS") %>% 
+  ## Assumes evaluation naming convention used in analysis tables
+  mutate(
+    ref = str_remove(evaluation, "_.*"),
+    truth = str_extract(evaluation, "(?<=T~).*(?=_Q)"),
+    query = str_extract(evaluation, "(?<=Q~)[^_]*(?=_)"),
+    target_regions = str_extract(evaluation, "(?<=TR~)[^_]*(?=_)")
+  ) %>% 
+  select(ref, truth, query, target_regions, c(2, 4:15))
+
+DT::datatable(
+  happy_summary_df,
+  rownames = FALSE,
+  filter = 'top',
+  extensions = list('Buttons', 'ColReorder', 'FixedColumns'),
+  options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+    pageLength = nrow(happy_summary_df),
+    colReorder = TRUE,
+    scrollX = TRUE,
+    fixedColumns = list(leftColumns = 5)
+  )
+)
+```
+
+
+### Combined Extended Tables
+
+```{r evalsmvarexttbl}
+subsets <- c(
+  "AllAutosomes",
+  "AllHomopolymers_ge7bp_imperfectge11bp_slop5",
+  "AllTandemRepeats",
+  "AllTandemRepeats_201to10000bp_slop5",
+  "AllTandemRepeatsandHomopolymers_slop5",
+  "alldifficultregions",
+  "alllowmapandsegdupregions",
+  "chrX_PAR",
+  "chrX_nonPAR",
+  "chrY_PAR",
+  "chrY_nonPAR",
+  "lowmappabilityall",
+  "notinAllHomopolymers_ge7bp_imperfectge11bp_slop5",
+  "notinAllTandemRepeatsandHomopolymers_slop5",
+  "notinallTandemRepeats",
+  "notinalldifficultregions",
+  "notinalllowmapandsegdupregions",
+  "notinlowmappabilityall",
+  "notinsatellites_slop5",
+  "notinsegdups_gt10kb",
+  "rDNA",
+  "refseq_cds",
+  "satellites_slop5",
+  "segdups_gt10kb",
+  "telomeres"
+)
+
+metrics_to_keep <-
+  c(
+    "METRIC.Recall",
+    "METRIC.Frac_NA",
+    "METRIC.Precision",
+    "FP.al",
+    "FP.gt",
+    "Subset.Size",
+    "Subset.IS_CONF.Size",
+    "TRUTH.TOTAL",
+    "TRUTH.TP",
+    "TRUTH.FN",
+    "QUERY.TOTAL",
+    "QUERY.TP",
+    "QUERY.FP",
+    "QUERY.UNK"
+  )
+
+happy_extended_df <- run_params$inputs$happy_extended %>%
+  set_names(str_extract(., "(?<=happy/).*(?=/)")) %>%
+  map_dfr(
+    load_happy_extended,
+    filter = TRUE,
+    subsets = subsets,
+    metrics = metrics_to_keep,
+    .id = "evaluation"
+  ) %>%
+  ## Assumes evaluation naming convention used in analysis tables
+  mutate(
+    ref = str_remove(evaluation, "_.*"),
+    truth = str_extract(evaluation, "(?<=T~).*(?=_Q)"),
+    query = str_extract(evaluation, "(?<=Q~)[^_]*(?=_)"),
+    target_regions = str_extract(evaluation, "(?<=TR~)[^_]*(?=_)")
+  ) %>%
+  select(ref, truth, query, target_regions, c(2:15))
+
+DT::datatable(
+  happy_extended_df,
+  rownames = FALSE,
+  filter = 'top',
+  extensions = list('Buttons', 'ColReorder', 'FixedColumns'),
+  options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+    colReorder = TRUE,
+    scrollX = TRUE,
+    fixedColumns = list(leftColumns = 7)
+  )
+)
+```
+
+### Truvari Combined Summary Table
+
+Truth and evaluation ids are based on evaluation id provided in eval_id defined in analysis table and not based on how truvari was run. 
+Will want to modify so values are based on truvari command to accurately reflect how truvari was run.
+
+```{r evalstvartbl}
+truvari_refine_files <- run_params$inputs$truvari_refine_summary %>%
+  set_names(str_extract(., "(?<=truvari/).*(?=/)"))
+
+truvari_bench_files <- run_params$inputs$truvari_summary %>%
+  set_names(str_extract(., "(?<=truvari/).*(?=/)"))
+
+## Including truvari bench files from truvari refine runs
+truvari_bench_files <- truvari_refine_files %>% 
+  map(str_remove, "refine.variant_") %>% 
+  c(truvari_bench_files)
+
+if (length(truvari_bench_files) > 0){
+  truvari_bench_df <- truvari_bench_files %>%
+      map(jsonlite::fromJSON,
+          simplifyVector = FALSE,
+          simplifyDataFrame = FALSE,
+          simplifyMatrix = FALSE
+      ) %>%
+      # Remove 'weighted' and 'gt_matrix' keys from each item  
+      map(~{.x$weighted <- NULL; .x$gt_matrix <- NULL; .x}) %>%  
+      # better handling nulls in list - mostly for test data set
+      map_depth(., 2, ~ifelse(is.null(.x), NA, .x)) %>% 
+      map_dfr(as_data_frame, .id = "evaluation") %>% 
+      ## Assumes evaluation naming convention used in analysis tables
+    mutate(
+      ref = str_remove(evaluation, "_.*"),
+      truth = str_extract(evaluation, "(?<=T~).*(?=_Q)"),
+      query = str_extract(evaluation, "(?<=Q~)[^_]*(?=_)"),
+      target_regions = str_extract(evaluation, "(?<=TR~)[^_]*(?=_)")
+    ) %>% 
+    select(ref, truth, query, target_regions, c(2:16)) %>%
+    add_column(method = "bench", .before = "target_regions")
+} else {
+  truvari_bench_df <- tibble()
+}
+
+if (length(truvari_refine_files) > 0){
+  truvari_refine_df <- truvari_refine_files %>%
+      map(jsonlite::fromJSON,
+          simplifyVector = FALSE,
+          simplifyDataFrame = FALSE,
+          simplifyMatrix = FALSE
+      ) %>%
+      # Remove 'weighted' and 'gt_matrix' keys from each item  
+      map(~{.x$weighted <- NULL; .x$gt_matrix <- NULL; .x}) %>%  
+      # better handling nulls in list - mostly for test data set
+      map_depth(., 2, ~ifelse(is.null(.x), NA, .x)) %>% 
+      map_dfr(as_data_frame, .id = "evaluation") %>% 
+      ## Assumes evaluation naming convention used in analysis tables
+    mutate(
+      ref = str_remove(evaluation, "_.*"),
+      truth = str_extract(evaluation, "(?<=T~).*(?=_Q)"),
+      query = str_extract(evaluation, "(?<=Q~)[^_]*(?=_)"),
+      target_regions = str_extract(evaluation, "(?<=TR~)[^_]*(?=_)")
+    ) %>% 
+    select(ref, truth, query, target_regions, c(2:14)) %>%
+    add_column(method = "refine", .before = "target_regions")
+} else {
+  truvari_refine_df <- tibble()
+}
+
+truvari_summary_df <- bind_rows(truvari_bench_df, truvari_refine_df)
+DT::datatable(
+  truvari_summary_df,
+  rownames = FALSE,
+  filter = 'top',
+  extensions = list('Buttons', 'ColReorder','FixedColumns'),
+  options = list(
+    dom = 'Bfrtip',
+    buttons = c('copy', 'csv', 'excel', 'pdf', 'print'),
+    pageLength = nrow(truvari_summary_df),
+    colReorder = TRUE,
+    fixedColumns = list(leftColumns = 5)
+  )
+) %>%
+  formatRound(c("precision", "recall", "f1", "gt_concordance"), 5) 
+```
+
+<!-- ::: -->
+
+## System Information
+```{r plat}
+sessioninfo::platform_info()
+```
+
+
+### Package Versions
+```{r pkgs}
+sessioninfo::package_info() %>% 
+    filter(attached = TRUE) %>% 
+    select(package, loadedversion, date, source) %>%
+    knitr::kable(booktabs = TRUE, row.names = FALSE)
+```
