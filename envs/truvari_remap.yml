@@ -3,15 +3,16 @@ channels:
   - bioconda
 dependencies:
   - bioconda::truvari ==5.4.0
-  # bwapy is intentionally absent. Two blockers prevent installing it:
-  #   1. conda env YAML pip block does not support `--no-build-isolation`,
-  #      which is required to build the ACEnglish/bwapy fork against
-  #      setuptools <80 (the fork's setup.py imports pkg_resources, which
-  #      was split out of setuptools >=80).
-  #   2. bwapy 0.1.4 (both the bioconda package and a locally built fork)
-  #      fails to load on this workstation with `undefined symbol:
-  #      __log_finite` due to glibc finite-math compat. RUNTIME failure,
-  #      not build.
-  # CI's default analyses.tsv does not exercise anno_remap. Active HG008
-  # dipcall stvar analyses that include `.remap` will fail at runtime
-  # until the follow-up issue resolves both blockers.
+  # truvari 5.4.0 transitively pulls bwapy 0.1.4 from bioconda, but that
+  # build is unusable for `truvari anno remap` on this workstation:
+  #   1. bwapy 0.1.4 fails to load with `undefined symbol: __log_finite`
+  #      (glibc finite-math compat); affects bioconda's package and a
+  #      locally built ACEnglish/bwapy fork alike.
+  #   2. The ACEnglish/bwapy fork (which adds the `-a` option that
+  #      `truvari anno remap` requires) cannot be installed via the
+  #      conda env YAML pip block because that block does not accept
+  #      the `--no-build-isolation` flag the build needs.
+  # CI's default analyses.tsv does not exercise anno_remap, so the env
+  # builds cleanly and CI passes. Active HG008 dipcall stvar analyses
+  # that include `.remap` will fail at runtime until a follow-up issue
+  # resolves both blockers above.
