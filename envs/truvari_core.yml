@@ -1,4 +1,6 @@
-channels: [conda-forge, bioconda]
+channels:
+  - conda-forge
+  - bioconda
 dependencies:
   - bioconda::truvari ==5.4.0
   - bcftools >=1.20
