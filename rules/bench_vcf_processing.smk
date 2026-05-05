@@ -29,10 +29,10 @@ rule dip_gap2homvarbutfiltered:
         "results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz",
     output:
         "results/asm_varcalls/{vc_id}/annotations/{prefix}.gap2homvarbutfiltered.vcf.gz",
-    conda:
-        "../envs/download_remotes.yml"
     log:
         "logs/dip_gap2homvarbutfiltered/{vc_id}_{prefix}.log",
+    conda:
+        "../envs/download_remotes.yml"
     shell:
         """
         gunzip -c {input} |\
@@ -48,10 +48,10 @@ rule split_multiallelic_sites:
         "results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz",
     output:
         vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.split_multi.vcf.gz",
-    conda:
-        "../envs/bcftools.yml"
     log:
         "logs/split_multiallelic_sites/{vc_id}_{prefix}.log",
+    conda:
+        "../envs/bcftools.yml"
     shell:
         """
         bcftools norm -m-any {input} -Oz -o {output.vcf} &> {log}
@@ -67,12 +67,12 @@ rule filter_lt19_and_norm:
         ref=get_ref_file,
     output:
         "results/asm_varcalls/{vc_id}/annotations/{prefix}.gt19_norm.vcf.gz",
-    resources:
-        mem_mb=8000,
-    conda:
-        "../envs/bcftools.yml"
     log:
         "logs/gt19_norm/{vc_id}_{prefix}.log",
+    conda:
+        "../envs/bcftools.yml"
+    resources:
+        mem_mb=8000,
     shell:
         """
         bcftools norm -m-any -Ou {input.vcf} 2> {log} \
@@ -90,12 +90,12 @@ rule normalize_vars:
         ref=get_ref_file,
     output:
         "results/asm_varcalls/{vc_id}/annotations/{prefix}.norm.vcf.gz",
-    resources:
-        mem_mb=8000,
-    conda:
-        "../envs/bcftools.yml"
     log:
         "logs/normalize_vars/{vc_id}_{prefix}.log",
+    conda:
+        "../envs/bcftools.yml"
+    resources:
+        mem_mb=8000,
     shell:
         """
         bcftools norm -m-any -Ou {input.vcf} 2> {log} \
@@ -111,10 +111,10 @@ rule add_end_info_header:
         vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz",
     output:
         vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.end_info.vcf.gz",
-    conda:
-        "../envs/bcftools.yml"
     log:
         "logs/add_end_info/{vc_id}_{prefix}.log",
+    conda:
+        "../envs/bcftools.yml"
     shell:
         """
         bcftools +fill-tags {input.vcf} -Oz -o {output.vcf} -- -t END &> {log}
@@ -125,12 +125,12 @@ rule add_end_info_header:
 rule get_adotto_tr_anno_db:
     output:
         adotto_db="resources/references/{ref_id}_adotto_db.bed.gz",
+    log:
+        "logs/get_addoto_tr_anno_db/{ref_id}.log",
     conda:
         "../envs/download_remotes.yml"
     params:
         url=get_addoto_tr_anno_db_url,
-    log:
-        "logs/get_addoto_tr_anno_db/{ref_id}.log",
     shell:
         """
         curl -L {params.url} 1> {output.adotto_db} 2> {log}
@@ -172,13 +172,13 @@ rule run_truvari_anno_trf:
     log:
         "logs/truvari_anno_trf/{vc_id}_{prefix}.log",
     conda:
-        "../envs/truvari_remap.yml"
+        "../envs/truvari_trf.yml"
+    threads: 5
     params:
         min_length=20,
-    threads: 5
     shell:
         """
-	OPENSSL_CONF=/dev/null \
+    OPENSSL_CONF=/dev/null \
         truvari anno trf \
             -i {input.vcf} \
             -o {output.vcf} \
@@ -200,7 +200,7 @@ rule run_truvari_anno_svinfo:
     log:
         "logs/truvari_anno_svinfo/{vc_id}_{prefix}.log",
     conda:
-        "../envs/truvari.yml"
+        "../envs/truvari_core.yml"
     params:
         minsize=20,
     shell:
@@ -217,7 +217,7 @@ rule install_dfam_hmm:
     output:
         touch("installed_dfam_hmm"),
     conda:
-        "../envs/truvari.yml"
+        "../envs/truvari_repmask.yml"
     run:
         rmdir = f"{env.CONDA_PREFIX}/share/RepeatMasker"
         # fetch the curated‐only HMM
@@ -241,7 +241,7 @@ rule run_truvari_anno_repmask:
     log:
         "logs/truvari_anno_repmask/{vc_id}_{prefix}.log",
     conda:
-        "../envs/truvari_remap.yml"
+        "../envs/truvari_repmask.yml"
     threads: 5
     params:
         min_length=20,
@@ -294,7 +294,7 @@ rule run_truvari_anno_lcr:
     log:
         "logs/truvari_anno_lcr/{vc_id}_{prefix}.log",
     conda:
-        "../envs/truvari.yml"
+        "../envs/truvari_core.yml"
     shell:
         """
         truvari anno lcr \
@@ -358,12 +358,12 @@ rule get_variants_in_benchmark_regions:
         vcfidx="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_bench-vars.vcf.gz.tbi",
     log:
         "logs/get_vars_in_bench_regions/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
+    conda:
+        "../envs/bcftools.yml"
     params:
         filt=lambda wildcards: (
             f"-i 'INFO/SVLEN > 49'" if wildcards.bench_type == "stvar" else ""
         ),
-    conda:
-        "../envs/bcftools.yml"
     shell:
         """
     bcftools view -Oz -o {output.vcf} \
