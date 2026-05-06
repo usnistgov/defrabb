@@ -10,6 +10,10 @@
 ################################################################################
 analyses: "config/analyses.tsv"
 
+# Set to true to emit verbose output from tools that support it
+# (currently: get_sv_widen_coords.py, hap.py via run_happy.py).
+debug: false
+
 ################################################################################
 # Rule compute resource requirements and data dependencies
 

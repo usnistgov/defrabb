@@ -15,9 +15,13 @@ include: "rules/common.smk"
 include: "rules/utils.smk"
 include: "rules/download_resources.smk"
 include: "rules/asm-varcall.smk"
-include: "rules/exclusions.smk"
+include: "rules/exclusions_download.smk"
+include: "rules/exclusions_self_discrep.smk"
+include: "rules/exclusions_apply.smk"
 include: "rules/report.smk"
-include: "rules/bench_vcf_processing.smk"
+include: "rules/bench_vcf_normalize.smk"
+include: "rules/bench_vcf_anno.smk"
+include: "rules/bench_vcf_finalize.smk"
 include: "rules/evaluation.smk"
 
 
@@ -121,7 +125,7 @@ rule all:
             vc_param_id=bench_excluded_tbl["vc_param_id"].tolist(),
         ),
         ## rules for report
-        "analysis.html",
+        # "analysis.html",
         "results/analysis_params.yml",
         expand(
             "results/report/assemblies/{asm_id}_{haplotype}_stats.txt",

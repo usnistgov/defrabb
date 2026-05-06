@@ -31,6 +31,10 @@ properties:
         type: string
         description: File path to analyses tsv table
 
+  debug:
+    type: boolean
+    description: When true, gate-verbose tools emit extra logging.
+
 ################################################################################
 # resources - information for framework data dependencies, i.e. reference genomes
   references:

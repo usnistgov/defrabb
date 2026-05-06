@@ -24,6 +24,8 @@ if target_regions:
 
 gender = snakemake.params.get("gender_param", "")
 
+verbose = "--verbose" if snakemake.config.get("debug") else ""
+
 ## Extracting stratification tarball
 ## Can add if statement with eval_params to see if starts are used
 ref_id = snakemake.wildcards.ref_id
@@ -50,7 +52,7 @@ shell(
     "    {truth_regions} "
     "    --stratification {strat_tsv} "
     "    -o {snakemake.params.prefix} "
-    "    --verbose "
+    "    {verbose} "
     "    {target_regions} "
     "    {snakemake.input.truth} "
     "    {snakemake.input.query} )" + log
