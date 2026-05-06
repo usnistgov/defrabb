@@ -33,7 +33,11 @@ with open(f"{outdir}/config.json", "w") as file:
     file.write(json_string)
 
 ## calling pav ----------------------------------------------------------
+# OPENSSL_CONF=/dev/null disables OpenSSL FIPS self-test for the inner
+# snakemake invocation. NIST FIPS hosts trigger "FATAL FIPS SELFTEST FAILURE"
+# inside the becklab/pav container otherwise. Same pattern is used for
+# `truvari anno trf` in rules/bench_vcf_processing.smk.
 shell(
     "cd {snakemake._params_store.outdir};"
-    "snakemake -s /opt/pav/Snakefile --ri -k -w 20 --rerun-triggers mtime -c {snakemake.threads} --config ignore_env_file=True"
+    "OPENSSL_CONF=/dev/null snakemake -s /opt/pav/Snakefile --ri -k -w 20 --rerun-triggers mtime -c {snakemake.threads} --config ignore_env_file=True"
 )
