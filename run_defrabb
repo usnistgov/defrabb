@@ -10,7 +10,10 @@ import subprocess
 import sys
 from typing import List, Optional, Tuple
 
-import boto3
+try:
+    import boto3
+except ImportError:
+    boto3 = None
 
 # Constants
 DEFAULT_OUTDIR = "/defrabb_runs/runs_in_progress/"
@@ -71,9 +74,8 @@ def parse_arguments() -> Tuple[argparse.Namespace, List[str]]:
     parser.add_argument(
         "-r",
         "--runid",
-        required=True,
         type=str,
-        help="Analysis RUN ID, please use following naming convention YYYYMMDD_milestone_brief-id",
+        help="Analysis RUN ID, please use following naming convention YYYYMMDD_milestone_brief-id. Required unless --validate-only is set.",
     )
     parser.add_argument("-a", "--analyses", type=str, help="defrabb run analyses table")
     parser.add_argument(
@@ -166,6 +168,10 @@ def validate_and_set_defaults(args: argparse.Namespace) -> argparse.Namespace:
         InvalidDirectoryError: If specified directories do not exist.
     """
     pattern = r"^\d{8}_v\d{1}\.\d{3}_"
+    if not args.runid:
+        raise InvalidRunIDError(
+            "Error: --runid is required unless --validate-only is set."
+        )
     if not re.match(pattern, args.runid):
         raise InvalidRunIDError("Error: Invalid RUN ID format.")
     # Validate analyses file
@@ -235,9 +241,23 @@ def validate_only(args: argparse.Namespace) -> int:
         f"analyses={args.analyses}",
     ]
     logging.info(f"Validation command: {' '.join(cmd)}")
-    result = subprocess.run(cmd)
+    result = subprocess.run(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
     if result.returncode == 0:
         logging.info("Config validation passed.")
+    elif result.stdout:
+        output = result.stdout.rstrip()
+        if len(output) > 12000:
+            output = output[-12000:]
+            logging.error(
+                "Config validation failed. Showing last 12000 characters:\n%s", output
+            )
+        else:
+            logging.error(output)
     return result.returncode
 
 
@@ -321,10 +341,20 @@ def should_release_file(file_path: str, run_id: str, release_rules: dict) -> boo
     return False
 
 
+def get_s3_client():
+    """Return a boto3 S3 client, or fail only when S3 functionality is used."""
+    if boto3 is None:
+        raise RuntimeError(
+            "boto3 is required for S3 release operations. Install boto3 or use a "
+            "non-S3 release type."
+        )
+    return boto3.client("s3")
+
+
 def upload_to_s3(
     run_id: str, run_dir: str, bucket_name: str, s3_path: str, s3_rules: dict
 ) -> None:
-    s3 = boto3.client("s3")
+    s3 = get_s3_client()
 
     for root, _, files in os.walk(run_dir):
         for file in files:
@@ -364,7 +394,7 @@ def release_run(
                 manifest_key = os.path.join(
                     s3_path, args.runid, os.path.basename(manifest_path)
                 )
-                boto3.client("s3").upload_file(
+                get_s3_client().upload_file(
                     manifest_path,
                     bucket_name,
                     manifest_key,
@@ -435,7 +465,7 @@ def log_conda_environment(run_dir: str) -> None:
 def create_data_manifest(
     run_id: str, bucket_name: str, s3_path: str, manifest_path: str
 ) -> None:
-    s3 = boto3.client("s3")
+    s3 = get_s3_client()
     prefix = f"{s3_path}/{run_id}/"
 
     def determine_analysis(key):
@@ -548,7 +578,11 @@ def main() -> None:
     # exists, then shell out to snakemake. No release config, no run dir, no logging.
     if args.validate_only:
         if not args.analyses:
-            args.analyses = f"config/analyses_{args.runid}.tsv"
+            args.analyses = (
+                f"config/analyses_{args.runid}.tsv"
+                if args.runid
+                else "config/analyses.tsv"
+            )
         if not os.path.exists(args.analyses):
             print(
                 f"Error: Analyses file '{args.analyses}' does not exist.",

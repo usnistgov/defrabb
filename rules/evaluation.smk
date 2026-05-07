@@ -11,7 +11,7 @@
 
 rule run_happy:
     input:
-        unpack(partial(get_happy_inputs, analyses, config)),
+        unpack(get_happy_inputs_for_rule),
     output:
         multiext(
             "results/evaluations/happy/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}",
@@ -53,7 +53,7 @@ rule run_happy:
 ## Run Truvari
 rule region_intersection:
     input:
-        unpack(partial(get_eval_beds, analyses)),
+        unpack(get_eval_beds_for_rule),
     output:
         intersect_regions="results/evaluations/truvari/{eval_id}_{bench_id}/eval_regions.bed",
     log:
@@ -64,7 +64,7 @@ rule region_intersection:
 
 rule run_truvari:
     input:
-        unpack(partial(get_truvari_inputs, analyses, config)),
+        unpack(get_truvari_inputs_for_rule),
     output:
         report(
             "results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/summary.json",
@@ -117,7 +117,7 @@ rule run_truvari:
 
 rule truvari_refine:
     input:
-        unpack(partial(get_truvari_inputs, analyses, config)),
+        unpack(get_truvari_inputs_for_rule),
         refine_bed="results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/candidate.refine.bed",
         json="results/evaluations/truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/summary.json",
         ref="resources/references/{ref_id}.fa",

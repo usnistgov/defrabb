@@ -225,16 +225,19 @@ Flagged during the final code review of the config-validation feature
 (commits `88473b5..a74ffdf`). Deferred deliberately — the feature
 shipped clean enough to be useful as-is.
 
-### 21. Quiet `--validate-only` output
+### 21. Stop `--validate-only` output from flooding streams — ✅ Done
 
-`./run_defrabb --validate-only` currently emits ~160 KB of Snakemake
-load output (warnings, source-cache messages, full analyses DataFrame
-repr, full resources.yml dict) before printing `Config validation
-passed.`. Snakemake 8's `--quiet` flag does not suppress this.
-Options: try `--quiet all` (Snakemake 8 syntax), or capture
-stdout/stderr inside `validate_only()` and only emit it on failure.
+Observed during validation-only smoke testing: Snakemake stringified
+bound `functools.partial(...)` input functions in `rules/evaluation.smk`,
+including the full analyses DataFrame and `resources.yml` dict. The
+resulting warning emitted ~160 KB of workflow-load output and could break
+API streaming with `response.failed` before the command completed.
 
-**File:** `run_defrabb`
+Resolved by replacing those bound partials with lightweight wrapper
+functions, capturing `validate_only()` subprocess output, and only
+emitting captured output on failure.
+
+**Files:** `rules/evaluation.smk`, `rules/common.smk`, `run_defrabb`
 **Impact:** Operator UX for the validation flow
 
 ### 22. Defensive top-level config access in validator — ✅ Won't fix (2026-04-17)
@@ -255,12 +258,13 @@ explicitly rather than relying on a `.get()` to mask the drift silently.
 **File:** `scripts/validate_configs.py`
 **Impact:** Code clarity, schema/validator contract
 
-### 23. `--validate-only` should not require `--runid`
+### 23. `--validate-only` should not require `--runid` — ✅ Done
 
-Running `./run_defrabb --validate-only` still requires a (made-up)
-`-r/--runid` value even though the runid is unused in the validation
-path. Either skip the runid requirement when `--validate-only` is set
-or document the workaround.
+Resolved 2026-05-05. `-r/--runid` is now optional at argument parsing
+time and enforced only for non-validation runs. `./run_defrabb
+--validate-only` defaults to `config/analyses.tsv`; passing both
+`--validate-only` and `-r` still supports the versioned
+`config/analyses_{RUNID}.tsv` default.
 
 **File:** `run_defrabb`
 **Impact:** Validation workflow ergonomics
@@ -280,4 +284,4 @@ Remaining items, in recommended order:
 3. **Items 18, 19** — Testing and quality (prevents regressions during optimization)
 4. **Items 6, 10, 14** — CLI and modularity improvements (improves operator velocity)
 5. **Item 20** — Evaluation comparison utility (enables systematic optimization)
-6. **Items 21, 23** — Polish on the new config validator (small, do opportunistically). Item 22 closed as won't-fix on 2026-04-17.
+6. Items 21, 23 completed 2026-05-05. Item 22 closed as won't-fix on 2026-04-17.

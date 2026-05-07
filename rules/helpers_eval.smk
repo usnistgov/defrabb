@@ -14,6 +14,10 @@ def get_happy_inputs(analyses, config, wildcards):
     )
 
 
+def get_happy_inputs_for_rule(wildcards):
+    return get_happy_inputs_inner(wildcards.ref_id, wildcards.eval_id, analyses, config)
+
+
 def get_happy_inputs_inner(ref_id, eval_id, analyses, config):
     ## Creating empty dictionary for storing inputs
     inputs = {}
@@ -91,7 +95,20 @@ def get_eval_beds(analyses, wildcards):
     return {"left": bench_bed, "right": comp_bed}
 
 
+def get_eval_beds_for_rule(wildcards):
+    return get_eval_beds(analyses, wildcards)
+
+
 def get_truvari_inputs(analyses, config, wildcards):
+    return get_truvari_inputs_inner(
+        wildcards.ref_id,
+        wildcards.eval_id,
+        analyses,
+        config,
+    )
+
+
+def get_truvari_inputs_for_rule(wildcards):
     return get_truvari_inputs_inner(
         wildcards.ref_id,
         wildcards.eval_id,

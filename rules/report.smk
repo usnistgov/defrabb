@@ -1,5 +1,6 @@
 import yaml
 import os
+from pathlib import Path
 
 
 ## Assembly statistics for individual haploids
@@ -196,7 +197,12 @@ rule write_report_params:
         "logs/write_report_params.log",
     run:
         config_data = config
-        analysis_table = f"../{config['analyses']}"
+        analysis_path = Path(config["analyses"]).expanduser()
+        analysis_table = (
+            str(analysis_path)
+            if analysis_path.is_absolute()
+            else f"../{config['analyses']}"
+        )
 
         inputs_converted = {}
         for key, value in input.items():

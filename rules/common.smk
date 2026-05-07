@@ -18,6 +18,13 @@ def load_analyses(path, schema):
     return load_df(path, schema).astype(dtype={"eval_target_regions": bool})
 
 
+def resolve_analysis_path(path):
+    analysis_path = Path(path).expanduser()
+    if analysis_path.is_absolute():
+        return analysis_path
+    return workflow.source_path(f"../{path}")
+
+
 def _filter_subtable(df, filter_re, id_cols, new_index):
     params = df.filter(regex=filter_re).drop_duplicates()
     ids = df[[new_index] + id_cols].drop_duplicates()
@@ -61,7 +68,7 @@ ref_config = config["references"]
 
 ## Loading analysis table with run information
 analyses = load_analyses(
-    workflow.source_path(f"../{config['analyses']}"), "../schema/analyses-schema.yml"
+    resolve_analysis_path(config["analyses"]), "../schema/analyses-schema.yml"
 )
 
 
