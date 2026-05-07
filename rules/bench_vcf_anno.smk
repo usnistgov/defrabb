@@ -52,7 +52,7 @@ rule run_truvari_anno_trf:
         "../envs/truvari_trf.yml"
     threads: 5
     params:
-        min_length=20,
+        min_length=config["_vcf_processing_params"]["truvari_anno_min_length"],
     shell:
         """
     OPENSSL_CONF=/dev/null \
@@ -79,7 +79,7 @@ rule run_truvari_anno_svinfo:
     conda:
         "../envs/truvari_core.yml"
     params:
-        minsize=20,
+        minsize=config["_vcf_processing_params"]["truvari_svinfo_minsize"],
     shell:
         """
         truvari anno svinfo \
@@ -121,7 +121,7 @@ rule run_truvari_anno_repmask:
         "../envs/truvari_repmask.yml"
     threads: 5
     params:
-        min_length=20,
+        min_length=config["_vcf_processing_params"]["truvari_anno_min_length"],
     shell:
         """
         truvari anno repmask \
@@ -149,7 +149,7 @@ rule run_truvari_anno_remap:
     conda:
         "../envs/truvari_remap.yml"
     params:
-        min_length=20,
+        min_length=config["_vcf_processing_params"]["truvari_anno_min_length"],
     shell:
         """
         truvari anno remap \

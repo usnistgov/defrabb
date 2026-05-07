@@ -75,6 +75,13 @@ _exclusion_params:
   # Minimum N-stretch length for gap detection (bp)
   gap_min_ns: 50
 
+## VCF Processing Parameters ##########
+_vcf_processing_params:
+  # Minimum variant length for truvari annotations (bp)
+  truvari_anno_min_length: 20
+  # Minimum SV size for svinfo annotation (bp)
+  truvari_svinfo_minsize: 20
+
 ################################################################################
 ## Reference Data Files
 # Reference Genomes

@@ -20,6 +20,7 @@ required:
   - _happy_mem
   - _truvari_refine_threads
   - _exclusion_params
+  - _vcf_processing_params
   - _par_bed_root
 
 additionalProperties: false
@@ -335,6 +336,19 @@ properties:
       - pav_inv_merge_dist
       - consecutive_sv_min_bp
       - gap_min_ns
+
+  _vcf_processing_params:
+    type: object
+    properties:
+      truvari_anno_min_length:
+        type: integer
+        minimum: 1
+      truvari_svinfo_minsize:
+        type: integer
+        minimum: 1
+    required:
+      - truvari_anno_min_length
+      - truvari_svinfo_minsize
 
 ## Rule Resource Dependencies
   _par_bed_root:
