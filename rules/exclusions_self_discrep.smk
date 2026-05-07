@@ -57,7 +57,7 @@ rule self_discrep_extract_fpfns:
     log:
         "logs/exclusions/self-discrep-fpfns/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     params:
-        max_indel=50,
+        max_indel=config["_exclusion_params"]["self_discrep_max_indel"],
     conda:
         "../envs/bcftools_and_bedtools.yml"
     shell:
@@ -82,8 +82,8 @@ rule self_discrep_intersect_slop:
     log:
         "logs/exclusions/self-discrep-intersect/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     params:
-        slop=50,
-        merge_d=1000,
+        slop=config["_exclusion_params"]["self_discrep_slop"],
+        merge_d=config["_exclusion_params"]["self_discrep_merge_dist"],
     benchmark:
         "benchmark/exclusions/{bench_id}_self-discrep_{ref_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:

@@ -50,6 +50,31 @@ _happy_mem: 64000
 ## Truvari Resources ##############
 _truvari_refine_threads: 24
 
+## Exclusion Parameters ##########
+# Parameters controlling how exclusion regions are generated and applied.
+# These are tunable per-genome when optimizing benchmark regions.
+_exclusion_params:
+  # Buffer added around exclusion regions (bp)
+  slop: 15000
+  # Merge distance for slop+merge operations (bp)
+  slopmerge_dist: 10000
+  # Buffer around assembly breaks / flanks (bp)
+  flank_bases: 15000
+  # SV and repeat intersection parameters
+  sv_repeat_slop: 50
+  sv_repeat_merge_dist: 1000
+  # Self-discrepancy parameters
+  self_discrep_max_indel: 50
+  self_discrep_slop: 50
+  self_discrep_merge_dist: 1000
+  # PAV inversion exclusion parameters
+  pav_inv_slop: 50
+  pav_inv_merge_dist: 1000
+  # Consecutive SV minimum size (bp)
+  consecutive_sv_min_bp: 10
+  # Minimum N-stretch length for gap detection (bp)
+  gap_min_ns: 50
+
 ################################################################################
 ## Reference Data Files
 # Reference Genomes

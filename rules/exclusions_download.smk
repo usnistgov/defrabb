@@ -56,7 +56,7 @@ rule make_gaps_bed:
     log:
         "logs/make_gap_bed/{ref_id}.log",
     params:
-        minNs=50,
+        minNs=config["_exclusion_params"]["gap_min_ns"],
     conda:
         "../envs/seqtk.yml"
     shell:
@@ -101,6 +101,9 @@ rule intersect_SVs_and_simple_repeats:
         "logs/exclusions/SVs/{bench_id}_SVs_{ref_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
         "benchmark/exclusions/{bench_id}_SVs_{ref_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
+    params:
+        slop=config["_exclusion_params"]["sv_repeat_slop"],
+        merge_d=config["_exclusion_params"]["sv_repeat_merge_dist"],
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -109,8 +112,8 @@ rule intersect_SVs_and_simple_repeats:
                 -a {input.simple_repeat_bed} \
                 -b {input.sv_bed} \
             | multiIntersectBed -i stdin {input.sv_bed} \
-            | bedtools slop -i stdin -g {input.genome} -b 50 \
-            | mergeBed -i stdin -d 1000 \
+            | bedtools slop -i stdin -g {input.genome} -b {params.slop} \
+            | mergeBed -i stdin -d {params.merge_d} \
             1> {output} 2>{log}
         """
 
@@ -127,7 +130,7 @@ rule get_consecutive_svs:
     log:
         "logs/exclusions/consecutive-svs/{bench_id}_{ref_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     params:
-        min_bp=10,
+        min_bp=config["_exclusion_params"]["consecutive_sv_min_bp"],
     conda:
         "../envs/consecutive_svs.yml"
     shell:

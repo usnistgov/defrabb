@@ -19,6 +19,7 @@ required:
   - _happy_threads
   - _happy_mem
   - _truvari_refine_threads
+  - _exclusion_params
   - _par_bed_root
 
 additionalProperties: false
@@ -281,6 +282,59 @@ properties:
     description: the number of threads for truvari refine runs
     exclusiveMinimum: 0
     type: integer
+
+  _exclusion_params:
+    type: object
+    properties:
+      slop:
+        type: integer
+        minimum: 0
+      slopmerge_dist:
+        type: integer
+        minimum: 0
+      flank_bases:
+        type: integer
+        minimum: 0
+      sv_repeat_slop:
+        type: integer
+        minimum: 0
+      sv_repeat_merge_dist:
+        type: integer
+        minimum: 0
+      self_discrep_max_indel:
+        type: integer
+        minimum: 0
+      self_discrep_slop:
+        type: integer
+        minimum: 0
+      self_discrep_merge_dist:
+        type: integer
+        minimum: 0
+      pav_inv_slop:
+        type: integer
+        minimum: 0
+      pav_inv_merge_dist:
+        type: integer
+        minimum: 0
+      consecutive_sv_min_bp:
+        type: integer
+        minimum: 0
+      gap_min_ns:
+        type: integer
+        minimum: 0
+    required:
+      - slop
+      - slopmerge_dist
+      - flank_bases
+      - sv_repeat_slop
+      - sv_repeat_merge_dist
+      - self_discrep_max_indel
+      - self_discrep_slop
+      - self_discrep_merge_dist
+      - pav_inv_slop
+      - pav_inv_merge_dist
+      - consecutive_sv_min_bp
+      - gap_min_ns
 
 ## Rule Resource Dependencies
   _par_bed_root:

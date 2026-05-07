@@ -10,8 +10,8 @@ rule exclude_pav_inversions:
     log:
         "logs/exclusions/exclude_pav_inversions/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     params:
-        slop=50,
-        merge_d=1000,
+        slop=config["_exclusion_params"]["pav_inv_slop"],
+        merge_d=config["_exclusion_params"]["pav_inv_merge_dist"],
     benchmark:
         "benchmark/exclusions/{bench_id}_pav-inv_{ref_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
@@ -38,7 +38,7 @@ rule add_slop:
     log:
         "logs/exclusions/{ref_id}_{genomic_region}_slop.log",
     params:
-        slop=15000,
+        slop=config["_exclusion_params"]["slop"],
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -59,8 +59,8 @@ rule add_slop_and_merge:
     log:
         "logs/exclusions/{ref_id}_{genomic_region}_slopmerge.log",
     params:
-        slop=15000,
-        dist=10000,
+        slop=config["_exclusion_params"]["slop"],
+        dist=config["_exclusion_params"]["slopmerge_dist"],
     conda:
         "../envs/bedtools.yml"
     shell:
@@ -109,7 +109,7 @@ rule get_flanks:
     output:
         "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_flanks.bed",
     params:
-        bases=15000,
+        bases=config["_exclusion_params"]["flank_bases"],
     log:
         "logs/exclusions/{bench_id}_flanks_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     conda:
