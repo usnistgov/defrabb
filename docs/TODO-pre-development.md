@@ -182,15 +182,24 @@ unit tests against `rules/common.smk` helpers (see item 19).
 **File:** `.tests/unit/test_eval_config.skip` (removed)
 **Impact:** Config safety
 
-### 18. Add tests for run_defrabb wrapper
+### 18. Add tests for run_defrabb wrapper — 🚧 In progress
 
-The wrapper script has no test coverage. Add tests for:
-- Run ID format validation
-- Config path resolution
-- S3 upload include/exclude logic
-- Manifest generation
+The wrapper script previously had no test coverage. Add tests for:
+- ✅ Run ID format validation — landed 2026-05-11 (commit `afd3316`).
+  `.tests/unit/test_run_defrabb.py` covers the contract enforced by
+  `validate_and_set_defaults`: valid IDs, missing/empty runid, and
+  format violations (short date, missing version, two-digit major,
+  wrong minor width, missing trailing `_`, alphabetic date).
+- ✅ Config path resolution — partially covered by the
+  `test_default_analyses_path_uses_runid` case in the same file
+  (default `config/analyses_{RUNID}.tsv` derivation when `--analyses`
+  is omitted).
+- ⏳ S3 upload include/exclude logic — not yet covered here. Some
+  release-rule behavior is exercised in `test_stabilization_pr.py`;
+  expand into `test_run_defrabb.py` alongside the manifest work.
+- ⏳ Manifest generation (`create_data_manifest`) — not yet covered.
 
-**Files:** `.tests/unit/test_run_defrabb.py` (new)
+**Files:** `.tests/unit/test_run_defrabb.py`
 **Impact:** Release reliability
 
 ### 19. Add negative/error case tests
