@@ -15,11 +15,14 @@ def get_processed_vcf(wildcards):
 
     # Now, you can grab the value of vc_id and bench_vcf_processing from the first row
     vc_id = subset_df.iloc[0]["vc_id"]
-    vcf_suffix = subset_df.iloc[0]["bench_vcf_processing"]
+    profile_name = subset_df.iloc[0]["bench_vcf_processing"]
 
-    if vcf_suffix == "none":
+    if profile_name == "none":
         return f"results/asm_varcalls/{vc_id}/annotations/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.vcf.gz"
     else:
+        # Resolve profile name to ordered list of steps, then join with dots
+        steps = config["vcf_processing_profiles"][profile_name]
+        vcf_suffix = ".".join(steps)
         return f"results/asm_varcalls/{vc_id}/annotations/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.{vcf_suffix}.vcf.gz"
 
 

@@ -11,10 +11,10 @@ def validate_cross_references(config, analyses):
     """Verify every ID referenced in analyses.tsv exists in resources.yml.
 
     Assumes ``config`` has already passed schema validation, which guarantees
-    the ``references``, ``assemblies``, ``comparisons``, and ``exclusion_set``
-    sections are present (see ``schema/resources-schema.yml``). Callers
-    outside the Snakemake workflow load path must run
-    ``snakemake.utils.validate(config, ...)`` first.
+    the ``references``, ``assemblies``, ``comparisons``, ``exclusion_set``,
+    and ``vcf_processing_profiles`` sections are present (see
+    ``schema/resources-schema.yml``). Callers outside the Snakemake workflow
+    load path must run ``snakemake.utils.validate(config, ...)`` first.
 
     Raises WorkflowError with a single grouped message if any IDs are missing.
     Returns None on success.
@@ -24,11 +24,13 @@ def validate_cross_references(config, analyses):
         "references": {},
         "exclusion_sets": {},
         "comparisons": {},
+        "vcf_processing_profiles": {},
     }
 
     asm_ids = set(config["assemblies"])
     ref_ids = set(config["references"])
     excl_set_ids = set(config["exclusion_set"])
+    vcf_profile_ids = set(config["vcf_processing_profiles"])
 
     for eval_id, row in analyses.iterrows():
         if row["asm_id"] not in asm_ids:
@@ -39,6 +41,13 @@ def validate_cross_references(config, analyses):
             errors["exclusion_sets"].setdefault(row["exclusion_set"], []).append(
                 eval_id
             )
+        if (
+            row["bench_vcf_processing"] != "none"
+            and row["bench_vcf_processing"] not in vcf_profile_ids
+        ):
+            errors["vcf_processing_profiles"].setdefault(
+                row["bench_vcf_processing"], []
+            ).append(eval_id)
         # Only check comparisons[ref][comp_id] if ref is itself valid;
         # otherwise the missing-ref error already covers the situation.
         if row["ref"] in ref_ids:
@@ -74,6 +83,13 @@ def _format_grouped_errors(errors):
             _format_section(
                 "Missing exclusion sets (resources.yml:exclusion_set)",
                 errors["exclusion_sets"],
+            )
+        )
+    if errors["vcf_processing_profiles"]:
+        sections.append(
+            _format_section(
+                "Missing VCF processing profiles (resources.yml:vcf_processing_profiles)",
+                errors["vcf_processing_profiles"],
             )
         )
     if errors["comparisons"]:

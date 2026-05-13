@@ -8,28 +8,6 @@ _Prepared: 2026-03-24_
 
 ## Correctness & Reliability
 
-### 1. Fix GitHub Actions CI (stale paths) — ✅ Done
-
-Resolved by deleting `.github/workflows/` entirely. The workflows were a
-leftover from the snakemake template; internal GitLab CI is the canonical
-pipeline.
-
-**File:** `.github/workflows/main.yml` (removed)
-**Impact:** CI/CD, contributor experience
-
-### 2. Reconcile conda environment version inconsistencies — ✅ Done
-
-Resolved across commits `b64af75`–`e4a1335` (2026-04-16):
-- `bcftools`: aligned on 1.17 (truvari envs deferred to item 3)
-- `rtg-tools`: aligned on 3.12.1
-- `pybedtools`: aligned on 0.10.0
-- `python`: sv_widen_coords bumped 3.8 → 3.12
-
-Truvari version split is being addressed by user separately (see item 3).
-
-**Files:** `envs/bcftools.yml`, `envs/rtgtools.yml`, `envs/bedtools.yml`, `envs/bcftools_and_bedtools.yml`, `envs/sv_widen_coords.yml`
-**Impact:** Reproducibility, correctness
-
 ### 3. Resolve truvari_remap.yml mixed conda/pip install — 🚧 In progress (user)
 
 `truvari_remap.yml` previously installed Truvari 4.2.2 via pip while
@@ -55,16 +33,6 @@ the FIPS issue after the Truvari upgrade.
 
 **Impact:** All rules using conda envs with OpenSSL on FIPS systems
 
-### 5. Upgrade sv_widen_coords.yml from Python 3.8 — ✅ Done
-
-Resolved in commit `b64af75` (2026-04-16). Python 3.8 → 3.12,
-pybedtools pinned to 0.10.0 to match other envs. Script
-(`scripts/get_sv_widen_coords.py`) only uses argparse/gzip/logging/sys/
-pybedtools — all available in 3.12.
-
-**File:** `envs/sv_widen_coords.yml`
-**Impact:** Security, compatibility
-
 ---
 
 ## CLI & Operator Experience
@@ -76,58 +44,25 @@ Currently `run_defrabb` uses `-s/--steps` with values like `all|pipe|report|arch
 **File:** `run_defrabb`
 **Impact:** Usability, maintainability
 
-### 7. Fix run_defrabb bucket hardcoding — ✅ Done
-
-Fixed in commit `55737a3` ("stabilize pav release and docs"). The
-release flow now respects configured release inputs instead of a
-hardcoded bucket name.
-
-**File:** `run_defrabb`
-**Impact:** External contributor usability
-
-### 8. Add a `--validate-only` flag to run_defrabb — ✅ Done
-
-Resolved 2026-04-17. `run_defrabb --validate-only` invokes
-`snakemake --list-target-rules --quiet` so the workflow loads and
-`validate_cross_references` runs (see item 9), without executing rules.
-
-**File:** `run_defrabb`
-**Impact:** Parameter optimization workflow, error prevention
-
-### 9. Improve error messages for missing config entries — ✅ Done
-
-Resolved 2026-04-17. `scripts/validate_configs.py` now provides
-`validate_cross_references`, called from `rules/common.smk` after the
-existing schema validation. Reports missing asm_id, ref, eval_comp_id,
-and exclusion_set with grouped errors that name the offending IDs and
-the eval_ids that reference them.
-
-**File:** `rules/common.smk`
-**Impact:** New genome onboarding, debugging time
-
-### 10. Add dry-run summary output — ✅ Done
-
-Resolved 2026-05-11. `scripts/dryrun_summary.py -a config/<analyses>.tsv` shells
-out to `snakemake --dryrun --quiet=rules`, parses the Job stats table for rule
-counts, and reads the analyses TSV directly to report unique refs, assemblies,
-variant callers, benchmark types, exclusion sets, comparison callsets, and
-evaluation tools touched. Self-contained — no rule or schema changes. Unit
-tests in `.tests/unit/test_dryrun_summary.py`. Disk/memory estimation was left
-out of scope (would require per-rule resource declarations not currently in
-the codebase).
-
-**File:** `scripts/dryrun_summary.py`
-**Impact:** Operator experience, resource planning
-
 ---
 
 ## Modularity & Extensibility
 
-### 11. Implement named VCF processing profiles (Phase 1 from roadmap)
+### 11. Implement named VCF processing profiles (Phase 1 from roadmap) — ✅ Done
 
-Replace the dot-separated `bench_vcf_processing` strings with a named profile registry in resources.yml. This is the single highest-impact refactor for enabling new genome work, because parameter optimization requires trying different processing combinations safely.
+Resolved 2026-05-13. Added `vcf_processing_profiles` registry in `config/resources.yml`
+mapping profile names (e.g., `trf`, `trf_sv_lcr`, `norm_xy_trf_sv_lcr`) to ordered lists
+of processing steps. Updated `get_processed_vcf()` in `rules/helpers_bench.smk` to resolve
+profile names and join steps with dots before inserting into file paths. Extended
+`validate_cross_references()` to check profile names exist. Added schema validation in
+`schema/resources-schema.yml` following the `exclusion_set` pattern (patternProperties,
+no step-name enum). Migrated active `config/analyses.tsv` to use profile names; archived
+TSV files unchanged. Unit tests in `.tests/unit/test_vcf_processing_profiles.py`. Profiles
+using `remap`/`repmask` steps deferred until Truvari envs are fixed (TODO #3).
 
-**Files:** `config/resources.yml`, `rules/common.smk`, `rules/bench_vcf_processing.smk`
+**Files:** `config/resources.yml`, `schema/resources-schema.yml`, `schema/analyses-schema.yml`,
+`rules/helpers_bench.smk`, `scripts/validate_configs.py`, `config/analyses.tsv`,
+`.tests/unit/test_vcf_processing_profiles.py`
 **Impact:** Config clarity, new genome onboarding, parameter optimization
 **Related issues:** GitLab #177 (programmatic id definition) — folded into this scope on 2026-04-27 when stale draft MR !138 was closed.
 
@@ -152,43 +87,9 @@ Each run should emit a machine-readable exclusion provenance file listing every 
 **Files:** `run_defrabb`, `config/release.json`
 **Impact:** Maintainability, open-source clarity
 
-### 15. Unify report source paths — ✅ Done
-
-Resolved in commit `55737a3` ("stabilize pav release and docs"). The
-root `analysis.qmd` is now the canonical report source; the duplicate
-under `scripts/reports/analysis.qmd` was removed.
-
-**Files:** `analysis.qmd` (root), `rules/report.smk`
-**Impact:** Maintainability, contributor confusion
-
 ---
 
 ## Testing & Quality
-
-### 16. Add pytest to CI — ✅ Done
-
-Resolved in commit `c995786` (2026-04-16). Added a `pytest` job to
-`.gitlab-ci.yml` that installs pytest into the existing mamba env and
-runs `pytest .tests`. As part of the same commit, the 29 broken
-Snakemake-7-era auto-generated unit tests were removed (they used the
-deprecated `--keep-target-files` flag and had been silently broken
-since the Snakemake 8 migration). Only `test_stabilization_pr.py`
-(5 working tests) remains.
-
-**Files:** `.gitlab-ci.yml`, `.tests/unit/`
-**Impact:** Regression prevention
-
-### 17. Enable skipped config validation test — ✅ Resolved (deleted)
-
-`.tests/unit/test_eval_config.skip` was deleted as part of commit
-`c995786` along with the other broken Snakemake-7-era tests. The test
-referenced hardcoded `eval1`/`eval6` IDs that no longer match the
-current `analyses.tsv`, and reusing the pattern was not worthwhile.
-Future config-validation coverage should be written as plain Python
-unit tests against `rules/common.smk` helpers (see item 19).
-
-**File:** `.tests/unit/test_eval_config.skip` (removed)
-**Impact:** Config safety
 
 ### 18. Add tests for run_defrabb wrapper — 🚧 In progress
 
@@ -236,69 +137,14 @@ This directly supports the planned workflow of running multiple parameter config
 
 ---
 
-## Follow-ups from config validation (2026-04-17)
-
-Flagged during the final code review of the config-validation feature
-(commits `88473b5..a74ffdf`). Deferred deliberately — the feature
-shipped clean enough to be useful as-is.
-
-### 21. Stop `--validate-only` output from flooding streams — ✅ Done
-
-Observed during validation-only smoke testing: Snakemake stringified
-bound `functools.partial(...)` input functions in `rules/evaluation.smk`,
-including the full analyses DataFrame and `resources.yml` dict. The
-resulting warning emitted ~160 KB of workflow-load output and could break
-API streaming with `response.failed` before the command completed.
-
-Resolved by replacing those bound partials with lightweight wrapper
-functions, capturing `validate_only()` subprocess output, and only
-emitting captured output on failure.
-
-**Files:** `rules/evaluation.smk`, `rules/common.smk`, `run_defrabb`
-**Impact:** Operator UX for the validation flow
-
-### 22. Defensive top-level config access in validator — ✅ Won't fix (2026-04-17)
-
-The reviewer was concerned about bare `KeyError` if a future refactor
-removed a top-level section. After re-checking, `schema/resources-schema.yml`
-already marks `references`, `assemblies`, `comparisons`, and `exclusion_set`
-as `required`, and `rules/common.smk:438` runs schema validation **before**
-`validate_cross_references` (line 468). Adding defensive `.get()` would
-guard a scenario the schema already prevents.
-
-Resolved by (a) documenting the schema-first contract in
-`validate_cross_references`'s docstring, and (b) dropping the now-redundant
-outer `.get()` from the comparisons branch for consistency. If a future
-refactor relaxes the schema, that change should re-introduce defensiveness
-explicitly rather than relying on a `.get()` to mask the drift silently.
-
-**File:** `scripts/validate_configs.py`
-**Impact:** Code clarity, schema/validator contract
-
-### 23. `--validate-only` should not require `--runid` — ✅ Done
-
-Resolved 2026-05-05. `-r/--runid` is now optional at argument parsing
-time and enforced only for non-validation runs. `./run_defrabb
---validate-only` defaults to `config/analyses.tsv`; passing both
-`--validate-only` and `-r` still supports the versioned
-`config/analyses_{RUNID}.tsv` default.
-
-**File:** `run_defrabb`
-**Impact:** Validation workflow ergonomics
-
----
-
 ## Priority Order
 
-Foundation items (1, 2, 5, 7, 15, 16, 17) completed 2026-03–04.
 Item 3 (Truvari) in progress by user. Item 4 effectively closed by item 3.
 Also added (not in original list): pre-commit hook config (`.pre-commit-config.yaml`).
 
 Remaining items, in recommended order:
 
-1. ~~Items 8, 9~~ — Config validation completed 2026-04-17.
-2. **Items 11, 12, 13** — Processing profiles and exclusion externalization (enables parameter optimization)
-3. **Items 18, 19** — Testing and quality (prevents regressions during optimization)
-4. **Items 6, 10, 14** — CLI and modularity improvements (improves operator velocity)
+1. **Items 11, 12, 13** — Processing profiles and exclusion externalization (enables parameter optimization)
+2. **Items 18, 19** — Testing and quality (prevents regressions during optimization)
+4. **Items 6, 14** — CLI and modularity improvements (improves operator velocity)
 5. **Item 20** — Evaluation comparison utility (enables systematic optimization)
-6. Items 21, 23 completed 2026-05-05. Item 22 closed as won't-fix on 2026-04-17.

@@ -75,6 +75,48 @@ _exclusion_params:
   # Minimum N-stretch length for gap detection (bp)
   gap_min_ns: 50
 
+## VCF Processing Profiles ##########
+# Named profiles defining ordered sequences of VCF processing steps.
+# Each profile maps to a list of step names that are chained by Snakemake
+# to produce the final benchmark VCF.
+vcf_processing_profiles:
+  # TRF annotation only
+  trf:
+    - trfanno
+  # TRF + SV info + low-complexity regions (common for structural variants)
+  trf_sv_lcr:
+    - trfanno
+    - svinfo
+    - lcr
+  # XY genotype fix only
+  xy_fix:
+    - fix_XY_genotype
+  # XY genotype fix + TRF annotation
+  xy_trf:
+    - fix_XY_genotype
+    - trfanno
+  # XY + END tag + TRF + remove inversions
+  xy_end_trf_no_inv:
+    - fix_XY_genotype
+    - end_info
+    - trfanno
+    - no_inv
+  # Full normalized annotation: norm + XY + TRF + SV info + LCR
+  norm_xy_trf_sv_lcr:
+    - norm
+    - fix_XY_genotype
+    - trfanno
+    - svinfo
+    - lcr
+  # Full normalized annotation with END tag
+  norm_xy_end_trf_sv_lcr:
+    - norm
+    - fix_XY_genotype
+    - end_info
+    - trfanno
+    - svinfo
+    - lcr
+
 ## VCF Processing Parameters ##########
 _vcf_processing_params:
   # Minimum variant length for truvari annotations (bp)

@@ -23,6 +23,7 @@ def _minimal_config():
         "references": {"GRCh38": {}},
         "comparisons": {"GRCh38": {"HG002_v4.2.1": {}}},
         "exclusion_set": {"smvar": []},
+        "vcf_processing_profiles": {},
     }
 
 
@@ -42,6 +43,7 @@ def test_happy_path_returns_none():
                 "ref": "GRCh38",
                 "eval_comp_id": "HG002_v4.2.1",
                 "exclusion_set": "smvar",
+                "bench_vcf_processing": "none",
             }
         ]
     )
@@ -60,6 +62,7 @@ def test_missing_asm_id_raises_with_eval_id_in_message():
                 "ref": "GRCh38",
                 "eval_comp_id": "HG002_v4.2.1",
                 "exclusion_set": "smvar",
+                "bench_vcf_processing": "none",
             }
         ]
     )
@@ -83,6 +86,7 @@ def test_missing_ref_raises_with_eval_id_in_message():
                 "ref": "GRCh38_TYPO",
                 "eval_comp_id": "HG002_v4.2.1",
                 "exclusion_set": "smvar",
+                "bench_vcf_processing": "none",
             }
         ]
     )
@@ -106,6 +110,7 @@ def test_missing_exclusion_set_raises():
                 "ref": "GRCh38",
                 "eval_comp_id": "HG002_v4.2.1",
                 "exclusion_set": "not_a_real_set",
+                "bench_vcf_processing": "none",
             }
         ]
     )
@@ -127,6 +132,7 @@ def test_exclusion_set_none_is_valid():
                 "ref": "GRCh38",
                 "eval_comp_id": "HG002_v4.2.1",
                 "exclusion_set": "none",
+                "bench_vcf_processing": "none",
             }
         ]
     )
@@ -145,6 +151,7 @@ def test_missing_comp_id_for_existing_ref_raises():
                 "ref": "GRCh38",
                 "eval_comp_id": "v4.2.1_TYPO",
                 "exclusion_set": "smvar",
+                "bench_vcf_processing": "none",
             }
         ]
     )
@@ -170,6 +177,7 @@ def test_missing_ref_does_not_double_report_comp_id():
                 "ref": "GRCh38_NOTREAL",
                 "eval_comp_id": "anything",
                 "exclusion_set": "smvar",
+                "bench_vcf_processing": "none",
             }
         ]
     )
@@ -193,6 +201,7 @@ def test_multiple_errors_grouped_in_single_raise():
                 "ref": "GRCh38",
                 "eval_comp_id": "HG002_v4.2.1",
                 "exclusion_set": "smvar",
+                "bench_vcf_processing": "none",
             },
             {
                 "eval_id": "eval_b",
@@ -200,6 +209,7 @@ def test_multiple_errors_grouped_in_single_raise():
                 "ref": "GRCh38",
                 "eval_comp_id": "HG002_v4.2.1",
                 "exclusion_set": "smvar",
+                "bench_vcf_processing": "none",
             },
             {
                 "eval_id": "eval_c",
@@ -207,6 +217,7 @@ def test_multiple_errors_grouped_in_single_raise():
                 "ref": "GRCh38_TYPO",  # missing ref (different section)
                 "eval_comp_id": "HG002_v4.2.1",
                 "exclusion_set": "smvar",
+                "bench_vcf_processing": "none",
             },
         ]
     )

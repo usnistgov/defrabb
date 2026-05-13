@@ -21,6 +21,7 @@ required:
   - _truvari_refine_threads
   - _exclusion_params
   - _vcf_processing_params
+  - vcf_processing_profiles
   - _par_bed_root
 
 additionalProperties: false
@@ -155,6 +156,19 @@ properties:
               tbi_url:
                 format: uri
                 description: the url to the comparison vcf index file
+
+  vcf_processing_profiles:
+    description: |
+      Named profiles defining ordered sequences of VCF processing steps for
+      benchmark generation. Each key is a profile name, each value is an
+      ordered list of step names that are chained by Snakemake.
+    additionalProperties: false
+    patternProperties:
+      ^[\w\.\-]*$:
+        type: array
+        description: ordered list of processing steps
+        items:
+          type: string
 
   exclusion_set:
     description: |
