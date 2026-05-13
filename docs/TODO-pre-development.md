@@ -105,10 +105,18 @@ the eval_ids that reference them.
 **File:** `rules/common.smk`
 **Impact:** New genome onboarding, debugging time
 
-### 10. Add dry-run summary output
+### 10. Add dry-run summary output — ✅ Done
 
-After `snakemake --dryrun`, produce a human-readable summary showing: number of rules to execute, which assemblies and references are involved, estimated disk/memory requirements. This helps operators plan runs for new genomes.
+Resolved 2026-05-11. `scripts/dryrun_summary.py -a config/<analyses>.tsv` shells
+out to `snakemake --dryrun --quiet=rules`, parses the Job stats table for rule
+counts, and reads the analyses TSV directly to report unique refs, assemblies,
+variant callers, benchmark types, exclusion sets, comparison callsets, and
+evaluation tools touched. Self-contained — no rule or schema changes. Unit
+tests in `.tests/unit/test_dryrun_summary.py`. Disk/memory estimation was left
+out of scope (would require per-rule resource declarations not currently in
+the codebase).
 
+**File:** `scripts/dryrun_summary.py`
 **Impact:** Operator experience, resource planning
 
 ---
