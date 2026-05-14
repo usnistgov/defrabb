@@ -2,5 +2,5 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - bioconda::truvari ==5.4.0
+  - bioconda::truvari ==4.3.0
   - trf ==4.09.1
