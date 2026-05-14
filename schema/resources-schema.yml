@@ -337,6 +337,29 @@ properties:
       gap_min_ns:
         type: integer
         minimum: 0
+      overrides:
+        type: object
+        description: |
+          Per-exclusion parameter overrides. Each key is an exclusion region name;
+          values override global slop/slopmerge_dist. slop_pct (float 0-1) activates
+          bedtools slop -pct and is mutually exclusive with slop.
+        default: {}
+        additionalProperties: false
+        patternProperties:
+          ^[\w\.\-]*$:
+            type: object
+            additionalProperties: false
+            properties:
+              slop:
+                type: integer
+                minimum: 0
+              slop_pct:
+                type: number
+                minimum: 0
+                maximum: 1
+              slopmerge_dist:
+                type: integer
+                minimum: 0
     required:
       - slop
       - slopmerge_dist

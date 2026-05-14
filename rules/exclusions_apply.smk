@@ -28,7 +28,7 @@ rule exclude_pav_inversions:
         """
 
 
-## Expanding exclusion regions by 15kb
+## Expanding exclusion regions by configured slop (bp or pct of interval length)
 rule add_slop:
     input:
         bed="resources/exclusions/{ref_id}/{genomic_region}.bed",
@@ -38,18 +38,19 @@ rule add_slop:
     log:
         "logs/exclusions/{ref_id}_{genomic_region}_slop.log",
     params:
-        slop=config["_exclusion_params"]["slop"],
+        slop=get_slop_value,
+        slop_flags=get_slop_flags,
     conda:
         "../envs/bedtools.yml"
     shell:
         """
         bedtools sort -i {input.bed} -g {input.genome} |
-            bedtools slop -i stdin -g {input.genome} -b {params.slop} \
+            bedtools slop -i stdin -g {input.genome} -b {params.slop} {params.slop_flags} \
             1> {output} 2> {log}
         """
 
 
-## Expanding regions by 15kb then merging regions within 10kb
+## Expanding exclusion regions then merging, with configurable slop and merge distance
 rule add_slop_and_merge:
     input:
         bed="resources/exclusions/{ref_id}/{genomic_region}.bed",
@@ -59,14 +60,15 @@ rule add_slop_and_merge:
     log:
         "logs/exclusions/{ref_id}_{genomic_region}_slopmerge.log",
     params:
-        slop=config["_exclusion_params"]["slop"],
-        dist=config["_exclusion_params"]["slopmerge_dist"],
+        slop=get_slop_value,
+        slop_flags=get_slop_flags,
+        dist=get_merge_dist,
     conda:
         "../envs/bedtools.yml"
     shell:
         """
         bedtools sort -i {input.bed} -g {input.genome} \
-            | bedtools slop -i stdin -g {input.genome} -b {params.slop} \
+            | bedtools slop -i stdin -g {input.genome} -b {params.slop} {params.slop_flags} \
             | bedtools merge -i stdin -d {params.dist} \
             1> {output} 2> {log}
         """
@@ -175,6 +177,21 @@ rule generate_intersection_summary:
         """
         python {params.script} {input.baseline_bed} {output.summary_table} {params.intersect_dir} {input.exclusions} &> {log}
         """
+
+
+rule write_exclusion_provenance:
+    input:
+        intersection_summary="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.exclusion_intersection_summary.csv",
+    output:
+        "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.exclusion_provenance.yml",
+    params:
+        exclusion_set_id=get_bench_exclusion_set_id,
+    log:
+        "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_provenance.log",
+    conda:
+        "../envs/bedtools.yml"
+    script:
+        "../scripts/write_exclusion_provenance.py"
 
 
 ## Used when no exclusions are applied

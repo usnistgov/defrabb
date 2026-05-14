@@ -74,6 +74,16 @@ _exclusion_params:
   consecutive_sv_min_bp: 10
   # Minimum N-stretch length for gap detection (bp)
   gap_min_ns: 50
+  # Per-exclusion parameter overrides (optional; omit to use globals above).
+  # Supported keys per exclusion: slop (int bp), slop_pct (float 0-1), slopmerge_dist (int bp).
+  # slop_pct and slop are mutually exclusive — slop_pct activates bedtools slop -pct.
+  # Example:
+  #   overrides:
+  #     tandem-repeats:
+  #       slop_pct: 0.25
+  #     segdups:
+  #       slop: 20000
+  overrides: {}
 
 ## VCF Processing Profiles ##########
 # Named profiles defining ordered sequences of VCF processing steps.

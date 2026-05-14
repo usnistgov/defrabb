@@ -68,17 +68,17 @@ using `remap`/`repmask` steps deferred until Truvari envs are fixed (TODO #3).
 
 ### 12. Externalize exclusion slop/merge constants
 
-Slop (15kb) and merge (10kb) values are hardcoded in rule params. Move them to resources.yml under the exclusion_set definition so they can be tuned per-genome during parameter optimization.
+~~Slop (15kb) and merge (10kb) values are hardcoded in rule params. Move them to resources.yml under the exclusion_set definition so they can be tuned per-genome during parameter optimization.~~
 
-**Files:** `rules/exclusions.smk`, `config/resources.yml`
-**Impact:** Parameter optimization, exclusion strategy experimentation
+**Resolved 2026-05-14.** Global defaults (`slop: 15000`, `slopmerge_dist: 10000`) moved to `_exclusion_params` in `config/resources.yml`. Per-exclusion overrides (including `slop_pct` for percentage-based expansion via `bedtools slop -pct`) supported via `_exclusion_params.overrides`. Resolver functions `get_slop_value`, `get_slop_flags`, `get_merge_dist` in `rules/helpers_bench.smk`; `add_slop` and `add_slop_and_merge` rules updated to use them.
+**Files:** `rules/exclusions_apply.smk`, `rules/helpers_bench.smk`, `config/resources.yml`, `schema/resources-schema.yml`
 
 ### 13. Add exclusion provenance output
 
-Each run should emit a machine-readable exclusion provenance file listing every exclusion applied, its source, transform parameters, and base-pair impact. This is essential for comparing exclusion strategies across genomes.
+~~Each run should emit a machine-readable exclusion provenance file listing every exclusion applied, its source, transform parameters, and base-pair impact. This is essential for comparing exclusion strategies across genomes.~~
 
-**Files:** `rules/exclusions.smk`, `scripts/subtract_exclusions.py`
-**Impact:** Reproducibility, parameter optimization
+**Resolved 2026-05-14.** `write_exclusion_provenance` rule added to `rules/exclusions_apply.smk` using `script:` directive. `scripts/write_exclusion_provenance.py` emits a per-benchmark YAML with `exclusion_set`, `global_defaults`, and per-exclusion entries (name, source_type, transform, resolved slop/merge, asm_intersect, bp_impact, pct_of_initial). Provenance files wired into `write_report_params` inputs. Unit tests in `.tests/unit/test_exclusion_params.py`.
+**Files:** `rules/exclusions_apply.smk`, `scripts/write_exclusion_provenance.py`, `rules/report.smk`
 
 ### 14. Separate NIST-specific logic from core pipeline
 

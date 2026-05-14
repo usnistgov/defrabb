@@ -1,3 +1,31 @@
+## Exclusion slop/merge resolvers — named functions for use in rule params:
+def get_slop_value(wildcards):
+    overrides = (
+        config["_exclusion_params"].get("overrides", {}).get(wildcards.genomic_region, {})
+    )
+    if "slop_pct" in overrides:
+        return overrides["slop_pct"]
+    return overrides.get("slop", config["_exclusion_params"]["slop"])
+
+
+def get_slop_flags(wildcards):
+    overrides = (
+        config["_exclusion_params"].get("overrides", {}).get(wildcards.genomic_region, {})
+    )
+    return "-pct" if "slop_pct" in overrides else ""
+
+
+def get_merge_dist(wildcards):
+    overrides = (
+        config["_exclusion_params"].get("overrides", {}).get(wildcards.genomic_region, {})
+    )
+    return overrides.get("slopmerge_dist", config["_exclusion_params"]["slopmerge_dist"])
+
+
+def get_bench_exclusion_set_id(wildcards):
+    return bench_tbl.loc[wildcards.bench_id, "exclusion_set"]
+
+
 ## Benchmark VCF / BED standardization + exclusion-input helpers
 def get_processed_vcf(wildcards):
     # Filter rows based on bench_type using the query method

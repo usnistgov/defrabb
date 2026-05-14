@@ -134,6 +134,16 @@ rule write_report_params:
             vc_cmd=bench_excluded_tbl["vc_cmd"].tolist(),
             vc_param_id=bench_excluded_tbl["vc_param_id"].tolist(),
         ),
+        exclusion_provenance=expand(
+            "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.exclusion_provenance.yml",
+            zip,
+            bench_id=bench_excluded_tbl.index.tolist(),
+            ref=bench_excluded_tbl["ref"].tolist(),
+            asm_id=bench_excluded_tbl["asm_id"].tolist(),
+            bench_type=bench_excluded_tbl["bench_type"].tolist(),
+            vc_cmd=bench_excluded_tbl["vc_cmd"].tolist(),
+            vc_param_id=bench_excluded_tbl["vc_param_id"].tolist(),
+        ),
         bench_cov=expand(
             "results/draft_benchmarksets/{bench_id}/{ref}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.benchmark_bed-summary.tsv",
             zip,
