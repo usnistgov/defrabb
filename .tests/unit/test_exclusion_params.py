@@ -2,6 +2,7 @@
 
 Developed with assistance from Claude (Anthropic); reviewed by the primary author.
 """
+import io
 import sys
 from pathlib import Path
 
@@ -150,3 +151,30 @@ def test_build_provenance_bp_impact_merged():
     tr = next(e for e in prov["exclusions"] if e["name"] == "tandem-repeats")
     assert tr["bp_impact"] == 5000000
     assert tr["pct_of_initial"] == pytest.approx(2.1)
+
+
+# ---------------------------------------------------------------------------
+# load_bp_impact
+# ---------------------------------------------------------------------------
+_INTERSECTION_CSV = """\
+genomic_region,bp,pct_of_initial
+initial,100000000,100.0
+segdups_slopmerge_sorted_start_sorted.bed,8000000,8.0
+segdups_slopmerge_sorted_end_sorted.bed,4000000,4.0
+tandem-repeats_slop_sorted.bed,5000000,5.0
+benchmark_regions,83000000,83.0
+total_excluded,17000000,17.0
+"""
+
+
+def test_load_bp_impact_strips_suffixes_and_aggregates():
+    result = load_bp_impact(io.StringIO(_INTERSECTION_CSV))
+    # segdups start + end should sum
+    assert result["segdups"]["bp"] == 12000000
+    assert result["segdups"]["pct"] == pytest.approx(12.0)
+    # tandem-repeats single entry
+    assert result["tandem-repeats"]["bp"] == 5000000
+    assert result["tandem-repeats"]["pct"] == pytest.approx(5.0)
+    # header/total rows excluded
+    assert "initial" not in result
+    assert "total_excluded" not in result

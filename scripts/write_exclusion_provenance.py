@@ -96,7 +96,7 @@ def load_bp_impact(intersection_summary_path):
     df = df[~df["genomic_region"].isin(["initial", "benchmark_regions", "total_excluded"])]
     bp_by_region = {}
     for _, row in df.iterrows():
-        name = row["genomic_region"]
+        name = str(row["genomic_region"])
         # Strip known suffixes to recover the base exclusion name
         for suffix in (
             "_slopmerge_sorted_start_sorted.bed",
