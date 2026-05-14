@@ -33,11 +33,11 @@ rule index_ref_mmi:
         "resources/references/{ref_id}.mmi",
     log:
         "logs/index_ref_mmi/{ref_id}.log",
+    conda:
+        "../envs/dipcall.yml"
     threads: 4
     resources:
         mem_mb=2400,
-    conda:
-        "../envs/dipcall.yml"
     shell:
         "minimap2 -x asm5 -d {output} {input} &> {log}"
 
@@ -61,10 +61,10 @@ rule tabix:
         "{filename}.vcf.gz",
     output:
         "{filename}.vcf.gz.tbi",
-    params:
-        extra="-t",
     log:
         "logs/tabix/{filename}.log",
+    params:
+        extra="-t",
     wrapper:
         "v3.13.3/bio/bcftools/index"
 
@@ -101,9 +101,9 @@ rule compress_vcf:
         "{prefix}.vcf.gz",
     log:
         "logs/bcftools/sort/{prefix}.log",
-    params:
-        extras="-Oz",
     resources:
         mem_mb=8000,
+    params:
+        extras="-Oz",
     wrapper:
         "v2.6.0/bio/bcftools/sort"

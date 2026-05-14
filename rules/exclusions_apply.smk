@@ -9,13 +9,13 @@ rule exclude_pav_inversions:
         bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_pav-inv.bed",
     log:
         "logs/exclusions/exclude_pav_inversions/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
-    params:
-        slop=config["_exclusion_params"]["pav_inv_slop"],
-        merge_d=config["_exclusion_params"]["pav_inv_merge_dist"],
     benchmark:
         "benchmark/exclusions/{bench_id}_pav-inv_{ref_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "../envs/bcftools_and_bedtools.yml"
+    params:
+        slop=config["_exclusion_params"]["pav_inv_slop"],
+        merge_d=config["_exclusion_params"]["pav_inv_merge_dist"],
     shell:
         """
         bcftools filter -i 'ALT="<INV>"' {input.vcf} \
@@ -37,11 +37,11 @@ rule add_slop:
         "resources/exclusions/{ref_id}/{genomic_region}_slop.bed",
     log:
         "logs/exclusions/{ref_id}_{genomic_region}_slop.log",
+    conda:
+        "../envs/bedtools.yml"
     params:
         slop=get_slop_value,
         slop_flags=get_slop_flags,
-    conda:
-        "../envs/bedtools.yml"
     shell:
         """
         bedtools sort -i {input.bed} -g {input.genome} |
@@ -59,12 +59,12 @@ rule add_slop_and_merge:
         "resources/exclusions/{ref_id}/{genomic_region}_slopmerge.bed",
     log:
         "logs/exclusions/{ref_id}_{genomic_region}_slopmerge.log",
+    conda:
+        "../envs/bedtools.yml"
     params:
         slop=get_slop_value,
         slop_flags=get_slop_flags,
         dist=get_merge_dist,
-    conda:
-        "../envs/bedtools.yml"
     shell:
         """
         bedtools sort -i {input.bed} -g {input.genome} \
@@ -110,12 +110,12 @@ rule get_flanks:
         genome=get_genome_file,
     output:
         "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_flanks.bed",
-    params:
-        bases=config["_exclusion_params"]["flank_bases"],
     log:
         "logs/exclusions/{bench_id}_flanks_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     conda:
         "../envs/bedtools.yml"
+    params:
+        bases=config["_exclusion_params"]["flank_bases"],
     shell:
         """
         bedtools complement -i {input.baseline_bed} -g {input.genome} \
@@ -137,14 +137,14 @@ rule subtract_exclusions:
             category="Exclusions",
         ),
         bed="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.benchmark.bed",
-    params:
-        script=Path(workflow.basedir) / "scripts/subtract_exclusions.py",
     log:
         "logs/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
         "benchmark/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.benchmark"
     conda:
         "../envs/bedtools.yml"
+    params:
+        script=Path(workflow.basedir) / "scripts/subtract_exclusions.py",
     shell:
         """
         python {params.script} \
@@ -166,13 +166,13 @@ rule generate_intersection_summary:
             caption="../report/exclusion_intersection.rst",
             category="Exclusions",
         ),
-    params:
-        script=Path(workflow.basedir) / "scripts/exclusion_intersection_summary.py",
-        intersect_dir="results/draft_benchmarksets/{bench_id}/exclusions/intersections/",
     log:
         "logs/exclusion-intersect/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
     conda:
         "../envs/bedtools.yml"
+    params:
+        script=Path(workflow.basedir) / "scripts/exclusion_intersection_summary.py",
+        intersect_dir="results/draft_benchmarksets/{bench_id}/exclusions/intersections/",
     shell:
         """
         python {params.script} {input.baseline_bed} {output.summary_table} {params.intersect_dir} {input.exclusions} &> {log}
@@ -184,12 +184,12 @@ rule write_exclusion_provenance:
         intersection_summary="results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.exclusion_intersection_summary.csv",
     output:
         "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.exclusion_provenance.yml",
-    params:
-        exclusion_set_id=get_bench_exclusion_set_id,
     log:
         "logs/exclusions/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_provenance.log",
     conda:
         "../envs/bedtools.yml"
+    params:
+        exclusion_set_id=get_bench_exclusion_set_id,
     script:
         "../scripts/write_exclusion_provenance.py"
 

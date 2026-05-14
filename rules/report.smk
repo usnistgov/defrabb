@@ -15,6 +15,9 @@ rule run_assembly_stats:
             caption="../report/asm_stats.rst",
             category="Assembly",
         ),
+    log:
+        "logs/run_assembly_stats/{asm_id}_{haplotype}.assembly-stats.log",
+    threads: 1
     params:
         # Tab delimited output, with a header, is set as the default. Other options are available:
         #   -l <int>
@@ -30,9 +33,6 @@ rule run_assembly_stats:
         # Note that you can only pick one output format
         # Check https://github.com/sanger-pathogens/assembly-stats for more details
         extra="-t",
-    log:
-        "logs/run_assembly_stats/{asm_id}_{haplotype}.assembly-stats.log",
-    threads: 1
     wrapper:
         "v0.86.0/bio/assembly-stats"
 
@@ -200,11 +200,11 @@ rule write_report_params:
         ),
     output:
         report_params="results/analysis_params.yml",
+    log:
+        "logs/write_report_params.log",
     params:
         param1="value1",
         param2="value2",
-    log:
-        "logs/write_report_params.log",
     run:
         config_data = config
         analysis_path = Path(config["analyses"]).expanduser()
@@ -244,14 +244,14 @@ rule render_report:
             caption="../report/analysis.rst",
             category="Analysis Report",
         ),
-    params:
-        qmd=Path(workflow.basedir) / "analysis.qmd",
-        results_qmd="analysis.qmd",
-        rundir="../",
     log:
         "logs/render_report.log",
     conda:
         "../envs/quarto.yml"
+    params:
+        qmd=Path(workflow.basedir) / "analysis.qmd",
+        results_qmd="analysis.qmd",
+        rundir="../",
     shell:
         """
             cp {params.qmd} {params.results_qmd}

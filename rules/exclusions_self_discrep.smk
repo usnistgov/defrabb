@@ -17,18 +17,18 @@ rule self_discrep_happy:
         ),
     log:
         "logs/exclusions/self-discrep-happy/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
+    benchmark:
+        "benchmark/self-discrep-happy/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.tsv"
+    conda:
+        "../envs/happy.yml"
+    threads: config["_happy_threads"]
+    resources:
+        mem_mb=config["_happy_mem"],
     params:
         ## Fix to not hard code and use output prefix
         prefix="results/draft_benchmarksets/{bench_id}/exclusions/self-discrep/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}",
         engine="vcfeval",
         gender=get_happy_gender_param,
-    resources:
-        mem_mb=config["_happy_mem"],
-    threads: config["_happy_threads"]
-    benchmark:
-        "benchmark/self-discrep-happy/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.tsv"
-    conda:
-        "../envs/happy.yml"
     shell:
         """
         hap.py \
@@ -56,10 +56,10 @@ rule self_discrep_extract_fpfns:
         "results/draft_benchmarksets/{bench_id}/exclusions/self-discrep/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.fpfns.bed",
     log:
         "logs/exclusions/self-discrep-fpfns/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
-    params:
-        max_indel=config["_exclusion_params"]["self_discrep_max_indel"],
     conda:
         "../envs/bcftools_and_bedtools.yml"
+    params:
+        max_indel=config["_exclusion_params"]["self_discrep_max_indel"],
     shell:
         """
         echo "Filtering VCF for indels <={params.max_indel} and extracting FP/FN regions" >> {log}
@@ -81,13 +81,13 @@ rule self_discrep_intersect_slop:
         "results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_self-discrep.bed",
     log:
         "logs/exclusions/self-discrep-intersect/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
-    params:
-        slop=config["_exclusion_params"]["self_discrep_slop"],
-        merge_d=config["_exclusion_params"]["self_discrep_merge_dist"],
     benchmark:
         "benchmark/exclusions/{bench_id}_self-discrep_{ref_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "../envs/bedtools.yml"
+    params:
+        slop=config["_exclusion_params"]["self_discrep_slop"],
+        merge_d=config["_exclusion_params"]["self_discrep_merge_dist"],
     shell:
         """
         ## TODO make slop conditional, don't add for intersected vars

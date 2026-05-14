@@ -23,18 +23,6 @@ rule run_dipcall:
         bed="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.bed",
         bam1="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.hap1.bam",
         bam2="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.hap2.bam",
-    conda:
-        "../envs/dipcall.yml"
-    params:
-        prefix="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
-        male_bed=get_dipcall_par_param,
-        ts=config["_dipcall_threads"],
-        make_jobs=config["_dipcall_jobs"],
-        extra=lambda wildcards: (
-            ""
-            if vc_tbl.loc[wildcards.vc_id]["vc_params"] == "default"
-            else vc_tbl.loc[wildcards.vc_id]["vc_params"]
-        ),
     log:
         multiext(
             "results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
@@ -46,10 +34,22 @@ rule run_dipcall:
         rulelog="logs/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
         "benchmark/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
+    conda:
+        "../envs/dipcall.yml"
+    threads: config["_dipcall_threads"] * config["_dipcall_jobs"]
     resources:
         ## GB per make job run in parallel
         mem_mb=config["_dipcall_jobs"] * config["_dipcall_mem"],
-    threads: config["_dipcall_threads"] * config["_dipcall_jobs"]
+    params:
+        prefix="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}",
+        male_bed=get_dipcall_par_param,
+        ts=config["_dipcall_threads"],
+        make_jobs=config["_dipcall_jobs"],
+        extra=lambda wildcards: (
+            ""
+            if vc_tbl.loc[wildcards.vc_id]["vc_params"] == "default"
+            else vc_tbl.loc[wildcards.vc_id]["vc_params"]
+        ),
     shell:
         """
         echo "Writing Makefile defining dipcall pipeline" > {log.rulelog}
@@ -74,12 +74,12 @@ rule rename_dipcall_vcf_sample:
         vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.vcf.gz",
     output:
         vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.dip.rename.vcf.gz",
-    params:
-        get_sample_id,
     log:
         "logs/rename_dipcall/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     conda:
         "../envs/bcftools.yml"
+    params:
+        get_sample_id,
     shell:
         """
         echo "syndip {params}\n" \
@@ -99,15 +99,15 @@ rule run_pav:
         vcfidx="results/asm_varcalls/{vc_id}/{sample_id}.vcf.gz.tbi",
         h1_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable/callable_regions_h1_500.bed.gz",
         h2_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable/callable_regions_h2_500.bed.gz",
+    container:
+        "docker://becklab/pav:latest"
+    threads: config["_pav_threads"]
     params:
         outdir="results/asm_varcalls/{vc_id}",
         pav_config=lambda wildcards: config["_pav_config"][
             vc_tbl.loc[wildcards.vc_id]["vc_param_id"]
         ],
         name=lambda wildcards: f"{asm_config[vc_tbl.loc[wildcards.vc_id, 'asm_id']]["sample_id"]}",
-    container:
-        "docker://becklab/pav:latest"
-    threads: config["_pav_threads"]
     script:
         "../scripts/run_pav.py"
 
@@ -119,15 +119,15 @@ rule intersect_pav_callable_regions:
         faidx=get_ref_index,
     output:
         diploid_regions="results/asm_varcalls/{vc_id}/{sample_id}.diploid_regions.bed",
+    log:
+        "logs/asm_varcalls/{vc_id}/{sample_id}_intersect.log",
     conda:
         "../envs/bedtools.yml"
-    params:
-        intersect_opts=config.get("intersect_opts", ""),
     threads: config.get("intersect_threads", 1)
     resources:
         mem_mb=config.get("intersect_mem_mb", 1024),
-    log:
-        "logs/asm_varcalls/{vc_id}/{sample_id}_intersect.log",
+    params:
+        intersect_opts=config.get("intersect_opts", ""),
     shell:
         """
         bedtools intersect {params.intersect_opts} \
