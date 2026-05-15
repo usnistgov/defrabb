@@ -1,8 +1,6 @@
 """Tests for the ``run_defrabb`` wrapper script.
 
-Scope (TODO #18, run-id slice): exercise the run-id format contract enforced
-by ``validate_and_set_defaults``. S3 release-rule and manifest coverage live
-in separate test modules.
+Scope (TODO #18): exercise run-id format, S3 release rules, and manifest generation.
 """
 
 import importlib.machinery
@@ -13,6 +11,7 @@ import types
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import MagicMock, patch
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -134,6 +133,277 @@ class RunIDFormatTests(unittest.TestCase):
             import os
 
             os.chdir(cwd)
+
+
+class ReleasePatternTests(unittest.TestCase):
+    """Tests for S3 upload include/exclude pattern matching."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.module = load_run_defrabb_module()
+
+    def test_matches_release_patterns_exact_match(self):
+        patterns = ["run.log", "environment.yml"]
+        self.assertTrue(
+            self.module.matches_release_patterns("run.log", "20260507_v0.022_smoke", patterns)
+        )
+
+    def test_matches_release_patterns_wildcard(self):
+        patterns = ["results/**", "config/**"]
+        self.assertTrue(
+            self.module.matches_release_patterns(
+                "results/draft_benchmarksets/test.vcf.gz", "20260507_v0.022_smoke", patterns
+            )
+        )
+
+    def test_matches_release_patterns_runid_substitution(self):
+        patterns = ["config/analyses_{RUNID}.tsv"]
+        runid = "20260507_v0.022_smoke"
+        self.assertTrue(
+            self.module.matches_release_patterns(
+                f"config/analyses_{runid}.tsv", runid, patterns
+            )
+        )
+
+    def test_matches_release_patterns_no_match(self):
+        patterns = ["run.log", "environment.yml"]
+        self.assertFalse(
+            self.module.matches_release_patterns(
+                "random_file.txt", "20260507_v0.022_smoke", patterns
+            )
+        )
+
+    def test_should_release_file_included(self):
+        release_rules = {
+            "include": ["results/**", "config/**", "run.log"],
+            "exclude": ["*"],
+        }
+        runid = "20260507_v0.022_smoke"
+        self.assertTrue(
+            self.module.should_release_file("results/test.vcf.gz", runid, release_rules)
+        )
+        self.assertTrue(
+            self.module.should_release_file("config/analyses.tsv", runid, release_rules)
+        )
+        self.assertTrue(
+            self.module.should_release_file("run.log", runid, release_rules)
+        )
+
+    def test_should_release_file_excluded(self):
+        release_rules = {
+            "include": ["results/**", "config/**"],
+            "exclude": ["*"],
+        }
+        runid = "20260507_v0.022_smoke"
+        # File not matching any include pattern should be excluded
+        self.assertFalse(
+            self.module.should_release_file("random_file.txt", runid, release_rules)
+        )
+
+    def test_should_release_file_with_runid_substitution(self):
+        release_rules = {
+            "include": ["config/analyses_{RUNID}.tsv"],
+            "exclude": ["*"],
+        }
+        runid = "20260507_v0.022_smoke"
+        self.assertTrue(
+            self.module.should_release_file(
+                f"config/analyses_{runid}.tsv", runid, release_rules
+            )
+        )
+        # Different runid should not match
+        self.assertFalse(
+            self.module.should_release_file(
+                "config/analyses_20260101_v0.001_test.tsv", runid, release_rules
+            )
+        )
+
+
+class ReleaseRulesExpansionTests(unittest.TestCase):
+    """Tests for release rules validation and expansion."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.module = load_run_defrabb_module()
+
+    def test_same_as_local_expansion(self):
+        release_config = {
+            "release_rules": {
+                "local": {"include": ["*.log"], "exclude": ["*"]},
+                "s3": "same as local",
+            }
+        }
+        expanded = self.module.validate_and_expand_release_rules(release_config, "both")
+        self.assertEqual(expanded["s3"]["include"], ["*.log"])
+        self.assertEqual(expanded["s3"]["exclude"], ["*"])
+
+    def test_same_as_s3_expansion(self):
+        release_config = {
+            "release_rules": {
+                "s3": {"include": ["*.log"], "exclude": ["*"]},
+                "local": "same as s3",
+            }
+        }
+        expanded = self.module.validate_and_expand_release_rules(release_config, "both")
+        self.assertEqual(expanded["local"]["include"], ["*.log"])
+        self.assertEqual(expanded["local"]["exclude"], ["*"])
+
+    def test_missing_include_raises(self):
+        release_config = {
+            "release_rules": {
+                "local": {"exclude": ["*"]},
+            }
+        }
+        with self.assertRaises(ValueError) as ctx:
+            self.module.validate_and_expand_release_rules(release_config, "local")
+        self.assertIn("Include and exclude patterns must be defined", str(ctx.exception))
+
+    def test_missing_exclude_raises(self):
+        release_config = {
+            "release_rules": {
+                "s3": {"include": ["*.log"]},
+            }
+        }
+        with self.assertRaises(ValueError) as ctx:
+            self.module.validate_and_expand_release_rules(release_config, "s3")
+        self.assertIn("Include and exclude patterns must be defined", str(ctx.exception))
+
+
+class ManifestGenerationTests(unittest.TestCase):
+    """Tests for data manifest generation."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.module = load_run_defrabb_module()
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.tmpdir = Path(self._tmp.name)
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    @patch("boto3.client")
+    def test_create_data_manifest_basic_structure(self, mock_boto3_client):
+        """Test that manifest has correct headers and structure."""
+        mock_s3 = MagicMock()
+        mock_boto3_client.return_value = mock_s3
+        mock_s3.list_objects_v2.return_value = {
+            "Contents": [
+                {"Key": "defrabb_runs/20260507_v0.022_test/run.log", "Size": 1024}
+            ],
+            "IsTruncated": False,
+        }
+
+        manifest_path = self.tmpdir / "manifest.tsv"
+        self.module.create_data_manifest(
+            "20260507_v0.022_test", "test-bucket", "defrabb_runs", str(manifest_path)
+        )
+
+        # Verify manifest exists and has correct header
+        self.assertTrue(manifest_path.exists())
+        content = manifest_path.read_text()
+        lines = content.strip().split("\n")
+        self.assertEqual(
+            lines[0], "analysis\tfile_type\tref_id\tsize_Gb\ts3_uri\turl"
+        )
+
+    @patch("boto3.client")
+    def test_create_data_manifest_file_type_detection(self, mock_boto3_client):
+        """Test that different file types are correctly identified."""
+        mock_s3 = MagicMock()
+        mock_boto3_client.return_value = mock_s3
+
+        test_files = [
+            ("defrabb_runs/20260507_v0.022_test/run.log", "run.log"),
+            ("defrabb_runs/20260507_v0.022_test/environment.yml", "mamba env"),
+            ("defrabb_runs/20260507_v0.022_test/archive.tar.gz", "snakemake_archive"),
+            ("defrabb_runs/20260507_v0.022_test/config/analyses_20260507_v0.022_test.tsv", "analysis table"),
+            ("defrabb_runs/20260507_v0.022_test/results/draft_benchmarksets/bench1/GRCh38_HG002_smvar.vcf.gz", "smvar benchmark vcf"),
+            ("defrabb_runs/20260507_v0.022_test/results/draft_benchmarksets/bench1/GRCh38_HG002_stvar.vcf.gz", "stvar benchmark vcf"),
+        ]
+
+        mock_s3.list_objects_v2.return_value = {
+            "Contents": [{"Key": key, "Size": 1024} for key, _ in test_files],
+            "IsTruncated": False,
+        }
+
+        manifest_path = self.tmpdir / "manifest.tsv"
+        self.module.create_data_manifest(
+            "20260507_v0.022_test", "test-bucket", "defrabb_runs", str(manifest_path)
+        )
+
+        content = manifest_path.read_text()
+        lines = content.strip().split("\n")[1:]  # Skip header
+
+        for i, (_, expected_type) in enumerate(test_files):
+            cols = lines[i].split("\t")
+            actual_type = cols[1]
+            self.assertEqual(actual_type, expected_type, f"File type mismatch for {test_files[i][0]}")
+
+    @patch("boto3.client")
+    def test_create_data_manifest_ref_id_detection(self, mock_boto3_client):
+        """Test that reference genome IDs are correctly extracted."""
+        mock_s3 = MagicMock()
+        mock_boto3_client.return_value = mock_s3
+
+        test_files = [
+            ("defrabb_runs/test/results/GRCh38_HG002_smvar.vcf.gz", "GRCh38"),
+            ("defrabb_runs/test/results/GRCh37_HG002_smvar.vcf.gz", "GRCh37"),
+            ("defrabb_runs/test/results/CHM13_HG002_smvar.vcf.gz", "CHM13"),
+            ("defrabb_runs/test/run.log", "NA"),
+        ]
+
+        mock_s3.list_objects_v2.return_value = {
+            "Contents": [{"Key": key, "Size": 1024} for key, _ in test_files],
+            "IsTruncated": False,
+        }
+
+        manifest_path = self.tmpdir / "manifest.tsv"
+        self.module.create_data_manifest(
+            "test", "test-bucket", "defrabb_runs", str(manifest_path)
+        )
+
+        content = manifest_path.read_text()
+        lines = content.strip().split("\n")[1:]  # Skip header
+
+        for i, (_, expected_ref) in enumerate(test_files):
+            cols = lines[i].split("\t")
+            actual_ref = cols[2]
+            self.assertEqual(actual_ref, expected_ref, f"Ref ID mismatch for {test_files[i][0]}")
+
+    @patch("boto3.client")
+    def test_create_data_manifest_pagination(self, mock_boto3_client):
+        """Test that manifest generation handles S3 pagination."""
+        mock_s3 = MagicMock()
+        mock_boto3_client.return_value = mock_s3
+
+        # Simulate paginated response
+        mock_s3.list_objects_v2.side_effect = [
+            {
+                "Contents": [{"Key": "defrabb_runs/test/file1.log", "Size": 1024}],
+                "IsTruncated": True,
+                "NextContinuationToken": "token1",
+            },
+            {
+                "Contents": [{"Key": "defrabb_runs/test/file2.log", "Size": 2048}],
+                "IsTruncated": False,
+            },
+        ]
+
+        manifest_path = self.tmpdir / "manifest.tsv"
+        self.module.create_data_manifest(
+            "test", "test-bucket", "defrabb_runs", str(manifest_path)
+        )
+
+        content = manifest_path.read_text()
+        lines = content.strip().split("\n")[1:]  # Skip header
+
+        # Should have 2 entries (one from each page)
+        self.assertEqual(len(lines), 2)
+
+        # Verify both pagination calls were made
+        self.assertEqual(mock_s3.list_objects_v2.call_count, 2)
 
 
 if __name__ == "__main__":
