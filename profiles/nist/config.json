@@ -1,0 +1,15 @@
+{
+  "description": "NIST GIAB internal defaults for DeFrABB pipeline execution",
+  "defaults": {
+    "outdir": "/defrabb_runs/runs_in_progress/",
+    "archive_dir": "/mnt/bbdhg-nas/analysis/defrabb-runs/",
+    "release_config": "profiles/nist/release.json",
+    "release_type": "s3"
+  },
+  "notes": [
+    "This profile is for NIST GIAB internal use.",
+    "External users should override these paths using CLI arguments:",
+    "  --outdir, --archive_dir, --release_config",
+    "Or create their own profile in profiles/<name>/config.json"
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "default_s3_bucket": "your-bucket-name",
+  "default_s3_bucket": "giab-data",
   "default_s3_path": "defrabb_runs",
   "release_rules": {
     "local": {
@@ -26,6 +26,5 @@
       ]
     },
     "s3": "same as local"
-  },
-  "_comment": "This is a generic template. NIST internal users should use profiles/nist/release.json via --release_config"
+  }
 }

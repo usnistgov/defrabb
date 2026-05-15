@@ -269,6 +269,75 @@ class ReleaseRulesExpansionTests(unittest.TestCase):
         self.assertIn("Include and exclude patterns must be defined", str(ctx.exception))
 
 
+class ProfileLoadingTests(unittest.TestCase):
+    """Tests for profile loading and application (TODO #14)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.module = load_run_defrabb_module()
+
+    def test_load_profile_config_success(self):
+        """Test loading a valid profile config."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            profile_dir = Path(tmpdir) / "profiles" / "test"
+            profile_dir.mkdir(parents=True)
+            config_path = profile_dir / "config.json"
+            config_path.write_text('{"defaults": {"outdir": "/test/path"}}')
+
+            # Temporarily change to tmpdir so relative path works
+            import os
+            original_cwd = os.getcwd()
+            try:
+                os.chdir(tmpdir)
+                config = self.module.load_profile_config("test")
+                self.assertEqual(config["defaults"]["outdir"], "/test/path")
+            finally:
+                os.chdir(original_cwd)
+
+    def test_load_profile_config_missing(self):
+        """Test loading a non-existent profile returns None."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            import os
+            original_cwd = os.getcwd()
+            try:
+                os.chdir(tmpdir)
+                config = self.module.load_profile_config("nonexistent")
+                self.assertIsNone(config)
+            finally:
+                os.chdir(original_cwd)
+
+    def test_apply_profile_defaults_only_when_not_set(self):
+        """Test profile defaults are only applied when args not explicitly set."""
+        import argparse
+
+        # Create mock args with parser defaults (not set by user) and explicit values
+        args = argparse.Namespace(
+            outdir="./defrabb_runs/",  # Parser default, should use profile default
+            archive_dir="/explicit/path",  # Explicitly set, should NOT be overridden
+            release_config="config/release.json",  # Parser default, should use profile default
+            release_type="s3",  # Parser default (matches profile, but demonstrates logic)
+        )
+
+        profile_config = {
+            "defaults": {
+                "outdir": "/profile/outdir",
+                "archive_dir": "/profile/archive",
+                "release_config": "profiles/test/release.json",
+                "release_type": "local"
+            }
+        }
+
+        self.module.apply_profile_defaults(args, profile_config)
+
+        # Check that parser defaults were replaced with profile defaults
+        self.assertEqual(args.outdir, "/profile/outdir")
+        self.assertEqual(args.release_config, "profiles/test/release.json")
+        self.assertEqual(args.release_type, "local")
+
+        # Check that explicit value was NOT overridden
+        self.assertEqual(args.archive_dir, "/explicit/path")
+
+
 class SubcommandParsingTests(unittest.TestCase):
     """Tests for new subcommand-based CLI (TODO #6)."""
 

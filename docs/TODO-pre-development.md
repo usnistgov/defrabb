@@ -80,11 +80,13 @@ using `remap`/`repmask` steps deferred until Truvari envs are fixed (TODO #3).
 **Resolved 2026-05-14.** `write_exclusion_provenance` rule added to `rules/exclusions_apply.smk` using `script:` directive. `scripts/write_exclusion_provenance.py` emits a per-benchmark YAML with `exclusion_set`, `global_defaults`, and per-exclusion entries (name, source_type, transform, resolved slop/merge, asm_intersect, bp_impact, pct_of_initial). Provenance files wired into `write_report_params` inputs. Unit tests in `.tests/unit/test_exclusion_params.py`.
 **Files:** `rules/exclusions_apply.smk`, `scripts/write_exclusion_provenance.py`, `rules/report.smk`
 
-### 14. Separate NIST-specific logic from core pipeline
+### 14. Separate NIST-specific logic from core pipeline — ✅ Done
 
-`run_defrabb`, `config/release.json`, and parts of resources.yml contain NIST-specific paths and policies. Isolate these into a `profiles/nist/` directory or similar mechanism so the core pipeline remains clean for external use and internal NIST defaults are preserved.
+~~`run_defrabb`, `config/release.json`, and parts of resources.yml contain NIST-specific paths and policies. Isolate these into a `profiles/nist/` directory or similar mechanism so the core pipeline remains clean for external use and internal NIST defaults are preserved.~~
 
-**Files:** `run_defrabb`, `config/release.json`
+**Resolved 2026-05-15.** Changed hardcoded NIST paths in `run_defrabb` to generic defaults (`./defrabb_runs/`, `./defrabb_archive/`). Created `profiles/nist/` directory structure with `config.json` (containing NIST-specific defaults for outdir, archive_dir, release_config, release_type) and `release.json` (NIST S3 bucket configuration). Replaced `config/release.json` with generic template pointing users to profile system. Added `--profile` argument to both new subcommand parser and legacy parser. Implemented `load_profile_config()` and `apply_profile_defaults()` functions that apply profile defaults only when args not explicitly set by user. Profile can be specified via `--profile` flag or `DEFRABB_PROFILE` environment variable. Tests in `.tests/unit/test_run_defrabb.py` (ProfileLoadingTests class, 3 tests).
+
+**Files:** `run_defrabb`, `config/release.json`, `profiles/nist/config.json`, `profiles/nist/release.json`, `.tests/unit/test_run_defrabb.py`
 **Impact:** Maintainability, open-source clarity
 
 ---

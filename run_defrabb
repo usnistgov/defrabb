@@ -8,6 +8,7 @@ import os
 import re
 import subprocess
 import sys
+from pathlib import Path
 from typing import List, Optional, Tuple
 
 try:
@@ -15,9 +16,10 @@ try:
 except ImportError:
     boto3 = None
 
-# Constants
-DEFAULT_OUTDIR = "/defrabb_runs/runs_in_progress/"
-ARCHIVE_DIR = "/mnt/bbdhg-nas/analysis/defrabb-runs/"
+# Constants (generic defaults for external users)
+# NIST internal users: use --profile nist or set environment variable DEFRABB_PROFILE=nist
+DEFAULT_OUTDIR = "./defrabb_runs/"
+ARCHIVE_DIR = "./defrabb_archive/"
 DEFAULT_LOG_LEVEL = "INFO"
 VALID_STEPS = ["all", "pipe", "report", "archive", "release"]
 LOG_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
@@ -54,6 +56,35 @@ def setup_logging(run_dir: str, log_level: str) -> None:
     logging.getLogger("").addHandler(console)
 
 
+def load_profile_config(profile_name: str) -> Optional[dict]:
+    """Load profile configuration from profiles/<name>/config.json.
+
+    Returns None if profile doesn't exist or has no config.json.
+    """
+    profile_path = Path(f"profiles/{profile_name}/config.json")
+    if not profile_path.exists():
+        return None
+
+    with open(profile_path, "r") as f:
+        return json.load(f)
+
+
+def apply_profile_defaults(args: argparse.Namespace, profile_config: dict) -> None:
+    """Apply profile defaults to args if the arg wasn't explicitly set by user."""
+    defaults = profile_config.get("defaults", {})
+
+    # Only apply profile defaults for args that weren't explicitly provided
+    # We detect this by checking if the value equals the parser default
+    if hasattr(args, "outdir") and args.outdir == DEFAULT_OUTDIR:
+        args.outdir = defaults.get("outdir", args.outdir)
+    if hasattr(args, "archive_dir") and args.archive_dir == ARCHIVE_DIR:
+        args.archive_dir = defaults.get("archive_dir", args.archive_dir)
+    if hasattr(args, "release_config") and args.release_config == "config/release.json":
+        args.release_config = defaults.get("release_config", args.release_config)
+    if hasattr(args, "release_type") and args.release_type == "s3":
+        args.release_type = defaults.get("release_type", args.release_type)
+
+
 def load_release_config(release_config_path: str) -> dict:
     with open(release_config_path, "r") as f:
         return json.load(f)
@@ -78,6 +109,11 @@ def parse_arguments() -> Tuple[argparse.Namespace, List[str]]:
         return _parse_arguments_legacy()
 
     # New subcommand-based interface
+    parser.add_argument(
+        "--profile",
+        type=str,
+        help="Load configuration profile (e.g., 'nist' loads profiles/nist/config.json)",
+    )
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # Common arguments for all subcommands (except validate)
@@ -221,6 +257,11 @@ def _parse_arguments_legacy() -> Tuple[argparse.Namespace, List[str]]:
         description="DeFrABB wrapper script for executing and archiving framework",
         formatter_class=argparse.RawTextHelpFormatter,
         epilog="Any additional arguments provided will be passed directly to Snakemake.",
+    )
+    parser.add_argument(
+        "--profile",
+        type=str,
+        help="Load configuration profile (e.g., 'nist' loads profiles/nist/config.json)",
     )
     parser.add_argument(
         "-r",
@@ -724,6 +765,13 @@ def create_data_manifest(
 
 def main() -> None:
     args, extra_args = parse_arguments()
+
+    # Load profile configuration if specified
+    profile_name = args.profile or os.environ.get("DEFRABB_PROFILE")
+    if profile_name:
+        profile_config = load_profile_config(profile_name)
+        if profile_config:
+            apply_profile_defaults(args, profile_config)
 
     # --validate-only is the simplest path: parse args, validate the analyses file
     # exists, then shell out to snakemake. No release config, no run dir, no logging.
