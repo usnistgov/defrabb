@@ -269,6 +269,105 @@ class ReleaseRulesExpansionTests(unittest.TestCase):
         self.assertIn("Include and exclude patterns must be defined", str(ctx.exception))
 
 
+class SubcommandParsingTests(unittest.TestCase):
+    """Tests for new subcommand-based CLI (TODO #6)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.module = load_run_defrabb_module()
+
+    def test_subcommand_run_maps_to_pipe_step(self):
+        """'run' subcommand should map to 'pipe' step internally."""
+        import sys
+        original_argv = sys.argv.copy()
+        try:
+            sys.argv = ["run_defrabb", "run", "-r", "20260515_v0.022_test"]
+            args, _ = self.module.parse_arguments()
+            self.assertEqual(args.command, "run")
+            self.assertEqual(args.steps, "pipe")
+            self.assertFalse(args.validate_only)
+        finally:
+            sys.argv = original_argv
+
+    def test_subcommand_validate_sets_validate_only(self):
+        """'validate' subcommand should set validate_only=True."""
+        import sys
+        original_argv = sys.argv.copy()
+        try:
+            sys.argv = ["run_defrabb", "validate", "-a", "config/analyses.tsv"]
+            args, _ = self.module.parse_arguments()
+            self.assertEqual(args.command, "validate")
+            self.assertTrue(args.validate_only)
+            self.assertIsNone(args.steps)
+        finally:
+            sys.argv = original_argv
+
+    def test_legacy_steps_syntax_still_works(self):
+        """Old -s/--steps syntax should still work for backward compatibility."""
+        import sys
+        original_argv = sys.argv.copy()
+        try:
+            sys.argv = [
+                "run_defrabb",
+                "-s",
+                "pipe",
+                "-r",
+                "20260515_v0.022_test",
+            ]
+            args, _ = self.module.parse_arguments()
+            self.assertEqual(args.steps, "pipe")
+            self.assertFalse(args.validate_only)
+        finally:
+            sys.argv = original_argv
+
+    def test_legacy_validate_only_still_works(self):
+        """Old --validate-only flag should still work."""
+        import sys
+        original_argv = sys.argv.copy()
+        try:
+            sys.argv = ["run_defrabb", "--validate-only", "-a", "config/analyses.tsv"]
+            args, _ = self.module.parse_arguments()
+            self.assertTrue(args.validate_only)
+        finally:
+            sys.argv = original_argv
+
+    def test_subcommand_report_maps_correctly(self):
+        """'report' subcommand should map to 'report' step."""
+        import sys
+        original_argv = sys.argv.copy()
+        try:
+            sys.argv = ["run_defrabb", "report", "-r", "20260515_v0.022_test"]
+            args, _ = self.module.parse_arguments()
+            self.assertEqual(args.command, "report")
+            self.assertEqual(args.steps, "report")
+        finally:
+            sys.argv = original_argv
+
+    def test_subcommand_archive_maps_correctly(self):
+        """'archive' subcommand should map to 'archive' step."""
+        import sys
+        original_argv = sys.argv.copy()
+        try:
+            sys.argv = ["run_defrabb", "archive", "-r", "20260515_v0.022_test"]
+            args, _ = self.module.parse_arguments()
+            self.assertEqual(args.command, "archive")
+            self.assertEqual(args.steps, "archive")
+        finally:
+            sys.argv = original_argv
+
+    def test_subcommand_release_maps_correctly(self):
+        """'release' subcommand should map to 'release' step."""
+        import sys
+        original_argv = sys.argv.copy()
+        try:
+            sys.argv = ["run_defrabb", "release", "-r", "20260515_v0.022_test"]
+            args, _ = self.module.parse_arguments()
+            self.assertEqual(args.command, "release")
+            self.assertEqual(args.steps, "release")
+        finally:
+            sys.argv = original_argv
+
+
 class ManifestGenerationTests(unittest.TestCase):
     """Tests for data manifest generation."""
 

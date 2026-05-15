@@ -71,6 +71,157 @@ def parse_arguments() -> Tuple[argparse.Namespace, List[str]]:
         formatter_class=argparse.RawTextHelpFormatter,
         epilog="Any additional arguments provided will be passed directly to Snakemake.",
     )
+
+    # Backward compatibility: support old -s/--steps syntax
+    # Check if old syntax is being used before setting up subcommands
+    if "-s" in sys.argv or "--steps" in sys.argv or "--validate-only" in sys.argv:
+        return _parse_arguments_legacy()
+
+    # New subcommand-based interface
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
+    # Common arguments for all subcommands (except validate)
+    def add_common_args(subparser, require_runid=True):
+        subparser.add_argument(
+            "-r",
+            "--runid",
+            type=str,
+            required=require_runid,
+            help="Analysis RUN ID (format: YYYYMMDD_v#.###_description)",
+        )
+        subparser.add_argument(
+            "-a", "--analyses", type=str, help="Path to analyses table"
+        )
+        subparser.add_argument(
+            "-o",
+            "--outdir",
+            type=str,
+            default=DEFAULT_OUTDIR,
+            help="Output directory",
+        )
+        subparser.add_argument(
+            "-j", "--jobs", type=int, help="Number of parallel jobs"
+        )
+        subparser.add_argument(
+            "--log-level",
+            type=str,
+            choices=LOG_LEVELS,
+            default=DEFAULT_LOG_LEVEL,
+            help="Logging level",
+        )
+
+    # run: Execute the pipeline
+    run_parser = subparsers.add_parser(
+        "run",
+        help="Execute the Snakemake pipeline",
+        description="Run the DeFrABB pipeline (variant calling, benchmarking, evaluation)",
+    )
+    add_common_args(run_parser)
+
+    # report: Generate Snakemake report
+    report_parser = subparsers.add_parser(
+        "report",
+        help="Generate Snakemake HTML report",
+        description="Generate a standalone HTML report of the pipeline run",
+    )
+    add_common_args(report_parser)
+
+    # archive: Package results
+    archive_parser = subparsers.add_parser(
+        "archive",
+        help="Create Snakemake archive tarball",
+        description="Package pipeline results into a tarball for distribution",
+    )
+    add_common_args(archive_parser)
+
+    # release: Deploy to NAS/S3
+    release_parser = subparsers.add_parser(
+        "release",
+        help="Release results to NAS or S3",
+        description="Copy/upload pipeline results for public release",
+    )
+    add_common_args(release_parser)
+    release_parser.add_argument(
+        "--archive_dir",
+        type=str,
+        default=ARCHIVE_DIR,
+        help="Local directory for release (NIST internal)",
+    )
+    release_parser.add_argument(
+        "--s3_bucket", type=str, help="S3 bucket (default from release config)"
+    )
+    release_parser.add_argument(
+        "--s3_path", type=str, help="S3 path prefix (default from release config)"
+    )
+    release_parser.add_argument(
+        "--release_type",
+        type=str,
+        choices=["local", "s3", "both"],
+        default="s3",
+        help="Release destination",
+    )
+    release_parser.add_argument(
+        "--release_config",
+        type=str,
+        default="config/release.json",
+        help="Release configuration file",
+    )
+
+    # validate: Config validation only
+    validate_parser = subparsers.add_parser(
+        "validate",
+        help="Validate configuration files",
+        description="Validate analyses.tsv and resources.yml without running pipeline",
+    )
+    validate_parser.add_argument(
+        "-r", "--runid", type=str, help="RUN ID (optional, for default analyses path)"
+    )
+    validate_parser.add_argument(
+        "-a", "--analyses", type=str, help="Path to analyses table"
+    )
+
+    args, unknown_args = parser.parse_known_args()
+
+    # If no subcommand provided, show help
+    if args.command is None:
+        parser.print_help()
+        sys.exit(1)
+
+    # Map subcommands to legacy 'steps' for internal compatibility
+    args.steps = {
+        "run": "pipe",
+        "report": "report",
+        "archive": "archive",
+        "release": "release",
+        "validate": None,
+    }.get(args.command)
+
+    args.validate_only = args.command == "validate"
+
+    # Set defaults for args not in all subcommands
+    if not hasattr(args, "archive_dir"):
+        args.archive_dir = ARCHIVE_DIR
+    if not hasattr(args, "s3_bucket"):
+        args.s3_bucket = None
+    if not hasattr(args, "s3_path"):
+        args.s3_path = None
+    if not hasattr(args, "release_type"):
+        args.release_type = "s3"
+    if not hasattr(args, "release_config"):
+        args.release_config = "config/release.json"
+    if not hasattr(args, "log_level"):
+        args.log_level = DEFAULT_LOG_LEVEL
+
+    return args, unknown_args
+
+
+def _parse_arguments_legacy() -> Tuple[argparse.Namespace, List[str]]:
+    """Legacy argument parser for backward compatibility with -s/--steps syntax."""
+    parser = argparse.ArgumentParser(
+        description="DeFrABB wrapper script for executing and archiving framework",
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog="Any additional arguments provided will be passed directly to Snakemake.",
+    )
     parser.add_argument(
         "-r",
         "--runid",
@@ -82,7 +233,7 @@ def parse_arguments() -> Tuple[argparse.Namespace, List[str]]:
         "-o",
         "--outdir",
         type=str,
-        default="/defrabb_runs/runs_in_progress/",
+        default=DEFAULT_OUTDIR,
         help="Output directory",
     )
     parser.add_argument(
