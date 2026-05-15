@@ -205,34 +205,8 @@ rule write_report_params:
     params:
         param1="value1",
         param2="value2",
-    run:
-        config_data = config
-        analysis_path = Path(config["analyses"]).expanduser()
-        analysis_table = (
-            str(analysis_path)
-            if analysis_path.is_absolute()
-            else f"../{config['analyses']}"
-        )
-
-        inputs_converted = {}
-        for key, value in input.items():
-            # Convert each input item to a string and ensure it's a list
-            if isinstance(value, list):
-                inputs_converted[key] = [str(v) for v in value]
-            else:
-                inputs_converted[key] = [str(value)]
-
-        report_params_dict = {
-            "inputs": inputs_converted,
-            "config_data": config_data,
-            "analysis_table": analysis_table,
-            "variables": dict(params),
-        }
-
-        with open(output.report_params, "w") as f:
-            yaml.safe_dump(
-                report_params_dict, f, default_flow_style=False, sort_keys=False
-            )
+    script:
+        "../scripts/write_report_params.py"
 
 
 rule render_report:
