@@ -115,16 +115,23 @@ using `remap`/`repmask` steps deferred until Truvari envs are fixed (TODO #3).
 **Files:** `.tests/unit/test_run_defrabb.py` (26 tests, all passing)
 **Impact:** Release reliability
 
-### 19. Add negative/error case tests
+### 19. Add negative/error case tests — ✅ Done
 
-Current tests only validate happy paths. Add tests for:
-- Invalid analyses.tsv entries (missing columns, invalid enum values)
-- Missing assembly/reference in resources.yml
-- Invalid exclusion_set names
-- Malformed VCF inputs
+~~Current tests only validate happy paths.~~ Comprehensive negative/error case testing added 2026-05-15 (commit `5564253`).
 
-**Files:** `.tests/unit/test_config_validation.py` (new)
-**Impact:** Robustness, new genome onboarding
+- ✅ Invalid analyses.tsv entries (missing columns, invalid enum values) — 
+  `TestAnalysesSchemaValidation` covers missing required columns (eval_cmd),
+  invalid enums (eval_cmd, bench_type, vc_cmd), and invalid ref patterns.
+- ✅ Missing assembly/reference in resources.yml — covered by existing
+  cross-reference tests (`test_missing_asm_id_raises`, `test_missing_ref_raises`).
+- ✅ Invalid exclusion_set names — covered by `test_missing_exclusion_set_raises`.
+- ✅ Missing VCF processing profiles — covered by `test_missing_vcf_processing_profile_raises`.
+- ✅ Malformed resources.yml structure — `TestResourcesSchemaValidation` covers
+  missing required sections and type violations (e.g., exclusion_set as string
+  instead of list).
+
+**Files:** `.tests/unit/test_config_validation.py` (18 tests, all passing)
+**Impact:** Robustness, new genome onboarding, clear error messages for config issues
 
 ### 20. Create an evaluation comparison utility
 
