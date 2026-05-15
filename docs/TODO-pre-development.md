@@ -91,24 +91,28 @@ using `remap`/`repmask` steps deferred until Truvari envs are fixed (TODO #3).
 
 ## Testing & Quality
 
-### 18. Add tests for run_defrabb wrapper — 🚧 In progress
+### 18. Add tests for run_defrabb wrapper — ✅ Done
 
-The wrapper script previously had no test coverage. Add tests for:
+~~The wrapper script previously had no test coverage.~~ Comprehensive test coverage added.
+
 - ✅ Run ID format validation — landed 2026-05-11 (commit `afd3316`).
   `.tests/unit/test_run_defrabb.py` covers the contract enforced by
   `validate_and_set_defaults`: valid IDs, missing/empty runid, and
   format violations (short date, missing version, two-digit major,
   wrong minor width, missing trailing `_`, alphabetic date).
-- ✅ Config path resolution — partially covered by the
+- ✅ Config path resolution — covered by the
   `test_default_analyses_path_uses_runid` case in the same file
   (default `config/analyses_{RUNID}.tsv` derivation when `--analyses`
   is omitted).
-- ⏳ S3 upload include/exclude logic — not yet covered here. Some
-  release-rule behavior is exercised in `test_stabilization_pr.py`;
-  expand into `test_run_defrabb.py` alongside the manifest work.
-- ⏳ Manifest generation (`create_data_manifest`) — not yet covered.
+- ✅ S3 upload include/exclude logic — landed 2026-05-15 (commit `90f780d`).
+  `ReleasePatternTests` covers pattern matching (exact, wildcard, RUNID
+  substitution) and include/exclude precedence. `ReleaseRulesExpansionTests`
+  covers "same as local/s3" expansion and validation.
+- ✅ Manifest generation (`create_data_manifest`) — landed 2026-05-15 (commit `90f780d`).
+  `ManifestGenerationTests` covers TSV structure, file type detection, reference
+  ID extraction, and S3 pagination handling.
 
-**Files:** `.tests/unit/test_run_defrabb.py`
+**Files:** `.tests/unit/test_run_defrabb.py` (26 tests, all passing)
 **Impact:** Release reliability
 
 ### 19. Add negative/error case tests
