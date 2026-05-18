@@ -6,6 +6,8 @@ __pycache__/
 .DS_Store
 .vscode/**
 **.code-workspace
+.condarc
+ideas.md
 
 ### Pipeline Files #########
 .snakemake/**

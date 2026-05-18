@@ -18,9 +18,7 @@ from typing import Dict, List, Tuple
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument(
-        "-a", "--analyses", required=True, help="Path to analyses TSV"
-    )
+    p.add_argument("-a", "--analyses", required=True, help="Path to analyses TSV")
     p.add_argument(
         "--snakefile",
         default="Snakefile",
@@ -57,9 +55,7 @@ def run_dryrun(analyses: str, snakefile: str) -> str:
     if result.returncode != 0:
         sys.stderr.write(result.stderr)
         sys.stderr.write(result.stdout)
-        raise SystemExit(
-            f"snakemake --dryrun failed (exit {result.returncode})"
-        )
+        raise SystemExit(f"snakemake --dryrun failed (exit {result.returncode})")
     return result.stdout
 
 
@@ -105,7 +101,15 @@ def unique_ordered(values) -> List[str]:
 
 
 def summarize_analyses(rows: List[Dict[str, str]]) -> Dict[str, List[str]]:
-    cols = ["ref", "asm_id", "vc_cmd", "bench_type", "exclusion_set", "eval_comp_id", "eval_cmd"]
+    cols = [
+        "ref",
+        "asm_id",
+        "vc_cmd",
+        "bench_type",
+        "exclusion_set",
+        "eval_comp_id",
+        "eval_cmd",
+    ]
     return {c: unique_ordered(r.get(c, "") for r in rows) for c in cols}
 
 

@@ -84,7 +84,7 @@ rule run_truvari:
             "candidate.refine.bed",
         ),
     log:
-        "logs/run_travari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/truvari.log",
+        "logs/run_truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/truvari.log",
     benchmark:
         "benchmark/run_truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
@@ -137,7 +137,7 @@ rule truvari_refine:
             "refine.regions.txt",
         ),
     log:
-        "logs/run_travari_refine/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/truvari_refine.log",
+        "logs/run_truvari_refine/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}/truvari_refine.log",
     benchmark:
         "benchmark/run_truvari_refine/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.tsv"
     conda:

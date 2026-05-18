@@ -17,19 +17,17 @@ import yaml
 
 def _resolve_slop(region, config):
     """Return (value, is_pct) for the given exclusion region."""
-    overrides = (
-        config["_exclusion_params"].get("overrides", {}).get(region, {})
-    )
+    overrides = config["_exclusion_params"].get("overrides", {}).get(region, {})
     if "slop_pct" in overrides:
         return overrides["slop_pct"], True
     return overrides.get("slop", config["_exclusion_params"]["slop"]), False
 
 
 def _resolve_merge_dist(region, config):
-    overrides = (
-        config["_exclusion_params"].get("overrides", {}).get(region, {})
+    overrides = config["_exclusion_params"].get("overrides", {}).get(region, {})
+    return overrides.get(
+        "slopmerge_dist", config["_exclusion_params"]["slopmerge_dist"]
     )
-    return overrides.get("slopmerge_dist", config["_exclusion_params"]["slopmerge_dist"])
 
 
 def _source_type(region, config):
@@ -93,7 +91,9 @@ def load_bp_impact(intersection_summary_path):
     """
     df = pd.read_csv(intersection_summary_path)
     # Skip header/total rows
-    df = df[~df["genomic_region"].isin(["initial", "benchmark_regions", "total_excluded"])]
+    df = df[
+        ~df["genomic_region"].isin(["initial", "benchmark_regions", "total_excluded"])
+    ]
     bp_by_region = {}
     for _, row in df.iterrows():
         name = str(row["genomic_region"])

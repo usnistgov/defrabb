@@ -3,7 +3,9 @@
 
 from pathlib import Path
 import yaml
-from snakemake.script import snakemake
+
+# pyright: reportUndefinedVariable=false
+# Note: snakemake object is injected at runtime by Snakemake
 
 # Resolve analysis table path
 config_data = snakemake.config
