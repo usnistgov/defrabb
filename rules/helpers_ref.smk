@@ -38,7 +38,7 @@ def get_ref_bwaindex(wildcards):
 
 def get_genome_file(wildcards):
     ref_id = get_ref_id(wildcards)
-    return workflow.source_path(f"../resources/references/{ref_id}.genome")
+    return f"resources/references/{ref_id}.genome"
 
 
 def get_ref_sdf(wildcards):
@@ -67,7 +67,7 @@ def get_par_bed(wildcards):
     root = config["_par_bed_root"]
     ref_id = get_ref_id(wildcards)
     filename = ref_config[ref_id]["par_bed"]
-    return Path(workflow.basedir) / root / filename
+    return Path(root) / filename
 
 
 def get_dipcall_par_param(wildcards):

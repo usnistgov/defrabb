@@ -61,24 +61,48 @@ Before running new analyses, update `config/analyses.tsv` and `config/resources.
 
 ## Running with `run_defrabb`
 
-`run_defrabb` creates `OUTDIR/RUNID`, records git status, exports the active Conda environment to `environment.yml`, and can run the pipeline, generate a Snakemake report, build an archive, and release selected files.
+`run_defrabb` records git status, exports the active Conda environment to `environment.yml`, and can run the pipeline, generate a Snakemake report, build an archive, and release selected files.
 
-Example:
+### Current Workflow (Recommended)
+
+Clone the repository into a directory named by your run ID, then run from within that directory:
 
 ```sh
-./run_defrabb -r 20250708_v0.021_HG008TN -o ../ -s pipe
+# Clone into run-specific directory
+git clone <repo-url> 20250708_v0.021_HG008TN
+cd 20250708_v0.021_HG008TN
+
+# Run pipeline from within the directory
+./run_defrabb run -r 20250708_v0.021_HG008TN
 ```
 
 Run IDs must follow `YYYYMMDD_v#.###_brief-id`. If `-a/--analyses` is omitted, the wrapper looks for `config/analyses_<RUNID>.tsv`.
 
-Release defaults in `run_defrabb` and `config/release.json` are NIST-specific. External users should expect to override `--outdir`, `--archive_dir`, `--s3_bucket`, `--s3_path`, and `--release_type`.
+The wrapper supports subcommands:
+- `run` - Execute the Snakemake pipeline
+- `report` - Generate Snakemake HTML report
+- `archive` - Create tarball archive
+- `release` - Deploy to NAS or S3
+- `validate` - Validate configuration only
+
+### Legacy Workflow
+
+The older workflow used `--outdir` to create `OUTDIR/RUNID/` subdirectories:
+
+```sh
+./run_defrabb run -r 20250708_v0.021_HG008TN -o ../runs/
+```
+
+This is still supported but deprecated. The `--outdir` flag defaults to `.` (current directory).
+
+Release defaults in `run_defrabb` and `config/release.json` are NIST-specific. External users should expect to override `--archive_dir`, `--s3_bucket`, `--s3_path`, and `--release_type`.
 
 ## Output structure
 
-The wrapper writes results under `OUTDIR/RUNID/`, typically including:
+When running from the current directory (recommended workflow), results are written directly into the working tree:
 
 ```txt
-OUTDIR/RUNID/
+<RUNID>/
 ├── archive.tar.gz
 ├── snakemake_report_<RUNID>.zip
 ├── environment.yml
@@ -87,10 +111,15 @@ OUTDIR/RUNID/
 ├── config/
 ├── logs/
 ├── resources/
-└── results/
+├── results/
+├── Snakefile
+├── rules/
+└── scripts/
 ```
 
 Generated reports also include `analysis.html` and supporting report inputs under `results/analysis_params.yml` and `results/report/`.
+
+In the legacy workflow with `--outdir`, outputs are placed under `OUTDIR/RUNID/`.
 
 ## Testing and development
 

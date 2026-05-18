@@ -143,11 +143,9 @@ rule subtract_exclusions:
         "benchmark/exclusions/{bench_id}_subtract_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.benchmark"
     conda:
         "../envs/bedtools.yml"
-    params:
-        script=Path(workflow.basedir) / "scripts/subtract_exclusions.py",
     shell:
         """
-        python {params.script} \
+        python scripts/subtract_exclusions.py \
             {input.baseline_bed} \
             {output.bed} \
             {output.rpt} \
@@ -171,11 +169,10 @@ rule generate_intersection_summary:
     conda:
         "../envs/bedtools.yml"
     params:
-        script=Path(workflow.basedir) / "scripts/exclusion_intersection_summary.py",
         intersect_dir="results/draft_benchmarksets/{bench_id}/exclusions/intersections/",
     shell:
         """
-        python {params.script} {input.baseline_bed} {output.summary_table} {params.intersect_dir} {input.exclusions} &> {log}
+        python scripts/exclusion_intersection_summary.py {input.baseline_bed} {output.summary_table} {params.intersect_dir} {input.exclusions} &> {log}
         """
 
 

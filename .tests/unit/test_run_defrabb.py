@@ -312,7 +312,7 @@ class ProfileLoadingTests(unittest.TestCase):
 
         # Create mock args with parser defaults (not set by user) and explicit values
         args = argparse.Namespace(
-            outdir="./defrabb_runs/",  # Parser default, should use profile default
+            outdir=".",  # Parser default (updated from "./defrabb_runs/"), should use profile default
             archive_dir="/explicit/path",  # Explicitly set, should NOT be overridden
             release_config="config/release.json",  # Parser default, should use profile default
             release_type="s3",  # Parser default (matches profile, but demonstrates logic)

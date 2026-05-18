@@ -75,11 +75,10 @@ rule get_sv_widen_coords:
     conda:
         "../envs/sv_widen_coords.yml"
     params:
-        script=Path(workflow.basedir) / "scripts/get_sv_widen_coords.py",
         verbose="--verbose" if config.get("debug") else "",
     shell:
         """
-        python {params.script} \
+        python scripts/get_sv_widen_coords.py \
             --input {input.vcf} \
             --output {output.bed} \
             {params.verbose} \

@@ -63,7 +63,8 @@ class StabilizationPRTests(unittest.TestCase):
     def test_render_report_uses_root_analysis_qmd(self):
         report_rules = (REPO_ROOT / "rules" / "report.smk").read_text()
 
-        self.assertIn('qmd=Path(workflow.basedir) / "analysis.qmd"', report_rules)
+        # After removing workflow.basedir, qmd param is just "analysis.qmd"
+        self.assertIn('qmd="analysis.qmd"', report_rules)
         self.assertTrue((REPO_ROOT / "analysis.qmd").exists())
         self.assertFalse((REPO_ROOT / "scripts" / "reports" / "analysis.qmd").exists())
 

@@ -223,7 +223,7 @@ rule render_report:
     conda:
         "../envs/quarto.yml"
     params:
-        qmd=Path(workflow.basedir) / "analysis.qmd",
+        qmd="analysis.qmd",
         results_qmd="analysis.qmd",
         rundir="../",
     shell:

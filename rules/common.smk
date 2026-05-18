@@ -22,7 +22,7 @@ def resolve_analysis_path(path):
     analysis_path = Path(path).expanduser()
     if analysis_path.is_absolute():
         return analysis_path
-    return workflow.source_path(f"../{path}")
+    return path
 
 
 def _filter_subtable(df, filter_re, id_cols, new_index):
@@ -54,7 +54,7 @@ def analyses_to_bench_tbls(analyses):
 # load config
 
 
-configfile: workflow.source_path("../config/resources.yml")
+configfile: "config/resources.yml"
 
 
 validate(config, "../schema/resources-schema.yml")
@@ -84,7 +84,7 @@ analyses = analyses.set_index("eval_id")
 
 # Cross-reference validation: catches asm_id/ref/comp_id/exclusion_set
 # typos in analyses.tsv before any rule expansion.
-sys.path.insert(0, str(Path(workflow.basedir) / "scripts"))
+sys.path.insert(0, "scripts")
 from validate_configs import validate_cross_references
 
 validate_cross_references(config, analyses)
