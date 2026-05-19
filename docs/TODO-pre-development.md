@@ -1,7 +1,7 @@
 # DeFrABB Pre-Development TODO List
 
 _Prepared: 2026-03-24_  
-_Last Updated: 2026-05-18_
+_Last Updated: 2026-05-19_
 
 20 issues to address before further pipeline development to establish a robust, intuitive, and modular foundation for generating benchmarksets across additional genomes.
 
@@ -69,6 +69,19 @@ Resolved in commit 0dc5f78. Added comprehensive test coverage for `run_defrabb` 
 ### 19. Add negative/error case tests — ✅ Done (2026-05-14)
 
 Resolved in commits 5564253 and 8d92c7e. Added negative test cases for config validation including missing fields, invalid enums, malformed schemas, and edge cases.
+
+### Pipeline Stabilization — ✅ Done (2026-05-18)
+
+Completed full pipeline stabilization including:
+- Fixed `write_report_params.py` import error (removed incorrect snakemake import)
+- Fixed truvari log path typos in `rules/evaluation.smk`
+- Removed `workflow.source_path()` and `workflow.basedir` references throughout codebase for proper Snakemake archive support
+- Updated `run_defrabb` to support clone-into-runid workflow pattern
+- Documented truvari refine v5.4.0 bug (samtools faidx failure with 2700+ regions) in `docs/issues/truvari-refine-v5.4.0-bug.md`
+- Changed truvari_refine evaluations back to truvari as workaround
+- Simplified CI analysis table to 6 v5.0q evaluations (GRCh37/GRCh38/CHM13 × smvar/stvar) for streamlined testing (commit cb29418)
+
+All 85 unit tests passing, lint/formatting clean. Ready for full pipeline test run.
 
 ---
 
