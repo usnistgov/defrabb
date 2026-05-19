@@ -4,7 +4,36 @@ DeFrABB (Development Framework for Assembly-Based Benchmarks) is a Snakemake pip
 
 ## Build and Run
 
-Local smoke test: `snakemake --use-conda --use-apptainer --cores 1` (add `--forceall` to rerun, or `--config analyses=config/analyses_YYYYMMDD_v0.###_*.tsv` to pick a config). For NIST-flavored runs use `./run_defrabb --help`. Set `debug: true` in `config/resources.yml` (or pass `--config debug=true`) to enable verbose logs from gated rules (`get_sv_widen_coords`, `run_happy`).
+**Quick start:** `snakemake --use-conda --use-apptainer --cores 1` (add `--forceall` to rerun, or `--config analyses=config/analyses_YYYYMMDD_v0.###_*.tsv` to pick a config).
+
+**NIST runs:** `./run_defrabb run -r <RUNID>` (see `./run_defrabb --help` for subcommands: run, report, archive, release, validate).
+
+**Debug mode:** Set `debug: true` in `config/resources.yml` (or pass `--config debug=true`) for verbose logs from gated rules.
+
+## Workflow
+
+**Recommended pattern (clone-into-runid):**
+```sh
+git clone <repo-url> 20260519_v0.021_HG002
+cd 20260519_v0.021_HG002
+./run_defrabb run -r 20260519_v0.021_HG002
+```
+
+**Legacy pattern:** `./run_defrabb run -r <RUNID> --outdir <path>` (deprecated but still supported).
+
+## Environment
+
+The `snakemake` CLI requires activation: `conda activate snakemake` (or `~/miniforge3/envs/snakemake`). Individual pipeline rules use their own conda environments defined in `envs/`.
+
+## Testing & QA
+
+```sh
+pytest .tests          # Run unit and integration tests
+snakefmt .            # Format Snakemake files
+black scripts/        # Format Python scripts
+```
+
+CI runs all three checks on every push.
 
 ## Architecture
 
@@ -34,6 +63,18 @@ Two main config files drive the pipeline:
 - Helper functions go in the appropriate `rules/helpers_*.smk` (ref / varcall / eval / bench); scripts in `scripts/`. `rules/common.smk` keeps only schema/table loading + module-level config init, then `include:`s the helpers so they can reference module-level globals (`vc_tbl`, `bench_tbl`, `ref_config`, `asm_config`, `REFIDS`, …).
 - File naming: `run_*.py`, `test_*.py`, `analyses_YYYYMMDD_v0.###_*.tsv`
 
+## Key Files
+
+- **`docs/TODO-pre-development.md`** - Pre-development roadmap and completed items
+- **`docs/development-roadmap.md`** - Planned refactoring phases
+- **`docs/issues/`** - Known bugs and workarounds (e.g., truvari-refine-v5.4.0-bug.md)
+- **`CHANGELOG`** - Release notes
+
 ## NIST-Specific Defaults
 
-`run_defrabb` and `config/release.json` contain NIST-specific paths and S3 settings. External contributors should use CLI overrides: `--outdir`, `--archive_dir`, `--s3_bucket`, `--s3_path`.
+`run_defrabb` and `config/release.json` contain NIST-specific paths and S3 settings. External contributors should use CLI overrides: `--archive_dir`, `--s3_bucket`, `--s3_path`.
+
+## Known Issues
+
+- **Truvari refine v5.4.0:** Fails with 2700+ regions (samtools faidx bug). Workaround: use `truvari` (without refine) or downgrade. See `docs/issues/truvari-refine-v5.4.0-bug.md`.
+- **FIPS OpenSSL:** Some conda envs trigger FIPS conflicts. Fixed in Truvari 4.3+. See `docs/truvari-env-debugging-reference.md`.
