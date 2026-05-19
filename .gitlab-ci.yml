@@ -1,3 +1,13 @@
+variables:
+  # Use libmamba solver for faster conda operations
+  CONDA_SOLVER: libmamba
+
+cache:
+  # Share cache across branches since conda envs are deterministic by hash
+  key: conda-envs-shared
+  paths:
+    - .snakemake/conda/
+
 before_script:
   - source /home/gitlab-runner/miniforge3/etc/profile.d/conda.sh
   - conda activate defrabb-ci
@@ -27,8 +37,10 @@ pytest:
     - pytest .tests
 
 run-test:
+  timeout: 30m
   artifacts:
     paths:
         - smalltest
+    when: always
   script:
-    - snakemake -p --use-conda --use-apptainer --cores 1 --verbose --config "_happy_threads=1"
+    - snakemake -p --use-conda --conda-frontend mamba --use-apptainer --cores 1 --verbose --config "_happy_threads=1"
