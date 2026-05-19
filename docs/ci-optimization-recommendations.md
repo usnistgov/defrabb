@@ -6,6 +6,7 @@
 2. **No conda caching** - environments rebuilt from scratch every run
 3. **Slow conda solver** - default conda solver much slower than mamba/libmamba
 4. **Runner reconfiguration issues** - CI broken since 2026-04-21 after OS reinstall
+5. **Firewall blocking anaconda.org** - NIST firewall blocks conda channel domains
 
 ## Implemented Fixes (in this commit)
 
@@ -31,6 +32,19 @@ variables:
 snakemake --conda-frontend mamba ...
 ```
 **Impact:** Uses mamba instead of conda for environment operations
+
+### 4. Added CI-specific conda config to work around firewall
+```yaml
+variables:
+  CONDARC: "${CI_PROJECT_DIR}/.condarc.ci"
+```
+
+The `.condarc.ci` file configures:
+- **prefix.dev mirrors** for conda-forge and bioconda (not blocked by firewall)
+- **SSL verify disabled** (for institutional proxy/firewall)
+- **Blocks anaconda channel** (may be firewalled)
+
+**Impact:** Conda can access packages through allowed mirrors instead of blocked anaconda.org
 
 **Expected total speedup:** First run may still be slow, but subsequent runs should drop from 22+ minutes to ~2-5 minutes for conda setup.
 
@@ -96,6 +110,17 @@ After OS reinstall, verify on the runner:
    ```bash
    df -h /home/gitlab-runner
    # Need at least 5GB free for conda cache
+   ```
+
+5. **Firewall/proxy configuration:**
+   ```bash
+   # Test if prefix.dev mirrors are accessible
+   curl -I https://prefix.dev/conda-forge
+   
+   # If curl fails but a proxy is available, edit .condarc.ci and uncomment:
+   # proxy_servers:
+   #   http: http://proxy.example.com:port
+   #   https: https://proxy.example.com:port
    ```
 
 ## Monitoring

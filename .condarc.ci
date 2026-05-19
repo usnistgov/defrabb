@@ -1,0 +1,25 @@
+# CI-specific conda configuration for NIST firewall environment
+# Uses prefix.dev mirrors to avoid blocked anaconda.org domains
+
+ssl_verify: false
+
+# Use conda-forge and bioconda via prefix.dev mirrors
+custom_multichannels:
+  conda-forge:
+    - https://prefix.dev/conda-forge
+  bioconda:
+    - https://prefix.dev/bioconda
+
+channel_priority: strict
+channels:
+  - conda-forge
+  - bioconda
+
+# Block anaconda channel (may be firewalled)
+disallow:
+  - anaconda
+
+# Proxy settings (uncomment if needed by CI runner)
+# proxy_servers:
+#   http: http://proxy.example.com:port
+#   https: https://proxy.example.com:port

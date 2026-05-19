@@ -1,6 +1,8 @@
 variables:
   # Use libmamba solver for faster conda operations
   CONDA_SOLVER: libmamba
+  # Use CI-specific conda config to work around NIST firewall
+  CONDARC: "${CI_PROJECT_DIR}/.condarc.ci"
 
 cache:
   # Share cache across branches since conda envs are deterministic by hash
@@ -18,6 +20,8 @@ before_script:
   - black --version
   - pytest --version
   - apptainer --version
+  - echo "Conda config (using ${CONDARC}):"
+  - conda config --show-sources
 
 # lint-test:
 #   artifacts:
