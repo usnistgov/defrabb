@@ -36,13 +36,17 @@ snakemake --conda-frontend mamba ...
 ### 4. Added CI-specific conda config to work around firewall
 ```yaml
 variables:
-  CONDARC: "${CI_PROJECT_DIR}/.condarc.ci"
+  CONDARC: "${CI_PROJECT_DIR}/.condarc.ci.yml"
 ```
 
-The `.condarc.ci` file configures:
+The `.condarc.ci.yml` file configures:
 - **prefix.dev mirrors** for conda-forge and bioconda (not blocked by firewall)
 - **SSL verify disabled** (for institutional proxy/firewall)
 - **Blocks anaconda channel** (may be firewalled)
+- **Institutional proxy** for package artifact downloads that redirect to blocked domains
+
+The `.yml` suffix is intentional: current Conda versions only load `$CONDARC`
+paths that look like `.condarc`, `condarc`, or YAML files.
 
 **Impact:** Conda can access packages through allowed mirrors instead of blocked anaconda.org
 
@@ -117,7 +121,7 @@ After OS reinstall, verify on the runner:
    # Test if prefix.dev mirrors are accessible
    curl -I https://prefix.dev/conda-forge
    
-   # If curl fails but a proxy is available, edit .condarc.ci and uncomment:
+   # If curl fails but a proxy is available, confirm .condarc.ci.yml contains:
    # proxy_servers:
    #   http: http://proxy.example.com:port
    #   https: https://proxy.example.com:port

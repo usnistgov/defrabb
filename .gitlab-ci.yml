@@ -1,8 +1,9 @@
 variables:
   # Use libmamba solver for faster conda operations
   CONDA_SOLVER: libmamba
-  # Use CI-specific conda config to work around NIST firewall
-  CONDARC: "${CI_PROJECT_DIR}/.condarc.ci"
+  # Use CI-specific conda config to work around NIST firewall.
+  # The .yml suffix is required so Conda treats CONDARC as a config file.
+  CONDARC: "${CI_PROJECT_DIR}/.condarc.ci.yml"
 
 cache:
   # Share cache across branches since conda envs are deterministic by hash

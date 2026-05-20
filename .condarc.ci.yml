@@ -19,7 +19,9 @@ channels:
 disallow:
   - anaconda
 
-# Proxy settings (uncomment if needed by CI runner)
-# proxy_servers:
-#   http: http://proxy.example.com:port
-#   https: https://proxy.example.com:port
+# Route downloads through the institutional proxy. prefix.dev serves as the
+# channel URL, but some package artifact requests still redirect to
+# conda.anaconda.org, which is blocked from the runner without this proxy.
+proxy_servers:
+  http: http://kkjl338c0s.proxy.cloudflare-gateway.com
+  https: https://kkjl338c0s.proxy.cloudflare-gateway.com
