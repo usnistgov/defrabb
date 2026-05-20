@@ -48,4 +48,4 @@ run-test:
         - smalltest
     when: always
   script:
-    - snakemake -p --use-conda --conda-frontend mamba --use-apptainer --cores 1 --verbose --dryrun"
+    - snakemake -p --use-conda --conda-frontend mamba --use-apptainer --cores 1 --verbose --dryrun
