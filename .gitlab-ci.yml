@@ -24,17 +24,24 @@ before_script:
   - echo "Conda config (using ${CONDARC}):"
   - conda config --show-sources
 
-# lint-test:
-#   artifacts:
-#     paths:
-#         - lint
-#   script:
-#     - snakemake --lint
-
 smkformat:
   script:
-    - echo "Running snakefmt"
-    - snakefmt .
+    - echo "Running snakefmt --check"
+    - snakefmt --check .
+
+pyformat:
+  script:
+    - echo "Running black --check"
+    - black --check scripts/ .tests/
+
+snakelint:
+  # Advisory only: snakemake --lint flags best-practice issues (missing log:/
+  # conda: directives on legacy rules) and exits non-zero. Surface them without
+  # blocking the pipeline until those rules are cleaned up.
+  allow_failure: true
+  script:
+    - echo "Running snakemake --lint (advisory)"
+    - snakemake --lint
 
 pytest:
   script:
