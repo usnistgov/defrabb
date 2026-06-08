@@ -31,6 +31,10 @@
   profile reproduces the prior parameters, so existing analyses are unchanged
   (GitLab #194). Supports pick/passonly/refdist/chunksize/pctseq/pctsize/pctovl/
   sizemin/sizemax/sizefilt/typeignore/dup_to_ins.
+- Added `scripts/build_stratification_tsv.py`, the shared hap.py
+  stratification-TSV builder for the planned exclusion-impact (#173) and
+  dipcall-derived (#59) stratifications. Not yet wired into `run_happy` (pending
+  hap.py validation / JZ strat spec); see `docs/issues/stratification-59-173-design.md`.
 - Added `scripts/compare_evaluations.py`: a CLI that aggregates hap.py
   (`*.summary.csv`) and Truvari (`summary.json`, `refine.variant_summary.json`)
   results into a tidy precision/recall/F1 comparison table (Markdown + TSV), with
