@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Core infrastructure
+
+- Resource entries in `config/resources.yml` (references, assemblies, exclusions,
+  stratifications, comparison vcf/bed) may now be **local filesystem paths** (or
+  `file://` URIs) in addition to URLs, enabling offline / external use (GitLab
+  #186). A shared `scripts/fetch_resource.sh` copies local files (decompressing by
+  destination extension) or downloads remote URLs; schema no longer constrains
+  these fields to `uri`/`url`.
+
 ### Exclusions / benchmarks
 
 - Added exclusion set `HG002Q100stvarv0.022` (HG002Q100stvarv0.017 minus

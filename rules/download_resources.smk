@@ -19,7 +19,7 @@ rule get_assemblies:
         url=lambda wildcards: asm_config[wildcards.asm_id][wildcards.haplotype],
     shell:
         """
-        curl -f -L {params.url} 2> {log} | gunzip -c 1> {output} 2>> {log};
+        bash scripts/fetch_resource.sh {params.url} {output} &> {log}
         """
 
 
@@ -35,8 +35,7 @@ rule get_ref:
         url=lambda wildcards: ref_config[wildcards.ref_id]["ref_url"],
     shell:
         """
-        curl -f --connect-timeout 120 -L {params.url} 2> {log} \
-            | gunzip -c 1> {output} 2>> {log}
+        bash scripts/fetch_resource.sh {params.url} {output} &> {log}
         """
 
 
@@ -54,7 +53,7 @@ rule get_strats:
     params:
         url=lambda wildcards: f"{config['references'][wildcards.ref_id]['stratifications']['url']}",
     shell:
-        "curl -f -L -o {output} {params.url} &> {log}"
+        "bash scripts/fetch_resource.sh {params.url} {output} &> {log}"
 
 
 ################################################################################
@@ -73,7 +72,7 @@ rule get_comparison_vcf:
             "vcf_url"
         ],
     shell:
-        "curl -f -L -o {output} {params.url} &> {log}"
+        "bash scripts/fetch_resource.sh {params.url} {output} &> {log}"
 
 
 rule get_comparison_bed:
@@ -88,11 +87,4 @@ rule get_comparison_bed:
             "bed_url"
         ],
     shell:
-        """
-        if [[ "{params.url}" == *gz ]]; then
-            curl -f -L {params.url} |
-                gunzip - 1> {output} 2> {log}
-        else
-            curl -f -L -o {output} {params.url} &> {log}
-        fi
-    """
+        "bash scripts/fetch_resource.sh {params.url} {output} &> {log}"

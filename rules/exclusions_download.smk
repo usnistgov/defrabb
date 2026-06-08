@@ -45,7 +45,7 @@ rule download_bed_gz:
             wildcards.genomic_region
         ],
     shell:
-        "curl -L {params.url} 2> {log} | gunzip -c 1> {output} 2> {log}"
+        "bash scripts/fetch_resource.sh {params.url} {output} &> {log}"
 
 
 rule make_gaps_bed:

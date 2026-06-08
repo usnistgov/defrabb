@@ -50,8 +50,8 @@ properties:
         properties:
 
           ref_url:
-            format: url
-            description: url to the reference FASTA file
+            type: string
+            description: URL or local filesystem path to the reference FASTA file
 
           par_bed:
             type: string
@@ -61,9 +61,8 @@ properties:
 
           adotto_db:
             type: string
-            format: uri
             description: |
-              url for adotto TR database used in tandem repeat annotation with `truvari anno trf`
+              URL or local path for the adotto TR database used in tandem repeat annotation with `truvari anno trf`
 
           exclusions:
             description: The beds to use when generating the exclusions
@@ -71,7 +70,6 @@ properties:
             patternProperties:
               ^[\w\.\-]*$:
                 type: string
-                format: uri
 
           stratifications:
             description: |
@@ -82,8 +80,8 @@ properties:
                 format: string
                 description: stratification set id
               url:
-                format: uri
-                description: the url to the tarball with the stratification files
+                type: string
+                description: URL or local path to the tarball with the stratification files
               tarball:
                 format: string
                 description: name of the stratification tarball file
@@ -109,12 +107,12 @@ properties:
         properties:
 
           maternal:
-            format: uri
-            description: the url to the maternal FASTA assembly file
+            type: string
+            description: URL or local path to the maternal FASTA assembly file
 
           paternal:
-            format: uri
-            description: the url to the paternal FASTA assembly file
+            type: string
+            description: URL or local path to the paternal FASTA assembly file
 
           is_male:
             type: boolean
@@ -144,18 +142,18 @@ properties:
             properties:
 
               vcf_url:
-                format: uri
-                description: the url to the comparison vcf file
+                type: string
+                description: URL or local path to the comparison vcf file
 
               bed_url:
-                format: uri
+                type: string
                 description: |
-                  the url to the comparison bed file,
+                  URL or local path to the comparison bed file,
                   e.g. benchmark regions for benchmark sets.
 
               tbi_url:
-                format: uri
-                description: the url to the comparison vcf index file
+                type: string
+                description: URL or local path to the comparison vcf index file
 
   vcf_processing_profiles:
     description: |

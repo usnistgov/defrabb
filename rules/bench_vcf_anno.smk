@@ -10,7 +10,7 @@ rule get_adotto_tr_anno_db:
         url=get_addoto_tr_anno_db_url,
     shell:
         """
-        curl -L {params.url} 1> {output.adotto_db} 2> {log}
+        bash scripts/fetch_resource.sh {params.url} {output.adotto_db} &> {log}
         """
 
 
