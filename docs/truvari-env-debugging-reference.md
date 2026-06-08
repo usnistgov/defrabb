@@ -1,5 +1,16 @@
 # Truvari Env Debugging Reference
 
+> **Resolution (2026-06-08):** the `truvari anno remap` failure is fixed. The env
+> (`envs/truvari_remap.yml`) is now `bioconda::truvari ==5.4.0` + a patched bwapy
+> fork (`nate-d-olson/bwapy` @ `5b91fe0`, tag `0.1.5-nist`) installed via pip,
+> plus a build toolchain (`c-compiler`, `make`, `zlib`). The fork drops the
+> `pkg_resources` import (builds under setuptools≥80, no `--no-build-isolation`)
+> and compiles with `-fno-finite-math-only` while rebuilding `bwa/libbwa.a`
+> (fixes `undefined symbol: __log_finite` on glibc≥2.31). FIPS: the 5.4.0 envs
+> run clean without `OPENSSL_CONF=/dev/null`; only the 4.3.0-pinned `trf` env
+> still needs that guard. See GitLab #200 (resolved) and #198 (bioconda
+> follow-up). The notes below are retained as historical debugging context.
+
 Last-known-successful Truvari env state, captured from branch `postproc-HG008TN`
 (HG008 v6.3N / v3.2T run, January–March 2026). Use this as the working baseline
 when debugging the current Truvari anno failures (issue #197 and related env

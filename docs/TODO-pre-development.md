@@ -9,7 +9,7 @@ _Last Updated: 2026-05-19_
 
 ## Correctness & Reliability
 
-### 3. Resolve truvari_remap.yml mixed conda/pip install — 🚧 In progress (user)
+### 3. Resolve truvari_remap.yml mixed conda/pip install — ✅ Done (2026-06-08)
 
 `truvari_remap.yml` previously installed Truvari 4.2.2 via pip while
 `truvari.yml` installed 5.3.0 via conda. The pip install bypassed
@@ -21,6 +21,21 @@ so upgrading `envs/truvari_remap.yml` to ≥4.3 via conda resolves both
 the pip-vs-conda divergence and the FIPS workaround in one shot. The
 user is editing this file directly to switch to the conda install.
 
+**Resolution (2026-06-08):** `envs/truvari_remap.yml` now installs
+`bioconda::truvari ==5.4.0` via conda. The only remaining pip dependency is
+`bwapy`, which `truvari anno remap` requires for the BwaAligner `-a` backend —
+bioconda's bwapy 0.1.4 lacks `-a` and fails to load on modern glibc
+(`undefined symbol: __log_finite`). It is installed from a patched fork
+(`nate-d-olson/bwapy`, pinned to commit `5b91fe0` / tag `0.1.5-nist`) that drops
+the `pkg_resources` import (so it builds under setuptools≥80 with normal build
+isolation) and compiles with `-fno-finite-math-only` while rebuilding
+`bwa/libbwa.a` (fixing the `__log_finite` load failure). Verified end-to-end:
+`truvari anno remap` produces a `REMAP`-annotated VCF in the conda-built env.
+Guarded by `.tests/unit/test_truvari_remap_env.py`. See GitLab #200.
+
+The durable follow-up is GitLab #198: get the fix into the bioconda bwapy recipe
+so the pip block can be replaced with a plain `bioconda::bwapy` dep.
+
 **File:** `envs/truvari_remap.yml`
 **Impact:** FIPS compatibility, version consistency
 
@@ -31,6 +46,14 @@ Rather than patching individual shell blocks with `OPENSSL_CONF=/dev/null`, cons
 **Update (2026-04-16):** Largely subsumed by item 3 — once Truvari is on
 4.3+ the main offender is fixed. Audit any other env that still triggers
 the FIPS issue after the Truvari upgrade.
+
+**Audit (2026-06-08):** Confirmed while resolving item 3 that the
+`bioconda::truvari ==5.4.0` envs (`truvari_core`, `truvari_remap`,
+`truvari_repmask`) run cleanly on this FIPS host **without** an
+`OPENSSL_CONF=/dev/null` guard. The only rule that still needs the guard is
+`run_truvari_anno_trf`, which is pinned to truvari `4.3.0` (`truvari_trf.yml`).
+So the remaining FIPS exposure is isolated to that one pinned env; no systematic
+`env_vars` workaround is required as long as the other envs stay on 5.4.0+.
 
 **Impact:** All rules using conda envs with OpenSSL on FIPS systems
 
@@ -107,9 +130,13 @@ This directly supports the planned workflow of running multiple parameter config
 **Completed (2026-05-14):**
 - Items 6, 10, 11, 12, 13, 14, 18, 19 — All core infrastructure and testing improvements complete
 
-**In Progress:**
-- Item 3 (Truvari env) — User is migrating to conda install
+**Completed (2026-06-08):**
+- Item 3 (Truvari env) — `truvari_remap.yml` on conda truvari 5.4.0 + patched bwapy
+  fork; `truvari anno remap` verified working. See GitLab #200.
+- Item 4 (FIPS) — audited; exposure isolated to the truvari 4.3.0 `trf` env, which
+  already carries the `OPENSSL_CONF` guard. No systematic workaround needed.
 
 **Remaining:**
-- Item 4 — Effectively closed by item 3
 - **Item 20** — Evaluation comparison utility (next priority for parameter optimization workflow)
+- Follow-up (GitLab #198) — bioconda bwapy recipe fix so the pip block in
+  `truvari_remap.yml` can become a plain `bioconda::bwapy` dep.

@@ -3,16 +3,21 @@ channels:
   - bioconda
 dependencies:
   - bioconda::truvari ==5.4.0
-  # truvari 5.4.0 transitively pulls bwapy 0.1.4 from bioconda, but that
-  # build is unusable for `truvari anno remap` on this workstation:
-  #   1. bwapy 0.1.4 fails to load with `undefined symbol: __log_finite`
-  #      (glibc finite-math compat); affects bioconda's package and a
-  #      locally built ACEnglish/bwapy fork alike.
-  #   2. The ACEnglish/bwapy fork (which adds the `-a` option that
-  #      `truvari anno remap` requires) cannot be installed via the
-  #      conda env YAML pip block because that block does not accept
-  #      the `--no-build-isolation` flag the build needs.
-  # CI's default analyses.tsv does not exercise anno_remap, so the env
-  # builds cleanly and CI passes. Active HG008 dipcall stvar analyses
-  # that include `.remap` will fail at runtime until a follow-up issue
-  # resolves both blockers above.
+  # `truvari anno remap` needs the BwaAligner backend from bwapy, built with the
+  # `-a` option. The bioconda bwapy 0.1.4 package lacks `-a` AND fails to load on
+  # modern glibc (>=2.31) with `undefined symbol: __log_finite`. We install a
+  # patched fork instead (nate-d-olson/bwapy, forked from ACEnglish/bwapy) that:
+  #   1. drops the unused `import pkg_resources` so it builds with setuptools>=80
+  #      under normal (isolated) pip builds — no `--no-build-isolation` needed;
+  #   2. compiles with `-fno-finite-math-only` and actually rebuilds bwa/libbwa.a,
+  #      eliminating the `__log_finite` load failure.
+  # Pinned to an immutable commit (tag 0.1.5-nist). Build toolchain below is
+  # required because pip compiles bwapy (and its bundled bwa) from source.
+  # Long-term, replace this pip block with a plain `bioconda::bwapy` dep once the
+  # bioconda recipe is fixed (GitLab #198).
+  - c-compiler
+  - make
+  - zlib
+  - pip
+  - pip:
+      - git+https://github.com/nate-d-olson/bwapy@5b91fe0cfb133dda50181f99d55fe1a55d30c03a
