@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Exclusions / benchmarks
+
+- Added exclusion set `HG002Q100stvarv0.022` (HG002Q100stvarv0.017 minus
+  `HG002Q100-mosaic`) and pointed the current HG002Q100 stvar analyses at it;
+  excluding mosaic regions unnecessarily fragmented the SV benchmark (GitLab
+  #188). Historical v0.016/v0.017 sets are left unchanged.
+- Self-discrepancy exclusions now drop symbolic/breakend ALT alleles (e.g. PAV
+  `<INV>`) before hap.py, fixing the `Invalid allele ... <INV>` crash on SV
+  benchmarks (GitLab #192). SV-aware self-discrepancy via Truvari remains tracked
+  in #193.
+
 ### Evaluation
 
 - Added `scripts/compare_evaluations.py`: a CLI that aggregates hap.py

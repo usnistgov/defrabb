@@ -1,8 +1,30 @@
 ## Excluding self comparison
-rule self_discrep_happy:
+rule self_discrep_filter_symbolic:
+    # hap.py / vcfeval cannot parse symbolic or breakend ALT alleles (e.g. PAV
+    # inversions represented as <INV>), which crashes the self-comparison with
+    # "Invalid allele ... <INV>" (#192). Drop those records before hap.py. They
+    # cannot participate in vcfeval haplotype comparison anyway; SV-aware
+    # self-discrepancy handling is tracked separately in #193.
     input:
         vcf=get_standardized_vcf,
         vcfidx=get_standardized_vcfidx,
+    output:
+        # Index is produced by the generic `tabix` rule to avoid a rule clash.
+        vcf="results/draft_benchmarksets/{bench_id}/exclusions/self-discrep/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.no-symbolic.vcf.gz",
+    log:
+        "logs/exclusions/self-discrep-filter-symbolic/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
+    conda:
+        "../envs/bcftools_and_bedtools.yml"
+    shell:
+        """
+        bcftools view -e 'ALT~"<" || ALT~"\\[" || ALT~"\\]"' -Oz -o {output.vcf} {input.vcf} 2> {log}
+        """
+
+
+rule self_discrep_happy:
+    input:
+        vcf="results/draft_benchmarksets/{bench_id}/exclusions/self-discrep/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.no-symbolic.vcf.gz",
+        vcfidx="results/draft_benchmarksets/{bench_id}/exclusions/self-discrep/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.no-symbolic.vcf.gz.tbi",
         bed=get_standardized_bed,
         ref=get_ref_file,
         sdf=get_ref_sdf,
