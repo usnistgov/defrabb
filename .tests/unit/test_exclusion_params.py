@@ -2,6 +2,7 @@
 
 Developed with assistance from Claude (Anthropic); reviewed by the primary author.
 """
+
 import io
 import sys
 from pathlib import Path
@@ -36,7 +37,12 @@ def _cfg(overrides=None):
         },
         "exclusion_slop_regions": ["tandem-repeats", "gaps", "self-chains"],
         "exclusion_slopmerge_regions": ["segdups", "satellites"],
-        "exclusion_asm_intersect": ["segdups", "tandem-repeats", "satellites", "self-chains"],
+        "exclusion_asm_intersect": [
+            "segdups",
+            "tandem-repeats",
+            "satellites",
+            "self-chains",
+        ],
         "exclusion_asm_agnostic": ["gaps"],
         "exclusion_ref_agnostic": ["flanks", "svs-and-simple-repeats"],
     }
@@ -52,13 +58,17 @@ def test_resolve_slop_no_overrides_returns_global():
 
 
 def test_resolve_slop_bp_override():
-    val, is_pct = _resolve_slop("tandem-repeats", _cfg({"tandem-repeats": {"slop": 20000}}))
+    val, is_pct = _resolve_slop(
+        "tandem-repeats", _cfg({"tandem-repeats": {"slop": 20000}})
+    )
     assert val == 20000
     assert is_pct is False
 
 
 def test_resolve_slop_pct_override():
-    val, is_pct = _resolve_slop("tandem-repeats", _cfg({"tandem-repeats": {"slop_pct": 0.25}}))
+    val, is_pct = _resolve_slop(
+        "tandem-repeats", _cfg({"tandem-repeats": {"slop_pct": 0.25}})
+    )
     assert val == 0.25
     assert is_pct is True
 
@@ -77,7 +87,10 @@ def test_resolve_merge_dist_no_overrides_returns_global():
 
 
 def test_resolve_merge_dist_override():
-    assert _resolve_merge_dist("segdups", _cfg({"segdups": {"slopmerge_dist": 15000}})) == 15000
+    assert (
+        _resolve_merge_dist("segdups", _cfg({"segdups": {"slopmerge_dist": 15000}}))
+        == 15000
+    )
 
 
 # ---------------------------------------------------------------------------

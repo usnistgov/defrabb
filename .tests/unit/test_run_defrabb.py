@@ -145,14 +145,18 @@ class ReleasePatternTests(unittest.TestCase):
     def test_matches_release_patterns_exact_match(self):
         patterns = ["run.log", "environment.yml"]
         self.assertTrue(
-            self.module.matches_release_patterns("run.log", "20260507_v0.022_smoke", patterns)
+            self.module.matches_release_patterns(
+                "run.log", "20260507_v0.022_smoke", patterns
+            )
         )
 
     def test_matches_release_patterns_wildcard(self):
         patterns = ["results/**", "config/**"]
         self.assertTrue(
             self.module.matches_release_patterns(
-                "results/draft_benchmarksets/test.vcf.gz", "20260507_v0.022_smoke", patterns
+                "results/draft_benchmarksets/test.vcf.gz",
+                "20260507_v0.022_smoke",
+                patterns,
             )
         )
 
@@ -256,7 +260,9 @@ class ReleaseRulesExpansionTests(unittest.TestCase):
         }
         with self.assertRaises(ValueError) as ctx:
             self.module.validate_and_expand_release_rules(release_config, "local")
-        self.assertIn("Include and exclude patterns must be defined", str(ctx.exception))
+        self.assertIn(
+            "Include and exclude patterns must be defined", str(ctx.exception)
+        )
 
     def test_missing_exclude_raises(self):
         release_config = {
@@ -266,7 +272,9 @@ class ReleaseRulesExpansionTests(unittest.TestCase):
         }
         with self.assertRaises(ValueError) as ctx:
             self.module.validate_and_expand_release_rules(release_config, "s3")
-        self.assertIn("Include and exclude patterns must be defined", str(ctx.exception))
+        self.assertIn(
+            "Include and exclude patterns must be defined", str(ctx.exception)
+        )
 
 
 class ProfileLoadingTests(unittest.TestCase):
@@ -286,6 +294,7 @@ class ProfileLoadingTests(unittest.TestCase):
 
             # Temporarily change to tmpdir so relative path works
             import os
+
             original_cwd = os.getcwd()
             try:
                 os.chdir(tmpdir)
@@ -298,6 +307,7 @@ class ProfileLoadingTests(unittest.TestCase):
         """Test loading a non-existent profile returns None."""
         with tempfile.TemporaryDirectory() as tmpdir:
             import os
+
             original_cwd = os.getcwd()
             try:
                 os.chdir(tmpdir)
@@ -323,7 +333,7 @@ class ProfileLoadingTests(unittest.TestCase):
                 "outdir": "/profile/outdir",
                 "archive_dir": "/profile/archive",
                 "release_config": "profiles/test/release.json",
-                "release_type": "local"
+                "release_type": "local",
             }
         }
 
@@ -348,6 +358,7 @@ class SubcommandParsingTests(unittest.TestCase):
     def test_subcommand_run_maps_to_pipe_step(self):
         """'run' subcommand should map to 'pipe' step internally."""
         import sys
+
         original_argv = sys.argv.copy()
         try:
             sys.argv = ["run_defrabb", "run", "-r", "20260515_v0.022_test"]
@@ -361,6 +372,7 @@ class SubcommandParsingTests(unittest.TestCase):
     def test_subcommand_validate_sets_validate_only(self):
         """'validate' subcommand should set validate_only=True."""
         import sys
+
         original_argv = sys.argv.copy()
         try:
             sys.argv = ["run_defrabb", "validate", "-a", "config/analyses.tsv"]
@@ -374,6 +386,7 @@ class SubcommandParsingTests(unittest.TestCase):
     def test_legacy_steps_syntax_still_works(self):
         """Old -s/--steps syntax should still work for backward compatibility."""
         import sys
+
         original_argv = sys.argv.copy()
         try:
             sys.argv = [
@@ -392,6 +405,7 @@ class SubcommandParsingTests(unittest.TestCase):
     def test_legacy_validate_only_still_works(self):
         """Old --validate-only flag should still work."""
         import sys
+
         original_argv = sys.argv.copy()
         try:
             sys.argv = ["run_defrabb", "--validate-only", "-a", "config/analyses.tsv"]
@@ -403,6 +417,7 @@ class SubcommandParsingTests(unittest.TestCase):
     def test_subcommand_report_maps_correctly(self):
         """'report' subcommand should map to 'report' step."""
         import sys
+
         original_argv = sys.argv.copy()
         try:
             sys.argv = ["run_defrabb", "report", "-r", "20260515_v0.022_test"]
@@ -415,6 +430,7 @@ class SubcommandParsingTests(unittest.TestCase):
     def test_subcommand_archive_maps_correctly(self):
         """'archive' subcommand should map to 'archive' step."""
         import sys
+
         original_argv = sys.argv.copy()
         try:
             sys.argv = ["run_defrabb", "archive", "-r", "20260515_v0.022_test"]
@@ -427,6 +443,7 @@ class SubcommandParsingTests(unittest.TestCase):
     def test_subcommand_release_maps_correctly(self):
         """'release' subcommand should map to 'release' step."""
         import sys
+
         original_argv = sys.argv.copy()
         try:
             sys.argv = ["run_defrabb", "release", "-r", "20260515_v0.022_test"]
@@ -472,9 +489,7 @@ class ManifestGenerationTests(unittest.TestCase):
         self.assertTrue(manifest_path.exists())
         content = manifest_path.read_text()
         lines = content.strip().split("\n")
-        self.assertEqual(
-            lines[0], "analysis\tfile_type\tref_id\tsize_Gb\ts3_uri\turl"
-        )
+        self.assertEqual(lines[0], "analysis\tfile_type\tref_id\tsize_Gb\ts3_uri\turl")
 
     @patch("boto3.client")
     def test_create_data_manifest_file_type_detection(self, mock_boto3_client):
@@ -486,9 +501,18 @@ class ManifestGenerationTests(unittest.TestCase):
             ("defrabb_runs/20260507_v0.022_test/run.log", "run.log"),
             ("defrabb_runs/20260507_v0.022_test/environment.yml", "mamba env"),
             ("defrabb_runs/20260507_v0.022_test/archive.tar.gz", "snakemake_archive"),
-            ("defrabb_runs/20260507_v0.022_test/config/analyses_20260507_v0.022_test.tsv", "analysis table"),
-            ("defrabb_runs/20260507_v0.022_test/results/draft_benchmarksets/bench1/GRCh38_HG002_smvar.vcf.gz", "smvar benchmark vcf"),
-            ("defrabb_runs/20260507_v0.022_test/results/draft_benchmarksets/bench1/GRCh38_HG002_stvar.vcf.gz", "stvar benchmark vcf"),
+            (
+                "defrabb_runs/20260507_v0.022_test/config/analyses_20260507_v0.022_test.tsv",
+                "analysis table",
+            ),
+            (
+                "defrabb_runs/20260507_v0.022_test/results/draft_benchmarksets/bench1/GRCh38_HG002_smvar.vcf.gz",
+                "smvar benchmark vcf",
+            ),
+            (
+                "defrabb_runs/20260507_v0.022_test/results/draft_benchmarksets/bench1/GRCh38_HG002_stvar.vcf.gz",
+                "stvar benchmark vcf",
+            ),
         ]
 
         mock_s3.list_objects_v2.return_value = {
@@ -507,7 +531,9 @@ class ManifestGenerationTests(unittest.TestCase):
         for i, (_, expected_type) in enumerate(test_files):
             cols = lines[i].split("\t")
             actual_type = cols[1]
-            self.assertEqual(actual_type, expected_type, f"File type mismatch for {test_files[i][0]}")
+            self.assertEqual(
+                actual_type, expected_type, f"File type mismatch for {test_files[i][0]}"
+            )
 
     @patch("boto3.client")
     def test_create_data_manifest_ref_id_detection(self, mock_boto3_client):
@@ -538,7 +564,9 @@ class ManifestGenerationTests(unittest.TestCase):
         for i, (_, expected_ref) in enumerate(test_files):
             cols = lines[i].split("\t")
             actual_ref = cols[2]
-            self.assertEqual(actual_ref, expected_ref, f"Ref ID mismatch for {test_files[i][0]}")
+            self.assertEqual(
+                actual_ref, expected_ref, f"Ref ID mismatch for {test_files[i][0]}"
+            )
 
     @patch("boto3.client")
     def test_create_data_manifest_pagination(self, mock_boto3_client):

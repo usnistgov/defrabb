@@ -349,7 +349,10 @@ class TestAnalysesSchemaValidation:
             snakemake_validate(test_df, str(schema_path))
 
         # Schema validation should catch the missing column
-        assert "eval_cmd" in str(exc_info.value) or "required" in str(exc_info.value).lower()
+        assert (
+            "eval_cmd" in str(exc_info.value)
+            or "required" in str(exc_info.value).lower()
+        )
 
     def test_invalid_eval_cmd_enum_raises(self, schema_path, tmp_analyses_file):
         """Invalid eval_cmd value should fail schema validation."""
@@ -527,9 +530,7 @@ class TestResourcesSchemaValidation:
             "references": {"GRCh38": {}},
             "assemblies": {"HG002": {}},
             "comparisons": {},
-            "exclusion_set": {
-                "smvartest": "this_should_be_a_list"  # Wrong type
-            },
+            "exclusion_set": {"smvartest": "this_should_be_a_list"},  # Wrong type
             "vcf_processing_profiles": {},
         }
 

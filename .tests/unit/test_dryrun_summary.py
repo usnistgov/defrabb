@@ -2,13 +2,18 @@
 
 Developed with assistance from Claude (Anthropic); reviewed by the primary author.
 """
+
 import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT / "scripts"))
 
-from dryrun_summary import parse_job_stats, summarize_analyses, unique_ordered  # noqa: E402
+from dryrun_summary import (
+    parse_job_stats,
+    summarize_analyses,
+    unique_ordered,
+)  # noqa: E402
 
 
 SAMPLE_OUTPUT = """\
@@ -45,15 +50,33 @@ def test_unique_ordered_preserves_first_occurrence():
 
 def test_summarize_analyses_collects_unique_columns():
     rows = [
-        {"ref": "GRCh38", "asm_id": "HG002", "vc_cmd": "dipcall",
-         "bench_type": "smvar", "exclusion_set": "ex1",
-         "eval_comp_id": "v4.2.1", "eval_cmd": "happy"},
-        {"ref": "GRCh38", "asm_id": "HG002", "vc_cmd": "dipcall",
-         "bench_type": "stvar", "exclusion_set": "ex2",
-         "eval_comp_id": "v0.6", "eval_cmd": "truvari"},
-        {"ref": "CHM13", "asm_id": "HG002", "vc_cmd": "dipcall",
-         "bench_type": "smvar", "exclusion_set": "ex1",
-         "eval_comp_id": "v4.2.1", "eval_cmd": "happy"},
+        {
+            "ref": "GRCh38",
+            "asm_id": "HG002",
+            "vc_cmd": "dipcall",
+            "bench_type": "smvar",
+            "exclusion_set": "ex1",
+            "eval_comp_id": "v4.2.1",
+            "eval_cmd": "happy",
+        },
+        {
+            "ref": "GRCh38",
+            "asm_id": "HG002",
+            "vc_cmd": "dipcall",
+            "bench_type": "stvar",
+            "exclusion_set": "ex2",
+            "eval_comp_id": "v0.6",
+            "eval_cmd": "truvari",
+        },
+        {
+            "ref": "CHM13",
+            "asm_id": "HG002",
+            "vc_cmd": "dipcall",
+            "bench_type": "smvar",
+            "exclusion_set": "ex1",
+            "eval_comp_id": "v4.2.1",
+            "eval_cmd": "happy",
+        },
     ]
     s = summarize_analyses(rows)
     assert s["ref"] == ["GRCh38", "CHM13"]
