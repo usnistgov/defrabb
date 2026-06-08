@@ -50,6 +50,20 @@ _happy_mem: 64000
 ## Truvari Resources ##############
 _truvari_refine_threads: 24
 
+## Truvari bench parameter profiles ##########
+# Selected per-analysis via the analyses-table `eval_params` column. The
+# `default` profile reproduces the previously hardcoded run_truvari parameters.
+# To tune matching (e.g. per JZ/Illumina/Adam guidance, #194), add a named
+# profile and set `eval_params` to its name. Supported keys: pick, passonly,
+# refdist, chunksize, pctseq, pctsize, pctovl, sizemin, sizemax, sizefilt,
+# typeignore, dup_to_ins.
+truvari_bench_params:
+  default:
+    pick: ac
+    passonly: true
+    refdist: 2000
+    chunksize: 5000
+
 ## Exclusion Parameters ##########
 # Parameters controlling how exclusion regions are generated and applied.
 # These are tunable per-genome when optimizing benchmark regions.

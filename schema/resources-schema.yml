@@ -296,6 +296,40 @@ properties:
     exclusiveMinimum: 0
     type: integer
 
+  truvari_bench_params:
+    description: |
+      Named profiles of truvari bench parameters, selected per-analysis via the
+      analyses-table eval_params column. Must include a 'default' profile.
+    type: object
+    additionalProperties:
+      type: object
+      additionalProperties: false
+      properties:
+        pick:
+          type: string
+        passonly:
+          type: boolean
+        typeignore:
+          type: boolean
+        dup_to_ins:
+          type: boolean
+        refdist:
+          type: integer
+        chunksize:
+          type: integer
+        sizemin:
+          type: integer
+        sizemax:
+          type: integer
+        sizefilt:
+          type: integer
+        pctseq:
+          type: number
+        pctsize:
+          type: number
+        pctovl:
+          type: number
+
   _exclusion_params:
     type: object
     properties:

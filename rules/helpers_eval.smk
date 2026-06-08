@@ -117,6 +117,16 @@ def get_truvari_inputs_for_rule(wildcards):
     )
 
 
+# scripts/ is on sys.path via rules/common.smk
+from truvari_params import build_truvari_bench_params
+
+
+def get_truvari_bench_params(wildcards):
+    """truvari bench CLI flags for this analysis, from its eval_params profile."""
+    profile = analyses.loc[wildcards.eval_id, "eval_params"]
+    return build_truvari_bench_params(profile, config)
+
+
 def get_truvari_inputs_inner(ref_id, eval_id, analyses, config):
     draft_bench_vcf = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz"
     draft_bench_vcfidx = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi"

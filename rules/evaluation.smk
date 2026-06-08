@@ -92,20 +92,18 @@ rule run_truvari:
     params:
         dir=lambda wildcards, output: Path(output[0]).parent,
         tmpdir=lambda wildcards: expand("truvari_{eval_id}", eval_id=wildcards.eval_id),
+        bench_params=get_truvari_bench_params,
     shell:
         """
         ## Removing temp directory before starting run
         rm -rf {params.tmpdir}
 
-        ## Running truvari
+        ## Running truvari (bench params selected via the eval_params profile)
         truvari bench \
             -b {input.truth} \
             -c {input.query} \
             -o {params.tmpdir} \
-            --pick ac \
-            --passonly \
-            -r 2000 \
-            -C 5000 \
+            {params.bench_params} \
             -f {input.genome} \
             --includebed {input.eval_regions} \
         &> {log}

@@ -25,6 +25,12 @@
 
 ### Evaluation
 
+- `truvari bench` parameters are now configurable via named `truvari_bench_params`
+  profiles in `config/resources.yml`, selected per-analysis through the
+  analyses-table `eval_params` column (previously hardcoded). The `default`
+  profile reproduces the prior parameters, so existing analyses are unchanged
+  (GitLab #194). Supports pick/passonly/refdist/chunksize/pctseq/pctsize/pctovl/
+  sizemin/sizemax/sizefilt/typeignore/dup_to_ins.
 - Added `scripts/compare_evaluations.py`: a CLI that aggregates hap.py
   (`*.summary.csv`) and Truvari (`summary.json`, `refine.variant_summary.json`)
   results into a tidy precision/recall/F1 comparison table (Markdown + TSV), with
