@@ -1,0 +1,9 @@
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  # Lightweight R env for scripts/plot_evaluations.R (evaluation comparison
+  # plots). Shares the tidyverse stack used by the quarto report but without the
+  # heavier quarto/rendering deps.
+  - r-base >=4.3
+  - r-tidyverse >=2.0.0

@@ -110,7 +110,7 @@ All 85 unit tests passing, lint/formatting clean. Ready for full pipeline test r
 
 ## Testing & Quality
 
-### 20. Create an evaluation comparison utility
+### 20. Create an evaluation comparison utility — ✅ Done (2026-06-08)
 
 For parameter optimization across genomes, build a script or Snakemake rule that:
 - Reads multiple hap.py summary.csv or truvari summary.json files
@@ -120,7 +120,17 @@ For parameter optimization across genomes, build a script or Snakemake rule that
 
 This directly supports the planned workflow of running multiple parameter configurations and choosing the best one.
 
-**File:** `scripts/compare_evaluations.py` (new)
+**Resolution (2026-06-08):** `scripts/compare_evaluations.py` — a standalone CLI
+that discovers hap.py `*.summary.csv` and Truvari `summary.json` /
+`refine.variant_summary.json` under a results dir, emits a tidy comparison table
+(precision/recall/F1 by variant type: SNP, INDEL, SV, SV-refine) as Markdown
+(stdout) and TSV (`--out`), and with `--baseline` computes per-metric deltas with
+improved/regressed/same flags (`--metric`, `--threshold`). Plotting is delegated
+to `scripts/plot_evaluations.R` (ggplot2; env `envs/r_plot.yml`), invoked
+directly or via `--plot`. Tested in `.tests/unit/test_compare_evaluations.py`.
+
+**Files:** `scripts/compare_evaluations.py`, `scripts/plot_evaluations.R`,
+`envs/r_plot.yml`, `.tests/unit/test_compare_evaluations.py`
 **Impact:** Parameter optimization workflow, evaluation automation
 
 ---
@@ -135,8 +145,11 @@ This directly supports the planned workflow of running multiple parameter config
   fork; `truvari anno remap` verified working. See GitLab #200.
 - Item 4 (FIPS) — audited; exposure isolated to the truvari 4.3.0 `trf` env, which
   already carries the `OPENSSL_CONF` guard. No systematic workaround needed.
+- Item 20 (Eval comparison utility) — `scripts/compare_evaluations.py` +
+  `scripts/plot_evaluations.R`.
 
-**Remaining:**
-- **Item 20** — Evaluation comparison utility (next priority for parameter optimization workflow)
-- Follow-up (GitLab #198) — bioconda bwapy recipe fix so the pip block in
+**All pre-development TODO items are now complete.**
+
+**Remaining follow-ups:**
+- GitLab #198 — bioconda bwapy recipe fix so the pip block in
   `truvari_remap.yml` can become a plain `bioconda::bwapy` dep.

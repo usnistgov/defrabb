@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## Unreleased
+
+### Evaluation
+
+- Added `scripts/compare_evaluations.py`: a CLI that aggregates hap.py
+  (`*.summary.csv`) and Truvari (`summary.json`, `refine.variant_summary.json`)
+  results into a tidy precision/recall/F1 comparison table (Markdown + TSV), with
+  `--baseline` deltas and regression/improvement flags for parameter
+  optimization. Plotting via `scripts/plot_evaluations.R` (ggplot2;
+  `envs/r_plot.yml`).
+
+### Environments
+
+- Restored `truvari anno remap` by installing a patched `bwapy` fork
+  (`nate-d-olson/bwapy`) in `envs/truvari_remap.yml`; fixes the setuptools>=80
+  build break and the `__log_finite` load failure on modern glibc (GitLab #200).
+
+### CI / tooling
+
+- CI now gates on `snakefmt --check` and `black --check` (scripts + .tests), and
+  runs `snakemake --lint` as an advisory (non-blocking) job.
+
 ## Milestone v0.021 2026-04-16
 
 Major release adding PAV as a second supported assembly variant caller,
