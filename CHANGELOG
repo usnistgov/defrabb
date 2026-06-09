@@ -30,11 +30,26 @@
   analyses-table `eval_params` column (previously hardcoded). The `default`
   profile reproduces the prior parameters, so existing analyses are unchanged
   (GitLab #194). Supports pick/passonly/refdist/chunksize/pctseq/pctsize/pctovl/
-  sizemin/sizemax/sizefilt/typeignore/dup_to_ins.
-- Added `scripts/build_stratification_tsv.py`, the shared hap.py
-  stratification-TSV builder for the planned exclusion-impact (#173) and
-  dipcall-derived (#59) stratifications. Not yet wired into `run_happy` (pending
-  hap.py validation / JZ strat spec); see `docs/issues/stratification-59-173-design.md`.
+  sizemin/sizemax/sizefilt/typeignore/dup_to_ins/bnddist.
+- Added the `stvar_v5` truvari bench profile (`--pick ac --passonly -r 2000
+  -C 5000 -B -1`) implementing the Truvari v5 recommendation for the Q100 SV
+  benchmark from the Aug 2025 Illumina/NIST email thread (GitLab #194):
+  `bnddist=-1` disables BND distance matching (the benchmark has no BNDs, so
+  query BNDs would otherwise all score as FP). `--write-phab` is intentionally
+  omitted, following the truvari v5 default for stable, comparison-set-independent
+  baseline counts. New dev-round analyses tables should set `eval_params=stvar_v5`.
+- Added **genome-specific stratifications** for hap.py smvar evaluations (GitLab
+  #59 / #173). `scripts/genome_specific_strats.py` ports the GIAB
+  genome-stratifications GenomeSpecific complex/overlapping-variant strata
+  (comphetsnp / comphetindel / complexindel / snpswithin / othercomplex within
+  10bp) — validated byte-identical to the upstream awk/bedtools pipeline on the
+  HG002 chr21 dipcall VCF. `rules/stratifications_genome_specific.smk`
+  (+ `envs/genome_strats.yml`) generates them from the draft benchmark VCF via
+  `vcfgeno2haplo`. Opt-in: with config `genome_specific_strats: true`, `run_happy`
+  merges the per-benchmark strata into the GIAB stratification TSV (default false
+  leaves evaluations byte-identical). The SV/CNV stratum (GS rules 7-10) is
+  designed but not yet wired; see `docs/issues/stratification-59-173-design.md`.
+  `scripts/build_stratification_tsv.py` is the shared TSV builder/merger.
 - Added `scripts/compare_evaluations.py`: a CLI that aggregates hap.py
   (`*.summary.csv`) and Truvari (`summary.json`, `refine.variant_summary.json`)
   results into a tidy precision/recall/F1 comparison table (Markdown + TSV), with

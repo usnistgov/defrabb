@@ -45,7 +45,8 @@ CI runs all three checks on every push.
 5. `rules/exclusions_{download,self_discrep,apply}.smk` - Exclusion region processing (split by sub-domain)
 6. `rules/report.smk` - Statistics and reporting
 7. `rules/bench_vcf_{normalize,anno,finalize}.smk` - VCF post-processing and annotation (split by sub-domain)
-8. `rules/evaluation.smk` - hap.py and Truvari evaluations
+8. `rules/stratifications_genome_specific.smk` - Genome-specific (complex/overlapping-variant) hap.py stratifications; opt-in via config `genome_specific_strats`
+9. `rules/evaluation.smk` - hap.py and Truvari evaluations
 
 Two main config files drive the pipeline:
 

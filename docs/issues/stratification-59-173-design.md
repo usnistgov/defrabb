@@ -61,8 +61,14 @@ and homopolymers>30bp)".
 
 **defrabb wrinkle:** there is no incremental "intermediate bed" — `subtract_exclusions`
 applies all exclusions in one shot. The intermediate bed must be constructed by
-subtracting only the repeat/gap/SV exclusions from `baseline.bed`. Decided
-category split (from the exclusion sets in `config/resources.yml`):
+subtracting only the repeat/gap/SV exclusions from `baseline.bed`.
+
+> **OPEN (2026-06-09, NDO):** the category split below is *provisional* — it is
+> not clear it captures SV and CNV regions as intended (the complement of this
+> intermediate bed may not correspond well to true SV/CNV regions). Revisit the
+> definition of the SV/CNV bed before wiring rules 7-10.
+
+Provisional category split (from the exclusion sets in `config/resources.yml`):
 
 - **Subtract for the intermediate bed (repeat/gap/SV):** `segdups`,
   `tandem-repeats`, `satellites`, `gaps`, `flanks`, `svs-and-simple-repeats`,
