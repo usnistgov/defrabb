@@ -56,13 +56,27 @@ _truvari_refine_threads: 24
 # To tune matching (e.g. per JZ/Illumina/Adam guidance, #194), add a named
 # profile and set `eval_params` to its name. Supported keys: pick, passonly,
 # refdist, chunksize, pctseq, pctsize, pctovl, sizemin, sizemax, sizefilt,
-# typeignore, dup_to_ins.
+# typeignore, dup_to_ins, bnddist.
 truvari_bench_params:
+  # Historical hardcoded command — pinned for reproducing released draft
+  # benchmarks. Do not change; new recommendations go in new profiles.
   default:
     pick: ac
     passonly: true
     refdist: 2000
     chunksize: 5000
+  # Truvari v5 recommended bench params for the Q100 SV (stvar) benchmark.
+  # bnddist=-1 disables BND distance matching: the Q100 SV benchmark has no
+  # BND records, so without this every query BND scores as a FP (Illumina /
+  # S. Truong, Aug 2025 email thread, GitLab #194). Refine intentionally omits
+  # --write-phab, following the truvari v5 default (A. English / J. Zook) for
+  # stable, comparison-set-independent baseline counts.
+  stvar_v5:
+    pick: ac
+    passonly: true
+    refdist: 2000
+    chunksize: 5000
+    bnddist: -1
 
 ## Exclusion Parameters ##########
 # Parameters controlling how exclusion regions are generated and applied.

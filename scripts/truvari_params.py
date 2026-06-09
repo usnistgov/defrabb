@@ -24,6 +24,7 @@ _VALUE_FLAGS = [
     ("sizemin", "--sizemin"),
     ("sizemax", "--sizemax"),
     ("sizefilt", "--sizefilt"),
+    ("bnddist", "-B"),
 ]
 
 # Boolean flags (emitted when truthy in the profile).

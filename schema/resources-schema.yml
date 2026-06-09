@@ -329,6 +329,8 @@ properties:
           type: number
         pctovl:
           type: number
+        bnddist:
+          type: integer
 
   _exclusion_params:
     type: object

@@ -64,6 +64,26 @@ def test_passonly_false_omits_flag():
     assert build_truvari_bench_params("p", config) == "--pick ac"
 
 
+def test_bnddist_negative_one_emitted():
+    # bnddist=-1 disables BND distance matching (Q100 SV benchmark, #194).
+    # -1 is falsy-adjacent but not None, so it must still be emitted.
+    config = {
+        "truvari_bench_params": {
+            "stvar_v5": {
+                "pick": "ac",
+                "passonly": True,
+                "refdist": 2000,
+                "chunksize": 5000,
+                "bnddist": -1,
+            }
+        }
+    }
+    assert (
+        build_truvari_bench_params("stvar_v5", config)
+        == "--pick ac --passonly -r 2000 -C 5000 -B -1"
+    )
+
+
 def test_unknown_profile_raises():
     with pytest.raises(KeyError):
         build_truvari_bench_params("nope", {"truvari_bench_params": {"default": {}}})
