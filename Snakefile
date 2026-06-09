@@ -22,6 +22,7 @@ include: "rules/report.smk"
 include: "rules/bench_vcf_normalize.smk"
 include: "rules/bench_vcf_anno.smk"
 include: "rules/bench_vcf_finalize.smk"
+include: "rules/stratifications_genome_specific.smk"
 include: "rules/evaluation.smk"
 
 

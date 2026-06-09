@@ -28,6 +28,17 @@ def get_happy_inputs_inner(ref_id, eval_id, analyses, config):
     strat_tb = config["references"][ref_id]["stratifications"]["tarball"]
     inputs["strat_tb"] = f"resources/strats/{ref_id}/{strat_tb}"
 
+    ## Opt-in genome-specific stratifications (#59/#173). Only for smvar, and only
+    ## when explicitly enabled, so default/pinned evaluations are unchanged.
+    if config.get("genome_specific_strats") and (
+        analyses.loc[eval_id, "bench_type"] == "smvar"
+    ):
+        inputs["genome_specific_strats"] = (
+            "results/draft_benchmarksets/{bench_id}/genome_specific_strats/"
+            "{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}"
+            ".genome_specific_strats.tsv"
+        )
+
     ## draft benchmark variant calls
     draft_bench_vcf = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz"
     draft_bench_vcfidx = "results/draft_benchmarksets/{bench_id}/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi"

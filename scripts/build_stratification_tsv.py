@@ -67,6 +67,48 @@ def write_strat_tsv(
         fh.write("\n".join(rows) + ("\n" if rows else ""))
 
 
+def read_strat_tsv(path: str) -> List[Entry]:
+    """Read a 2-column ``name<TAB>bed`` TSV into (name, path) entries."""
+    entries: List[Entry] = []
+    with open(path) as fh:
+        for line in fh:
+            line = line.rstrip("\n")
+            if not line:
+                continue
+            name, _, bed = line.partition("\t")
+            entries.append((name, bed))
+    return entries
+
+
+def combine_strat_tsvs(giab_tsv: str, extra_tsv: str, out_tsv: str) -> int:
+    """Write a combined hap.py stratification TSV next to ``giab_tsv``.
+
+    The GIAB TSV rows are copied verbatim (their bed paths are relative to the
+    GIAB TSV's directory, which is where ``out_tsv`` must also live). The extra
+    (genome-specific) rows have their bed paths — interpreted relative to
+    ``extra_tsv``'s directory — rewritten relative to ``out_tsv``'s directory so
+    hap.py resolves them correctly. Returns the number of extra rows added.
+    """
+    out_dir = os.path.dirname(os.path.abspath(out_tsv))
+    giab_dir = os.path.dirname(os.path.abspath(giab_tsv))
+    if out_dir != giab_dir:
+        raise ValueError(
+            "out_tsv must be in the same directory as giab_tsv so the GIAB "
+            f"rows' relative bed paths stay valid (got {out_dir} vs {giab_dir})"
+        )
+
+    extra_dir = os.path.dirname(os.path.abspath(extra_tsv))
+    rows = [f"{name}\t{bed}" for name, bed in read_strat_tsv(giab_tsv)]
+    extra = read_strat_tsv(extra_tsv)
+    for name, bed in extra:
+        abs_bed = os.path.normpath(os.path.join(extra_dir, bed))
+        rows.append(f"{name}\t{os.path.relpath(abs_bed, out_dir)}")
+
+    with open(out_tsv, "w") as fh:
+        fh.write("\n".join(rows) + ("\n" if rows else ""))
+    return len(extra)
+
+
 def parse_args(argv=None) -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument(

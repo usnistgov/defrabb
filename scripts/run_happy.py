@@ -40,6 +40,19 @@ if path.isfile(strat_tsv):
 else:
     print(f"stratifications file, {strat_tsv}, not present!!! help!")
 
+## Opt-in: merge genome-specific stratifications into the GIAB strat TSV
+## (#59/#173). Only present when config["genome_specific_strats"] is enabled for
+## an smvar evaluation; absent otherwise, so default behavior is unchanged.
+gs_strats = snakemake.input.get("genome_specific_strats", "")
+if gs_strats:
+    sys.path.insert(0, "scripts")
+    from build_stratification_tsv import combine_strat_tsvs
+
+    combined_tsv = path.join(path.dirname(strat_tsv), "with_genome_specific.tsv")
+    n_added = combine_strat_tsvs(strat_tsv, gs_strats, combined_tsv)
+    print(f"Added {n_added} genome-specific stratifications -> {combined_tsv}")
+    strat_tsv = combined_tsv
+
 
 ## Running Happy
 shell(

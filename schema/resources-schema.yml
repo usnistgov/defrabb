@@ -38,6 +38,13 @@ properties:
     type: boolean
     description: When true, gate-verbose tools emit extra logging.
 
+  genome_specific_strats:
+    type: boolean
+    description: >
+      When true, hap.py smvar evaluations are stratified by the genome-specific
+      complex/overlapping-variant strata derived from the draft benchmark VCF
+      (#59/#173). Default false leaves evaluations byte-identical.
+
 ################################################################################
 # resources - information for framework data dependencies, i.e. reference genomes
   references:
