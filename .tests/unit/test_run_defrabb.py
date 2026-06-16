@@ -5,6 +5,7 @@ Scope (TODO #18): exercise run-id format, S3 release rules, and manifest generat
 
 import importlib.machinery
 import importlib.util
+import os
 import sys
 import tempfile
 import types
@@ -600,6 +601,44 @@ class ManifestGenerationTests(unittest.TestCase):
 
         # Verify both pagination calls were made
         self.assertEqual(mock_s3.list_objects_v2.call_count, 2)
+
+
+class MemoryBudgetTests(unittest.TestCase):
+    """Global mem_mb resource budget (run_dipcall OOM fix, fulltest v0.022)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.module = load_run_defrabb_module()
+
+    def test_find_mem_limit_is_80_percent_of_system_memory(self):
+        total_bytes = os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES")
+        expected = int(total_bytes * 0.8 / (1024 * 1024))
+        self.assertEqual(self.module.find_mem_limit(), expected)
+        self.assertGreater(self.module.find_mem_limit(), 0)
+
+    def test_pipeline_command_includes_resources_mem_mb(self):
+        captured = {}
+
+        def fake_run(cmd, error_message):
+            captured["cmd"] = cmd
+
+        args = SimpleNamespace(analyses="config/a.tsv", jobs=8, mem_mb=64000)
+        with patch.object(self.module, "run_subprocess_command", fake_run):
+            self.module.execute_snakemake_pipeline(args, ".", [])
+        cmd = captured["cmd"]
+        self.assertIn("--resources", cmd)
+        self.assertIn("mem_mb=64000", cmd)
+
+    def test_pipeline_command_omits_resources_when_mem_unknown(self):
+        captured = {}
+
+        def fake_run(cmd, error_message):
+            captured["cmd"] = cmd
+
+        args = SimpleNamespace(analyses="config/a.tsv", jobs=8, mem_mb=0)
+        with patch.object(self.module, "run_subprocess_command", fake_run):
+            self.module.execute_snakemake_pipeline(args, ".", [])
+        self.assertNotIn("--resources", captured["cmd"])
 
 
 if __name__ == "__main__":

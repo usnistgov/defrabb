@@ -120,10 +120,10 @@ rule intersect_SVs_and_simple_repeats:
 ## BED file with consecutive insertions and deletions from assembly-assembly bams
 rule get_consecutive_svs:
     input:
-        hap1_bam=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.hap1.bam",
-        hap1_bai=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.hap1.bam.bai",
-        hap2_bam=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.hap2.bam",
-        hap2_bai=lambda wildcards: f"results/asm_varcalls/{bench_tbl.loc[(wildcards.bench_id, 'vc_id')]}/{{ref_id}}_{{asm_id}}_{{vc_cmd}}-{{vc_param_id}}.hap2.bam.bai",
+        ## Reuses the existing dipcall run for this ref+asm (see
+        ## get_consecutive_svs_bams) so PAV benchmarks do not trigger a
+        ## duplicate dipcall run inside their own vc_id directory.
+        unpack(get_consecutive_svs_bams),
     output:
         bed="results/draft_benchmarksets/{bench_id}/exclusions/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_consecutive-svs.bed",
     log:

@@ -98,6 +98,31 @@ def get_draft_benchmark_inputs(wildcards):
     }
 
 
+## Cross-caller exclusion inputs
+def get_consecutive_svs_bams(wildcards):
+    """Hap BAMs for the consecutive-svs exclusion.
+
+    consecutive-svs is computed from dipcall's assembly-to-reference hap BAMs.
+    Resolve to the *existing* dipcall run for this reference + assembly (via
+    ``get_asm_varcall_run``) rather than the current benchmark's own vc_id, so a
+    PAV benchmark does not trigger a redundant dipcall run inside its directory.
+    For a dipcall benchmark this resolves back to its own run.
+    """
+    dip_vc_id, dip_param_id = get_asm_varcall_run(
+        wildcards.ref_id, wildcards.asm_id, "dipcall"
+    )
+    base = (
+        f"results/asm_varcalls/{dip_vc_id}/"
+        f"{wildcards.ref_id}_{wildcards.asm_id}_dipcall-{dip_param_id}"
+    )
+    return {
+        "hap1_bam": f"{base}.hap1.bam",
+        "hap1_bai": f"{base}.hap1.bam.bai",
+        "hap2_bam": f"{base}.hap2.bam",
+        "hap2_bai": f"{base}.hap2.bam.bai",
+    }
+
+
 ## Exclusions
 def get_exclusion_inputs(wildcards):
     ## Getting list of excluded regions

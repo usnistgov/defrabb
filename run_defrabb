@@ -135,8 +135,16 @@ def parse_arguments() -> Tuple[argparse.Namespace, List[str]]:
             default=DEFAULT_OUTDIR,
             help="Output directory (default: current directory '.'). Legacy option; workflow now runs from within runid-named directory.",
         )
+        subparser.add_argument("-j", "--jobs", type=int, help="Number of parallel jobs")
         subparser.add_argument(
-            "-j", "--jobs", type=int, help="Number of parallel jobs"
+            "--mem_mb",
+            type=int,
+            default=None,
+            help=(
+                "Global memory budget (MB) passed to snakemake as "
+                "--resources mem_mb. Default: "
+                f"{int(DEFAULT_MEM_FRACTION * 100)}%% of system memory."
+            ),
         )
         subparser.add_argument(
             "--log-level",
@@ -281,6 +289,16 @@ def _parse_arguments_legacy() -> Tuple[argparse.Namespace, List[str]]:
         "-j", "--jobs", type=int, help="Number of jobs used by snakemake"
     )
     parser.add_argument(
+        "--mem_mb",
+        type=int,
+        default=None,
+        help=(
+            "Global memory budget (MB) passed to snakemake as "
+            "--resources mem_mb, bounding concurrency of memory-heavy rules. "
+            f"Default: {int(DEFAULT_MEM_FRACTION * 100)}%% of system memory."
+        ),
+    )
+    parser.add_argument(
         "--archive_dir",
         type=str,
         default=ARCHIVE_DIR,
@@ -383,6 +401,11 @@ def validate_and_set_defaults(args: argparse.Namespace) -> argparse.Namespace:
         args.jobs = find_core_limit()
     if args.jobs and args.jobs <= 0:
         raise ValueError("Error: Number of jobs must be a positive integer.")
+    # Memory budget (MB) for snakemake --resources mem_mb
+    if getattr(args, "mem_mb", None) is None:
+        args.mem_mb = find_mem_limit()
+    if args.mem_mb and args.mem_mb <= 0:
+        raise ValueError("Error: --mem_mb must be a positive integer.")
     # Steps to run
     if args.steps not in VALID_STEPS:
         raise ValueError("Error: Invalid choice for --steps.")
@@ -408,6 +431,27 @@ def validate_and_expand_release_rules(release_config: dict, release_type: str) -
 def find_core_limit() -> int:
     """Number of system cpus"""
     return os.cpu_count()
+
+
+# Default fraction of system memory to offer Snakemake as the mem_mb resource
+# budget. Bounds concurrency of memory-heavy rules (e.g. run_dipcall reserves
+# mem_mb) so that they serialize rather than collectively OOM. See
+# docs/issues/run_pav_run_dipcall_failures.md.
+DEFAULT_MEM_FRACTION = 0.8
+
+
+def find_mem_limit(fraction: float = DEFAULT_MEM_FRACTION) -> int:
+    """Total system memory (MB) scaled by ``fraction``, for Snakemake's
+    ``--resources mem_mb``.
+
+    Uses sysconf (Linux/macOS). Returns 0 if it cannot be determined, in which
+    case the caller should omit the resource cap.
+    """
+    try:
+        total_bytes = os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES")
+    except (ValueError, OSError, AttributeError):
+        return 0
+    return int(total_bytes * fraction / (1024 * 1024))
 
 
 def run_subprocess_command(cmd: List[str], error_message: str) -> None:
@@ -468,7 +512,13 @@ def execute_snakemake_pipeline(
         run_dir,
         "--cores",
         str(args.jobs),
-    ] + extra_args
+    ]
+    # Global memory budget so per-rule mem_mb reservations are enforced and
+    # memory-heavy rules (e.g. run_dipcall) serialize instead of OOMing.
+    mem_mb = getattr(args, "mem_mb", None)
+    if mem_mb:
+        cmd += ["--resources", f"mem_mb={mem_mb}"]
+    cmd += extra_args
     logging.info(f"Pipeline execution command: {' '.join(cmd)}")
     run_subprocess_command(cmd, "Error executing Snakemake pipeline")
 

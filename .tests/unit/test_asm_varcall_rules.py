@@ -1,0 +1,156 @@
+"""Structural invariants for the assembly variant-calling rules + exclusions.
+
+Regression guards for the run_dipcall / run_pav failures seen in the
+20260615_v0.022 full-pipeline test. See
+``docs/issues/run_pav_run_dipcall_failures.md`` for the full diagnosis.
+
+Pure-text/structural checks (no Snakemake invocation), matching the style of the
+other rule-parsing unit tests in this suite.
+
+Developed with assistance from Claude (Anthropic); reviewed by the primary author.
+"""
+
+import re
+from pathlib import Path
+
+import yaml
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+ASM_VARCALL = REPO_ROOT / "rules" / "asm-varcall.smk"
+EXCLUSIONS_DOWNLOAD = REPO_ROOT / "rules" / "exclusions_download.smk"
+HELPERS_BENCH = REPO_ROOT / "rules" / "helpers_bench.smk"
+RUN_PAV_SCRIPT = REPO_ROOT / "scripts" / "run_pav.py"
+RESOURCES_YML = REPO_ROOT / "config" / "resources.yml"
+
+# Exclusions that are dipcall artifacts and must never appear in a PAV
+# exclusion set (maintainer direction; root of the duplicate-run collision).
+DIPCALL_ONLY_EXCLUSIONS = {"consecutive-svs", "dipcall-bugs-T2TACE"}
+
+
+def extract_rule_block(text: str, rule_name: str) -> str:
+    """Return the source of a single ``rule <name>:`` block."""
+    lines = text.splitlines()
+    start = next(
+        (
+            i
+            for i, ln in enumerate(lines)
+            if re.match(rf"^rule {re.escape(rule_name)}:\s*$", ln)
+        ),
+        None,
+    )
+    assert start is not None, f"rule {rule_name} not found"
+    end = len(lines)
+    for j in range(start + 1, len(lines)):
+        if re.match(r"^(rule|checkpoint) \w+:\s*$", lines[j]):
+            end = j
+            break
+    return "\n".join(lines[start:end])
+
+
+# --------------------------------------------------------------------------- #
+# Bug C: run_pav must be debuggable                                           #
+# --------------------------------------------------------------------------- #
+
+
+def test_run_pav_declares_log_directive():
+    """run_pav failed with exit 1 and left no log. It must declare ``log:``."""
+    block = extract_rule_block(ASM_VARCALL.read_text(), "run_pav")
+    assert re.search(r"^\s*log:\s*$", block, re.MULTILINE), (
+        "run_pav must declare a log: directive so the nested PAV snakemake "
+        "failure cause is captured (Bug C)."
+    )
+
+
+def test_run_pav_script_captures_pav_output_to_log():
+    """The nested PAV snakemake call must redirect output to the rule log."""
+    script = RUN_PAV_SCRIPT.read_text()
+    assert "/opt/pav/Snakefile" in script
+    assert "snakemake.log" in script, (
+        "run_pav.py must redirect the nested PAV workflow's output to "
+        "snakemake.log so failures are debuggable (Bug C)."
+    )
+
+
+# --------------------------------------------------------------------------- #
+# Bug A: dipcall memory must be bounded                                       #
+# --------------------------------------------------------------------------- #
+
+
+def test_run_dipcall_make_parallelism_tied_to_jobs_knob():
+    """``make -j`` must use the jobs knob the mem_mb reservation is based on.
+
+    The mem reservation is ``_dipcall_jobs * _dipcall_mem``; driving ``make -j``
+    off the thread knob over-parallelizes memory-heavy minimap2 and OOMs.
+    """
+    block = extract_rule_block(ASM_VARCALL.read_text(), "run_dipcall")
+    make_lines = [ln for ln in block.splitlines() if "make -j" in ln]
+    assert make_lines, "run_dipcall must invoke `make -j`"
+    make_line = make_lines[0]
+    assert "params.ts" not in make_line, (
+        "`make -j{params.ts}` ties make parallelism to the thread count, not "
+        "the jobs count the mem_mb reservation is based on (Bug A)."
+    )
+    assert "params.make_jobs" in make_line, (
+        "run_dipcall should use `make -j{params.make_jobs}` so parallelism "
+        "matches the memory reservation (Bug A)."
+    )
+
+
+# --------------------------------------------------------------------------- #
+# Bug B / Mod 1: PAV exclusion sets must not carry dipcall-only exclusions    #
+# --------------------------------------------------------------------------- #
+
+
+def test_pav_exclusion_sets_exclude_dipcall_only_regions():
+    """Any exclusion set named for PAV (``*pav``) must omit dipcall artifacts
+    (consecutive-svs, dipcall-bugs-T2TACE)."""
+    cfg = yaml.safe_load(RESOURCES_YML.read_text())
+    pav_sets = {
+        name: regions
+        for name, regions in cfg["exclusion_set"].items()
+        if name.endswith("pav")
+    }
+    assert pav_sets, "expected at least one PAV-specific exclusion set"
+    for name, regions in pav_sets.items():
+        leaked = DIPCALL_ONLY_EXCLUSIONS.intersection(regions)
+        assert not leaked, (
+            f"PAV exclusion set {name!r} contains dipcall-only exclusions "
+            f"{sorted(leaked)}; these must not be part of PAV exclusions (Mod 1)."
+        )
+
+
+# --------------------------------------------------------------------------- #
+# Bug B / Mod 2: cross-caller exclusions reuse an existing run                #
+# --------------------------------------------------------------------------- #
+
+
+def test_consecutive_svs_reuses_resolved_dipcall_run():
+    """get_consecutive_svs must consume hap BAMs resolved via the cross-caller
+    helper (the existing dipcall run), not the benchmark's own {vc_cmd} path —
+    otherwise a PAV benchmark triggers a duplicate dipcall run in its dir."""
+    block = extract_rule_block(EXCLUSIONS_DOWNLOAD.read_text(), "get_consecutive_svs")
+    assert "get_consecutive_svs_bams" in block, (
+        "get_consecutive_svs must take its hap BAMs from "
+        "get_consecutive_svs_bams (Mod 2)."
+    )
+    assert "{vc_cmd}-{vc_param_id}.hap1.bam" not in block, (
+        "get_consecutive_svs must not reference the benchmark's own "
+        "{vc_cmd}-{vc_param_id} hap BAMs; that forces a dipcall run into a PAV "
+        "benchmark's directory (Bug B)."
+    )
+
+
+def test_consecutive_svs_helper_resolves_to_dipcall():
+    """The hap-BAM resolver must target the dipcall run for the bench's
+    ref+asm via get_asm_varcall_run."""
+    text = HELPERS_BENCH.read_text()
+    assert "def get_consecutive_svs_bams" in text
+    block = text[text.index("def get_consecutive_svs_bams") :]
+    block = block[: block.index("\n\n\n")] if "\n\n\n" in block else block
+    assert "get_asm_varcall_run(" in block and '"dipcall"' in block, (
+        "get_consecutive_svs_bams must resolve the dipcall run via "
+        "get_asm_varcall_run(..., 'dipcall') (Mod 2)."
+    )
+    assert (
+        "dipcall-{dip_param_id}" in block or "dipcall-" in block
+    ), "resolved hap BAM paths must use the dipcall run's naming."

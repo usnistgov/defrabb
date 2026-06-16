@@ -47,3 +47,18 @@ def get_dipcall_outputs(wildcards):
 
 def is_pav(wildcards):
     return wildcards.vc_cmd == "pav"
+
+
+from varcall_lookup import resolve_asm_varcall_run
+
+
+def get_asm_varcall_run(ref, asm_id, vc_cmd):
+    """Resolve the existing asm_varcall run for a (ref, asm_id, vc_cmd).
+
+    Used by exclusions that need variant calls from *another* assembly variant
+    caller (e.g. ``consecutive-svs`` needs dipcall hap BAMs). Rather than
+    triggering a duplicate caller run inside the current benchmark's vc_id
+    directory, this reuses the results from the matching run already declared in
+    the analyses table. Returns ``(vc_id, vc_param_id)`` for the unique match.
+    """
+    return resolve_asm_varcall_run(vc_tbl, ref, asm_id, vc_cmd)

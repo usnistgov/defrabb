@@ -37,7 +37,16 @@ with open(f"{outdir}/config.json", "w") as file:
 # snakemake invocation. NIST FIPS hosts trigger "FATAL FIPS SELFTEST FAILURE"
 # inside the becklab/pav container otherwise. Same pattern is used for
 # `truvari anno trf` in rules/bench_vcf_processing.smk.
+#
+# The nested PAV snakemake output is captured to the rule log (it was
+# previously lost to the parent's stdout/stderr, making PAV failures
+# undebuggable). On failure we also surface PAV's own inner .snakemake logs.
+log_path = os.path.abspath(snakemake.log[0])
 shell(
-    "cd {snakemake._params_store.outdir};"
-    "OPENSSL_CONF=/dev/null snakemake -s /opt/pav/Snakefile --ri -k -w 20 --rerun-triggers mtime -c {snakemake.threads} --config ignore_env_file=True"
+    "cd {snakemake._params_store.outdir}; "
+    "OPENSSL_CONF=/dev/null snakemake -s /opt/pav/Snakefile --ri -k -w 20 "
+    "--rerun-triggers mtime -c {snakemake.threads} --config ignore_env_file=True "
+    "> {log_path} 2>&1 "
+    "|| {{ echo '--- inner PAV .snakemake/log ---' >> {log_path}; "
+    "cat .snakemake/log/*.log >> {log_path} 2>/dev/null; exit 1; }}"
 )

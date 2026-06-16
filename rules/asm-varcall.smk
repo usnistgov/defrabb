@@ -65,7 +65,11 @@ rule run_dipcall:
             1> {output.make} 2>> {log.rulelog}
 
         echo "Running dipcall pipeline" >> {log.rulelog}
-        make -j{params.ts} -f {output.make} &>>{log.rulelog}
+        ## -j must match the jobs knob the mem_mb reservation is based on
+        ## (mem_mb = _dipcall_jobs * _dipcall_mem); driving it off the thread
+        ## count over-parallelizes memory-heavy minimap2 and OOMs (see
+        ## docs/issues/run_pav_run_dipcall_failures.md).
+        make -j{params.make_jobs} -f {output.make} &>>{log.rulelog}
         """
 
 
@@ -99,6 +103,8 @@ rule run_pav:
         vcfidx="results/asm_varcalls/{vc_id}/{sample_id}.vcf.gz.tbi",
         h1_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable/callable_regions_h1_500.bed.gz",
         h2_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable/callable_regions_h2_500.bed.gz",
+    log:
+        "logs/asm_varcalls/{vc_id}_{sample_id}_pav.log",
     container:
         "docker://becklab/pav:latest"
     threads: config["_pav_threads"]
