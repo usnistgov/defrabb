@@ -210,6 +210,15 @@ reference/variant-type combinations.
   leaves evaluations byte-identical). The SV/CNV stratum (GS rules 7-10) is
   designed but not yet wired; see `docs/issues/stratification-59-173-design.md`.
   `scripts/build_stratification_tsv.py` is the shared TSV builder/merger.
+- Fixed `genome_specific_geno2haplo` segfaulting (exit 139) on whole-genome runs:
+  `vcfgeno2haplo` (vcflib 1.0.15) crashes on the haploid chrX/chrY genotypes
+  dipcall emits for male samples (`basic_string: construction from null`); the
+  chr21-only validation never exercised a haploid GT. `scripts/diploidize_gt.py`
+  now rewrites single-token GTs to homozygous diploid (`1` -> `1|1`) before
+  `vcfgeno2haplo` — a no-op on diploid records and classification-neutral
+  (hemizygous == homozygous; a compound het requires `1/2`, impossible in a
+  haploid region). Validated whole-genome (all 24 contigs, chrX/chrY included);
+  see `docs/issues/genome-specific-geno2haplo-haploid-segfault.md`.
 - Added `scripts/compare_evaluations.py`: a CLI that aggregates hap.py
   (`*.summary.csv`) and Truvari (`summary.json`, `refine.variant_summary.json`)
   results into a tidy precision/recall/F1 comparison table (Markdown + TSV), with

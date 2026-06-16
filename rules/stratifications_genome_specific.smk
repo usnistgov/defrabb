@@ -48,9 +48,18 @@ rule genome_specific_geno2haplo:
     conda:
         "../envs/genome_strats.yml"
     shell:
+        # vcfgeno2haplo (vcflib 1.0.15) segfaults on haploid genotypes -- e.g.
+        # the hemizygous chrX/chrY calls dipcall emits for male samples crash it
+        # with `basic_string: construction from null` (the chr21-only validation
+        # never exercised a haploid GT). scripts/diploidize_gt.py rewrites
+        # single-token GTs to homozygous (`1` -> `1|1`) before the call; it is a
+        # no-op on diploid records (autosomes / PAR keep their separated GT) and
+        # is classification-neutral -- hemizygous == homozygous, and a compound
+        # het requires GT `1/2`, which a haploid region can never have. See
+        # docs/issues/genome-specific-geno2haplo-haploid-segfault.md.
         """
         ( tmp=$(mktemp --suffix .vcf)
-          zcat {input.vcf} > "$tmp"
+          zcat {input.vcf} | python scripts/diploidize_gt.py > "$tmp"
           vcfgeno2haplo -w 10 -r {input.ref} "$tmp" | bgzip -c > {output}
           rm -f "$tmp" ) &> {log}
         """
