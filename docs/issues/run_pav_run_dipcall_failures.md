@@ -13,6 +13,7 @@ Three independent root causes, two of which interact:
 | A | `run_dipcall` | `make` exits 2, `samtools sort: failed to read header from "-"`, `Killed` in log | **OOM.** `make -j` over-parallelizes memory-heavy minimap2, and the per-rule `mem_mb` reservation is never enforced because the pipeline is launched with `--cores` only (no global `mem_mb` resource), so multiple dipcall jobs run concurrently. |
 | B | `run_pav` + `run_dipcall` | PAV output dir contains dipcall files; nested PAV snakemake fails immediately (exit 1) | **Duplicate caller run into a shared directory.** A PAV benchmark whose exclusion set contains `consecutive-svs` forces a *second, redundant* `run_dipcall` to write into the *same* `results/asm_varcalls/{vc_id}/` directory that `run_pav` runs its nested snakemake in. The two collide. |
 | C | `run_pav` | Actual failure cause not recoverable from logs | **No logging + fragile nested-snakemake design.** `run_pav` invokes `snakemake -s /opt/pav/Snakefile` via a `script:` with no `log:` directive and no output redirection. The exit-1 cause was never captured. |
+| D | `run_pav` | `ModuleNotFoundError: No module named 'snakemake.io.container'; 'snakemake.io' is not a package` | **Snakemake version skew: `script:`-in-container.** `run_pav` was a `script:` rule *with* a `container:`. Snakemake injects a host-generated preamble (`from snakemake.script import snakemake`) that then runs **inside** the becklab/pav container, which ships its own older Snakemake where `snakemake.io` is a module, not a package. The preamble (host Snakemake 8.x) and the container's Snakemake disagree → import crash before the script body runs. |
 
 ## Evidence
 
@@ -84,6 +85,32 @@ exclusions runs dipcall and PAV in the same directory — fragile by design.
   module/subworkflow, so there is no DAG integration, no per-rule resource
   control, no isolation, and no log capture.
 
+### Bug D — `script:`-in-container Snakemake version skew
+
+The follow-up full-pipeline run (after Fixes A–C) reached `run_pav` and crashed
+during the script preamble import:
+
+```
+ModuleNotFoundError: No module named 'snakemake.io.container';
+'snakemake.io' is not a package
+```
+
+`run_pav` was declared as a `script:` rule (`scripts/run_pav.py`) with a
+`container: docker://becklab/pav:latest`. For a `script:` rule, Snakemake
+generates a preamble on the **host** (`from snakemake.script import snakemake`,
+plus a pickled `snakemake` object) and executes it **inside** the container. The
+host runs Snakemake 8.x (Python 3.13) where `snakemake.io` is a *package* with a
+`container` submodule; the becklab/pav container ships its own older Snakemake
+where `snakemake.io` is a single *module*. The host-generated preamble therefore
+fails to import against the container's Snakemake — before any of the script body
+(config generation, PAV invocation) runs. The host site-packages are bind-mounted
+in, but the container's own Snakemake still wins on `sys.path`, so the two are
+mismatched either way.
+
+This is the concrete failure mode of the "wonky" nested-snakemake design flagged
+in the task: you cannot reliably run Snakemake's `script:` machinery inside a
+container whose Snakemake differs from the host's.
+
 ## Remediation plan
 
 ### Fix A — bound dipcall memory (highest priority; this is what failed)
@@ -134,24 +161,47 @@ Two coordinated changes (per maintainer direction):
 4. Longer term, evaluate running PAV via a clean CLI entrypoint /
    per-run temp dir wrapper rather than a `script:`-driven nested snakemake.
 
+### Fix D — split host config-generation from the in-container PAV run (decided)
+
+Root cause D means `run_pav` must not be a `script:` rule while it carries a
+`container:`. Split the single rule in two:
+
+- **`pav_config`** (no `container:`) — runs `scripts/setup_pav.py` via `script:`
+  on the **host**, so Snakemake's script machinery uses the host Snakemake.
+  Generates `assemblies.tsv` + `config.json` (declared as outputs).
+- **`run_pav`** (`container:`, **`shell:`** not `script:`) — runs the nested
+  `snakemake -s /opt/pav/Snakefile` with a plain `shell:` directive. Snakemake
+  does **not** inject its script preamble for `shell:` rules, so the nested PAV
+  workflow runs against the container's own Snakemake (which is what PAV needs)
+  with no host/container version skew. Keeps Fix C's log capture (`> "$LOG"
+  2>&1`, absolute log path captured before `cd`, inner PAV `.snakemake/log/*`
+  surfaced on failure).
+
+This removes the `script:`-in-container failure mode entirely and is the
+"clean entrypoint" follow-up from Fix C item 4.
+
 ## Status
 
-Fix A3 is implemented: `run_defrabb` now passes `--resources
-mem_mb=<budget>` to the pipeline, defaulting to **80% of system memory**
-(`find_mem_limit`), overridable with `--mem_mb`. This enforces the per-rule
-`mem_mb` reservations so concurrent `run_dipcall` jobs serialize instead of
-collectively OOMing.
+Fixes A3, B1, B2, C, and D are implemented.
 
-Remaining longer-term item: PAV is still a fragile nested-snakemake (run via a
-`script:`); consider running it in an isolated working dir / via a clean
-entrypoint.
+- **A3** — `run_defrabb` passes `--resources mem_mb=<budget>` (default **80% of
+  system memory**, `find_mem_limit`, overridable with `--mem_mb`), so per-rule
+  `mem_mb` reservations serialize concurrent `run_dipcall` jobs instead of
+  collectively OOMing.
+- **D** — `run_pav` no longer uses `script:`-in-container; config generation is a
+  host-side `pav_config` rule and PAV runs via a bare `shell:`. Dry-run confirms
+  the `pav_config → run_pav` edge resolves with no duplicate dipcall run in the
+  PAV directory.
 
 ## Changes applied (worktree `6d6f8ea` dev line)
 
-- `rules/asm-varcall.smk`: `make -j{params.make_jobs}` (Fix A1); `run_pav` gains
-  a `log:` directive (Fix C).
-- `scripts/run_pav.py`: nested PAV snakemake output captured to the rule log;
-  inner PAV `.snakemake/log/*` surfaced on failure (Fix C).
+- `rules/asm-varcall.smk`: `make -j{params.make_jobs}` (Fix A1); `run_pav` split
+  into `pav_config` (host `script:`) + `run_pav` (in-container `shell:`) with a
+  `log:` directive (Fix C + D).
+- `scripts/setup_pav.py` (new, replaces `scripts/run_pav.py`): host-side
+  generation of `assemblies.tsv` + `config.json` (Fix D). The nested PAV
+  snakemake is now invoked directly from `run_pav`'s `shell:`, capturing output
+  to the rule log and surfacing inner PAV `.snakemake/log/*` on failure (Fix C).
 - `scripts/varcall_lookup.py` (new) + `rules/helpers_varcall.smk`
   `get_asm_varcall_run`: resolve the existing run for a (ref, asm, caller),
   asserting uniqueness (Fix B2).
@@ -177,7 +227,9 @@ point the PAV row at a PAV-specific set (e.g. `HG002Q100stvarv0.022pav`, plus th
   a PAV benchmark resolves to the matching dipcall run; a dipcall benchmark
   resolves to itself; missing/ambiguous runs raise.
 - `.tests/unit/test_asm_varcall_rules.py` — structural invariants: `run_pav`
-  has a `log:` and the script captures PAV output (Bug C); `run_dipcall`'s
+  has a `log:` and captures PAV output (Bug C); `run_pav` uses `shell:` (not
+  `script:`) inside the container and `pav_config` generates inputs on the host
+  (Bug D); `run_dipcall`'s
   `make -j` uses the jobs knob (Bug A); PAV exclusion sets omit dipcall-only
   exclusions (Mod 1); `get_consecutive_svs` reuses the resolved dipcall run and
   never references the benchmark's own `{vc_cmd}` hap BAMs (Mod 2 / Bug B).

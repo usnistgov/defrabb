@@ -91,9 +91,47 @@ rule rename_dipcall_vcf_sample:
         """
 
 
-## Running the PAV assembly variant caller
+## Generate PAV input files (assemblies.tsv + config.json).
+##
+## Runs on the HOST (no container) so Snakemake's script: machinery uses the
+## host Snakemake. It must NOT run inside the becklab/pav container: that
+## container ships its own older Snakemake, and injecting the host-generated
+## script preamble there crashes with a version skew
+## (`No module named 'snakemake.io.container'`). See
+## docs/issues/run_pav_run_dipcall_failures.md.
+rule pav_config:
+    input:
+        ref=get_ref_file,
+        refidx=get_ref_index,
+        hap1=lambda wildcards: f"resources/assemblies/{vc_tbl.loc[wildcards.vc_id]['asm_id']}/paternal.fa",
+        hap2=lambda wildcards: f"resources/assemblies/{vc_tbl.loc[wildcards.vc_id]['asm_id']}/maternal.fa",
+    output:
+        assemblies="results/asm_varcalls/{vc_id}/assemblies.tsv",
+        config="results/asm_varcalls/{vc_id}/config.json",
+    log:
+        "logs/asm_varcalls/{vc_id}_pav_config.log",
+    params:
+        outdir="results/asm_varcalls/{vc_id}",
+        pav_config=lambda wildcards: config["_pav_config"][
+            vc_tbl.loc[wildcards.vc_id]["vc_param_id"]
+        ],
+        name=lambda wildcards: asm_config[vc_tbl.loc[wildcards.vc_id, "asm_id"]][
+            "sample_id"
+        ],
+    script:
+        "../scripts/setup_pav.py"
+
+
+## Running the PAV assembly variant caller.
+##
+## A bare shell: directive (NOT a script:) — the nested PAV Snakemake must run
+## with the container's own Snakemake, and Snakemake does not inject its
+## script-machinery preamble for shell: rules, so there is no host/container
+## version skew. Input config files are produced on the host by pav_config.
 rule run_pav:
     input:
+        assemblies="results/asm_varcalls/{vc_id}/assemblies.tsv",
+        config="results/asm_varcalls/{vc_id}/config.json",
         ref=get_ref_file,
         refidx=get_ref_index,
         hap1=lambda wildcards: f"resources/assemblies/{vc_tbl.loc[wildcards.vc_id]['asm_id']}/paternal.fa",
@@ -110,12 +148,24 @@ rule run_pav:
     threads: config["_pav_threads"]
     params:
         outdir="results/asm_varcalls/{vc_id}",
-        pav_config=lambda wildcards: config["_pav_config"][
-            vc_tbl.loc[wildcards.vc_id]["vc_param_id"]
-        ],
-        name=lambda wildcards: f"{asm_config[vc_tbl.loc[wildcards.vc_id, 'asm_id']]["sample_id"]}",
-    script:
-        "../scripts/run_pav.py"
+    shell:
+        # Capture the absolute log path before cd; PAV runs in outdir.
+        # OPENSSL_CONF=/dev/null disables the OpenSSL FIPS self-test for the
+        # inner snakemake (NIST FIPS hosts otherwise hit
+        # "FATAL FIPS SELFTEST FAILURE" inside the becklab/pav container).
+        # The nested PAV output is captured to the rule log; on failure PAV's
+        # own .snakemake logs are surfaced too so the cause is debuggable.
+        """
+        LOG="$(pwd)/{log}"
+        cd {params.outdir}
+        if ! OPENSSL_CONF=/dev/null snakemake -s /opt/pav/Snakefile --ri -k -w 20 \
+            --rerun-triggers mtime -c {threads} --config ignore_env_file=True \
+            > "$LOG" 2>&1; then
+            echo '--- inner PAV .snakemake/log ---' >> "$LOG"
+            cat .snakemake/log/*.log >> "$LOG" 2>/dev/null || true
+            exit 1
+        fi
+        """
 
 
 rule intersect_pav_callable_regions:
