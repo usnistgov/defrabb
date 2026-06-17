@@ -70,3 +70,4 @@ results*
 ## PAV cache
 .cache/**
 .claude/
+.fips_zero
