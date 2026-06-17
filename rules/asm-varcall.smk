@@ -146,7 +146,7 @@ rule run_pav:
     benchmark:
         "benchmark/run_pav/{vc_id}_{sample_id}.tsv"
     container:
-        "docker://becklab/pav:latest"
+        config.get("_pav_container", "docker://becklab/pav:latest")
     threads: config["_pav_threads"]
     resources:
         mem_mb=config["_pav_mem"],

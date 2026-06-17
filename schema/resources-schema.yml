@@ -292,6 +292,12 @@ properties:
     exclusiveMinimum: 0
     type: integer
 
+  _pav_container:
+    description: >-
+      Container image for the PAV variant caller (docker:// URI or a local
+      Apptainer SIF path). Override to a local SIF on FIPS hosts.
+    type: string
+
   _pav_mem:
     description: peak RSS memory reservation for run_pav, in MB
     exclusiveMinimum: 0

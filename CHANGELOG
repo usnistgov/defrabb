@@ -90,6 +90,15 @@ dedicated stabilization pass.
   (skipping remap, removing repmask/smvar trfanno), inversion exclusions
 - Fix `intersect_pav_callable_regions` to use the hap1 callable BED for
   `h1_bed` (was using the wrong bed)
+- Fixed `run_pav` "FATAL FIPS SELFTEST FAILURE" on FIPS-enabled hosts. PAV's
+  pip-installed pysam bundles a FIPS-capable OpenSSL that auto-enables FIPS when
+  the host kernel is in FIPS mode and aborts on a failing self-test (not
+  bypassable via `OPENSSL_CONF`). `run_defrabb` now detects a FIPS host and binds
+  `/proc/sys/crypto/fips_enabled` -> `0` inside apptainer containers
+  (`APPTAINER_BIND`), so the stock `becklab/pav:latest` image works unchanged;
+  no-op on non-FIPS hosts. The PAV image is also now configurable via
+  `_pav_container` in `config/resources.yml`. See
+  `docs/issues/run_pav_fips_selftest.md`.
 
 ### Benchmarks and assemblies
 

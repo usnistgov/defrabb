@@ -497,10 +497,48 @@ def validate_only(args: argparse.Namespace) -> int:
     return result.returncode
 
 
+def setup_fips_apptainer_bind(run_dir: str) -> None:
+    """On FIPS hosts, neutralize the FIPS self-test crash in the PAV container.
+
+    PAV's pysam is a pip wheel that bundles a FIPS-capable OpenSSL. When the host
+    kernel is in FIPS mode (/proc/sys/crypto/fips_enabled == 1) the bundled lib
+    auto-enables FIPS on import and aborts on a failing self-test
+    ("FATAL FIPS SELFTEST FAILURE"); OPENSSL_CONF=/dev/null does not help because
+    it reads /proc, not the config. Bind a file containing "0" over that path
+    inside every apptainer container (via APPTAINER_BIND, inherited by the
+    snakemake subprocess) so the bundled OpenSSL skips FIPS. No-op on non-FIPS
+    hosts. See docs/issues/run_pav_fips_selftest.md.
+    """
+    fips_flag = "/proc/sys/crypto/fips_enabled"
+    try:
+        with open(fips_flag) as fh:
+            if fh.read().strip() != "1":
+                return
+    except OSError:
+        return  # path absent -> not a FIPS host
+
+    zero = os.path.abspath(os.path.join(run_dir, ".fips_zero"))
+    with open(zero, "w") as fh:
+        fh.write("0\n")
+    bind = f"{zero}:{fips_flag}"
+    for var in ("APPTAINER_BIND", "SINGULARITY_BIND"):
+        existing = os.environ.get(var)
+        if not existing:
+            os.environ[var] = bind
+        elif bind not in existing.split(","):
+            os.environ[var] = f"{existing},{bind}"
+    logging.info(
+        "FIPS host detected; bound %s -> 0 in apptainer containers to avoid the "
+        "PAV pysam OpenSSL FIPS self-test crash",
+        fips_flag,
+    )
+
+
 def execute_snakemake_pipeline(
     args: argparse.Namespace, run_dir: str, extra_args: List[str]
 ) -> None:
     """Execute Snakemake pipeline."""
+    setup_fips_apptainer_bind(run_dir)
     cmd = [
         "snakemake",
         "--use-conda",

@@ -45,6 +45,14 @@ _pav_config:
 
 _pav_threads: 24
 
+## Container image for the PAV variant caller (docker:// URI or a local
+## Apptainer SIF path). The published image works as-is; on FIPS hosts its
+## bundled pysam OpenSSL would crash, but run_defrabb auto-binds
+## /proc/sys/crypto/fips_enabled -> 0 to neutralize that (see
+## docs/issues/run_pav_fips_selftest.md). Override only to pin a different
+## image/digest or a custom local SIF.
+_pav_container: "docker://becklab/pav:latest"
+
 ## Peak RSS reservation (MB) for run_pav. PAV peaks at ~65 GB RSS on whole-genome
 ## HG002 (measured 2026-06-23). Reserved so the global --resources mem_mb budget
 ## serializes it against other memory-heavy rules. Sized with 25% margin.
