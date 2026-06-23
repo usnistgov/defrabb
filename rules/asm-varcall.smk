@@ -33,7 +33,7 @@ rule run_dipcall:
         ),
         rulelog="logs/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.log",
     benchmark:
-        "benchmark/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
+        "benchmark/asm_varcalls/{vc_id}_{ref_id}_{asm_id}_{vc_param_id}.tsv"
     conda:
         "../envs/dipcall.yml"
     threads: config["_dipcall_threads"] * config["_dipcall_jobs"]
