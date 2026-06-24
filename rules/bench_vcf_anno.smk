@@ -48,9 +48,13 @@ rule run_truvari_anno_trf:
         vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.trfanno.vcf",
     log:
         "logs/truvari_anno_trf/{vc_id}_{prefix}.log",
+    benchmark:
+        "benchmark/truvari_anno_trf/{vc_id}_{prefix}.tsv"
     conda:
         "../envs/truvari_trf.yml"
     threads: 5
+    resources:
+        mem_mb=config["_truvari_anno_mem"],
     params:
         min_length=config["_vcf_processing_params"]["truvari_anno_min_length"],
     shell:
@@ -76,8 +80,12 @@ rule run_truvari_anno_svinfo:
         vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.svinfo.vcf",
     log:
         "logs/truvari_anno_svinfo/{vc_id}_{prefix}.log",
+    benchmark:
+        "benchmark/truvari_anno_svinfo/{vc_id}_{prefix}.tsv"
     conda:
         "../envs/truvari_core.yml"
+    resources:
+        mem_mb=config["_truvari_anno_mem"],
     params:
         minsize=config["_vcf_processing_params"]["truvari_svinfo_minsize"],
     shell:
@@ -170,8 +178,12 @@ rule run_truvari_anno_lcr:
         vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.lcr.vcf",
     log:
         "logs/truvari_anno_lcr/{vc_id}_{prefix}.log",
+    benchmark:
+        "benchmark/truvari_anno_lcr/{vc_id}_{prefix}.tsv"
     conda:
         "../envs/truvari_core.yml"
+    resources:
+        mem_mb=config["_truvari_anno_mem"],
     shell:
         """
         truvari anno lcr \

@@ -89,6 +89,9 @@ rule run_truvari:
         "benchmark/run_truvari/{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.tsv"
     conda:
         "../envs/truvari_core.yml"
+    threads: config["_truvari_refine_threads"]
+    resources:
+        mem_mb=config["_truvari_mem"],
     params:
         dir=lambda wildcards, output: Path(output[0]).parent,
         tmpdir=lambda wildcards: expand("truvari_{eval_id}", eval_id=wildcards.eval_id),

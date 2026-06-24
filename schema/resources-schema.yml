@@ -16,9 +16,12 @@ required:
   - _dipcall_params
   - _pav_config
   - _pav_threads
+  - _pav_mem
   - _happy_threads
   - _happy_mem
   - _truvari_refine_threads
+  - _truvari_mem
+  - _truvari_anno_mem
   - _exclusion_params
   - _vcf_processing_params
   - vcf_processing_profiles
@@ -288,6 +291,11 @@ properties:
     exclusiveMinimum: 0
     type: integer
 
+  _pav_mem:
+    description: peak RSS memory reservation for run_pav, in MB
+    exclusiveMinimum: 0
+    type: integer
+
   _happy_threads:
     description: the number of threads for happy runs
     exclusiveMinimum: 0
@@ -300,6 +308,16 @@ properties:
 
   _truvari_refine_threads:
     description: the number of threads for truvari refine runs
+    exclusiveMinimum: 0
+    type: integer
+
+  _truvari_mem:
+    description: peak RSS memory reservation for truvari bench/refine, in MB
+    exclusiveMinimum: 0
+    type: integer
+
+  _truvari_anno_mem:
+    description: peak RSS memory reservation for truvari anno passes, in MB
     exclusiveMinimum: 0
     type: integer
 

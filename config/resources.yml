@@ -24,8 +24,10 @@ _dipcall_threads: 5
 # the number of parallel jobs for dipcall's call to make - 2 or one per haplotype
 _dipcall_jobs: 4
 
-# Mem per job
-_dipcall_mem: 32000
+# Mem per job (MB). Dipcall peaks at ~102-116 GB total across jobs (measured
+# 2026-06-23: CHM13 116 GB, GRCh38 103 GB). With 4 jobs, 40000/job = 160 GB
+# total reservation (margin over observed 116 GB).
+_dipcall_mem: 40000
 
 # Parameters
 _dipcall_params:
@@ -43,12 +45,26 @@ _pav_config:
 
 _pav_threads: 24
 
+## Peak RSS reservation (MB) for run_pav. PAV peaks at ~65 GB RSS on whole-genome
+## HG002 (measured 2026-06-23). Reserved so the global --resources mem_mb budget
+## serializes it against other memory-heavy rules. Sized with 25% margin.
+_pav_mem: 80000
+
 ## Happy Resources ################
 _happy_threads: 12
-_happy_mem: 64000
+
+## hap.py peak RSS reaches ~95-151 GB on whole-genome HG002/HG008 (measured
+## on prior runs). Sized to cover the observed peak + margin.
+_happy_mem: 160000
 
 ## Truvari Resources ##############
 _truvari_refine_threads: 24
+
+## Peak RSS reservations (MB). truvari bench is light (~200 MB) but refine
+## (mafft) and the anno passes are heavier; reserved so they count against the
+## global mem_mb budget.
+_truvari_mem: 32000
+_truvari_anno_mem: 16000
 
 ## Truvari bench parameter profiles ##########
 # Selected per-analysis via the analyses-table `eval_params` column. The
