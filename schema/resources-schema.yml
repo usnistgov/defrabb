@@ -22,6 +22,7 @@ required:
   - _truvari_refine_threads
   - _truvari_mem
   - _truvari_anno_mem
+  - _truvari_anno_threads
   - _exclusion_params
   - _vcf_processing_params
   - vcf_processing_profiles
@@ -321,6 +322,11 @@ properties:
     exclusiveMinimum: 0
     type: integer
 
+  _truvari_anno_threads:
+    description: the number of threads for truvari anno trf runs
+    exclusiveMinimum: 0
+    type: integer
+
   truvari_bench_params:
     description: |
       Named profiles of truvari bench parameters, selected per-analysis via the
@@ -439,11 +445,15 @@ properties:
       truvari_anno_min_length:
         type: integer
         minimum: 1
+      truvari_anno_max_ins_length:
+        type: integer
+        minimum: 1000
       truvari_svinfo_minsize:
         type: integer
         minimum: 1
     required:
       - truvari_anno_min_length
+      - truvari_anno_max_ins_length
       - truvari_svinfo_minsize
 
 ## Rule Resource Dependencies

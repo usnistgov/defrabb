@@ -65,6 +65,7 @@ _truvari_refine_threads: 24
 ## global mem_mb budget.
 _truvari_mem: 32000
 _truvari_anno_mem: 16000
+_truvari_anno_threads: 8
 
 ## Truvari bench parameter profiles ##########
 # Selected per-analysis via the analyses-table `eval_params` column. The
@@ -175,6 +176,9 @@ vcf_processing_profiles:
 _vcf_processing_params:
   # Minimum variant length for truvari annotations (bp)
   truvari_anno_min_length: 20
+  # Maximum insertion length for truvari trf annotation (bp)
+  # Insertions larger than this bypass TRF (kept in output, un-annotated)
+  truvari_anno_max_ins_length: 100000
   # Minimum SV size for svinfo annotation (bp)
   truvari_svinfo_minsize: 20
 
