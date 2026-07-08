@@ -143,13 +143,13 @@ rule run_pav:
         h2_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable/callable_regions_h2_500.bed.gz",
     log:
         "logs/asm_varcalls/{vc_id}_{sample_id}_pav.log",
+    benchmark:
+        "benchmark/run_pav/{vc_id}_{sample_id}.tsv"
     container:
         "docker://becklab/pav:latest"
     threads: config["_pav_threads"]
     resources:
         mem_mb=config["_pav_mem"],
-    benchmark:
-        "benchmark/run_pav/{vc_id}_{sample_id}.tsv"
     params:
         outdir="results/asm_varcalls/{vc_id}",
     shell:
