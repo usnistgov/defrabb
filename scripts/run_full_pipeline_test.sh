@@ -46,7 +46,7 @@
 set -euo pipefail
 
 TEMPLATE_REL="config/analyses_20260323_v0.020_HG002v1.1-CI.tsv"
-NEW_EXCLUSION_SET="HG002Q100stvarv0.022-selfdiscrep"
+NEW_EXCLUSION_SET="HG002Q100stvarv0.022pav"
 
 GO=0
 CORES=1
@@ -133,40 +133,10 @@ printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n
 info "wrote $(($(wc -l < "$OUTFILE") - 1)) analysis rows"
 
 # --- 3. patch resources.yml (in the clone) --------------------------------
-# 3a. add the new self-discrep-bearing exclusion set after the v0.022 block.
-grep -qE '^  HG002Q100stvarv0\.022:' "$RESOURCES" \
-    || die "could not find HG002Q100stvarv0.022 in $RESOURCES to anchor the new set"
-BLOCK_FILE="$(mktemp)"
-cat > "$BLOCK_FILE" <<EOF
-  # full-pipeline regression harness (#192): stvarv0.022 + self-discrep so the
-  # symbolic-allele self-discrepancy filter runs on PAV <INV> records.
-  ${NEW_EXCLUSION_SET}:
-    - segdups
-    - tandem-repeats
-    - satellites
-    - gaps
-    - flanks
-    - VDJ
-    - consecutive-svs
-    - dipcall-bugs-T2TACE
-    - HG002Q100-pav-discrep-smvar
-    - HG002Q100-pav-discrep-stvar
-    - HG002Q100-pav-inversions
-    - HG002Q100-errors
-    - TSPY2-segdups
-    - self-discrep
-EOF
-TMP="$(mktemp)"
-awk -v bf="$BLOCK_FILE" '
-    function emit(   l){ while ((getline l < bf) > 0) print l; close(bf) }
-    /^  HG002Q100stvarv0\.022:/ { seen=1 }
-    seen && !ins && /^  [^ ]/ && !/^  HG002Q100stvarv0\.022:/ { emit(); ins=1 }
-    { print }
-    END { if (!ins) emit() }
-' "$RESOURCES" > "$TMP"
-mv "$TMP" "$RESOURCES"
-rm -f "$BLOCK_FILE"
-info "added exclusion set $NEW_EXCLUSION_SET to $RESOURCES"
+# 3a. verify the PAV-specific exclusion set exists (defined in master resources.yml)
+grep -qE "^  ${NEW_EXCLUSION_SET}:" "$RESOURCES" \
+    || die "PAV exclusion set ${NEW_EXCLUSION_SET} not found in $RESOURCES"
+info "verified PAV exclusion set ${NEW_EXCLUSION_SET} exists in $RESOURCES"
 
 # 3b. enable the genome_specific_strats config flag (#59/#173), opt-in on
 # master, turned on here so the smvar hap.py evals build the genome-specific
@@ -183,10 +153,10 @@ git add "$OUTFILE" "$RESOURCES"
 git commit --quiet -m "test(fullpipe): whole-genome regression run ${RUNID}
 
 Exercises stvar_v5 truvari profile (#194), genome_specific_strats (#59/#173),
-HG002Q100stvarv0.022 exclusion set (#188), and the symbolic-allele
-self-discrepancy filter via a PAV stvar row (#192).
+HG002Q100stvarv0.022 exclusion set (#188), and PAV-specific exclusion set
+${NEW_EXCLUSION_SET} (omits dipcall-only exclusions).
 
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 
 # --- 5. validate config ----------------------------------------------------
 info "validating config (run_defrabb validate)"
