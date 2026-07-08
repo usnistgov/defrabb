@@ -4,8 +4,9 @@ import tempfile
 import subprocess
 from pathlib import Path
 
-import pysam
 import pytest
+
+pysam = pytest.importorskip("pysam")
 
 
 def test_merge_trfanno_vcfs_header():
