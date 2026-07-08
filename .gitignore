@@ -69,3 +69,4 @@ results*
 
 ## PAV cache
 .cache/**
+.claude/
