@@ -31,6 +31,7 @@ The `snakemake` CLI requires activation: `conda activate snakemake` (or `~/minif
 pytest .tests          # Run unit and integration tests
 snakefmt .            # Format Snakemake files
 black scripts/        # Format Python scripts
+scripts/run_full_pipeline_test.sh  # Whole-genome regression test (creates clone with dated config)
 ```
 
 CI runs all three checks on every push.
@@ -77,5 +78,8 @@ Two main config files drive the pipeline:
 
 ## Known Issues
 
+- **Truvari anno trf on PAV:** Large insertions (>100kb) trigger O(n²) edlib alignment causing multi-day stalls. Size-cap at 100kb routes oversized variants around TRF (kept in output, un-annotated). Config: `truvari_anno_max_ins_length` in `_vcf_processing_params`. See `docs/issues/run_pav_run_dipcall_failures.md` section E.
+- **VCF merging with pysam:** Use `vcf_out.new_record()` and copy INFO by name (not `entry.translate()`) to avoid BCF INFO tag ID corruption when headers have different field counts. pysam auto-generates END for symbolic alleles with SVLEN—must declare in header.
+- **Memory exhaustion:** Pass `--resources mem_mb=<budget>` to enforce per-rule reservations; without it, multiple heavy jobs (dipcall, PAV) can OOM concurrently. `run_defrabb` defaults to 80% of system memory.
 - **Truvari refine v5.4.0:** Fails with 2700+ regions (samtools faidx bug). Workaround: use `truvari` (without refine) or downgrade. See `docs/issues/truvari-refine-v5.4.0-bug.md`.
 - **FIPS OpenSSL:** Some conda envs trigger FIPS conflicts. Fixed in Truvari 4.3+. See `docs/truvari-env-debugging-reference.md`.
