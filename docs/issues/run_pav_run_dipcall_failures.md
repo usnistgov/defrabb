@@ -1,8 +1,8 @@
-# `run_dipcall` and `run_pav` failures (full-pipeline test 20260615_v0.022)
+# `run_dipcall`, `run_pav`, and `truvari anno trf` failures
 
-Diagnosis and remediation plan from the whole-genome regression run
-`/defrabb_runs/runs/20260615_v0.022_fulltest-HG002v1.1` (HG002 T2T-Q100 v1.1,
-GRCh37 / GRCh38 / CHM13v2.0; one PAV benchmark on GRCh38).
+Diagnosis and remediation from full-pipeline regression tests:
+- 20260615_v0.022_fulltest-HG002v1.1 (`run_dipcall` OOM, `run_pav` failures)
+- 20260617_v0.022_fulltest-HG002v1.1 (`truvari anno trf` 4-day stall on PAV)
 
 ## TL;DR
 
@@ -233,3 +233,33 @@ point the PAV row at a PAV-specific set (e.g. `HG002Q100stvarv0.022pav`, plus th
   `make -j` uses the jobs knob (Bug A); PAV exclusion sets omit dipcall-only
   exclusions (Mod 1); `get_consecutive_svs` reuses the resolved dipcall run and
   never references the benchmark's own `{vc_cmd}` hap BAMs (Mod 2 / Bug B).
+- `.tests/unit/test_trfanno_merge.py` — VCF header merging and BCF roundtrip for
+  `merge_trfanno_vcfs.py`.
+
+## E — truvari anno trf 4-day stall on PAV (20260617 fulltest)
+
+**Root cause:** `truvari anno trf` (v4.3.0) stalled 4+ days on PAV callsets due
+to O(n²) `edlib.align()` in Python estimation path (`TRFAnno.ins_estimate_anno`)
+when processing 420 kb insertions. PAV emits full-length insertions with no size
+cap; the largest 15 are ≥100 kb (max 420 kb). Truvari parallelizes by reference
+chunks (`-C 5MB` default), so a single chunk holding a pathological variant
+stalls the entire job (classic tail latency).
+
+**Solution (20260708, commit 633196d):**
+- Size-cap insertions routed to TRF (100 kb default, configurable via
+  `truvari_anno_max_ins_length` in `_vcf_processing_params`).
+- Oversized insertions bypass TRF annotation but remain in output (un-annotated).
+- Three-rule workflow:
+  1. `split_vcf_by_ins_size`: bcftools split on `STRLEN(ALT) > cap`
+  2. `run_truvari_anno_trf`: input `trf_insize.vcf.gz`, output
+     `trf_insize_annotated.vcf`; threads now configurable
+     (`_truvari_anno_threads: 8`, was hardcoded 5); added `-C 1` (1 MB chunks for
+     load balance) and `-l 0.5` (TRF memory cap)
+  3. `merge_trfanno`: Python/pysam merge with proper BCF header handling (create
+     new records in output header context instead of `entry.translate()` to avoid
+     BCF INFO tag ID corruption when headers have different field counts); added
+     END to header (pysam auto-generates for symbolic alleles with SVLEN)
+
+**Verified:** 20260617 fulltest HG002v1.1 PAV: 6,627,937 variants (6,627,915
+annotated + 22 oversize), pipeline completes successfully. TRF annotation now
+bounds at ~5 min (was 4+ days).
