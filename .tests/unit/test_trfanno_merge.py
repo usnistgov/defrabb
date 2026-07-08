@@ -1,4 +1,5 @@
 """Test merge_trfanno_vcfs.py header merging and record translation."""
+
 import tempfile
 import subprocess
 from pathlib import Path
@@ -42,7 +43,9 @@ def test_merge_trfanno_vcfs_header():
 
         # Write annotated VCF
         with pysam.VariantFile(annotated_vcf, "w", header=annotated_header) as f:
-            rec = annotated_header.new_record(contig="chr1", start=100, alleles=("A", "T"))
+            rec = annotated_header.new_record(
+                contig="chr1", start=100, alleles=("A", "T")
+            )
             rec.info["SVTYPE"] = "SNV"
             rec.info["TRF"] = True
             rec.samples["sample"]["GT"] = (0, 1)
@@ -121,7 +124,9 @@ def test_merge_trfanno_vcfs_bcf_roundtrip():
 
         # Write test VCFs
         with pysam.VariantFile(annotated_vcf, "w", header=annotated_header) as f:
-            rec = annotated_header.new_record(contig="chr1", start=100, alleles=("A", "T"))
+            rec = annotated_header.new_record(
+                contig="chr1", start=100, alleles=("A", "T")
+            )
             rec.info["SVTYPE"] = "SNV"
             rec.info["TRF"] = True
             rec.samples["sample"]["GT"] = (0, 1)

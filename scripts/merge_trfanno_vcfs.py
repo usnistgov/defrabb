@@ -31,7 +31,9 @@ def merge_vcfs(annotated_path, oversize_path, output_path):
 
     # Add END INFO field if missing (pysam auto-generates it for symbolic alleles with SVLEN)
     if "END" not in [r["ID"] for r in out_header.records if r.key == "INFO"]:
-        out_header.add_line('##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the variant">')
+        out_header.add_line(
+            '##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the variant">'
+        )
 
     # Open output - mode "w" writes uncompressed VCF by default
     vcf_out = pysam.VariantFile(output_path, "w", header=out_header)
