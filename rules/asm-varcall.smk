@@ -154,15 +154,15 @@ rule run_pav:
         outdir="results/asm_varcalls/{vc_id}",
     shell:
         # Capture the absolute log path before cd; PAV runs in outdir.
-        # OPENSSL_CONF=/dev/null disables the OpenSSL FIPS self-test for the
-        # inner snakemake (NIST FIPS hosts otherwise hit
-        # "FATAL FIPS SELFTEST FAILURE" inside the becklab/pav container).
+        # On FIPS hosts, run_defrabb auto-binds /proc/sys/crypto/fips_enabled -> 0
+        # inside apptainer containers to prevent the PAV pysam FIPS self-test crash.
+        # See docs/issues/run_pav_fips_selftest.md.
         # The nested PAV output is captured to the rule log; on failure PAV's
         # own .snakemake logs are surfaced too so the cause is debuggable.
         """
         LOG="$(pwd)/{log}"
         cd {params.outdir}
-        if ! OPENSSL_CONF=/dev/null snakemake -s /opt/pav/Snakefile --ri -k -w 20 \
+        if ! snakemake -s /opt/pav/Snakefile --ri -k -w 20 \
             --rerun-triggers mtime -c {threads} --config ignore_env_file=True \
             > "$LOG" 2>&1; then
             echo '--- inner PAV .snakemake/log ---' >> "$LOG"
