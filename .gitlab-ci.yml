@@ -27,7 +27,7 @@ before_script:
 smkformat:
   script:
     - echo "Running snakefmt --check"
-    - snakefmt --check --diff . || (echo "Files needing format:"; find . -name '*.smk' -o -name 'Snakefile' | while read f; do snakefmt --check "$f" 2>&1 | grep -q "would be changed" && echo "$f"; done; exit 1)
+    - snakefmt --check .
 
 pyformat:
   script:
