@@ -60,10 +60,39 @@ rule split_vcf_by_ins_size:
         """
 
 
-rule run_truvari_anno_trf:
+rule filter_vcf_for_trf_contigs:
+    """Split insize VCF into canonical contigs (present in TRF db) and non-canonical.
+
+    truvari anno trf errors on contigs absent from the TRF database (e.g. chrM in
+    CHM13, MT in GRCh37).  This rule separates those variants before annotation so
+    non-canonical-contig variants are preserved and passed through unannotated.
+    """
     input:
         vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.trf_insize.vcf.gz",
         vcfidx="results/asm_varcalls/{vc_id}/annotations/{prefix}.trf_insize.vcf.gz.tbi",
+        trdb=get_ref_trdb,
+    output:
+        canonical="results/asm_varcalls/{vc_id}/annotations/{prefix}.trf_insize_canonical.vcf.gz",
+        noncanon="results/asm_varcalls/{vc_id}/annotations/{prefix}.trf_insize_noncanon.vcf.gz",
+    log:
+        "logs/filter_vcf_for_trf_contigs/{vc_id}_{prefix}.log",
+    conda:
+        "../envs/bcftools.yml"
+    shell:
+        """
+        TRF_CONTIGS=$(tabix -l {input.trdb} | tr '\n' ',' | sed 's/,$//')
+        echo "TRF contigs: $TRF_CONTIGS" > {log}
+        bcftools view -t "$TRF_CONTIGS" -Oz -o {output.canonical} {input.vcf} 2>>{log}
+        tabix {output.canonical} 2>>{log}
+        bcftools view -t "^$TRF_CONTIGS" -Oz -o {output.noncanon} {input.vcf} 2>>{log}
+        tabix {output.noncanon} 2>>{log}
+        """
+
+
+rule run_truvari_anno_trf:
+    input:
+        vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.trf_insize_canonical.vcf.gz",
+        vcfidx="results/asm_varcalls/{vc_id}/annotations/{prefix}.trf_insize_canonical.vcf.gz.tbi",
         ref=get_ref_file,
         trdb=get_ref_trdb,
     output:
@@ -99,6 +128,7 @@ rule merge_trfanno:
     input:
         annotated="results/asm_varcalls/{vc_id}/annotations/{prefix}.trf_insize_annotated.vcf",
         oversize="results/asm_varcalls/{vc_id}/annotations/{prefix}.trf_oversize.vcf.gz",
+        noncanon="results/asm_varcalls/{vc_id}/annotations/{prefix}.trf_insize_noncanon.vcf.gz",
     output:
         vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.trfanno.vcf",
     log:
@@ -112,6 +142,7 @@ rule merge_trfanno:
         python3 scripts/merge_trfanno_vcfs.py \
             --annotated {input.annotated} \
             --oversize {input.oversize} \
+            --noncanon {input.noncanon} \
             --output {output.vcf} \
             &> {log}
         """
