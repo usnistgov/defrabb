@@ -1,4 +1,22 @@
 ## Excluding self comparison
+
+
+def get_self_discrep_fpfns_bed(wildcards):
+    """Route self-discrepancy FP/FN BED to the correct intermediate file.
+
+    stvar benchmarks use the truvari bench path (SV-aware, #193);
+    smvar benchmarks use the hap.py/vcfeval path.
+    """
+    base = (
+        f"results/draft_benchmarksets/{wildcards.bench_id}/exclusions/self-discrep/"
+        f"{wildcards.ref_id}_{wildcards.asm_id}_{wildcards.bench_type}"
+        f"_{wildcards.vc_cmd}-{wildcards.vc_param_id}"
+    )
+    if wildcards.bench_type == "stvar":
+        return f"{base}_truvari.fpfns.bed"
+    return f"{base}.fpfns.bed"
+
+
 rule self_discrep_filter_symbolic:
     # hap.py / vcfeval cannot parse symbolic or breakend ALT alleles (e.g. PAV
     # inversions represented as <INV>), which crashes the self-comparison with
@@ -96,7 +114,7 @@ rule self_discrep_extract_fpfns:
 
 rule self_discrep_intersect_slop:
     input:
-        bed="results/draft_benchmarksets/{bench_id}/exclusions/self-discrep/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.fpfns.bed",
+        bed=get_self_discrep_fpfns_bed,
         simple_repeat_bed="resources/exclusions/{ref_id}/all-tr-and-homopolymers_sorted.bed",
         genome=get_genome_file,
     output:
@@ -120,4 +138,104 @@ rule self_discrep_intersect_slop:
             | bedtools slop -b {params.slop} -i stdin -g {input.genome} \
             | mergeBed -i stdin -d {params.merge_d} \
             1> {output} 2> {log}
+        """
+
+
+## SV-aware self-discrepancy via truvari bench (#193)
+## hap.py/vcfeval is fundamentally wrong for SVs: it drops symbolic/BND alleles
+## before running and cannot evaluate large insertion/deletion concordance.
+## For stvar benchmarks, truvari bench (VCF vs itself) detects discordant SV
+## records in the same window that cannot be mutually matched, producing FP/FN
+## VCFs that drive the same intersect+slop exclusion pipeline.
+##
+## Parameter rationale:
+##   --passonly    : restrict to PASS variants (same as smvar path)
+##   --sizemin 50  : SV threshold — sub-50bp variants are handled by smvar path
+##   -p 0          : disable pctseq (symbolic alleles have no sequence to compare)
+##   -P 0.7        : require 70% size overlap for a match
+##   -B -1         : disable BND distance matching (no BNDs in SV benchmark,
+##                   per stvar_v5 profile reasoning in resources.yml #194)
+##   -r 2000       : reference window (consistent with stvar_v5 / default profile)
+
+
+rule self_discrep_truvari:
+    input:
+        vcf=get_standardized_vcf,
+        vcfidx=get_standardized_vcfidx,
+        bed=get_standardized_bed,
+        genome=get_ref_file,
+        genomeidx=get_ref_index,
+    output:
+        multiext(
+            "results/draft_benchmarksets/{bench_id}/exclusions/self-discrep/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_truvari/",
+            "fn.vcf.gz",
+            "fn.vcf.gz.tbi",
+            "fp.vcf.gz",
+            "fp.vcf.gz.tbi",
+            "tp-base.vcf.gz",
+            "tp-base.vcf.gz.tbi",
+            "tp-comp.vcf.gz",
+            "tp-comp.vcf.gz.tbi",
+            "summary.json",
+            "candidate.refine.bed",
+        ),
+    log:
+        "logs/exclusions/self-discrep-truvari/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
+    benchmark:
+        "benchmark/exclusions/{bench_id}_self-discrep-truvari_{ref_id}_{bench_type}_{asm_id}_{vc_cmd}-{vc_param_id}.tsv"
+    wildcard_constraints:
+        bench_type="stvar",
+    conda:
+        "../envs/truvari_core.yml"
+    params:
+        dir=lambda wildcards, output: Path(output[0]).parent,
+        tmpdir=lambda wildcards: (
+            f"truvari_sd_{wildcards.bench_id}_{wildcards.ref_id}"
+            f"_{wildcards.asm_id}_{wildcards.bench_type}"
+            f"_{wildcards.vc_cmd}-{wildcards.vc_param_id}"
+        ),
+    shell:
+        """
+        rm -rf {params.tmpdir}
+        truvari bench \
+            -b {input.vcf} \
+            -c {input.vcf} \
+            -o {params.tmpdir} \
+            -f {input.genome} \
+            --includebed {input.bed} \
+            --passonly \
+            --sizemin 50 \
+            -p 0 \
+            -P 0.7 \
+            -B -1 \
+            -r 2000 \
+        &> {log}
+        mv {params.tmpdir}/* {params.dir}
+        rm -r {params.tmpdir}
+        """
+
+
+rule self_discrep_truvari_extract_fpfns:
+    input:
+        fn_vcf="results/draft_benchmarksets/{bench_id}/exclusions/self-discrep/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_truvari/fn.vcf.gz",
+        fp_vcf="results/draft_benchmarksets/{bench_id}/exclusions/self-discrep/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_truvari/fp.vcf.gz",
+        faidx=get_ref_index,
+    output:
+        "results/draft_benchmarksets/{bench_id}/exclusions/self-discrep/{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}_truvari.fpfns.bed",
+    log:
+        "logs/exclusions/self-discrep-truvari-fpfns/{bench_id}_{ref_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.log",
+    wildcard_constraints:
+        bench_type="stvar",
+    conda:
+        "../envs/bcftools_and_bedtools.yml"
+    shell:
+        """
+        echo "Extracting FP/FN regions from truvari self-comparison" >> {log}
+        (
+            bcftools query -f "%CHROM\t%POS0\t%END\n" {input.fn_vcf} 2>> {log}
+            bcftools query -f "%CHROM\t%POS0\t%END\n" {input.fp_vcf} 2>> {log}
+        ) \
+            | bedtools merge -i - 2>> {log} \
+            | bedtools sort -faidx {input.faidx} -i - 1> {output} 2>> {log}
+        echo "Completed successfully" >> {log}
         """
