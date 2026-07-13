@@ -14,8 +14,6 @@ Tests here verify:
 """
 
 import subprocess
-import tempfile
-from pathlib import Path
 
 import pytest
 
@@ -25,13 +23,6 @@ pysam = pytest.importorskip("pysam")
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
-
-
-def _write_vcf(path, header, records):
-    """Write a pysam-based VCF with the given records to path."""
-    with pysam.VariantFile(path, "w", header=header) as f:
-        for rec in records:
-            f.write(rec)
 
 
 def _basic_header(contigs, info_fields=None, with_sample=True):
