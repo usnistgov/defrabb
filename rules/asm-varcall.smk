@@ -152,6 +152,7 @@ rule run_pav:
         mem_mb=config["_pav_mem"],
     params:
         outdir="results/asm_varcalls/{vc_id}",
+        cigar_threads=config["_pav_cigar_threads"],
     shell:
         # Capture the absolute log path before cd; PAV runs in outdir.
         # On FIPS hosts, run_defrabb auto-binds /proc/sys/crypto/fips_enabled -> 0
@@ -159,11 +160,16 @@ rule run_pav:
         # See docs/issues/run_pav_fips_selftest.md.
         # The nested PAV output is captured to the rule log; on failure PAV's
         # own .snakemake logs are surfaced too so the cause is debuggable.
+        # --set-threads call_cigar bounds PAV's otherwise-unthrottled call_cigar
+        # concurrency (it declares no threads/resources) so the per-batch pandas
+        # memory does not OOM. See docs/issues/run_pav_run_dipcall_failures.md.
         """
         LOG="$(pwd)/{log}"
         cd {params.outdir}
         if ! snakemake -s /opt/pav/Snakefile --ri -k -w 20 \
-            --rerun-triggers mtime -c {threads} --config ignore_env_file=True \
+            --rerun-triggers mtime -c {threads} \
+            --set-threads call_cigar={params.cigar_threads} \
+            --config ignore_env_file=True \
             > "$LOG" 2>&1; then
             echo '--- inner PAV .snakemake/log ---' >> "$LOG"
             cat .snakemake/log/*.log >> "$LOG" 2>/dev/null || true

@@ -16,6 +16,7 @@ required:
   - _dipcall_params
   - _pav_config
   - _pav_threads
+  - _pav_cigar_threads
   - _pav_mem
   - _happy_threads
   - _happy_mem
@@ -289,6 +290,14 @@ properties:
 
   _pav_threads:
     description: the number of threads for pav (sub pipeline)
+    exclusiveMinimum: 0
+    type: integer
+
+  _pav_cigar_threads:
+    description: >-
+      Threads assigned to PAV's call_cigar rule via --set-threads to cap its
+      concurrency (floor(_pav_threads / _pav_cigar_threads) run at once) and
+      bound the per-batch pandas-Series memory that otherwise OOMs.
     exclusiveMinimum: 0
     type: integer
 

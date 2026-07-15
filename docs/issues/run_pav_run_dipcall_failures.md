@@ -263,3 +263,81 @@ stalls the entire job (classic tail latency).
 **Verified:** 20260617 fulltest HG002v1.1 PAV: 6,627,937 variants (6,627,915
 annotated + 22 oversize), pipeline completes successfully. TRF annotation now
 bounds at ~5 min (was 4+ days).
+
+## F — run_pav `call_cigar` concurrency failure inside the nested PAV Snakemake (20260708 fulltest)
+
+**Symptom:** `run_pav` for `GRCh38_HG002-T2TQ100v1.1-pav` failed ~39% into the
+nested PAV workflow. Three `call_cigar` jobs (h2 batches 1, 4, 8) reported
+`Error in rule call_cigar:` with **no message and no traceback**, all at the
+exact same second, ~24 s after launch — while their sibling h2 batches ran a
+further ~4 min and succeeded, and every h1 batch (launched ~11 s later)
+succeeded. h1's downstream ran to completion; h2 stalled because its
+`call_cigar_merge` needs all 10 batches. With `-k` the run drained all h1 work,
+then exited failed. Every subsequent rerun then hit a `LockException` because
+the killed job left a stale `.snakemake/locks/` entry (and a 0-byte incomplete
+`aligned_tig_h2.sam.gz`).
+
+**Root cause — the failure is concurrency-conditional; most likely a transient
+memory spike (OOM).** Evidence:
+
+- An empty error message with **no Python traceback** is the signature of a
+  signal kill (SIGKILL), not a Python exception (which PAV's `run:`-directive
+  jobs surface with a full traceback — confirmed separately). Three independent
+  jobs dying at the *same second* points to a shared external event; the OOM
+  killer reaping the top-RSS processes fits.
+- **Reproduced the conditionality:** re-running the failing batch (h2 batch 4)
+  *in isolation* (single `call_cigar`, no concurrency, fresh alignment)
+  **succeeds**. So there is no data/code defect in the batch — the failure only
+  occurs under the full ~20-way `call_cigar` + `call_lg_discover` concurrency of
+  the real run.
+
+In the container PAV (`/opt/pav/rules/call.snakefile`), `call_cigar` declares
+**no `threads:` and no `resources:`**, so the nested `snakemake -c {_pav_threads}`
+(24) schedules up to 24 at once. Each accumulates **one `pandas.Series` per
+called variant** in a Python list (`pavlib/cigarcall.py::make_insdel_snv_calls`,
+`df_snv_list.append(pd.Series(...))`) and concatenates at the end, so both
+steady-state and the terminal concat spike scale with the batch's variant count
+(millions for T2T-Q100 vs GRCh38). The highest-variant batches (the 3 that died)
+peak highest; ~20 batches started together would spike together. The batch count
+is a hardcoded constant (`pavlib.cigarcall.CALL_CIGAR_BATCH_COUNT = 10`), not
+config-tunable, and the outer `--resources mem_mb` budget governs only *outer*
+jobs — it does not propagate into the nested PAV Snakemake, so nothing bounds the
+inner concurrency.
+
+**Not fully confirmed:** kernel OOM logs (dmesg/journalctl) were not accessible
+on this host, and observed *steady-state* per-batch RSS was modest (hundreds of
+MB to ~2.7 GB); the transient concat spike was not captured. So "OOM" is the
+most probable mechanism given the signature, not a log-verified fact. What *is*
+verified is that the failure is triggered by concurrency and disappears without
+it — which is exactly what the fix removes.
+
+**Fix (config-driven concurrency cap):** `run_pav` now passes
+`--set-threads call_cigar={_pav_cigar_threads}` to the nested PAV Snakemake.
+Since `call_cigar` has no declared threads, `--set-threads` is the only lever
+that bounds its concurrency (PAV exposes no batch-count or per-rule memory
+config). With `_pav_threads: 24` and `_pav_cigar_threads: 8`, at most
+`floor(24/8) = 3` `call_cigar` jobs run at once. This directly removes the
+proven trigger (high `call_cigar` concurrency) and bounds any aggregate memory
+spike. Lower `_pav_cigar_threads` for more concurrency (faster), raise it to
+serialize harder on memory-tight hosts.
+
+**Changes applied:**
+- `config/resources.yml`: new `_pav_cigar_threads: 8`.
+- `schema/resources-schema.yml`: `_pav_cigar_threads` added (required + typed).
+- `rules/asm-varcall.smk` `run_pav`: `--set-threads call_cigar={params.cigar_threads}`.
+
+**Operational note (stale lock / incomplete temp on restart):** a killed PAV run
+leaves `.snakemake/locks/` populated (next run fails with `LockException`) and
+can leave 0-byte incomplete temp outputs. Recovery: remove the lock files (or run
+the nested PAV with `--unlock`) and delete any 0-byte `temp/.../*.sam.gz` before
+rerunning. Note that PAV's `temp()` intermediates (e.g. `contigs_{hap}.fa.gz`)
+are cleaned on success, so a `--ri` resume re-runs alignment from scratch — an
+interrupted PAV run effectively restarts the whole ~8 h job.
+
+**Validation:**
+- Failing h2 batch 4 runs to completion in isolation (single batch, fresh
+  alignment) — confirms the failure is concurrency-conditional, not a data bug.
+- `--set-threads call_cigar={n}` parses in the container PAV Snakemake and a
+  dry-run shows `call_cigar` assigned the capped thread count.
+- Structural regression tests added (`.tests/unit/test_asm_varcall_rules.py`).
+- **Pending:** a full-pipeline rerun with the cap to confirm `run_pav` completes.

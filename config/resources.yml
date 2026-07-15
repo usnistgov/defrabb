@@ -45,6 +45,17 @@ _pav_config:
 
 _pav_threads: 24
 
+## Concurrency cap for PAV's memory-heavy `call_cigar` rule inside the nested PAV
+## Snakemake. `call_cigar` declares no threads/resources, so PAV would otherwise
+## schedule up to `_pav_threads` of them at once; each accumulates one pandas
+## Series per called variant (see pavlib/cigarcall.py::make_insdel_snv_calls), so
+## RSS scales with a batch's variant count. Under full concurrency the
+## highest-variant batches were silently killed (likely a transient memory spike).
+## run_pav passes `--set-threads call_cigar=<this>`, capping concurrency to
+## floor(_pav_threads / _pav_cigar_threads). See
+## docs/issues/run_pav_run_dipcall_failures.md (bug F).
+_pav_cigar_threads: 8
+
 ## Container image for the PAV variant caller (docker:// URI or a local
 ## Apptainer SIF path). The published image works as-is; on FIPS hosts its
 ## bundled pysam OpenSSL would crash, but run_defrabb auto-binds

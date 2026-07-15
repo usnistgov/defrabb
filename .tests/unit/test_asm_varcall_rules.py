@@ -135,6 +135,40 @@ def test_run_dipcall_make_parallelism_tied_to_jobs_knob():
 
 
 # --------------------------------------------------------------------------- #
+# Bug F: PAV call_cigar concurrency must be capped to avoid OOM               #
+# --------------------------------------------------------------------------- #
+
+
+def test_run_pav_caps_call_cigar_concurrency():
+    """run_pav must throttle the nested PAV ``call_cigar`` concurrency.
+
+    ``call_cigar`` declares no threads/resources, so the nested PAV Snakemake
+    would run up to ``_pav_threads`` of them at once; each holds one pandas
+    Series per variant and the biggest batches OOM (Bug F). ``--set-threads
+    call_cigar=<_pav_cigar_threads>`` is the only lever (batch count is a
+    hardcoded PAV constant).
+    """
+    block = extract_rule_block(ASM_VARCALL.read_text(), "run_pav")
+    assert "--set-threads call_cigar=" in block, (
+        "run_pav must pass --set-threads call_cigar=... to cap the nested PAV "
+        "call_cigar concurrency and bound its memory (Bug F)."
+    )
+    assert "cigar_threads" in block and "_pav_cigar_threads" in block, (
+        "the call_cigar thread cap must be driven by the _pav_cigar_threads "
+        "config value (Bug F)."
+    )
+
+
+def test_pav_cigar_threads_configured():
+    """resources.yml must define a positive integer _pav_cigar_threads."""
+    cfg = yaml.safe_load(RESOURCES_YML.read_text())
+    val = cfg.get("_pav_cigar_threads")
+    assert (
+        isinstance(val, int) and val > 0
+    ), "_pav_cigar_threads must be a positive integer (Bug F)."
+
+
+# --------------------------------------------------------------------------- #
 # Bug B / Mod 1: PAV exclusion sets must not carry dipcall-only exclusions    #
 # --------------------------------------------------------------------------- #
 
