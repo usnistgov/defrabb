@@ -340,4 +340,11 @@ interrupted PAV run effectively restarts the whole ~8 h job.
 - `--set-threads call_cigar={n}` parses in the container PAV Snakemake and a
   dry-run shows `call_cigar` assigned the capped thread count.
 - Structural regression tests added (`.tests/unit/test_asm_varcall_rules.py`).
-- **Pending:** a full-pipeline rerun with the cap to confirm `run_pav` completes.
+- **Confirmed end-to-end (20260715 rerun, `_pav_cigar_threads: 8`):** `run_pav`
+  cleared the `call_cigar` stage with 0 errors and `call_cigar_merge` ran for
+  *both* haplotypes (previously h2 could never merge — batches 1/4/8 died). PAV
+  ran to 550/550 steps and produced `HG002.vcf.gz` (6,744,518 records). The full
+  pipeline completed cleanly (outer `all` rule, 34/34 steps, no errors under
+  `--keep-going`) in ~11h20m; all 7 evaluations produced (3 hap.py smvar + 4
+  Truvari stvar, incl. the PAV benchmark: precision 0.844 / recall 0.934 /
+  F1 0.887 vs v5.0q).
