@@ -65,7 +65,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 RUNID="$(date +%Y%m%d)_${VERSION}_fulltest-HG002v1.1"
-SESSION_NAME="defrabb-${RUNID}"
+# Remove dots from session name - tmux interprets them as window.pane separators
+SESSION_NAME="defrabb-$(echo ${RUNID} | tr '.' '-')"
 
 [[ "$RUNID" =~ ^[0-9]{8}_v[0-9]+\.[0-9]{3}_[A-Za-z0-9.-]+$ ]] \
     || die "RUNID '$RUNID' does not match YYYYMMDD_v#.###_brief-id"
