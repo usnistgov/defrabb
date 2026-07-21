@@ -74,6 +74,11 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         help="After writing the TSV, render plots into DIR via "
         "scripts/plot_evaluations.R (requires --out and Rscript)",
     )
+    p.add_argument(
+        "--regions",
+        action="store_true",
+        help="Include benchmark region (BED) statistics in output",
+    )
     return p.parse_args(argv)
 
 
@@ -88,6 +93,12 @@ def discover_eval_files(results_dir: str) -> List[Path]:
     truvari = sorted(root.glob("evaluations/truvari/*/*/summary.json"))
     refine = sorted(root.glob("evaluations/truvari/*/*/refine.variant_summary.json"))
     return happy + truvari + refine
+
+
+def discover_benchmark_beds(results_dir: str) -> List[Path]:
+    """Find benchmark BED files under draft_benchmarksets."""
+    root = Path(results_dir)
+    return sorted(root.glob("draft_benchmarksets/*/*.benchmark.bed"))
 
 
 def parse_eval_path(path: Path) -> Dict[str, str]:
@@ -306,6 +317,84 @@ def write_tsv(records: List[Dict], path: str, with_deltas: bool, metric: str) ->
             writer.writerow({c: ("" if r.get(c) is None else r.get(c)) for c in cols})
 
 
+def compute_bed_stats(bed_path: Path) -> Dict[str, float]:
+    """Compute total basepairs and interval count from a BED file."""
+    total_bp = 0
+    interval_count = 0
+    try:
+        with open(bed_path) as fh:
+            for line in fh:
+                if line.startswith("#") or not line.strip():
+                    continue
+                parts = line.strip().split("\t")
+                if len(parts) < 3:
+                    continue
+                try:
+                    start, end = int(parts[1]), int(parts[2])
+                    total_bp += end - start
+                    interval_count += 1
+                except (ValueError, IndexError):
+                    continue
+    except OSError:
+        pass
+    return {"total_bp": total_bp, "interval_count": interval_count}
+
+
+def load_bed_records(bed_files: List[Path]) -> List[Dict]:
+    """Load benchmark region statistics from BED files."""
+    records = []
+    for bed in bed_files:
+        # Parse bench_id from path: draft_benchmarksets/{bench_id}/{name}.benchmark.bed
+        bench_id = bed.parent.name
+        bench = _BENCH_TYPE.search(bench_id)
+        stats = compute_bed_stats(bed)
+        records.append(
+            {
+                "analysis_id": bench_id,
+                "bench_type": bench.group(1) if bench else "",
+                "total_bp": stats["total_bp"],
+                "interval_count": stats["interval_count"],
+                "source": str(bed),
+            }
+        )
+    return records
+
+
+def format_bed_markdown(records: List[Dict], baseline: Optional[str] = None) -> str:
+    """Format BED statistics as Markdown table."""
+    cols = ["analysis_id", "bench_type", "total_bp", "interval_count"]
+    if baseline:
+        cols += ["delta_bp", "delta_pct"]
+    header = "| " + " | ".join(cols) + " |"
+    sep = "| " + " | ".join("---" for _ in cols) + " |"
+    lines = [header, sep]
+    for r in records:
+        lines.append("| " + " | ".join(_fmt(r.get(c)) for c in cols) + " |")
+    return "\n".join(lines)
+
+
+def add_bed_deltas(records: List[Dict], baseline_id: str) -> List[Dict]:
+    """Add delta columns to BED records versus baseline."""
+    base_by_type = {
+        r["bench_type"]: r for r in records if r["analysis_id"] == baseline_id
+    }
+    for r in records:
+        base = base_by_type.get(r["bench_type"])
+        if base and r["analysis_id"] != baseline_id:
+            base_bp = base.get("total_bp", 0)
+            cur_bp = r.get("total_bp", 0)
+            if base_bp > 0:
+                r["delta_bp"] = cur_bp - base_bp
+                r["delta_pct"] = round(100.0 * (cur_bp - base_bp) / base_bp, 2)
+            else:
+                r["delta_bp"] = None
+                r["delta_pct"] = None
+        else:
+            r["delta_bp"] = None
+            r["delta_pct"] = None
+    return records
+
+
 def run_plot(tsv_path: str, out_dir: str) -> int:
     rscript = shutil.which("Rscript")
     if not rscript:
@@ -333,6 +422,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     if not records:
         sys.exit("Error: no parseable evaluation records found")
 
+    baseline_id: Optional[str] = None
     with_deltas = bool(args.baseline)
     if with_deltas:
         baseline_id = resolve_baseline(records, args.baseline)
@@ -341,6 +431,27 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     records = sort_records(records, args.metric)
     print(format_markdown(records, with_deltas, args.metric))
+
+    # Add benchmark region comparison if requested
+    if args.regions:
+        bed_files = discover_benchmark_beds(args.results_dir)
+        if bed_files:
+            print("\n## Benchmark Regions\n")
+            bed_records = load_bed_records(bed_files)
+            bed_baseline_str = None
+            if with_deltas and baseline_id:
+                # Match baseline_id to BED records (may need fuzzy match)
+                bed_baseline = None
+                for br in bed_records:
+                    if baseline_id in br["analysis_id"] or br["analysis_id"] in baseline_id:
+                        bed_baseline = br["analysis_id"]
+                        break
+                if bed_baseline:
+                    add_bed_deltas(bed_records, bed_baseline)
+                    bed_baseline_str = bed_baseline
+            print(format_bed_markdown(bed_records, bed_baseline_str))
+        else:
+            print("\nNo benchmark BED files found", file=sys.stderr)
 
     if args.out:
         write_tsv(records, args.out, with_deltas, args.metric)
