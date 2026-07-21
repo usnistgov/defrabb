@@ -16,7 +16,11 @@
 
 ### Bug fixes
 
-- Fixed invalid escape sequence in `bench_vcf_normalize.smk` sed pattern that
+- **Fixed TRF annotation contig mismatch (#197):** Filter non-TRF contigs (chrM/MT)
+  before `truvari anno trf` to prevent contig mismatch errors. Includes
+  `scripts/merge_trfanno_vcfs.py` refactor and comprehensive unit tests
+  (`.tests/unit/test_trf_contig_filter.py`).
+- **Fixed invalid escape sequence** in `bench_vcf_normalize.smk` sed pattern that
   triggered Python SyntaxWarning.
 - Documented known `snakemake --archive` network timeout issue when packaging conda
   environments; see `docs/issues/snakemake-archive-network-timeout.md` for
@@ -26,6 +30,12 @@
 
 ### Exclusions / benchmarks
 
+- **SV-aware self-discrepancy (#193):** Added Truvari-based self-discrepancy
+  detection for structural variant benchmarks. New rule `sv_self_discrep_truvari`
+  in `rules/exclusions_self_discrep.smk` uses `truvari collapse` to find
+  discrepant SV regions between haplotypes. Includes comprehensive unit tests
+  (`.tests/unit/test_sv_self_discrep.py`). Complements existing hap.py-based
+  self-discrepancy for small variants.
 - Added exclusion set `HG002Q100stvarv0.022` (HG002Q100stvarv0.017 minus
   `HG002Q100-mosaic`) for use by the next round of HG002Q100 stvar drafts;
   excluding mosaic regions unnecessarily fragmented the SV benchmark (GitLab
@@ -33,8 +43,7 @@
   unchanged (each is tied to a released draft version).
 - Self-discrepancy exclusions now drop symbolic/breakend ALT alleles (e.g. PAV
   `<INV>`) before hap.py, fixing the `Invalid allele ... <INV>` crash on SV
-  benchmarks (GitLab #192). SV-aware self-discrepancy via Truvari remains tracked
-  in #193.
+  benchmarks (GitLab #192).
 
 ### Evaluation
 
@@ -67,8 +76,9 @@
   (`*.summary.csv`) and Truvari (`summary.json`, `refine.variant_summary.json`)
   results into a tidy precision/recall/F1 comparison table (Markdown + TSV), with
   `--baseline` deltas and regression/improvement flags for parameter
-  optimization. Plotting via `scripts/plot_evaluations.R` (ggplot2;
-  `envs/r_plot.yml`).
+  optimization. **New `--regions` flag** computes benchmark BED statistics (total
+  basepairs, interval count) with delta vs baseline. Plotting via
+  `scripts/plot_evaluations.R` (ggplot2; `envs/r_plot.yml`).
 
 ### Environments
 
