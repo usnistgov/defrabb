@@ -10,6 +10,19 @@
   #186). A shared `scripts/fetch_resource.sh` copies local files (decompressing by
   destination extension) or downloads remote URLs; schema no longer constrains
   these fields to `uri`/`url`.
+- **Download retry logic**: `fetch_resource.sh` now retries remote downloads up to
+  3 times with exponential backoff (5s → 10s delays), preventing pipeline failures
+  from intermittent network errors.
+
+### Bug fixes
+
+- Fixed invalid escape sequence in `bench_vcf_normalize.smk` sed pattern that
+  triggered Python SyntaxWarning.
+- Documented known `snakemake --archive` network timeout issue when packaging conda
+  environments; see `docs/issues/snakemake-archive-network-timeout.md` for
+  workarounds.
+- Updated `run_defrabb` help messages and CLAUDE.md to document rerun behavior and
+  unlock command.
 
 ### Exclusions / benchmarks
 
