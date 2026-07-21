@@ -8,6 +8,10 @@ DeFrABB (Development Framework for Assembly-Based Benchmarks) is a Snakemake pip
 
 **NIST runs:** `./run_defrabb run -r <RUNID>` (see `./run_defrabb --help` for subcommands: run, report, archive, release, validate).
 
+**Rerunning:** Simply rerun `./run_defrabb run -r <RUNID>` to complete a partial run.
+
+**Unlocking:** If workflow is locked after interruption: `snakemake --unlock --directory <RUNID>`
+
 **Debug mode:** Set `debug: true` in `config/resources.yml` (or pass `--config debug=true`) for verbose logs from gated rules.
 
 ## Workflow

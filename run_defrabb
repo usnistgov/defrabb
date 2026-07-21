@@ -159,6 +159,14 @@ def parse_arguments() -> Tuple[argparse.Namespace, List[str]]:
         "run",
         help="Execute the Snakemake pipeline",
         description="Run the DeFrABB pipeline (variant calling, benchmarking, evaluation)",
+        epilog=(
+            "Examples:\n"
+            "  %(prog)s -r 20260720_v0.022_test      # Initial run\n"
+            "  %(prog)s -r 20260720_v0.022_test      # Rerun (completes partial run)\n\n"
+            "To unlock a directory after workflow interruption:\n"
+            "  snakemake --unlock --directory <runid>\n"
+        ),
+        formatter_class=argparse.RawTextHelpFormatter,
     )
     add_common_args(run_parser)
 
@@ -174,7 +182,12 @@ def parse_arguments() -> Tuple[argparse.Namespace, List[str]]:
     archive_parser = subparsers.add_parser(
         "archive",
         help="Create Snakemake archive tarball",
-        description="Package pipeline results into a tarball for distribution",
+        description=(
+            "Package pipeline results into a tarball for distribution.\n\n"
+            "Note: May fail with network timeouts when downloading conda package metadata.\n"
+            "See docs/issues/snakemake-archive-network-timeout.md for workarounds."
+        ),
+        formatter_class=argparse.RawTextHelpFormatter,
     )
     add_common_args(archive_parser)
 

@@ -31,7 +31,26 @@ trap cleanup EXIT
 
 # Materialize the source bytes into a temp file (download or copy).
 if is_remote "$src"; then
-	curl -f -L --connect-timeout 120 -o "$tmp" "$src"
+	# Retry remote downloads up to 3 times with exponential backoff
+	max_retries=3
+	retry_count=0
+	retry_delay=5
+
+	while [ $retry_count -lt $max_retries ]; do
+		if curl -f -L --connect-timeout 120 --max-time 600 -o "$tmp" "$src"; then
+			break
+		fi
+
+		retry_count=$((retry_count + 1))
+		if [ $retry_count -lt $max_retries ]; then
+			echo "fetch_resource: download failed (attempt $retry_count/$max_retries), retrying in ${retry_delay}s..." >&2
+			sleep $retry_delay
+			retry_delay=$((retry_delay * 2))
+		else
+			echo "fetch_resource: download failed after $max_retries attempts: $src" >&2
+			exit 1
+		fi
+	done
 else
 	if [[ ! -f "$src" ]]; then
 		echo "fetch_resource: local source not found: $src" >&2

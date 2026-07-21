@@ -36,7 +36,7 @@ rule dip_gap2homvarbutfiltered:
     shell:
         """
         gunzip -c {input} |\
-        sed 's/1|\./1|1/' |\
+        sed 's/1|\\./1|1/' |\
         grep -v 'HET\|GAP1\|DIP' |\
         bgzip -c 1> {output} 2> {log}
         """
