@@ -46,9 +46,12 @@ rule run_dipcall:
         ts=config["_dipcall_threads"],
         make_jobs=config["_dipcall_jobs"],
         extra=lambda wildcards: (
-            ""
-            if vc_tbl.loc[wildcards.vc_id]["vc_params"] == "default"
-            else vc_tbl.loc[wildcards.vc_id]["vc_params"]
+            config["_dipcall_params"].get(
+                wildcards.vc_param_id,
+                vc_tbl.loc[wildcards.vc_id]["vc_params"]
+            )
+            if vc_tbl.loc[wildcards.vc_id]["vc_params"] != "default"
+            else config["_dipcall_params"].get(wildcards.vc_param_id, "")
         ),
     shell:
         """

@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## Unreleased (v0.023 development)
+
+### Parameter Optimization Infrastructure
+
+- **Fixed dipcall parameter profile lookup:** `rules/asm-varcall.smk` now correctly
+  looks up `vc_param_id` in `config/_dipcall_params` registry instead of ignoring
+  it. Previous behavior: profile defined but never accessed, all parameters came
+  from `vc_params` column. New behavior: `vc_param_id` indexes profile, with
+  `vc_params` as fallback for backward compatibility.
+- **Added dipcall parameter profiles:** `z5k` (wider window), `z10k` (extreme
+  sensitivity), `z1k` (narrow window, better small variant recall) to support
+  parameter optimization sweeps. Schema updated with validation pattern and examples.
+- **Unit tests:** Added `.tests/unit/test_dipcall_params.py` with profile lookup,
+  backward compatibility, and schema validation tests.
+
 ## Unreleased
 
 ### Core infrastructure

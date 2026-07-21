@@ -281,8 +281,16 @@ properties:
     type: integer
 
   _dipcall_params:
-    description: command line parameters used for dipcall run
+    description: >-
+      Dipcall parameter profiles. Each profile maps vc_param_id to CLI flags
+      passed to run-dipcall (typically -z window settings for minimap2 alignment).
     type: object
+    additionalProperties:
+      type: string
+      pattern: '^-z[0-9]+,[0-9]+.*$'
+    examples:
+      - z2k: "-z200000,10000"
+        z5k: "-z500000,5000"
 
   _pav_config:
     description: parameters for pav config file

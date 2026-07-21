@@ -29,11 +29,15 @@ _dipcall_jobs: 4
 # total reservation (margin over observed 116 GB).
 _dipcall_mem: 40000
 
-# Parameters
+# Dipcall parameter profiles
+# Profile name referenced by vc_param_id column in analyses table
 _dipcall_params:
-  z2k: "-z200000,10000"
+  z2k: "-z200000,10000"      # Default for GIAB production
+  z5k: "-z500000,5000"       # Wider window, fewer chains (faster, may miss small variants)
+  z10k: "-z1000000,10000"    # Very wide window (testing extreme sensitivity)
+  z1k: "-z100000,1000"       # Narrow window, more chains (slower, better small variant recall)
 
-  # the root of the par file for dipcall (and friends)
+# the root of the par file for dipcall (and friends)
 _par_bed_root: data/par_bed
 
 ## PAV Resources ##############
