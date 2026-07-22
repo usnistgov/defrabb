@@ -64,6 +64,20 @@ Two main config files drive the pipeline:
 - Benchmarks: `{ref}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.*`
 - Evaluations: `{eval_id}_{bench_id}/{ref_id}_{comp_id}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}.*`
 
+## Parameter Optimization (v0.023+)
+
+**Declarative sweep generation and scoring for multi-genome parameter optimization.**
+
+- **Sweep generator:** `scripts/generate_param_sweep.py <config.yml>` - YAML → analyses table TSV with cross-products, vc_id reuse (3-9x speedup), cost estimation, dry-run mode
+- **Scoring:** `scripts/score_param_sweep.py --results-dir <dir> --baseline v5.0q --top-n 3` - rank param sets, regression warnings, recommendations
+- **Profiles:** Named parameter sets in `config/resources.yml`:
+  - Dipcall: `z2k` (default), `z5k`, `z10k`, `z1k` (minimap2 window tuning)
+  - PAV: `giab` (default), `strict`, `lenient` (merge strategy variants)
+  - Exclusions: `standard` (default), `conservative`, `aggressive` (buffer distance tuning)
+- **Docs:** `docs/parameter-optimization.md` (full user guide), `docs/design/v0.023-parameter-optimization-design.md` (architecture)
+- **Example configs:** `config/sweeps/hg002_smvar_opt.yml`, `config/sweeps/validation_4genome.yml`
+- **Multi-genome workflow:** Optimize on HG002 vs v5q → pick winners → validate on 4 genomes → cross-genome comparison
+
 ## Conventions
 
 - Helper functions go in the appropriate `rules/helpers_*.smk` (ref / varcall / eval / bench); scripts in `scripts/`. `rules/common.smk` keeps only schema/table loading + module-level config init, then `include:`s the helpers so they can reference module-level globals (`vc_tbl`, `bench_tbl`, `ref_config`, `asm_config`, `REFIDS`, …).
