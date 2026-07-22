@@ -1,0 +1,60 @@
+# 4-Genome Validation Sweep
+#
+# Purpose: Apply top-3 parameter sets from HG002 optimization to 4 other genomes.
+# Compare cross-genome performance and identify consistent winners.
+#
+# Workflow:
+#   1. Run HG002 optimization sweep (hg002_smvar_opt.yml)
+#   2. Score results against v5q baseline
+#   3. Select top-3 param sets by F1/precision/recall
+#   4. Update this config with winners
+#   5. Generate and run 4-genome validation
+#
+# Usage:
+#   scripts/generate_param_sweep.py config/sweeps/validation_4genome.yml
+
+name: 4-Genome Validation (Top-3 Params)
+output: config/analyses_20260722_v0.023_4genome_validation.tsv
+
+# Fixed across all analyses
+fixed:
+  ref_id: GRCh38
+  bench_type: smvar
+  eval_cmd: happy
+  vcf_processing: xy_trf  # From HG002 winner
+
+# Sweep dimensions
+sweep:
+  asm_id:
+    - HG008N-T2TQ100  # HG008 Normal
+    - HG008T-T2TQ100  # HG008 Tumor
+    - NA12878-T2T     # CEU sample
+    - HG005-T2T       # Chinese sample
+
+  vc_cmd: [dipcall]
+
+  vc_param_id:
+    - z5k      # PLACEHOLDER - update after HG002 scoring
+    - z2k      # PLACEHOLDER - update after HG002 scoring
+    - z10k     # PLACEHOLDER - update after HG002 scoring
+
+  exclusion_set:
+    - aggressive  # PLACEHOLDER - update after HG002 scoring
+    - standard    # PLACEHOLDER - update after HG002 scoring
+    - conservative  # PLACEHOLDER - update after HG002 scoring
+
+  eval_comp_id:
+    - HG008N-comparison  # Genome-specific comparison callsets
+    - HG008T-comparison  # (update with actual comparison IDs)
+    - NA12878-comparison
+    - HG005-comparison
+
+# NOTE: Match asm_id with eval_comp_id in actual run
+# This config generates cross-product - filter to valid pairs post-generation
+# or use constraints (future enhancement)
+
+# Cross-product: 4 × 3 × 3 × 4 = 144 analyses (needs filtering to 36)
+# Filtered (same genome): 4 genomes × 3 vc_params × 3 exclusions = 36 analyses
+# Unique variant calls: 4 × 3 = 12
+# Reuse factor: 36 / 12 = 3x
+# Estimated runtime: ~78 hours (12 dipcall × 5h + 36 happy × 0.5h)

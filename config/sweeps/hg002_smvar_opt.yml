@@ -1,0 +1,33 @@
+# HG002 Small Variant Parameter Optimization Sweep
+#
+# Purpose: Optimize dipcall parameters, exclusion buffers, and VCF processing
+# against HG002 v5q baseline. Use results to pick top-N param sets for validation
+# on 4 other genomes.
+#
+# Usage:
+#   scripts/generate_param_sweep.py config/sweeps/hg002_smvar_opt.yml --dry-run
+#   scripts/generate_param_sweep.py config/sweeps/hg002_smvar_opt.yml
+
+name: HG002 Small Variant Optimization
+output: config/analyses_20260722_v0.023_hg002_smvar_sweep.tsv
+
+# Fixed across all analyses
+fixed:
+  ref_id: GRCh38
+  asm_id: HG2-T2TQ100-V1.1
+  vc_cmd: dipcall
+  bench_type: smvar
+  eval_cmd: happy
+  eval_comp_id: v5.0q-smvar
+  eval_params: default
+
+# Sweep dimensions (cross-product)
+sweep:
+  vc_param_id: [z2k, z5k, z10k]
+  exclusion_set: [conservative, standard, aggressive]
+  vcf_processing: [trf, xy_trf]
+
+# Cross-product: 3 × 3 × 2 = 18 analyses
+# Unique variant calls: 3 (z2k, z5k, z10k)
+# Reuse factor: 18 / 3 = 6x
+# Estimated runtime: ~20 hours (3 dipcall × 5h + 18 happy × 0.5h)

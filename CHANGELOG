@@ -20,9 +20,18 @@
   `aggressive` (narrower buffers, maximizes recall) for exclusion region processing.
   Enables systematic optimization of precision vs recall tradeoff. Schema validation
   for all profile fields (buffer distances, merge thresholds).
-- **Unit tests:** Added `.tests/unit/test_dipcall_params.py` (131 lines) and
-  `.tests/unit/test_pav_params.py` with profile lookup, structure validation,
-  backward compatibility, and schema validation tests.
+- **Parameter sweep generator:** New `scripts/generate_param_sweep.py` generates
+  analyses tables from declarative YAML sweep configs. Features: cross-product
+  generation, vc_id reuse intelligence, cost estimation, dry-run mode, validation,
+  and safety limits (max 200 analyses by default). Example configs in `config/sweeps/`.
+- **Sweep scoring script:** New `scripts/score_param_sweep.py` wrapper around
+  `compare_evaluations.py` for parameter optimization workflow. Identifies baseline,
+  ranks by metric, reports top-N param sets with recommendations and regression
+  warnings.
+- **Unit tests:** Added `.tests/unit/test_dipcall_params.py` (131 lines),
+  `.tests/unit/test_pav_params.py` (79 lines), and `.tests/unit/test_sweep_generator.py`
+  (210 lines) with comprehensive coverage of profile lookup, cross-product generation,
+  vc_id assignment, validation, and cost estimation.
 - **Design documentation:** `docs/design/v0.023-parameter-optimization-design.md`
   (448 lines) capturing adversarial design review (over/under-engineering critique),
   4-component architecture, multi-genome workflow, implementation estimates.
