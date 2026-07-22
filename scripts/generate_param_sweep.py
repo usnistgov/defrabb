@@ -157,10 +157,15 @@ def format_analyses_table(analyses: List[Dict[str, Any]]) -> pd.DataFrame:
             df[col] = default
 
     # Generate derived IDs if not provided
+    # bench_id must be unique per evaluation, includes exclusion_set
     if "bench_id" not in df.columns:
+        exclusion_suffix = df["exclusion_set"].apply(
+            lambda x: f"_{x}" if x and x != "default" else ""
+        )
         df["bench_id"] = (
             df["ref_id"] + "_" + df["asm_id"] + "_" +
-            df["bench_type"] + "_" + df["vc_cmd"] + "-" + df["vc_param_id"]
+            df["bench_type"] + "_" + df["vc_cmd"] + "-" + df["vc_param_id"] +
+            exclusion_suffix
         )
 
     if "eval_id" not in df.columns:
