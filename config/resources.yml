@@ -40,12 +40,24 @@ _dipcall_params:
 # the root of the par file for dipcall (and friends)
 _par_bed_root: data/par_bed
 
-## PAV Resources ##############
+## PAV parameter profiles ##############
+# Profile name referenced by vc_param_id column in analyses table
+# Each profile defines PAV config.json merge parameters for variant types
 _pav_config:
   giab:
     merge_ins: "nr::exact"
     merge_del: "nr::exact"
     merge_inv: "nr::exact:ro(0.5):szro(0.5,200):match"
+  strict:
+    # Stricter matching for insertions/deletions (higher size/position thresholds)
+    merge_ins: "nr::szro(0.9,100):match"
+    merge_del: "nr::szro(0.9,100):match"
+    merge_inv: "nr::exact:ro(0.7):szro(0.7,200):match"
+  lenient:
+    # More permissive matching (lower thresholds, may merge similar variants)
+    merge_ins: "nr::szro(0.5,200):match"
+    merge_del: "nr::szro(0.5,200):match"
+    merge_inv: "nr::ro(0.3):szro(0.3,300):match"
 
 _pav_threads: 24
 
@@ -118,9 +130,49 @@ truvari_bench_params:
     chunksize: 5000
     bnddist: -1
 
-## Exclusion Parameters ##########
-# Parameters controlling how exclusion regions are generated and applied.
-# These are tunable per-genome when optimizing benchmark regions.
+## Exclusion Parameter Profiles ##########
+# Named profiles for exclusion region processing parameters.
+# Profile name can be referenced by exclusion_set definitions or future
+# analyses table column for systematic parameter optimization.
+#
+# CURRENT BEHAVIOR: These profiles exist but are not yet wired into rules.
+# Rules currently use _exclusion_params_default (the 'standard' profile below).
+# TODO v0.023: Add exclusion_profile column to analyses table and update rules
+# to look up profiles. For now, 'standard' reproduces current behavior exactly.
+_exclusion_profiles:
+  standard:
+    # Current production defaults (reproduces existing behavior)
+    slop: 15000
+    slopmerge_dist: 10000
+    flank_bases: 15000
+    sv_repeat_slop: 50
+    sv_repeat_merge_dist: 1000
+    self_discrep_max_indel: 50
+    self_discrep_slop: 50
+    self_discrep_merge_dist: 1000
+  conservative:
+    # Wider buffers, more aggressive exclusion (maximizes precision)
+    slop: 20000
+    slopmerge_dist: 15000
+    flank_bases: 20000
+    sv_repeat_slop: 100
+    sv_repeat_merge_dist: 2000
+    self_discrep_max_indel: 50
+    self_discrep_slop: 100
+    self_discrep_merge_dist: 2000
+  aggressive:
+    # Narrower buffers, less exclusion (maximizes recall)
+    slop: 10000
+    slopmerge_dist: 5000
+    flank_bases: 10000
+    sv_repeat_slop: 25
+    sv_repeat_merge_dist: 500
+    self_discrep_max_indel: 50
+    self_discrep_slop: 25
+    self_discrep_merge_dist: 500
+
+# Legacy global exclusion params (DEPRECATED in favor of profiles above)
+# Kept for backward compatibility; rules currently use this via _exclusion_params_default
 _exclusion_params:
   # Buffer added around exclusion regions (bp)
   slop: 15000

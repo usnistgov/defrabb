@@ -12,8 +12,20 @@
 - **Added dipcall parameter profiles:** `z5k` (wider window), `z10k` (extreme
   sensitivity), `z1k` (narrow window, better small variant recall) to support
   parameter optimization sweeps. Schema updated with validation pattern and examples.
-- **Unit tests:** Added `.tests/unit/test_dipcall_params.py` with profile lookup,
+- **Added PAV parameter profiles:** `strict` (tighter size/reciprocal overlap
+  thresholds), `lenient` (more permissive merging) in addition to existing `giab`
+  profile. Enables systematic testing of PAV merge sensitivity.
+- **Added exclusion parameter profiles:** Named profiles `conservative` (wider
+  buffers, maximizes precision), `standard` (current production defaults),
+  `aggressive` (narrower buffers, maximizes recall) for exclusion region processing.
+  Enables systematic optimization of precision vs recall tradeoff. Schema validation
+  for all profile fields (buffer distances, merge thresholds).
+- **Unit tests:** Added `.tests/unit/test_dipcall_params.py` (131 lines) and
+  `.tests/unit/test_pav_params.py` with profile lookup, structure validation,
   backward compatibility, and schema validation tests.
+- **Design documentation:** `docs/design/v0.023-parameter-optimization-design.md`
+  (448 lines) capturing adversarial design review (over/under-engineering critique),
+  4-component architecture, multi-genome workflow, implementation estimates.
 
 ## Unreleased
 

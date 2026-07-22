@@ -293,8 +293,28 @@ properties:
         z5k: "-z500000,5000"
 
   _pav_config:
-    description: parameters for pav config file
+    description: >-
+      PAV parameter profiles. Each profile defines merge parameters for
+      insertions, deletions, and inversions in PAV config.json.
     type: object
+    additionalProperties:
+      type: object
+      required: [merge_ins, merge_del, merge_inv]
+      properties:
+        merge_ins:
+          type: string
+          pattern: '^nr::'
+        merge_del:
+          type: string
+          pattern: '^nr::'
+        merge_inv:
+          type: string
+          pattern: '^nr::'
+    examples:
+      - giab:
+          merge_ins: "nr::exact"
+          merge_del: "nr::exact"
+          merge_inv: "nr::exact:ro(0.5):szro(0.5,200):match"
 
   _pav_threads:
     description: the number of threads for pav (sub pipeline)
@@ -385,6 +405,24 @@ properties:
           type: number
         bnddist:
           type: integer
+
+  _exclusion_profiles:
+    description: |
+      Named exclusion parameter profiles for systematic optimization.
+      Each profile defines buffer/merge distances (bp) for exclusion processing.
+    type: object
+    additionalProperties:
+      type: object
+      required: [slop, slopmerge_dist, flank_bases]
+      properties:
+        slop: {type: integer, minimum: 0}
+        slopmerge_dist: {type: integer, minimum: 0}
+        flank_bases: {type: integer, minimum: 0}
+        sv_repeat_slop: {type: integer, minimum: 0}
+        sv_repeat_merge_dist: {type: integer, minimum: 0}
+        self_discrep_max_indel: {type: integer, minimum: 0}
+        self_discrep_slop: {type: integer, minimum: 0}
+        self_discrep_merge_dist: {type: integer, minimum: 0}
 
   _exclusion_params:
     type: object
