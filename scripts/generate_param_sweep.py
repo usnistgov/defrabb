@@ -132,41 +132,49 @@ def format_analyses_table(analyses: List[Dict[str, Any]]) -> pd.DataFrame:
     """Convert analyses list to DataFrame with standard column order."""
     df = pd.DataFrame(analyses)
 
-    # Standard column order (based on analyses.tsv schema)
+    # Map user-friendly names to schema names
+    column_mapping = {
+        "ref_id": "ref",
+        "vcf_processing": "bench_vcf_processing",
+    }
+    df.rename(columns=column_mapping, inplace=True)
+
+    # Standard column order (based on analyses-schema.yml)
     standard_cols = [
-        "vc_id", "ref_id", "asm_id", "vc_cmd", "vc_param_id", "vc_params",
-        "bench_type", "bench_id", "exclusion_set", "vcf_processing",
-        "eval_id", "eval_cmd", "eval_comp_id", "eval_params"
+        "eval_id", "bench_id", "eval_cmd", "eval_params", "eval_comp_id",
+        "eval_comp_id_is_truth", "eval_truth_regions", "eval_target_regions",
+        "vc_id", "bench_type", "bench_vcf_processing", "bench_bed_processing",
+        "exclusion_set", "asm_id", "ref", "vc_cmd", "vc_param_id", "vc_params"
     ]
 
-    # Use standard order for columns that exist, append any extras
-    present_cols = [c for c in standard_cols if c in df.columns]
-    extra_cols = [c for c in df.columns if c not in standard_cols]
-    df = df[present_cols + extra_cols]
-
-    # Fill missing standard columns with defaults
+    # Fill missing standard columns with schema-compliant defaults
+    # Note: vc_params uses "default" placeholder instead of "" to avoid pandas NaN on read
     defaults = {
-        "vc_params": "",
+        "vc_params": "default",
         "vc_param_id": "default",
         "exclusion_set": "default",
-        "vcf_processing": "default",
+        "bench_vcf_processing": "default",
+        "bench_bed_processing": "exclude",
         "eval_params": "default",
+        "eval_comp_id_is_truth": "FALSE",
+        "eval_truth_regions": "TRUE",
+        "eval_target_regions": "FALSE",
     }
     for col, default in defaults.items():
         if col not in df.columns:
             df[col] = default
 
     # Generate derived IDs if not provided
-    # bench_id must be unique per evaluation, includes exclusion_set and vcf_processing
+    # bench_id must be unique per evaluation, includes exclusion_set and bench_vcf_processing
     if "bench_id" not in df.columns:
         exclusion_suffix = df["exclusion_set"].apply(
             lambda x: f"_{x}" if x and x != "default" else ""
         )
-        vcf_proc_suffix = df["vcf_processing"].apply(
+        vcf_proc_suffix = df["bench_vcf_processing"].apply(
             lambda x: f"_{x}" if x and x != "default" else ""
         )
         df["bench_id"] = (
-            df["ref_id"] + "_" + df["asm_id"] + "_" +
+            df["ref"] + "_" + df["asm_id"] + "_" +
             df["bench_type"] + "_" + df["vc_cmd"] + "-" + df["vc_param_id"] +
             exclusion_suffix + vcf_proc_suffix
         )
@@ -174,14 +182,21 @@ def format_analyses_table(analyses: List[Dict[str, Any]]) -> pd.DataFrame:
     if "eval_id" not in df.columns:
         df["eval_id"] = df["eval_cmd"] + "_" + df["eval_comp_id"]
 
+    # Reorder columns to match schema
+    present_cols = [c for c in standard_cols if c in df.columns]
+    extra_cols = [c for c in df.columns if c not in standard_cols]
+    df = df[present_cols + extra_cols]
+
     return df
 
 
 def validate_output(df: pd.DataFrame) -> None:
     """Validate output table against schema expectations."""
     required_cols = [
-        "vc_id", "ref_id", "asm_id", "vc_cmd", "bench_type",
-        "bench_id", "eval_id", "eval_cmd", "eval_comp_id"
+        "vc_id", "ref", "asm_id", "vc_cmd", "bench_type",
+        "bench_id", "eval_id", "eval_cmd", "eval_comp_id",
+        "eval_comp_id_is_truth", "eval_truth_regions", "eval_target_regions",
+        "bench_vcf_processing", "bench_bed_processing", "exclusion_set"
     ]
 
     missing = [c for c in required_cols if c not in df.columns]
@@ -306,7 +321,7 @@ def main():
 
     # Write output
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, sep="\t", index=False)
+    df.to_csv(output_path, sep="\t", index=False, na_rep="")
     print(f"\nWrote {len(df)} analyses to: {output_path}")
 
     return 0

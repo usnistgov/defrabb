@@ -18,7 +18,7 @@ fixed:
   vc_cmd: dipcall
   bench_type: smvar
   vcf_processing: trf
-  exclusion_set: standard
+  exclusion_set: smvartest
   eval_cmd: happy
   eval_comp_id: v5.0q-smvar
   eval_params: default
