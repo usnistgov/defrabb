@@ -1,0 +1,33 @@
+# HG002 Minimal Parameter Optimization Example
+#
+# Purpose: Demonstrate parameter optimization workflow with a small sweep
+# that can run quickly. Compares 2 dipcall window sizes on GRCh38 only.
+#
+# Usage:
+#   scripts/generate_param_sweep.py config/sweeps/hg002_mini_opt.yml
+#   ./run_defrabb run -r 20260723_v0.023_hg002_mini_opt --config analyses=config/analyses_20260723_v0.023_hg002_mini_opt.tsv
+#   scripts/score_param_sweep.py --results-dir 20260723_v0.023_hg002_mini_opt/results --baseline v5.0q
+
+name: HG002 Mini Optimization
+output: config/analyses_20260723_v0.023_hg002_mini_opt.tsv
+
+# Fixed across all analyses
+fixed:
+  ref_id: GRCh38
+  asm_id: HG2-T2TQ100-V1.1
+  vc_cmd: dipcall
+  bench_type: smvar
+  vcf_processing: trf
+  exclusion_set: standard
+  eval_cmd: happy
+  eval_comp_id: v5.0q-smvar
+  eval_params: default
+
+# Sweep dimensions (cross-product)
+sweep:
+  vc_param_id: [z2k, z5k]
+
+# Cross-product: 2 analyses
+# Unique variant calls: 2 (z2k, z5k)
+# Reuse factor: 1x (no reuse since different vc_param_id)
+# Estimated runtime: ~11 hours (2 dipcall × 5h + 2 happy × 0.5h)
