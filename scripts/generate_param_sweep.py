@@ -180,7 +180,10 @@ def format_analyses_table(analyses: List[Dict[str, Any]]) -> pd.DataFrame:
         )
 
     if "eval_id" not in df.columns:
-        df["eval_id"] = df["eval_cmd"] + "_" + df["eval_comp_id"]
+        # eval_id must be unique (schema requirement)
+        # For parameter sweeps with same eval_cmd+comp_id against multiple benchmarks,
+        # append bench_id to ensure uniqueness
+        df["eval_id"] = df["eval_cmd"] + "_" + df["eval_comp_id"] + "_" + df["bench_id"]
 
     # Reorder columns to match schema
     present_cols = [c for c in standard_cols if c in df.columns]

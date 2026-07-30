@@ -107,9 +107,13 @@ def get_consecutive_svs_bams(wildcards):
     ``get_asm_varcall_run``) rather than the current benchmark's own vc_id, so a
     PAV benchmark does not trigger a redundant dipcall run inside its directory.
     For a dipcall benchmark this resolves back to its own run.
+
+    In parameter sweeps with multiple dipcall runs, prefer the one matching this
+    benchmark's vc_param_id.
     """
     dip_vc_id, dip_param_id = get_asm_varcall_run(
-        wildcards.ref_id, wildcards.asm_id, "dipcall"
+        wildcards.ref_id, wildcards.asm_id, "dipcall",
+        prefer_vc_param_id=wildcards.vc_param_id
     )
     base = (
         f"results/asm_varcalls/{dip_vc_id}/"
