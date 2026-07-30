@@ -1,32 +1,42 @@
 # Hap.py Phasing Mismatch with v5.0q Comparison Callsets
 
-**Status:** Identified in v0.022  
+**Status:** Root cause identified in v0.022  
 **Priority:** High  
 **Created:** 2026-07-30  
 **Discovered:** During v0.022 release review  
-**Affects:** All hap.py evaluations using phased comparison callsets
+**Root Cause:** `truvari anno trf` strips phasing from benchmark VCFs  
+**Affects:** All smvar benchmarks using `xy_trf` VCF processing profile
 
 ## Summary
 
-The 619 SNP FN/FP match in v0.022 GRCh38 evaluations is caused by **genotype phasing representation mismatch** between benchmark and comparison VCFs, not genuine variant differences. Hap.py treats `1/1` (unphased) and `1|1` (phased) as different genotypes.
+The 619 SNP FN/FP match in v0.022 GRCh38 evaluations is caused by **`truvari anno trf` stripping phasing** from benchmark VCFs during TRF annotation. Assembly-derived variants start phased (`1|1`) but end up unphased (`1/1`) in the final benchmark, while v5.0q comparison retains phasing, creating a representation mismatch that hap.py interprets as genotype errors.
 
 ## Root Cause
 
-**v5.0q comparison VCF uses phased genotypes (`1|1`) while v0.022 benchmark VCF uses unphased (`1/1`):**
+**`truvari anno trf` strips phasing during TRF annotation.**
 
+### Processing Chain
+
+Dipcall generates phased variants from diploid assembly:
 ```
-# v5.0q comparison (TRUTH):
-chr1  89177  .  A  G  30  .  .  GT:AD  1|1:0,2
-
-# v0.022 benchmark (QUERY):
-chr1  89177  .  A  G  30  .  .  GT:AD  1/1:0,2
+1. Raw dipcall:        chr1  89177  ...  GT:AD  1|1:0,2  ✓ PHASED
+2. Rename:             chr1  89177  ...  GT:AD  1|1:0,2  ✓ PHASED  
+3. norm:               chr1  89177  ...  GT:AD  1|1:0,2  ✓ PHASED
+4. fix_XY_genotype:    chr1  89177  ...  GT:AD  1|1:0,2  ✓ PHASED
+5. trfanno:            chr1  89177  ...  GT:AD  1/1:0,2  ✗ PHASING LOST ← THE CULPRIT
+6. Final benchmark:    chr1  89177  ...  GT:AD  1/1:0,2  ✗ UNPHASED
 ```
 
-Hap.py interprets phasing differences as genotype mismatches:
-- **619 FN:** Benchmark has `1/1`, v5.0q has `1|1` → genotype doesn't match exactly
-- **619 FP:** v5.0q has `1|1`, benchmark has `1/1` → genotype doesn't match exactly
+v5.0q comparison retains phasing:
+```
+v5.0q:                 chr1  89177  ...  GT:AD  1|1:0,2  ✓ PHASED
+```
 
-**These are identical variants differing only in phasing representation (`/` vs `|`).**
+Hap.py interprets phasing difference as genotype mismatch:
+- **619 FN:** Benchmark has `1/1`, v5.0q has `1|1` → GT doesn't match
+- **619 FP:** v5.0q has `1|1`, benchmark has `1/1` → GT doesn't match
+
+**These are identical variants differing only in phasing representation.**
 
 ## Evidence
 
@@ -80,84 +90,77 @@ Only difference is GT field:
 
 ## Solutions
 
-### Option 1: Unphase Comparison VCFs (Recommended)
+### Option 1: Skip TRF Annotation for Small Variants (Recommended)
 
-Convert phased to unphased genotypes in comparison VCFs before hap.py evaluation:
+TRF annotation is primarily useful for structural variants. Small variant benchmarks don't need it.
 
-```bash
-bcftools +setGT input.vcf.gz -- -t a -n u | bcftools view -Oz -o unphased.vcf.gz
+**Change `bench_vcf_processing` profile from `xy_trf` to `xy_fix`:**
+
+```yaml
+# config/resources.yml - profile already exists
+vcf_processing_profiles:
+  xy_fix:
+    - fix_XY_genotype
 ```
 
-**Implementation:**
-- Add `unphase_comparison_vcf` rule in `rules/download_resources.smk` or `rules/evaluation.smk`
-- Apply to all comparison VCFs before `run_happy` rule
-- Update wildcard dependencies in evaluation rules
+**Update analyses tables:** Change smvar rows from `bench_vcf_processing: xy_trf` to `bench_vcf_processing: xy_fix`.
 
 **Pros:**
-- Simple, deterministic transformation
-- Preserves all variant information
-- No hap.py version dependencies
+- Simplest solution - no new code
+- Preserves phasing from assembly
+- Faster (skips expensive TRF annotation)
+- TRF annotations not used in smvar benchmarking anyway
 
 **Cons:**
-- Loses phasing information (acceptable for benchmarking - we're comparing variant concordance, not phasing accuracy)
+- Loses TRF annotations (but they're unused for smvar)
 
-### Option 2: Use hap.py `--no-phasing` Flag
+### Option 2: Restore Phasing After trfanno
 
-Check if hap.py supports ignoring phasing differences:
+Create new rule to copy phasing from pre-trfanno to post-trfanno VCF:
 
-```bash
-hap.py --help | grep -i phas
+```python
+rule restore_phasing_after_trfanno:
+    input:
+        phased = ".../{prefix}.fix_XY_genotype.vcf.gz",
+        unphased = ".../{prefix}.trfanno.vcf"
+    output:
+        ".../{prefix}.trfanno.phased.vcf.gz"
+    shell:
+        """
+        python scripts/restore_phasing.py \
+            --phased {input.phased} \
+            --unphased {input.unphased} \
+            --output {output}
+        """
 ```
 
 **Pros:**
-- Clean solution if flag exists
-- No VCF pre-processing needed
+- Keeps TRF annotations
+- Restores phasing
 
 **Cons:**
-- May not be available in current hap.py version
-- Behavior may vary across hap.py versions
+- More complex - new rule + script
+- Additional processing step
+- Requires careful VCF position matching
 
-### Option 3: Phase Benchmark VCF
+### Option 3: Fix truvari anno trf Upstream
 
-Use `whatshap phase` or similar to add phasing to benchmark VCF.
+Report issue to truvari developers that `anno trf` should preserve phasing.
 
 **Pros:**
-- Provides phasing information
+- Fixes root cause for all users
 
 **Cons:**
-- Complex - requires read data or trio information
-- Computationally expensive
-- Not necessary for variant concordance benchmarking
-- May introduce phasing errors
+- Requires upstream fix
+- Need workaround in meantime
 
 ## Recommended Solution
 
-**Option 1: Unphase comparison VCFs** is the simplest and most robust solution.
+**Option 1: Use `xy_fix` instead of `xy_trf` for smvar benchmarks.**
 
-Add rule in `rules/download_resources.smk`:
+**For new analyses tables (v0.023+):** Set `bench_vcf_processing: xy_fix` for smvar rows.
 
-```python
-rule unphase_comparison_vcf:
-    """
-    Remove phasing from comparison VCF to match unphased benchmark.
-    Prevents hap.py from treating 1/1 and 1|1 as different genotypes.
-    """
-    input:
-        vcf = lambda wc: comp_vcf_url(wc.ref, wc.comp_id, wc.bench_type)
-    output:
-        vcf = "resources/comparison_variant_callsets/{ref}_{comp_id}-{bench_type}.unphased.vcf.gz",
-        tbi = "resources/comparison_variant_callsets/{ref}_{comp_id}-{bench_type}.unphased.vcf.gz.tbi"
-    conda:
-        "../envs/bedtools.yml"
-    shell:
-        """
-        bcftools +setGT {input.vcf} -- -t a -n u | \
-        bcftools view -Oz -o {output.vcf}
-        bcftools index -t {output.vcf}
-        """
-```
-
-Update `run_happy` to use `.unphased.vcf.gz` as comparison input.
+**For existing v0.022 analyses tables:** Keep as-is (historical record), but document in CHANGELOG that phasing loss was identified and will be fixed in v0.023.
 
 ## Testing Plan
 
