@@ -36,7 +36,12 @@
   (448 lines) capturing adversarial design review (over/under-engineering critique),
   4-component architecture, multi-genome workflow, implementation estimates.
 
-## Unreleased
+## Milestone v0.022 2026-07-30
+
+Stabilization release focused on bug fixes, resource optimization, FIPS compatibility,
+and expanded evaluation capabilities. Full-pipeline regression test harness validated
+whole-genome HG002 T2TQ100v1.1 benchmark generation with F1 ≥0.887 across all
+reference/variant-type combinations.
 
 ### Core infrastructure
 
