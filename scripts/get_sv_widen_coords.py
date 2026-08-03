@@ -93,9 +93,15 @@ def main(
         logging.basicConfig(level=logging_level, format=log_format)
 
     ## Ensure vcf includes truvari trf annotations
-    if not check_trf_annotation(input_vcf):
-        print("Error: Input VCF does not contain TRF annotations from Truvari.")
-        sys.exit(1)
+    ## WARNING: This check is disabled to support vcf_processing profiles
+    ## that skip truvari anno trf to preserve phasing (e.g., xy_fix).
+    ## When TRF annotations are absent, SV coordinates will not be widened to TR boundaries.
+    has_trf = check_trf_annotation(input_vcf)
+    if not has_trf:
+        logging.warning(
+            "Input VCF does not contain TRF annotations. "
+            "SV coordinates will NOT be widened to tandem repeat boundaries."
+        )
 
     # Determine if input is compressed based on file extension
     is_compressed = input_vcf.endswith(".gz")
