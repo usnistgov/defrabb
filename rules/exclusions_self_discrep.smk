@@ -99,7 +99,7 @@ rule self_discrep_extract_fpfns:
     conda:
         "../envs/bcftools_and_bedtools.yml"
     params:
-        max_indel=config["_exclusion_params"]["self_discrep_max_indel"],
+        max_indel=lambda wildcards: _bench_profile_param(wildcards, "self_discrep_max_indel"),
     shell:
         """
         echo "Filtering VCF for indels <={params.max_indel} and extracting FP/FN regions" >> {log}
@@ -126,8 +126,8 @@ rule self_discrep_intersect_slop:
     conda:
         "../envs/bedtools.yml"
     params:
-        slop=config["_exclusion_params"]["self_discrep_slop"],
-        merge_d=config["_exclusion_params"]["self_discrep_merge_dist"],
+        slop=lambda wildcards: _bench_profile_param(wildcards, "self_discrep_slop"),
+        merge_d=lambda wildcards: _bench_profile_param(wildcards, "self_discrep_merge_dist"),
     shell:
         """
         ## TODO make slop conditional, don't add for intersected vars

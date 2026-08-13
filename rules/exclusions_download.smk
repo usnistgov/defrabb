@@ -103,8 +103,8 @@ rule intersect_SVs_and_simple_repeats:
     conda:
         "../envs/bedtools.yml"
     params:
-        slop=config["_exclusion_params"]["sv_repeat_slop"],
-        merge_d=config["_exclusion_params"]["sv_repeat_merge_dist"],
+        slop=lambda wildcards: _bench_profile_param(wildcards, "sv_repeat_slop"),
+        merge_d=lambda wildcards: _bench_profile_param(wildcards, "sv_repeat_merge_dist"),
     shell:
         """
         intersectBed -wa \

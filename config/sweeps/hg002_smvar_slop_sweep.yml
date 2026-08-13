@@ -1,0 +1,76 @@
+# HG002 Small Variant Slop/Merge Parameter Sweep
+#
+# Purpose: Systematic sweep over exclusion buffer (slop) and merge distance
+# parameters for smvar benchmark development. All analyses use z5k dipcall
+# (established best from 20260803 run) to isolate the effect of exclusion
+# parameters on benchmark concordance with v5.0q.
+#
+# Scientific context:
+#   Curation of the 20260803 run identified a recurring FN-in-TR pattern:
+#   SNPs at tandem repeat loci (chr22:43784686, chr1:4274195, chr1:11427165,
+#   chr1:14276164) are false negatives in the draft benchmark. These loci have
+#   complex haplotype structure — SNP on one haplotype overlapping a deletion
+#   on the other — making them difficult for assembly-based callers. The
+#   current sv_repeat_slop=50bp may be too narrow to capture these, or the
+#   general gap_slop=15kb may be over-excluding nearby callable positions.
+#
+# Profiles tested (all defined in config/resources.yml _exclusion_profiles):
+#
+#   Profile       gap_slop  sv_slop  self_slop  Hypothesis
+#   ----------    --------  -------  ---------  --------------------------------
+#   aggressive    10kb      25bp     25bp       Upper recall bound: minimum
+#                                               exclusion; useful as ceiling for
+#                                               how many variants CAN be included
+#   standard      15kb      50bp     50bp       Current production baseline
+#   conservative  20kb      100bp    100bp      Upper precision bound: maximum
+#                                               exclusion around uncertain regions
+#   sv_wide       10kb      200bp    50bp       FN-in-TR hypothesis: targeted
+#                                               wide SV buffer captures complex
+#                                               TR regions near SV breakpoints
+#                                               while keeping gap buffer narrow
+#                                               to minimize benchmark size loss
+#   sv_narrow     15kb      10bp     50bp       Null hypothesis: narrow SV buffer
+#                                               increases TR recall if FNs are
+#                                               not proximity-driven; FP rise
+#                                               near breakpoints would falsify
+#
+# Expected outcomes:
+#   - aggressive vs standard: ~X more variants in benchmark, possible FP rise
+#   - conservative vs standard: smaller benchmark, lower FP rate
+#   - sv_wide vs standard: similar total size, fewer FN-in-TR if hypothesis
+#     holds; detectable via TR-stratified FN count in enrichment analysis
+#   - sv_narrow vs standard: more TR variants included, FP signal near SVs
+#
+# Cross-product: 1 vc × 5 profiles = 5 analyses
+# Unique variant calls: 1 (z5k reused from prior run if available)
+# Reuse factor: 5x
+# Estimated runtime: ~6h (1 dipcall × 5h + 5 happy × 0.2h)
+# Note: dipcall calls may be reused from existing z5k run
+#
+# Usage:
+#   scripts/generate_param_sweep.py config/sweeps/hg002_smvar_slop_sweep.yml
+#   ./run_defrabb run -r 20260813_v0.023_hg002_slop_sweep \
+#     --config analyses=config/analyses_20260813_v0.023_hg002_slop_sweep.tsv
+#   scripts/score_param_sweep.py \
+#     --results-dir 20260813_v0.023_hg002_slop_sweep/results \
+#     --baseline v5.0q --top-n 3
+
+name: HG002 Small Variant Slop Sweep
+output: config/analyses_20260813_v0.023_hg002_slop_sweep.tsv
+
+# Fixed across all analyses
+fixed:
+  ref_id: GRCh38
+  asm_id: HG2-T2TQ100-V1.1
+  vc_cmd: dipcall
+  vc_param_id: z5k
+  bench_type: smvar
+  vcf_processing: xy_fix
+  exclusion_set: smvartest
+  eval_cmd: happy
+  eval_comp_id: v5.0q-smvar
+  eval_params: default
+
+# Sweep dimensions (cross-product)
+sweep:
+  exclusion_profile: [aggressive, standard, conservative, sv_wide, sv_narrow]

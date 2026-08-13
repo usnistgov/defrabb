@@ -44,7 +44,12 @@ def analyses_to_bench_tbls(analyses):
         "vc_param_id",
         "ref",
         "exclusion_set",
+        "exclusion_profile",
     ]
+    # exclusion_profile may be absent in older analyses tables; fill with "standard"
+    if "exclusion_profile" not in analyses.columns:
+        analyses = analyses.copy()
+        analyses["exclusion_profile"] = "standard"
     params, tbl = _filter_subtable(analyses, "bench_", id_cols, "bench_id")
     excluded_tbl = tbl[tbl.exclusion_set != "none"]
     return (params, tbl, excluded_tbl)

@@ -144,7 +144,8 @@ def format_analyses_table(analyses: List[Dict[str, Any]]) -> pd.DataFrame:
         "eval_id", "bench_id", "eval_cmd", "eval_params", "eval_comp_id",
         "eval_comp_id_is_truth", "eval_truth_regions", "eval_target_regions",
         "vc_id", "bench_type", "bench_vcf_processing", "bench_bed_processing",
-        "exclusion_set", "asm_id", "ref", "vc_cmd", "vc_param_id", "vc_params"
+        "exclusion_set", "exclusion_profile", "asm_id", "ref", "vc_cmd",
+        "vc_param_id", "vc_params"
     ]
 
     # Fill missing standard columns with schema-compliant defaults
@@ -153,6 +154,7 @@ def format_analyses_table(analyses: List[Dict[str, Any]]) -> pd.DataFrame:
         "vc_params": "default",
         "vc_param_id": "default",
         "exclusion_set": "default",
+        "exclusion_profile": "standard",
         "bench_vcf_processing": "default",
         "bench_bed_processing": "exclude",
         "eval_params": "default",
@@ -165,10 +167,15 @@ def format_analyses_table(analyses: List[Dict[str, Any]]) -> pd.DataFrame:
             df[col] = default
 
     # Generate derived IDs if not provided
-    # bench_id must be unique per evaluation, includes exclusion_set and bench_vcf_processing
+    # bench_id must be unique per evaluation, includes exclusion_set, exclusion_profile,
+    # and bench_vcf_processing. Non-standard profiles get a suffix; 'standard' gets none
+    # so existing bench_ids remain unchanged for backward compatibility.
     if "bench_id" not in df.columns:
         exclusion_suffix = df["exclusion_set"].apply(
             lambda x: f"_{x}" if x and x != "default" else ""
+        )
+        profile_suffix = df["exclusion_profile"].apply(
+            lambda x: f"_{x}" if x and x not in ("default", "standard") else ""
         )
         vcf_proc_suffix = df["bench_vcf_processing"].apply(
             lambda x: f"_{x}" if x and x != "default" else ""
@@ -176,7 +183,7 @@ def format_analyses_table(analyses: List[Dict[str, Any]]) -> pd.DataFrame:
         df["bench_id"] = (
             df["ref"] + "_" + df["asm_id"] + "_" +
             df["bench_type"] + "_" + df["vc_cmd"] + "-" + df["vc_param_id"] +
-            exclusion_suffix + vcf_proc_suffix
+            exclusion_suffix + profile_suffix + vcf_proc_suffix
         )
 
     if "eval_id" not in df.columns:

@@ -137,8 +137,6 @@ truvari_bench_params:
 #
 # CURRENT BEHAVIOR: These profiles exist but are not yet wired into rules.
 # Rules currently use _exclusion_params_default (the 'standard' profile below).
-# TODO v0.023: Add exclusion_profile column to analyses table and update rules
-# to look up profiles. For now, 'standard' reproduces current behavior exactly.
 _exclusion_profiles:
   standard:
     # Current production defaults (reproduces existing behavior)
@@ -170,6 +168,36 @@ _exclusion_profiles:
     self_discrep_max_indel: 50
     self_discrep_slop: 25
     self_discrep_merge_dist: 500
+  sv_wide:
+    # Hypothesis: curation finds FN-in-TR variants with complex SV haplotype
+    # structure (chr22:43784686 etc). These occur where an SV on one haplotype
+    # overlaps a SNP region on the other. Wider SV exclusion buffer (200bp vs
+    # 50bp) should capture more adjacent TR regions as uncertain. Narrower
+    # general gap slop (10kb) partially compensates to keep benchmark size
+    # competitive with standard. Expect: fewer FN-in-TR, more excluded TR
+    # regions, F1 near standard or slightly lower due to benchmark shrinkage.
+    slop: 10000
+    slopmerge_dist: 5000
+    flank_bases: 10000
+    sv_repeat_slop: 200
+    sv_repeat_merge_dist: 5000
+    self_discrep_max_indel: 50
+    self_discrep_slop: 50
+    self_discrep_merge_dist: 1000
+  sv_narrow:
+    # Hypothesis: if FN-in-TR is NOT driven by SV proximity but by general
+    # slop/merge over-excluding nearby callable regions, then narrowing the SV
+    # buffer (10bp) while keeping gap slop standard will recover recall in TRs
+    # without increasing FPs. Complementary null hypothesis to sv_wide.
+    # Expect: more TR variants included, possible FP increase near SV breakpoints.
+    slop: 15000
+    slopmerge_dist: 10000
+    flank_bases: 15000
+    sv_repeat_slop: 10
+    sv_repeat_merge_dist: 200
+    self_discrep_max_indel: 50
+    self_discrep_slop: 50
+    self_discrep_merge_dist: 1000
 
 # Legacy global exclusion params (DEPRECATED in favor of profiles above)
 # Kept for backward compatibility; rules currently use this via _exclusion_params_default

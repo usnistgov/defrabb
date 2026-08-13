@@ -31,7 +31,7 @@ properties:
     description: |
       The benchmarking tools command used for evaluating the draft benchmark set. Must be either 'happy', 'truvari', or 'unhappy' for when not performing an evaluation set.
     type: string
-    pattern: ^happy|truvari|unhappy$
+    pattern: ^(happy|truvari|truvari_refine|unhappy)$
 
   eval_params:
     description: |
@@ -90,6 +90,14 @@ properties:
     description: |
       The exclusion set to apply. See 'resources.yml' for preset exclusion bed
       files that may be used.
+    type: string
+
+  exclusion_profile:
+    description: |
+      Named exclusion parameter profile controlling slop and merge distances.
+      Profiles are defined in '_exclusion_profiles' in resources.yml.
+      Defaults to 'standard' which reproduces current production behavior.
+      Non-standard profiles add a suffix to bench_id to keep outputs distinct.
     type: string
 
   vc_id:

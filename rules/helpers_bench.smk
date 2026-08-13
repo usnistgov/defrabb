@@ -34,6 +34,20 @@ def get_bench_exclusion_set_id(wildcards):
     return bench_tbl.loc[wildcards.bench_id, "exclusion_set"]
 
 
+def get_bench_exclusion_profile(wildcards):
+    """Return the exclusion profile name for a benchmark, defaulting to 'standard'."""
+    if "exclusion_profile" in bench_tbl.columns:
+        return bench_tbl.loc[wildcards.bench_id, "exclusion_profile"]
+    return "standard"
+
+
+def _bench_profile_param(wildcards, param_key: str):
+    """Look up a profile parameter for a benchmark, falling back to _exclusion_params."""
+    profile_name = get_bench_exclusion_profile(wildcards)
+    profile = config.get("_exclusion_profiles", {}).get(profile_name, {})
+    return profile.get(param_key, config["_exclusion_params"].get(param_key))
+
+
 ## Benchmark VCF / BED standardization + exclusion-input helpers
 def get_processed_vcf(wildcards):
     # Filter rows based on bench_type using the query method
@@ -138,20 +152,31 @@ def get_exclusion_inputs(wildcards):
     except KeyError:
         print(f"{exclusion_set_id} is not defined in resources yaml")
 
+    ## Determine exclusion profile for this benchmark.
+    ## Non-standard profiles use a subdirectory in resources/exclusions so that
+    ## agnostic beds (gaps, etc.) with different slop values get distinct paths.
+    excl_profile = get_bench_exclusion_profile(wildcards)
+    use_profile_dir = excl_profile and excl_profile != "standard"
+
     ## Initiating empty list for storing paths for beds to excluded from
     ## diploid assembled regions
     exc_paths = []
     for exclusion in exclusion_set:
-        ## Determining path for asm specific exclusions and asm agnostic exclusions
+        ## Determining path for asm specific exclusions and asm agnostic exclusions.
+        ## Agnostic exclusions are profile-scoped when profile is non-standard so
+        ## different slop values produce distinct resource files.
         if exclusion in config["exclusion_asm_agnostic"]:
-            exc_path = f"resources/exclusions/{{ref_id}}/{exclusion}"
+            if use_profile_dir:
+                exc_path = f"resources/exclusions/{{ref_id}}/{excl_profile}/{exclusion}"
+            else:
+                exc_path = f"resources/exclusions/{{ref_id}}/{exclusion}"
         else:
             exc_path = f"results/draft_benchmarksets/{{bench_id}}/exclusions/{{ref_id}}_{{asm_id}}_{{bench_type}}_{{vc_cmd}}-{{vc_param_id}}_{exclusion}"
 
-        ## Adding slop - currently a 15kb hard coded buffer around excluded repeat regions
+        ## Adding slop around excluded regions
         if exclusion in config["exclusion_slop_regions"]:
             exc_path = f"{exc_path}_slop"
-        ## Adding slop then merging - hard coded 15kb slop then merging with 10kb hard coded dist
+        ## Adding slop then merging adjacent intervals
         elif exclusion in config["exclusion_slopmerge_regions"]:
             exc_path = f"{exc_path}_slopmerge"
 

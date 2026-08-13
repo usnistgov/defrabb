@@ -74,6 +74,62 @@ rule add_slop_and_merge:
         """
 
 
+## Profile-aware slop rules for agnostic exclusions (gaps, satellites, etc.)
+## These produce profile-scoped paths so different slop values get distinct files.
+rule add_slop_with_profile:
+    input:
+        bed="resources/exclusions/{ref_id}/{genomic_region}.bed",
+        genome=get_genome_file,
+    output:
+        "resources/exclusions/{ref_id}/{exclusion_profile}/{genomic_region}_slop.bed",
+    log:
+        "logs/exclusions/{ref_id}_{exclusion_profile}_{genomic_region}_slop.log",
+    conda:
+        "../envs/bedtools.yml"
+    params:
+        slop=lambda wildcards: (
+            config.get("_exclusion_profiles", {})
+            .get(wildcards.exclusion_profile, config["_exclusion_params"])
+            .get("slop", config["_exclusion_params"]["slop"])
+        ),
+    shell:
+        """
+        bedtools sort -i {input.bed} -g {input.genome} |
+            bedtools slop -i stdin -g {input.genome} -b {params.slop} \
+            1> {output} 2> {log}
+        """
+
+
+rule add_slop_and_merge_with_profile:
+    input:
+        bed="resources/exclusions/{ref_id}/{genomic_region}.bed",
+        genome=get_genome_file,
+    output:
+        "resources/exclusions/{ref_id}/{exclusion_profile}/{genomic_region}_slopmerge.bed",
+    log:
+        "logs/exclusions/{ref_id}_{exclusion_profile}_{genomic_region}_slopmerge.log",
+    conda:
+        "../envs/bedtools.yml"
+    params:
+        slop=lambda wildcards: (
+            config.get("_exclusion_profiles", {})
+            .get(wildcards.exclusion_profile, config["_exclusion_params"])
+            .get("slop", config["_exclusion_params"]["slop"])
+        ),
+        dist=lambda wildcards: (
+            config.get("_exclusion_profiles", {})
+            .get(wildcards.exclusion_profile, config["_exclusion_params"])
+            .get("slopmerge_dist", config["_exclusion_params"]["slopmerge_dist"])
+        ),
+    shell:
+        """
+        bedtools sort -i {input.bed} -g {input.genome} \
+            | bedtools slop -i stdin -g {input.genome} -b {params.slop} \
+            | bedtools merge -i stdin -d {params.dist} \
+            1> {output} 2> {log}
+        """
+
+
 ## Finding breaks in assemblies for excluded regions
 rule intersect_start_and_end:
     input:
@@ -115,7 +171,7 @@ rule get_flanks:
     conda:
         "../envs/bedtools.yml"
     params:
-        bases=config["_exclusion_params"]["flank_bases"],
+        bases=lambda wildcards: _bench_profile_param(wildcards, "flank_bases"),
     shell:
         """
         bedtools complement -i {input.baseline_bed} -g {input.genome} \

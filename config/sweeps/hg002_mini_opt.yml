@@ -1,15 +1,51 @@
-# HG002 Minimal Parameter Optimization Example
+# HG002 Mini Parameter Optimization
 #
-# Purpose: Demonstrate parameter optimization workflow with a small sweep
-# that can run quickly. Compares 2 dipcall window sizes on GRCh38 only.
+# Purpose: Hypothesis-driven sweep over dipcall window size and exclusion
+# buffer profiles for HG002 small-variant benchmark development.
+#
+# Prior results (20260803 run) established:
+#   - z5k consistently outperforms z2k in difficult regions (complex/SV, TR)
+#   - Largest gains: complex/SV regions (-498 SNP errors, -420 INDEL errors)
+#   - FN-in-TR curation pattern: complex haplotype structure at TR loci
+#     (chr22:43784686, chr1:4274195, chr1:11427165, chr1:14276164)
+#
+# Sweep hypotheses:
+#   vc_param_id:
+#     z5k  — established best performer; baseline for profile sweep
+#     z10k — does the ultra-long window (1Mbp vs 500kbp) further reduce errors
+#             in the most complex SV/TR regions? Expected: modest additional
+#             gain in complex regions, diminishing returns vs z5k
+#
+#   exclusion_profile:
+#     aggressive   — narrow buffers (sv_slop=25bp, gap_slop=10kb); maximizes
+#                    benchmark size/recall; expect more FP near SV breakpoints
+#     standard     — production defaults (sv_slop=50bp, gap_slop=15kb)
+#     conservative — wide buffers (sv_slop=100bp, gap_slop=20kb); maximizes
+#                    precision; expect fewer errors but smaller benchmark
+#     sv_wide      — targeted: narrow gap slop (10kb) + very wide SV slop
+#                    (200bp); hypothesis: FN-in-TR variants arise from SV
+#                    exclusions that miss adjacent complex TR regions; wider
+#                    SV buffer should specifically reduce FN-in-TR count
+#     sv_narrow    — complementary null: standard gap slop + very narrow SV
+#                    slop (10bp); if FN-in-TR is NOT from SV proximity then
+#                    narrowing SV buffer should increase TR recall without
+#                    increasing FPs; false if FP rate rises near breakpoints
+#
+# Expected cross-product: 2 vc × 5 profiles = 10 analyses
+# Unique variant calls: 2 (z5k, z10k) — z2k available from prior run as baseline
+# Reuse factor: 5x (shared variant calls across all profiles per vc_param_id)
+# Estimated runtime: ~12h (2 dipcall × 5h + 10 happy × 0.2h)
 #
 # Usage:
 #   scripts/generate_param_sweep.py config/sweeps/hg002_mini_opt.yml
-#   ./run_defrabb run -r 20260723_v0.023_hg002_mini_opt --config analyses=config/analyses_20260723_v0.023_hg002_mini_opt.tsv
-#   scripts/score_param_sweep.py --results-dir 20260723_v0.023_hg002_mini_opt/results --baseline v5.0q
+#   ./run_defrabb run -r 20260813_v0.023_hg002_mini_opt \
+#     --config analyses=config/analyses_20260813_v0.023_hg002_mini_opt.tsv
+#   scripts/score_param_sweep.py \
+#     --results-dir 20260813_v0.023_hg002_mini_opt/results \
+#     --baseline v5.0q --top-n 3
 
-name: HG002 Mini Optimization
-output: config/analyses_20260723_v0.023_hg002_mini_opt.tsv
+name: HG002 Mini Optimization v2
+output: config/analyses_20260813_v0.023_hg002_mini_opt.tsv
 
 # Fixed across all analyses
 fixed:
@@ -17,7 +53,7 @@ fixed:
   asm_id: HG2-T2TQ100-V1.1
   vc_cmd: dipcall
   bench_type: smvar
-  vcf_processing: trf
+  vcf_processing: xy_fix
   exclusion_set: smvartest
   eval_cmd: happy
   eval_comp_id: v5.0q-smvar
@@ -25,9 +61,5 @@ fixed:
 
 # Sweep dimensions (cross-product)
 sweep:
-  vc_param_id: [z2k, z5k]
-
-# Cross-product: 2 analyses
-# Unique variant calls: 2 (z2k, z5k)
-# Reuse factor: 1x (no reuse since different vc_param_id)
-# Estimated runtime: ~11 hours (2 dipcall × 5h + 2 happy × 0.5h)
+  vc_param_id: [z5k, z10k]
+  exclusion_profile: [aggressive, standard, conservative, sv_wide, sv_narrow]
