@@ -4,6 +4,10 @@
 **Status:** Draft  
 **Created:** 2026-07-31
 
+> **Note (2026-09-28):** the discrepancy-extraction and curation components
+> (§1, `scripts/extract_discrepancies.py`) were removed from DeFrABB and are
+> being developed in the separate variant-curation-review project.
+
 ## Overview
 
 Comprehensive infrastructure for designing, running, analyzing, and reporting parameter sweep results with two primary use cases:
