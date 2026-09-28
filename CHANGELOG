@@ -2,6 +2,84 @@
 
 ## Unreleased (v0.023 development)
 
+### HG002 Q100 v1.2 draft benchmark
+
+- **New assembly `HG2-T2TQ100-V1.2`** in `config/resources.yml` (same 23+23 contig
+  layout as v1.1; small polishing edits, chr6_MATERNAL +6.1 kb).
+- **New analyses table** `config/analyses_20260928_v0.023_HG002Q100v1.2.tsv`:
+  GRCh37/GRCh38/CHM13v2.0 x dipcall smvar (`xy_trf`) + dipcall stvar + PAV stvar
+  (`norm_xy_trf_sv_repmask_lcr_remap`), evaluated against v5.0q. PAV rows are
+  required by the new pav-discrep / pav-inv exclusions.
+- **New exclusion sets** `HG002Q100smvarv0.023`, `HG002Q100stvarv0.023`,
+  `HG002Q100stvarv0.023pav`: the HG002Q100-* beds curated against v1.0/v1.1
+  (pav-discrep-smvar, pav-discrep-stvar, pav-inversions) are replaced by
+  pipeline-generated equivalents for the assembly being benchmarked;
+  `HG002Q100-errors` is dropped (v1.1 errors fixed in v1.2); `HG002Q100-mosaic`
+  (smvar only) and `dipcall-bugs-T2TACE` are kept; delins remains
+  `consecutive-svs` (generated from the dipcall hap BAMs).
+- **New VCF processing profile** `norm_xy_trf_sv_repmask_lcr_remap` restoring
+  `truvari anno repmask` and `truvari anno remap` for stvar (v1.1 draft step
+  order). Outcome pending the v0.023 full-pipeline run.
+
+### Exclusions
+
+- **Pipeline-generated PAV vs dipcall exclusions** (`rules/exclusions_pav_discrep.smk`):
+  - `pav-discrep-smvar`: hap.py/vcfeval (truth dipcall, query PAV) in regions
+    covered by both callers; FP/FN with |ILEN| <= 50, + overlapping repeats,
+    slop 5, merge 1000.
+  - `pav-discrep-stvar`: `truvari bench` (base dipcall, comp PAV, sizemin 50);
+    FP/FN + overlapping repeats, slop 50, merge 10000. Unlike the curated bed,
+    no mafft `truvari refine` step.
+  - Comparisons run once per ref + assembly + caller runs
+    (`results/pav_discrep/`), shared by all benchmarks. Parameters in
+    `_exclusion_params` (`pav_discrep_*`).
+- **`pav-inv` generalized:** uses the PAV run for the ref + assembly (works for
+  dipcall benchmarks) and expands by the segdups that overlap an inversion.
+  Previously it unioned the inversions with *all* segdups. On HG002 v1.1 GRCh38
+  it reproduces the curated `HG002Q100-pav-inversions` bed (90 intervals; 89/90
+  curated intervals overlapped).
+- **Exclusion profiles wired into rules (98df607):** new optional
+  `exclusion_profile` analyses column. Slop and merge distances for agnostic
+  exclusions, flanks, svs-and-simple-repeats, and self-discrep come from the
+  named profile. New profiles `sv_wide` and `sv_narrow`, plus sweep configs.
+
+### Variant calling / benchmark VCF
+
+- **Primary-chromosome filter:** `standardize_vcasm_output` restricts the
+  standardized VCF and baseline bed to primary chromosomes (chr1-22,X,Y;
+  1-22,X,Y for GRCh37). Override per reference with the optional
+  `primary_chromosomes` list. dipcall beds and PAV outputs previously carried
+  alt/random/Un/decoy contigs; for example, the v1.1 GRCh38 PAV VCF had ~380k
+  calls on them. See `docs/issues/truvari-refine-primary-chr-filter.md`.
+
+### Bug fixes
+
+- **Phasing lost in TRF-annotated benchmark VCFs (smvar and stvar):**
+  `scripts/merge_trfanno_vcfs.py` rebuilt every record, and assigning GT in
+  pysam resets the phased flag, so every phased genotype (1|1) was written
+  unphased (1/1). This caused ~87k FN≈FP representation artifacts in hap.py
+  comparisons against v5.0q. The cause was previously attributed to
+  `truvari anno trf`, which in fact preserves phasing. Fixed by copying the
+  phased flag. See `docs/issues/happy-phasing-mismatch-v5q.md`.
+- `get_sv_widen_coords.py`: TRF annotations are optional. It warns and skips
+  TR widening instead of failing (739b105).
+- `get_asm_varcall_run` raises again on ambiguous lookups, unless
+  `prefer_vc_param_id` uniquely selects a run.
+- CI restored to green: stale sweep-generator tests, black/snakefmt formatting.
+
+### Removed
+
+- `scripts/extract_discrepancies.py` and untracked curation work (moved to the
+  separate variant-curation-review project).
+
+### Other
+
+- `scripts/evaluate_multi_callset.py`: runs hap.py in parallel against multiple
+  callsets (16b746c).
+- `docs/design/parameter-optimization-infrastructure.md` (dffc75b).
+- `scripts/run_full_pipeline_test.sh --table TSV` runs a whole-genome regression
+  on an existing analyses table.
+
 ### Parameter Optimization Infrastructure
 
 - **Fixed dipcall parameter profile lookup:** `rules/asm-varcall.smk` now correctly

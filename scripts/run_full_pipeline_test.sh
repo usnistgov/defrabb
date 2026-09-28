@@ -35,11 +35,13 @@
 #
 # Usage:
 #   conda activate snakemake   # or ~/miniforge3/envs/snakemake
-#   scripts/run_full_pipeline_test.sh [RUNID] [--dest-dir DIR] [--go] [--cores N]
+#   scripts/run_full_pipeline_test.sh [RUNID] [--dest-dir DIR] [--table TSV] [--go] [--cores N]
 #
 #   RUNID        run id, format YYYYMMDD_v#.###_brief-id
 #                (default: <today>_v0.022_fulltest-HG002v1.1)
 #   --dest-dir   parent directory for the clone (default: repo parent dir, ..)
+#   --table      use this committed analyses table as-is instead of generating
+#                one from the v1.1 CI template (e.g. a new dated draft table)
 #   --go         after a clean validate + dry-run, launch the real run
 #   --cores      cores/jobs for the run + dry-run (default: 1)
 ###############################################################################
@@ -52,10 +54,11 @@ GO=0
 CORES=1
 RUNID=""
 DEST_DIR=".."
+TABLE=""
 
 die() { echo "ERROR: $*" >&2; exit 1; }
 info() { echo ">> $*"; }
-usage() { sed -n '2,51p' "$0" | sed 's/^# \{0,1\}//'; }
+usage() { sed -n '3,46p' "$0" | sed 's/^# \{0,1\}//'; }
 
 # --- parse args ------------------------------------------------------------
 while [[ $# -gt 0 ]]; do
@@ -63,6 +66,7 @@ while [[ $# -gt 0 ]]; do
         --go)    GO=1; shift ;;
         --cores|-j) CORES="${2:?--cores needs a value}"; shift 2 ;;
         --dest-dir) DEST_DIR="${2:?--dest-dir needs a value}"; shift 2 ;;
+        --table) TABLE="${2:?--table needs a value}"; shift 2 ;;
         -h|--help) usage; exit 0 ;;
         -*) die "unknown option: $1 (try --help)" ;;
         *) [[ -z "$RUNID" ]] || die "unexpected extra argument: $1"; RUNID="$1"; shift ;;
@@ -77,6 +81,7 @@ RUNID="${RUNID:-$(date +%Y%m%d)_v0.022_fulltest-HG002v1.1}"
 [[ -f Snakefile && -x run_defrabb ]] \
     || die "run this from the repository root (Snakefile / run_defrabb not found)"
 [[ -f "$TEMPLATE_REL" ]] || die "template not found: $TEMPLATE_REL"
+[[ -z "$TABLE" || -f "$TABLE" ]] || die "table not found: $TABLE"
 command -v snakemake >/dev/null 2>&1 \
     || die "snakemake not on PATH; activate the env first: conda activate snakemake (or ~/miniforge3/envs/snakemake)"
 command -v git >/dev/null 2>&1 || die "git not found on PATH"
@@ -107,6 +112,10 @@ OUTFILE="config/analyses_${RUNID}.tsv"
 RESOURCES="config/resources.yml"
 
 # --- 2. generate the analyses table (in the clone) ------------------------
+if [[ -n "$TABLE" ]]; then
+info "using $TABLE as $OUTFILE"
+cp "$TABLE" "$OUTFILE"
+else
 info "generating $OUTFILE from $TEMPLATE_REL"
 # Keep smvar rows as-is (genome_specific_strats is driven by the config flag,
 # not the table). For stvar rows: switch to the stvar_v5 truvari profile (#194)
@@ -129,6 +138,7 @@ printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n
     "GRCh38_HG002-T2TQ100v1.1-pav" "stvar" "norm_xy_trf_sv_lcr" "exclude" \
     "$NEW_EXCLUSION_SET" "HG2-T2TQ100-V1.1" "GRCh38" "pav" "giab" "default" \
     >> "$OUTFILE"
+fi
 
 info "wrote $(($(wc -l < "$OUTFILE") - 1)) analysis rows"
 
