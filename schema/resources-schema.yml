@@ -76,6 +76,15 @@ properties:
             description: |
               URL or local path for the adotto TR database used in tandem repeat annotation with `truvari anno trf`
 
+          primary_chromosomes:
+            type: array
+            items:
+              type: string
+            description: |
+              Optional list of primary chromosome names; standardized assembly
+              calls and baseline beds are restricted to these contigs. Defaults
+              to chr1-22,chrX,chrY (1-22,X,Y for GRCh37).
+
           exclusions:
             description: The beds to use when generating the exclusions
             additionalProperties: false

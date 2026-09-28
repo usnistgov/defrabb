@@ -1,10 +1,29 @@
 # Fix truvari refine v5.4.0 faidx failure - Filter to Primary Chromosomes
 
-**Status:** Planned for v0.023  
+**Status:** Implemented in v0.023 (2026-09-28); truvari refine v5.4 regression not yet re-tested  
 **Priority:** High  
 **Created:** 2026-07-30  
 **Related:** docs/issues/truvari-refine-v5.4.0-bug.md  
 **GitLab Issue:** TBD
+
+## Implementation (2026-09-28)
+
+Implemented differently from the proposal below: the filter lives in
+`standardize_vcasm_output` (`rules/asm-varcall.smk`), so it applies to both the
+standardized VCF **and** the baseline bed, for dipcall and PAV, before any
+benchmark or exclusion step consumes them.
+
+- `get_primary_chromosomes(ref_id)` (`rules/helpers_ref.smk`) is reference-aware:
+  chr1-22,chrX,chrY by default, 1-22,X,Y for GRCh37 (hs37d5), overridable with an
+  optional `primary_chromosomes` list per reference in `config/resources.yml`.
+  chrM/MT is excluded.
+- Survey of v0.022 (HG002 v1.1) outputs: dipcall VCFs were already primary-only,
+  but dipcall baseline beds contained alt/random/Un (GRCh38) and GL/hs37d5
+  (GRCh37) contigs, and the GRCh38 PAV VCF had ~380k calls (6.74M -> 6.36M) and
+  41 bed intervals on non-primary contigs.
+- Tests: `.tests/unit/test_primary_chrom_filter.py`.
+
+The original proposal is kept below for context.
 
 ## Problem
 

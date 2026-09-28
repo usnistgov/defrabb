@@ -212,9 +212,20 @@ rule standardize_vcasm_output:
         standardized_vcf="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz",
         standardized_vcfidx="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.vcf.gz.tbi",
         standardized_bed="results/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}.baseline.bed",
+    log:
+        "logs/asm_varcalls/{vc_id}/{ref_id}_{asm_id}_{vc_cmd}-{vc_param_id}_standardize.log",
+    conda:
+        "../envs/bcftools.yml"
+    params:
+        ## Restrict calls and baseline regions to primary chromosomes; dipcall
+        ## beds and PAV outputs include alt/random/Un/decoy contigs that the
+        ## benchmark does not cover (docs/issues/truvari-refine-primary-chr-filter.md)
+        chroms=get_primary_chrom_param,
     shell:
         """
-        cp {input.vcf} {output.standardized_vcf}
-        cp {input.vcfidx} {output.standardized_vcfidx}
-        cp {input.bed} {output.standardized_bed}
+        bcftools view -t {params.chroms} -Oz -o {output.standardized_vcf} {input.vcf} 2> {log}
+        bcftools index -t -f -o {output.standardized_vcfidx} {output.standardized_vcf} 2>> {log}
+        awk -v chroms={params.chroms} \\
+            'BEGIN {{ n = split(chroms, c, ","); for (i = 1; i <= n; i++) keep[c[i]] = 1 }} $1 in keep' \\
+            {input.bed} 1> {output.standardized_bed} 2>> {log}
         """

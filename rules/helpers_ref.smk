@@ -79,3 +79,21 @@ def get_dipcall_par_param(wildcards):
 def get_segdups(wildcards):
     ref_id = get_ref_id(wildcards)
     return f"resources/exclusions/{ref_id}/segdups_slopmerge_sorted.bed"
+
+
+def get_primary_chromosomes(ref_id):
+    """Primary (autosomes + X/Y) chromosome names for a reference.
+
+    Uses the optional `primary_chromosomes` list in the reference config;
+    otherwise chr1-22,chrX,chrY, or 1-22,X,Y for unprefixed GRCh37 (hs37d5).
+    Mito, alt, random, Un, decoy and patch contigs are excluded.
+    """
+    chroms = ref_config[ref_id].get("primary_chromosomes")
+    if chroms:
+        return [str(c) for c in chroms]
+    prefix = "" if ref_id.startswith("GRCh37") else "chr"
+    return [f"{prefix}{c}" for c in [*range(1, 23), "X", "Y"]]
+
+
+def get_primary_chrom_param(wildcards):
+    return ",".join(get_primary_chromosomes(get_ref_id(wildcards)))
