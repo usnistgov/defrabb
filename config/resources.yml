@@ -427,6 +427,12 @@ assemblies:
     paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/T2T/HG002/assemblies/hg002v1.1.pat.fasta.gz
     is_male: true
     sample_id: "HG002"
+  # v1.2: same 23+23 contig layout/names as v1.1; small polishing edits, chr6_MATERNAL +6.1kb
+  HG2-T2TQ100-V1.2:
+    maternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/T2T/HG002/assemblies/hg002v1.2.mat.fasta.gz
+    paternal: https://s3-us-west-2.amazonaws.com/human-pangenomics/T2T/HG002/assemblies/hg002v1.2.pat.fasta.gz
+    is_male: true
+    sample_id: "HG002"
   ## HG008-Normal
   HG8N-HiFiAsm2024040317:
     maternal: https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/data_somatic/HG008/Liss_lab/analysis/Harvard_Cheng_hifiasm-assemblies_20240317/HG008.normal.hap1.fa.gz
