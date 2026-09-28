@@ -1,11 +1,28 @@
 # Hap.py Phasing Mismatch with v5.0q Comparison Callsets
 
-**Status:** Root cause identified in v0.022  
+**Status:** FIXED in v0.023 (2026-09-28) — see "Resolution" below  
 **Priority:** High  
 **Created:** 2026-07-30  
 **Discovered:** During v0.022 release review  
 **Root Cause:** `truvari anno trf` strips phasing from benchmark VCFs  
 **Affects:** All smvar benchmarks using `xy_trf` VCF processing profile
+
+## Resolution (2026-09-28)
+
+The root cause below was **misattributed**. `truvari anno trf` preserves phasing:
+in run `20260723_v0.023_hg002_mini_opt`, `*.trf_insize_canonical.vcf.gz` and
+`*.trf_insize_annotated.vcf` (truvari output) both have `1|1`/`0|1`, while
+`*.trfanno.vcf` has `1/1`/`0/1`. Phasing was dropped by
+`scripts/merge_trfanno_vcfs.py`: pysam resets `samples[s].phased` to False when
+GT is assigned on a new record, and the copy never restored it. Fixed by copying
+`phased` explicitly; regression test
+`.tests/unit/test_trfanno_merge.py::test_merge_trfanno_vcfs_preserves_phasing`.
+Verified `truvari anno svinfo` and `truvari anno lcr` also preserve phasing.
+
+Consequences: both smvar (`xy_trf`) and stvar (`norm_xy_trf_sv_lcr`, …)
+benchmarks lost phasing; both are fixed by the same change. Keep TRF annotation
+in the smvar profile — the `xy_fix` workaround proposed below is no longer needed.
+The analysis below is retained for history.
 
 ## Summary
 

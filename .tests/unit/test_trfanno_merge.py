@@ -172,3 +172,58 @@ def test_merge_trfanno_vcfs_bcf_roundtrip():
             assert len(records) == 2
             assert records[0].info["SVTYPE"] == "SNV"
             assert records[1].info["SVTYPE"] == "INS"
+
+
+def test_merge_trfanno_vcfs_preserves_phasing(tmp_path):
+    """Phased GTs (1|1, 0|1) must stay phased and unphased stay unphased.
+
+    Regression for the smvar/stvar phasing loss (619 SNP FN/FP vs v5.0q).
+    """
+    header = pysam.VariantHeader()
+    header.add_line('##INFO=<ID=TRF,Number=0,Type=Flag,Description="In TR">')
+    header.add_line('##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">')
+    header.add_sample("sample")
+    header.contigs.add("chr1", length=1000)
+
+    paths = {k: tmp_path / f"{k}.vcf" for k in ("annotated", "oversize", "noncanon")}
+    records = {
+        "annotated": [(100, (1, 1), True), (200, (0, 1), True), (300, (0, 1), False)],
+        "oversize": [(500, (1, 0), True)],
+        "noncanon": [],
+    }
+    for key, recs in records.items():
+        with pysam.VariantFile(paths[key], "w", header=header) as f:
+            for pos, gt, phased in recs:
+                rec = header.new_record(contig="chr1", start=pos, alleles=("A", "T"))
+                rec.samples["sample"]["GT"] = gt
+                rec.samples["sample"].phased = phased
+                f.write(rec)
+
+    merged = tmp_path / "merged.vcf"
+    subprocess.run(
+        [
+            "python3",
+            "scripts/merge_trfanno_vcfs.py",
+            "--annotated",
+            str(paths["annotated"]),
+            "--oversize",
+            str(paths["oversize"]),
+            "--noncanon",
+            str(paths["noncanon"]),
+            "--output",
+            str(merged),
+        ],
+        check=True,
+    )
+
+    with pysam.VariantFile(merged) as f:
+        got = {
+            r.pos - 1: (r.samples["sample"]["GT"], r.samples["sample"].phased)
+            for r in f
+        }
+    assert got == {
+        100: ((1, 1), True),
+        200: ((0, 1), True),
+        300: ((0, 1), False),
+        500: ((1, 0), True),
+    }
