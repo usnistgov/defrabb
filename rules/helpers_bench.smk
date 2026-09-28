@@ -143,6 +143,52 @@ def get_consecutive_svs_bams(wildcards):
     }
 
 
+def get_pav_discrep_runs(wildcards):
+    """Resolve the (vc_id, vc_param_id) dipcall and PAV runs for a ref + assembly.
+
+    The pav-discrep / pav-inv exclusions compare dipcall and PAV calls for the
+    same reference + assembly, so both runs must be declared in the analyses
+    table. Resolved via ``get_asm_varcall_run`` so a benchmark of either caller
+    reuses the existing runs instead of triggering duplicate caller runs.
+    """
+    return {
+        vc_cmd: get_asm_varcall_run(
+            wildcards.ref_id,
+            wildcards.asm_id,
+            vc_cmd,
+            prefer_vc_param_id=wildcards.get(
+                f"{vc_cmd}_param", wildcards.get("vc_param_id")
+            ),
+        )
+        for vc_cmd in ["dipcall", "pav"]
+    }
+
+
+def get_pav_discrep_inputs(wildcards):
+    """Standardized dipcall and PAV calls/beds (keys dip_* / pav_*)."""
+    inputs = {}
+    for vc_cmd, (vc_id, vc_param_id) in get_pav_discrep_runs(wildcards).items():
+        base = (
+            f"results/asm_varcalls/{vc_id}/"
+            f"{wildcards.ref_id}_{wildcards.asm_id}_{vc_cmd}-{vc_param_id}"
+        )
+        key = "dip" if vc_cmd == "dipcall" else "pav"
+        inputs[f"{key}_vcf"] = f"{base}.vcf.gz"
+        inputs[f"{key}_vcfidx"] = f"{base}.vcf.gz.tbi"
+        inputs[f"{key}_bed"] = f"{base}.baseline.bed"
+    return inputs
+
+
+def get_pav_discrep_fpfns_bed(wildcards):
+    """Shared (per ref + assembly + runs) PAV vs dipcall FP/FN bed for a benchmark."""
+    runs = get_pav_discrep_runs(wildcards)
+    method = "happy" if wildcards.discrep_type == "smvar" else "truvari"
+    return (
+        f"results/pav_discrep/{wildcards.ref_id}_{wildcards.asm_id}"
+        f"_dipcall-{runs['dipcall'][1]}_pav-{runs['pav'][1]}/{method}.fpfns.bed"
+    )
+
+
 ## Exclusions
 def get_exclusion_inputs(wildcards):
     ## Getting list of excluded regions

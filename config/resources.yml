@@ -218,6 +218,12 @@ _exclusion_params:
   # PAV inversion exclusion parameters
   pav_inv_slop: 50
   pav_inv_merge_dist: 1000
+  # PAV vs dipcall discrepancy exclusion parameters
+  pav_discrep_smvar_max_indel: 50
+  pav_discrep_smvar_slop: 5
+  pav_discrep_smvar_merge_dist: 1000
+  pav_discrep_stvar_slop: 50
+  pav_discrep_stvar_merge_dist: 10000
   # Consecutive SV minimum size (bp)
   consecutive_sv_min_bp: 10
   # Minimum N-stretch length for gap detection (bp)
@@ -274,6 +280,15 @@ vcf_processing_profiles:
     - trfanno
     - svinfo
     - lcr
+  # v0.023 stvar: full annotation incl. RepeatMasker + remap (v1.1 draft step order)
+  norm_xy_trf_sv_repmask_lcr_remap:
+    - norm
+    - fix_XY_genotype
+    - trfanno
+    - svinfo
+    - repmask
+    - lcr
+    - remap
 
 ## VCF Processing Parameters ##########
 _vcf_processing_params:
@@ -631,6 +646,53 @@ exclusion_set:
     - HG002Q100-pav-inversions
     - HG002Q100-errors
     - TSPY2-segdups
+  # v0.023 (HG002 Q100 v1.2 drafts): the HG002Q100-* beds curated against
+  # v1.0/v1.1 are replaced by pipeline-generated equivalents for the assembly
+  # being benchmarked -- pav-discrep-{smvar,stvar} and pav-inv (require dipcall
+  # and PAV rows for the ref + assembly); delins is consecutive-svs.
+  # HG002Q100-errors is dropped (v1.1 errors fixed in v1.2); HG002Q100-mosaic
+  # (smvar only) and dipcall-bugs-T2TACE are kept.
+  HG002Q100smvarv0.023:
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - flanks
+    - svs-and-simple-repeats
+    - VDJ
+    - consecutive-svs
+    - dipcall-bugs-T2TACE
+    - pav-discrep-smvar
+    - pav-discrep-stvar
+    - pav-inv
+    - HG002Q100-mosaic
+    - TSPY2-segdups
+    - self-discrep
+  HG002Q100stvarv0.023:
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - flanks
+    - VDJ
+    - consecutive-svs
+    - dipcall-bugs-T2TACE
+    - pav-discrep-smvar
+    - pav-discrep-stvar
+    - pav-inv
+    - TSPY2-segdups
+  # PAV variant of HG002Q100stvarv0.023 (no dipcall-specific exclusions)
+  HG002Q100stvarv0.023pav:
+    - segdups
+    - tandem-repeats
+    - satellites
+    - gaps
+    - flanks
+    - VDJ
+    - pav-discrep-smvar
+    - pav-discrep-stvar
+    - pav-inv
+    - TSPY2-segdups
   NA12878PPsmvar:
     - segdups
     - tandem-repeats
@@ -747,6 +809,8 @@ exclusion_ref_agnostic:
   - consecutive-svs
   - self-discrep
   - pav-inv
+  - pav-discrep-smvar
+  - pav-discrep-stvar
 
 ################################################################################
 # Comparisons

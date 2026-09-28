@@ -466,6 +466,21 @@ properties:
       pav_inv_merge_dist:
         type: integer
         minimum: 0
+      pav_discrep_smvar_max_indel:
+        type: integer
+        minimum: 0
+      pav_discrep_smvar_slop:
+        type: integer
+        minimum: 0
+      pav_discrep_smvar_merge_dist:
+        type: integer
+        minimum: 0
+      pav_discrep_stvar_slop:
+        type: integer
+        minimum: 0
+      pav_discrep_stvar_merge_dist:
+        type: integer
+        minimum: 0
       consecutive_sv_min_bp:
         type: integer
         minimum: 0

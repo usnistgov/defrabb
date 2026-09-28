@@ -1,8 +1,9 @@
 rule exclude_pav_inversions:
-    ## TODO fix to work with dipcall as well
+    ## PAV inversions (symbolic <INV>) plus overlapping segdups, for dipcall or
+    ## PAV benchmarks; calls come from the PAV run for this ref + assembly.
+    ## Mirrors HG002Q100-pav-inversions (pav_HG002_INV_segdupexpanded_slop50).
     input:
-        vcf=get_standardized_vcf,
-        vcfidx=get_standardized_vcfidx,
+        unpack(get_pav_discrep_inputs),
         genome=get_genome_file,
         segdups=get_segdups,
     output:
@@ -16,15 +17,20 @@ rule exclude_pav_inversions:
     params:
         slop=config["_exclusion_params"]["pav_inv_slop"],
         merge_d=config["_exclusion_params"]["pav_inv_merge_dist"],
+        inv_bed=lambda wildcards, output: f"{output.bed}.inv.tmp",
     shell:
         """
-        bcftools filter -i 'ALT="<INV>"' {input.vcf} \
-            | bcftools query -f '%CHROM\t%POS0\t%END\n' \
-            | bedtools slop -b {params.slop} -i stdin -g {input.genome} \
-            | bedtools sort -g {input.genome} -i - \
-            | bedtools multiinter -i stdin {input.segdups} \
+        bcftools filter -i 'ALT="<INV>"' {input.pav_vcf} 2> {log} \
+            | bcftools query -f '%CHROM\t%POS0\t%END\n' 2>> {log} \
+            | bedtools slop -b {params.slop} -i stdin -g {input.genome} 2>> {log} \
+            | bedtools sort -g {input.genome} -i stdin 1> {params.inv_bed} 2>> {log}
+        bedtools intersect -wa -a {input.segdups} -b {params.inv_bed} 2>> {log} \
+            | cut -f1-3 \
+            | cat - {params.inv_bed} \
+            | bedtools sort -g {input.genome} -i stdin \
             | mergeBed -i stdin -d {params.merge_d} \
-            1> {output.bed} 2>{log}
+            1> {output.bed} 2>> {log}
+        rm {params.inv_bed}
         """
 
 

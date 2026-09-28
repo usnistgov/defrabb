@@ -47,7 +47,7 @@ CI runs all three checks on every push.
 2. `rules/utils.smk` - Indexing, sorting, compression utilities
 3. `rules/download_resources.smk` - Fetch assemblies, references, strats
 4. `rules/asm-varcall.smk` - Assembly variant calling (dipcall, PAV)
-5. `rules/exclusions_{download,self_discrep,apply}.smk` - Exclusion region processing (split by sub-domain)
+5. `rules/exclusions_{download,self_discrep,pav_discrep,apply}.smk` - Exclusion region processing (split by sub-domain)
 6. `rules/report.smk` - Statistics and reporting
 7. `rules/bench_vcf_{normalize,anno,finalize}.smk` - VCF post-processing and annotation (split by sub-domain)
 8. `rules/stratifications_genome_specific.smk` - Genome-specific (complex/overlapping-variant) hap.py stratifications; opt-in via config `genome_specific_strats`
