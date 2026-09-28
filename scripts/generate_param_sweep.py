@@ -53,14 +53,18 @@ def load_sweep_config(path: Path) -> Dict[str, Any]:
     # Validate sweep dimensions are lists
     for dim, values in config["sweep"].items():
         if not isinstance(values, list):
-            raise ValueError(f"Sweep dimension '{dim}' must be a list, got {type(values).__name__}")
+            raise ValueError(
+                f"Sweep dimension '{dim}' must be a list, got {type(values).__name__}"
+            )
         if not values:
             raise ValueError(f"Sweep dimension '{dim}' is empty")
 
     return config
 
 
-def generate_cross_product(fixed: Dict[str, Any], sweep: Dict[str, List[Any]]) -> List[Dict[str, Any]]:
+def generate_cross_product(
+    fixed: Dict[str, Any], sweep: Dict[str, List[Any]]
+) -> List[Dict[str, Any]]:
     """Generate all combinations of sweep dimensions combined with fixed fields."""
     sweep_dims = sorted(sweep.keys())  # Deterministic order
     sweep_values = [sweep[dim] for dim in sweep_dims]
@@ -97,7 +101,9 @@ def assign_vc_ids(analyses: List[Dict[str, Any]]) -> int:
     return len(vc_groups)
 
 
-def estimate_costs(analyses: List[Dict[str, Any]], unique_vc_runs: int) -> Dict[str, float]:
+def estimate_costs(
+    analyses: List[Dict[str, Any]], unique_vc_runs: int
+) -> Dict[str, float]:
     """Estimate runtime (hours) and storage (GB) for sweep."""
     total_runtime = 0.0
     total_storage = 0.0
@@ -141,11 +147,25 @@ def format_analyses_table(analyses: List[Dict[str, Any]]) -> pd.DataFrame:
 
     # Standard column order (based on analyses-schema.yml)
     standard_cols = [
-        "eval_id", "bench_id", "eval_cmd", "eval_params", "eval_comp_id",
-        "eval_comp_id_is_truth", "eval_truth_regions", "eval_target_regions",
-        "vc_id", "bench_type", "bench_vcf_processing", "bench_bed_processing",
-        "exclusion_set", "exclusion_profile", "asm_id", "ref", "vc_cmd",
-        "vc_param_id", "vc_params"
+        "eval_id",
+        "bench_id",
+        "eval_cmd",
+        "eval_params",
+        "eval_comp_id",
+        "eval_comp_id_is_truth",
+        "eval_truth_regions",
+        "eval_target_regions",
+        "vc_id",
+        "bench_type",
+        "bench_vcf_processing",
+        "bench_bed_processing",
+        "exclusion_set",
+        "exclusion_profile",
+        "asm_id",
+        "ref",
+        "vc_cmd",
+        "vc_param_id",
+        "vc_params",
     ]
 
     # Fill missing standard columns with schema-compliant defaults
@@ -181,9 +201,18 @@ def format_analyses_table(analyses: List[Dict[str, Any]]) -> pd.DataFrame:
             lambda x: f"_{x}" if x and x != "default" else ""
         )
         df["bench_id"] = (
-            df["ref"] + "_" + df["asm_id"] + "_" +
-            df["bench_type"] + "_" + df["vc_cmd"] + "-" + df["vc_param_id"] +
-            exclusion_suffix + profile_suffix + vcf_proc_suffix
+            df["ref"]
+            + "_"
+            + df["asm_id"]
+            + "_"
+            + df["bench_type"]
+            + "_"
+            + df["vc_cmd"]
+            + "-"
+            + df["vc_param_id"]
+            + exclusion_suffix
+            + profile_suffix
+            + vcf_proc_suffix
         )
 
     if "eval_id" not in df.columns:
@@ -203,10 +232,21 @@ def format_analyses_table(analyses: List[Dict[str, Any]]) -> pd.DataFrame:
 def validate_output(df: pd.DataFrame) -> None:
     """Validate output table against schema expectations."""
     required_cols = [
-        "vc_id", "ref", "asm_id", "vc_cmd", "bench_type",
-        "bench_id", "eval_id", "eval_cmd", "eval_comp_id",
-        "eval_comp_id_is_truth", "eval_truth_regions", "eval_target_regions",
-        "bench_vcf_processing", "bench_bed_processing", "exclusion_set"
+        "vc_id",
+        "ref",
+        "asm_id",
+        "vc_cmd",
+        "bench_type",
+        "bench_id",
+        "eval_id",
+        "eval_cmd",
+        "eval_comp_id",
+        "eval_comp_id_is_truth",
+        "eval_truth_regions",
+        "eval_target_regions",
+        "bench_vcf_processing",
+        "bench_bed_processing",
+        "exclusion_set",
     ]
 
     missing = [c for c in required_cols if c not in df.columns]
@@ -226,40 +266,40 @@ def validate_output(df: pd.DataFrame) -> None:
     null_counts = df.isnull().sum()
     null_cols = null_counts[null_counts > 0]
     if not null_cols.empty:
-        print(f"WARNING: Null values found in columns: {null_cols.to_dict()}", file=sys.stderr)
+        print(
+            f"WARNING: Null values found in columns: {null_cols.to_dict()}",
+            file=sys.stderr,
+        )
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
+    parser.add_argument("config", type=Path, help="Sweep configuration YAML file")
     parser.add_argument(
-        "config",
+        "-o",
+        "--output",
         type=Path,
-        help="Sweep configuration YAML file"
+        help="Output TSV path (default: from config.output field)",
     )
     parser.add_argument(
-        "-o", "--output",
-        type=Path,
-        help="Output TSV path (default: from config.output field)"
-    )
-    parser.add_argument(
-        "-n", "--dry-run",
+        "-n",
+        "--dry-run",
         action="store_true",
-        help="Print summary and preview without writing output"
+        help="Print summary and preview without writing output",
     )
     parser.add_argument(
         "--max-analyses",
         type=int,
         default=200,
-        help="Maximum number of analyses to generate (safety limit, default: 200)"
+        help="Maximum number of analyses to generate (safety limit, default: 200)",
     )
     parser.add_argument(
         "--preview-rows",
         type=int,
         default=5,
-        help="Number of rows to show in dry-run preview (default: 5)"
+        help="Number of rows to show in dry-run preview (default: 5)",
     )
 
     args = parser.parse_args()
@@ -279,12 +319,9 @@ def main():
         print(
             f"ERROR: Cross-product would generate {len(analyses)} analyses, "
             f"exceeding limit of {args.max_analyses}.",
-            file=sys.stderr
+            file=sys.stderr,
         )
-        print(
-            f"Increase --max-analyses or reduce sweep dimensions.",
-            file=sys.stderr
-        )
+        print(f"Increase --max-analyses or reduce sweep dimensions.", file=sys.stderr)
         return 1
 
     # Assign vc_ids for output reuse
@@ -307,7 +344,7 @@ def main():
     print(f"Sweep: {config['name']}")
     print(f"  Analyses: {costs['total_analyses']}")
     print(f"  Unique variant call runs: {costs['unique_vc_runs']}")
-    reuse_factor = costs['total_analyses'] / costs['unique_vc_runs']
+    reuse_factor = costs["total_analyses"] / costs["unique_vc_runs"]
     print(f"  Reuse factor: {reuse_factor:.1f}x")
     print(f"  Estimated runtime: {costs['runtime_hours']} hours")
     print(f"  Estimated storage: {costs['storage_gb']} GB")
@@ -323,7 +360,7 @@ def main():
     if not output_path:
         print(
             "ERROR: No output path specified (use --output or config.output)",
-            file=sys.stderr
+            file=sys.stderr,
         )
         return 1
 

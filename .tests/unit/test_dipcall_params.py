@@ -4,6 +4,7 @@ Tests the fix for #197 where _dipcall_params profiles were defined but never
 accessed by rules/asm-varcall.smk. The extra= param should look up profiles by
 vc_param_id, falling back to the vc_params column value if profile not found.
 """
+
 import pytest
 from unittest.mock import Mock
 import pandas as pd
@@ -20,19 +21,18 @@ def test_dipcall_param_profile_lookup():
         }
     }
 
-    vc_tbl = pd.DataFrame({
-        "vc_id": ["vc1", "vc2", "vc3"],
-        "vc_params": ["default", "default", "-z300000,3000"],
-    })
+    vc_tbl = pd.DataFrame(
+        {
+            "vc_id": ["vc1", "vc2", "vc3"],
+            "vc_params": ["default", "default", "-z300000,3000"],
+        }
+    )
     vc_tbl = vc_tbl.set_index("vc_id")
 
     # The lambda from rules/asm-varcall.smk lines 48-52 (after fix)
     def get_extra(vc_id, vc_param_id):
         return (
-            config["_dipcall_params"].get(
-                vc_param_id,
-                vc_tbl.loc[vc_id]["vc_params"]
-            )
+            config["_dipcall_params"].get(vc_param_id, vc_tbl.loc[vc_id]["vc_params"])
             if vc_tbl.loc[vc_id]["vc_params"] != "default"
             else config["_dipcall_params"].get(vc_param_id, "")
         )
@@ -56,18 +56,17 @@ def test_dipcall_param_backward_compatibility():
     config = {"_dipcall_params": {"z2k": "-z200000,10000"}}
 
     # Old-style table: vc_params column has the literal CLI string
-    vc_tbl = pd.DataFrame({
-        "vc_id": ["vc_old"],
-        "vc_params": ["-z200000,10000"],
-    })
+    vc_tbl = pd.DataFrame(
+        {
+            "vc_id": ["vc_old"],
+            "vc_params": ["-z200000,10000"],
+        }
+    )
     vc_tbl = vc_tbl.set_index("vc_id")
 
     def get_extra(vc_id, vc_param_id):
         return (
-            config["_dipcall_params"].get(
-                vc_param_id,
-                vc_tbl.loc[vc_id]["vc_params"]
-            )
+            config["_dipcall_params"].get(vc_param_id, vc_tbl.loc[vc_id]["vc_params"])
             if vc_tbl.loc[vc_id]["vc_params"] != "default"
             else config["_dipcall_params"].get(vc_param_id, "")
         )

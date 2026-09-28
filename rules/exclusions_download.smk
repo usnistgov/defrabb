@@ -104,7 +104,9 @@ rule intersect_SVs_and_simple_repeats:
         "../envs/bedtools.yml"
     params:
         slop=lambda wildcards: _bench_profile_param(wildcards, "sv_repeat_slop"),
-        merge_d=lambda wildcards: _bench_profile_param(wildcards, "sv_repeat_merge_dist"),
+        merge_d=lambda wildcards: _bench_profile_param(
+            wildcards, "sv_repeat_merge_dist"
+        ),
     shell:
         """
         intersectBed -wa \

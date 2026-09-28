@@ -2,6 +2,7 @@
 
 Tests that _pav_config profiles are correctly defined and accessible.
 """
+
 import pytest
 import yaml
 
@@ -31,12 +32,15 @@ def test_pav_profile_structure():
         assert "merge_inv" in profile, f"{profile_name} missing merge_inv"
 
         # All should be nr:: format (PAV merge algorithm syntax)
-        assert profile["merge_ins"].startswith("nr::"), \
-            f"{profile_name} merge_ins should use nr:: format"
-        assert profile["merge_del"].startswith("nr::"), \
-            f"{profile_name} merge_del should use nr:: format"
-        assert profile["merge_inv"].startswith("nr::"), \
-            f"{profile_name} merge_inv should use nr:: format"
+        assert profile["merge_ins"].startswith(
+            "nr::"
+        ), f"{profile_name} merge_ins should use nr:: format"
+        assert profile["merge_del"].startswith(
+            "nr::"
+        ), f"{profile_name} merge_del should use nr:: format"
+        assert profile["merge_inv"].startswith(
+            "nr::"
+        ), f"{profile_name} merge_inv should use nr:: format"
 
 
 def test_pav_profile_schema_validation():

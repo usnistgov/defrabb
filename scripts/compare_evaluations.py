@@ -443,7 +443,10 @@ def main(argv: Optional[List[str]] = None) -> int:
                 # Match baseline_id to BED records (may need fuzzy match)
                 bed_baseline = None
                 for br in bed_records:
-                    if baseline_id in br["analysis_id"] or br["analysis_id"] in baseline_id:
+                    if (
+                        baseline_id in br["analysis_id"]
+                        or br["analysis_id"] in baseline_id
+                    ):
                         bed_baseline = br["analysis_id"]
                         break
                 if bed_baseline:

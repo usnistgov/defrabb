@@ -47,29 +47,29 @@ def extract_rule_block(text: str, rule_name: str) -> str:
 
 
 def test_self_discrep_truvari_rule_present():
-    assert "rule self_discrep_truvari:" in _text(), (
-        "self_discrep_truvari rule must be present in exclusions_self_discrep.smk"
-    )
+    assert (
+        "rule self_discrep_truvari:" in _text()
+    ), "self_discrep_truvari rule must be present in exclusions_self_discrep.smk"
 
 
 def test_self_discrep_truvari_extract_fpfns_rule_present():
-    assert "rule self_discrep_truvari_extract_fpfns:" in _text(), (
-        "self_discrep_truvari_extract_fpfns rule must be present"
-    )
+    assert (
+        "rule self_discrep_truvari_extract_fpfns:" in _text()
+    ), "self_discrep_truvari_extract_fpfns rule must be present"
 
 
 def test_self_discrep_truvari_has_log_directive():
     block = extract_rule_block(_text(), "self_discrep_truvari")
-    assert re.search(r"^\s*log:\s*$", block, re.MULTILINE), (
-        "self_discrep_truvari must declare a log: directive for debuggability"
-    )
+    assert re.search(
+        r"^\s*log:\s*$", block, re.MULTILINE
+    ), "self_discrep_truvari must declare a log: directive for debuggability"
 
 
 def test_self_discrep_truvari_extract_fpfns_has_log_directive():
     block = extract_rule_block(_text(), "self_discrep_truvari_extract_fpfns")
-    assert re.search(r"^\s*log:\s*$", block, re.MULTILINE), (
-        "self_discrep_truvari_extract_fpfns must declare a log: directive"
-    )
+    assert re.search(
+        r"^\s*log:\s*$", block, re.MULTILINE
+    ), "self_discrep_truvari_extract_fpfns must declare a log: directive"
 
 
 # --------------------------------------------------------------------------- #
@@ -113,9 +113,9 @@ def test_self_discrep_truvari_uses_vcf_as_both_base_and_comp():
 def test_self_discrep_truvari_uses_includebed():
     """The benchmark BED must be passed as --includebed to restrict the comparison."""
     block = extract_rule_block(_text(), "self_discrep_truvari")
-    assert "--includebed" in block, (
-        "self_discrep_truvari must pass the benchmark BED via --includebed"
-    )
+    assert (
+        "--includebed" in block
+    ), "self_discrep_truvari must pass the benchmark BED via --includebed"
 
 
 def test_self_discrep_truvari_output_dir_contains_truvari():
@@ -123,9 +123,9 @@ def test_self_discrep_truvari_output_dir_contains_truvari():
     it from the hap.py intermediate files in the same parent directory."""
     block = extract_rule_block(_text(), "self_discrep_truvari")
     output_section = block.split("output:")[1].split("log:")[0]
-    assert "_truvari/" in output_section, (
-        "self_discrep_truvari outputs must live under a *_truvari/ subdirectory"
-    )
+    assert (
+        "_truvari/" in output_section
+    ), "self_discrep_truvari outputs must live under a *_truvari/ subdirectory"
 
 
 def test_self_discrep_truvari_extract_fpfns_consumes_fn_and_fp():
@@ -160,9 +160,9 @@ def test_router_helper_routes_stvar_to_truvari():
         "get_self_discrep_fpfns_bed must return a *_truvari.fpfns.bed "
         "path when bench_type == 'stvar'"
     )
-    assert "stvar" in func_block, (
-        "get_self_discrep_fpfns_bed must branch on bench_type == 'stvar'"
-    )
+    assert (
+        "stvar" in func_block
+    ), "get_self_discrep_fpfns_bed must branch on bench_type == 'stvar'"
 
 
 def test_router_helper_routes_smvar_to_hap_py():
@@ -204,6 +204,6 @@ def test_smvar_hap_py_rules_still_present():
 def test_happy_consumes_no_symbolic_vcf():
     """hap.py must still consume the .no-symbolic.vcf.gz (the #192 fix)."""
     block = extract_rule_block(_text(), "self_discrep_happy")
-    assert ".no-symbolic.vcf.gz" in block, (
-        "self_discrep_happy must still consume the no-symbolic VCF (#192 fix)"
-    )
+    assert (
+        ".no-symbolic.vcf.gz" in block
+    ), "self_discrep_happy must still consume the no-symbolic VCF (#192 fix)"

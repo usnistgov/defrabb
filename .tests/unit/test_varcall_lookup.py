@@ -84,3 +84,18 @@ def test_ambiguous_run_raises():
     )
     with pytest.raises(ValueError, match="Multiple dipcall runs"):
         resolve_asm_varcall_run(ambiguous, "GRCh38", "asmA", "dipcall")
+
+
+def test_ambiguous_run_resolved_by_preferred_param():
+    """Parameter sweeps: several dipcall runs are disambiguated by the
+    benchmark's own vc_param_id."""
+    sweep = make_vc_tbl(
+        [
+            ("GRCh38_a-dipz2k", "GRCh38", "asmA", "dipcall", "z2k"),
+            ("GRCh38_a-dipz5k", "GRCh38", "asmA", "dipcall", "z5k"),
+        ]
+    )
+    vc_id, param = resolve_asm_varcall_run(
+        sweep, "GRCh38", "asmA", "dipcall", prefer_vc_param_id="z5k"
+    )
+    assert (vc_id, param) == ("GRCh38_a-dipz5k", "z5k")

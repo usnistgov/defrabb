@@ -16,42 +16,36 @@ import csv
 
 def main():
     parser = argparse.ArgumentParser(
-        description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
         "--results-dir",
         type=Path,
         required=True,
-        help="Pipeline results directory containing evaluations/"
+        help="Pipeline results directory containing evaluations/",
     )
     parser.add_argument(
         "--baseline",
         default="v5.0q",
-        help="Baseline analysis_id substring (default: v5.0q)"
+        help="Baseline analysis_id substring (default: v5.0q)",
     )
     parser.add_argument(
         "--rank-by",
         choices=["f1", "precision", "recall"],
         default="f1",
-        help="Metric to rank by (default: f1)"
+        help="Metric to rank by (default: f1)",
     )
     parser.add_argument(
         "--threshold",
         type=float,
         default=0.0001,
-        help="Min delta to flag regression/improvement (default: 0.0001)"
+        help="Min delta to flag regression/improvement (default: 0.0001)",
     )
     parser.add_argument(
-        "--top-n",
-        type=int,
-        default=3,
-        help="Report top-N parameter sets (default: 3)"
+        "--top-n", type=int, default=3, help="Report top-N parameter sets (default: 3)"
     )
     parser.add_argument(
-        "--out",
-        type=Path,
-        help="Output markdown summary (default: stdout)"
+        "--out", type=Path, help="Output markdown summary (default: stdout)"
     )
 
     args = parser.parse_args()
@@ -61,17 +55,24 @@ def main():
 
     cmd = [
         "scripts/compare_evaluations.py",
-        "--results-dir", str(args.results_dir),
-        "--baseline", args.baseline,
-        "--metric", args.rank_by,
-        "--threshold", str(args.threshold),
-        "--out", str(tsv_path),
+        "--results-dir",
+        str(args.results_dir),
+        "--baseline",
+        args.baseline,
+        "--metric",
+        args.rank_by,
+        "--threshold",
+        str(args.threshold),
+        "--out",
+        str(tsv_path),
         "--regions",
     ]
 
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
-        print(f"ERROR: compare_evaluations.py failed:\n{result.stderr}", file=sys.stderr)
+        print(
+            f"ERROR: compare_evaluations.py failed:\n{result.stderr}", file=sys.stderr
+        )
         return 1
 
     # Load TSV and analyze
@@ -82,7 +83,8 @@ def main():
 
     # Filter to non-baseline, non-regressed
     candidates = [
-        r for r in records
+        r
+        for r in records
         if r.get("status") in ["improved", "same"]
         and r.get("variant_type") == "SNP"  # Rank on SNP performance
     ]
@@ -122,8 +124,12 @@ def main():
 
         lines.append(f"### {i}. {r['analysis_id']}")
         lines.append(f"")
-        lines.append(f"- **{args.rank_by.capitalize()}:** {r[metric_key]} ({delta_str})")
-        lines.append(f"- **Precision:** {r['precision']} ({r.get('delta_precision', 'N/A')})")
+        lines.append(
+            f"- **{args.rank_by.capitalize()}:** {r[metric_key]} ({delta_str})"
+        )
+        lines.append(
+            f"- **Precision:** {r['precision']} ({r.get('delta_precision', 'N/A')})"
+        )
         lines.append(f"- **Recall:** {r['recall']} ({r.get('delta_recall', 'N/A')})")
         lines.append(f"- **F1:** {r['f1']} ({r.get('delta_f1', 'N/A')})")
         lines.append(f"- **Status:** {r['status']}")
@@ -153,7 +159,9 @@ def main():
         top_id = top_analyses[0]["analysis_id"]
         lines.append(f"**Recommended parameter set:** {top_id}")
         lines.append(f"")
-        lines.append(f"For validation across multiple genomes, test these top-{args.top_n}:")
+        lines.append(
+            f"For validation across multiple genomes, test these top-{args.top_n}:"
+        )
         for r in top_analyses:
             lines.append(f"- {r['analysis_id']}")
     else:

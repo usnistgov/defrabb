@@ -2,6 +2,7 @@
 
 Tests cross-product generation, vc_id assignment, validation, and cost estimation.
 """
+
 import pytest
 import tempfile
 from pathlib import Path
@@ -24,13 +25,16 @@ from generate_param_sweep import (
 
 def test_load_sweep_config():
     """Test sweep config loading and validation."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as f:
-        yaml.dump({
-            "name": "Test Sweep",
-            "output": "test.tsv",
-            "fixed": {"ref_id": "GRCh38"},
-            "sweep": {"vc_param_id": ["z2k", "z5k"]}
-        }, f)
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
+        yaml.dump(
+            {
+                "name": "Test Sweep",
+                "output": "test.tsv",
+                "fixed": {"ref_id": "GRCh38"},
+                "sweep": {"vc_param_id": ["z2k", "z5k"]},
+            },
+            f,
+        )
         config_path = Path(f.name)
 
     try:
@@ -44,7 +48,7 @@ def test_load_sweep_config():
 
 def test_load_sweep_config_missing_fields():
     """Test that missing required fields raise error."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
         yaml.dump({"name": "Incomplete"}, f)  # Missing fixed, sweep
         config_path = Path(f.name)
 
@@ -58,10 +62,7 @@ def test_load_sweep_config_missing_fields():
 def test_generate_cross_product():
     """Test cross-product generation from sweep dimensions."""
     fixed = {"ref_id": "GRCh38", "asm_id": "HG002"}
-    sweep = {
-        "vc_param_id": ["z2k", "z5k"],
-        "exclusion_set": ["standard", "aggressive"]
-    }
+    sweep = {"vc_param_id": ["z2k", "z5k"], "exclusion_set": ["standard", "aggressive"]}
 
     analyses = generate_cross_product(fixed, sweep)
 
@@ -76,17 +77,34 @@ def test_generate_cross_product():
     # Check all combinations present
     combos = {(r["vc_param_id"], r["exclusion_set"]) for r in analyses}
     assert combos == {
-        ("z2k", "standard"), ("z2k", "aggressive"),
-        ("z5k", "standard"), ("z5k", "aggressive")
+        ("z2k", "standard"),
+        ("z2k", "aggressive"),
+        ("z5k", "standard"),
+        ("z5k", "aggressive"),
     }
 
 
 def test_assign_vc_ids_reuse():
     """Test vc_id assignment and reuse factor calculation."""
     analyses = [
-        {"ref_id": "GRCh38", "asm_id": "HG002", "vc_cmd": "dipcall", "vc_param_id": "z2k"},
-        {"ref_id": "GRCh38", "asm_id": "HG002", "vc_cmd": "dipcall", "vc_param_id": "z2k"},
-        {"ref_id": "GRCh38", "asm_id": "HG002", "vc_cmd": "dipcall", "vc_param_id": "z5k"},
+        {
+            "ref_id": "GRCh38",
+            "asm_id": "HG002",
+            "vc_cmd": "dipcall",
+            "vc_param_id": "z2k",
+        },
+        {
+            "ref_id": "GRCh38",
+            "asm_id": "HG002",
+            "vc_cmd": "dipcall",
+            "vc_param_id": "z2k",
+        },
+        {
+            "ref_id": "GRCh38",
+            "asm_id": "HG002",
+            "vc_cmd": "dipcall",
+            "vc_param_id": "z5k",
+        },
     ]
 
     unique_vc_runs = assign_vc_ids(analyses)
@@ -107,9 +125,24 @@ def test_assign_vc_ids_reuse():
 def test_assign_vc_ids_different_params():
     """Test that different variant call params get different vc_ids."""
     analyses = [
-        {"ref_id": "GRCh38", "asm_id": "HG002", "vc_cmd": "dipcall", "vc_param_id": "z2k"},
-        {"ref_id": "GRCh38", "asm_id": "HG002", "vc_cmd": "pav", "vc_param_id": "default"},
-        {"ref_id": "GRCh37", "asm_id": "HG002", "vc_cmd": "dipcall", "vc_param_id": "z2k"},
+        {
+            "ref_id": "GRCh38",
+            "asm_id": "HG002",
+            "vc_cmd": "dipcall",
+            "vc_param_id": "z2k",
+        },
+        {
+            "ref_id": "GRCh38",
+            "asm_id": "HG002",
+            "vc_cmd": "pav",
+            "vc_param_id": "default",
+        },
+        {
+            "ref_id": "GRCh37",
+            "asm_id": "HG002",
+            "vc_cmd": "dipcall",
+            "vc_param_id": "z2k",
+        },
     ]
 
     unique_vc_runs = assign_vc_ids(analyses)
@@ -149,7 +182,7 @@ def test_format_analyses_table():
             "vc_cmd": "dipcall",
             "bench_type": "smvar",
             "eval_cmd": "happy",
-            "eval_comp_id": "v5.0q-smvar"
+            "eval_comp_id": "v5.0q-smvar",
         }
     ]
 
@@ -157,35 +190,46 @@ def test_format_analyses_table():
 
     # Check standard columns present
     assert "vc_id" in df.columns
-    assert "ref_id" in df.columns
+    assert "ref" in df.columns  # ref_id renamed to schema name
     assert "bench_id" in df.columns  # Generated
     assert "eval_id" in df.columns  # Generated
 
     # Check defaults filled
     assert df.iloc[0]["vc_param_id"] == "default"
-    assert df.iloc[0]["vcf_processing"] == "default"
+    assert df.iloc[0]["bench_vcf_processing"] == "default"
 
     # Check derived IDs
     assert "HG002" in df.iloc[0]["bench_id"]
     assert "happy" in df.iloc[0]["eval_id"]
 
 
-def test_validate_output_success():
-    """Test validation passes for valid output."""
-    df = pd.DataFrame([{
+def _valid_row(**overrides):
+    """A schema-compliant analyses row (as emitted by format_analyses_table)."""
+    row = {
         "vc_id": "vc001",
-        "ref_id": "GRCh38",
+        "ref": "GRCh38",
         "asm_id": "HG002",
         "vc_cmd": "dipcall",
         "bench_type": "smvar",
         "bench_id": "test_bench_1",
         "eval_id": "happy_v5q",
         "eval_cmd": "happy",
-        "eval_comp_id": "v5.0q-smvar"
-    }])
+        "eval_comp_id": "v5.0q-smvar",
+        "eval_comp_id_is_truth": "FALSE",
+        "eval_truth_regions": "TRUE",
+        "eval_target_regions": "FALSE",
+        "bench_vcf_processing": "default",
+        "bench_bed_processing": "exclude",
+        "exclusion_set": "default",
+    }
+    row.update(overrides)
+    return row
 
+
+def test_validate_output_success():
+    """Test validation passes for valid output."""
     # Should not raise
-    validate_output(df)
+    validate_output(pd.DataFrame([_valid_row()]))
 
 
 def test_validate_output_missing_columns():
@@ -198,20 +242,7 @@ def test_validate_output_missing_columns():
 
 def test_validate_output_duplicates():
     """Test validation fails for duplicate (eval_id, bench_id) pairs."""
-    df = pd.DataFrame([
-        {
-            "vc_id": "vc001", "ref_id": "GRCh38", "asm_id": "HG002",
-            "vc_cmd": "dipcall", "bench_type": "smvar",
-            "bench_id": "test_bench_1", "eval_id": "happy_v5q",
-            "eval_cmd": "happy", "eval_comp_id": "v5.0q-smvar"
-        },
-        {
-            "vc_id": "vc001", "ref_id": "GRCh38", "asm_id": "HG002",
-            "vc_cmd": "dipcall", "bench_type": "smvar",
-            "bench_id": "test_bench_1", "eval_id": "happy_v5q",  # Duplicate
-            "eval_cmd": "happy", "eval_comp_id": "v5.0q-smvar"
-        }
-    ])
+    df = pd.DataFrame([_valid_row(), _valid_row()])
 
     with pytest.raises(ValueError, match="Duplicate"):
         validate_output(df)
@@ -225,12 +256,9 @@ def test_end_to_end_sweep_generation():
         "vc_cmd": "dipcall",
         "bench_type": "smvar",
         "eval_cmd": "happy",
-        "eval_comp_id": "v5.0q-smvar"
+        "eval_comp_id": "v5.0q-smvar",
     }
-    sweep = {
-        "vc_param_id": ["z2k", "z5k"],
-        "exclusion_set": ["standard", "aggressive"]
-    }
+    sweep = {"vc_param_id": ["z2k", "z5k"], "exclusion_set": ["standard", "aggressive"]}
 
     # Generate
     analyses = generate_cross_product(fixed, sweep)

@@ -126,8 +126,10 @@ def get_consecutive_svs_bams(wildcards):
     benchmark's vc_param_id.
     """
     dip_vc_id, dip_param_id = get_asm_varcall_run(
-        wildcards.ref_id, wildcards.asm_id, "dipcall",
-        prefer_vc_param_id=wildcards.vc_param_id
+        wildcards.ref_id,
+        wildcards.asm_id,
+        "dipcall",
+        prefer_vc_param_id=wildcards.vc_param_id,
     )
     base = (
         f"results/asm_varcalls/{dip_vc_id}/"

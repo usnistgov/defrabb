@@ -15,10 +15,12 @@ def resolve_asm_varcall_run(vc_tbl, ref, asm_id, vc_cmd, prefer_vc_param_id=None
     ``vc_tbl`` is the variant-call table indexed by ``vc_id`` with ``ref``,
     ``asm_id``, ``vc_cmd``, and ``vc_param_id`` columns.
 
-    If multiple runs match (parameter sweeps), prefer ``prefer_vc_param_id`` if
-    provided, otherwise use the first match.
+    If multiple runs match (parameter sweeps), use the one whose
+    ``vc_param_id`` equals ``prefer_vc_param_id``.
 
-    Returns ``(vc_id, vc_param_id)``. Raises ``ValueError`` when no run matches.
+    Returns ``(vc_id, vc_param_id)``. Raises ``ValueError`` when no run matches,
+    or when several match and none can be selected via ``prefer_vc_param_id`` —
+    guessing would silently tie exclusions to the wrong caller parameters.
     """
     matches = vc_tbl[
         (vc_tbl["ref"] == ref)
@@ -32,12 +34,13 @@ def resolve_asm_varcall_run(vc_tbl, ref, asm_id, vc_cmd, prefer_vc_param_id=None
             f"reference + assembly to the analyses table."
         )
     if len(matches) > 1:
-        # Parameter sweep: multiple runs with different vc_param_ids
-        # Prefer matching vc_param_id if provided, otherwise use first match
-        if prefer_vc_param_id:
-            preferred = matches[matches["vc_param_id"] == prefer_vc_param_id]
-            if not preferred.empty:
-                return preferred.index[0], preferred.iloc[0]["vc_param_id"]
-        # Fallback: use first match
-        return matches.index[0], matches.iloc[0]["vc_param_id"]
+        preferred = matches[matches["vc_param_id"] == prefer_vc_param_id]
+        if len(preferred) != 1:
+            raise ValueError(
+                f"Multiple {vc_cmd} runs found for ref={ref} asm_id={asm_id} "
+                f"({', '.join(matches.index)}) and none uniquely matches "
+                f"vc_param_id={prefer_vc_param_id!r}; cannot choose which run's "
+                f"calls the exclusion should use."
+            )
+        matches = preferred
     return matches.index[0], matches.iloc[0]["vc_param_id"]

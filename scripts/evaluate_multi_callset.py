@@ -27,7 +27,7 @@ class MultiCallsetEvaluator:
         comparison_callsets: Dict[str, Dict],
         output_dir: Path,
         threads: int = 4,
-        stratifications: Optional[Path] = None
+        stratifications: Optional[Path] = None,
     ):
         self.benchmark_vcf = benchmark_vcf
         self.benchmark_bed = benchmark_bed
@@ -69,12 +69,16 @@ class MultiCallsetEvaluator:
             "hap.py",
             str(truth_vcf),
             str(query_vcf),
-            "-f", str(truth_bed) if truth_bed else str(self.benchmark_bed),
-            "-r", str(self.reference),
-            "-o", str(output_prefix),
+            "-f",
+            str(truth_bed) if truth_bed else str(self.benchmark_bed),
+            "-r",
+            str(self.reference),
+            "-o",
+            str(output_prefix),
             "--pass-only",
             "--engine=vcfeval",
-            "--threads", str(self.threads)
+            "--threads",
+            str(self.threads),
         ]
 
         # Add stratifications if provided
@@ -91,10 +95,7 @@ class MultiCallsetEvaluator:
 
         try:
             result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=7200  # 2 hour timeout
+                cmd, capture_output=True, text=True, timeout=7200  # 2 hour timeout
             )
 
             if result.returncode != 0:
@@ -103,7 +104,7 @@ class MultiCallsetEvaluator:
                     "callset_id": callset_id,
                     "status": "failed",
                     "error": result.stderr,
-                    "output_dir": str(output_subdir)
+                    "output_dir": str(output_subdir),
                 }
 
             print(f"[{callset_id}] Completed successfully")
@@ -112,7 +113,7 @@ class MultiCallsetEvaluator:
                 "status": "success",
                 "output_dir": str(output_subdir),
                 "summary_csv": str(output_prefix) + ".summary.csv",
-                "extended_csv": str(output_prefix) + ".extended.csv"
+                "extended_csv": str(output_prefix) + ".extended.csv",
             }
 
         except subprocess.TimeoutExpired:
@@ -120,7 +121,7 @@ class MultiCallsetEvaluator:
             return {
                 "callset_id": callset_id,
                 "status": "timeout",
-                "output_dir": str(output_subdir)
+                "output_dir": str(output_subdir),
             }
         except Exception as e:
             print(f"[{callset_id}] ERROR: {e}", file=sys.stderr)
@@ -128,19 +129,23 @@ class MultiCallsetEvaluator:
                 "callset_id": callset_id,
                 "status": "error",
                 "error": str(e),
-                "output_dir": str(output_subdir)
+                "output_dir": str(output_subdir),
             }
 
     def run_all_evaluations(self) -> List[Dict]:
         """Run evaluations in parallel across all comparison callsets."""
-        print(f"Evaluating benchmark against {len(self.callsets)} comparison callsets...")
+        print(
+            f"Evaluating benchmark against {len(self.callsets)} comparison callsets..."
+        )
         print(f"  Benchmark VCF: {self.benchmark_vcf}")
         print(f"  Benchmark BED: {self.benchmark_bed}")
         print(f"  Output: {self.output_dir}")
         print()
 
         results = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=min(4, len(self.callsets))) as executor:
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=min(4, len(self.callsets))
+        ) as executor:
             futures = {
                 executor.submit(self.run_happy_evaluation, cid, cinfo): cid
                 for cid, cinfo in self.callsets.items()
@@ -163,7 +168,7 @@ class MultiCallsetEvaluator:
             "num_callsets": len(self.callsets),
             "results": results,
             "success_count": sum(1 for r in results if r["status"] == "success"),
-            "failed_count": sum(1 for r in results if r["status"] != "success")
+            "failed_count": sum(1 for r in results if r["status"] != "success"),
         }
 
         with open(summary_path, "w") as f:
@@ -185,7 +190,7 @@ def load_callsets_from_resources(
     resources_yml: Path,
     sample_id: str,
     ref_id: str,
-    callset_filter: Optional[List[str]] = None
+    callset_filter: Optional[List[str]] = None,
 ) -> Dict[str, Dict]:
     """Load comparison callsets from resources.yml.
 
@@ -225,7 +230,7 @@ def load_callsets_from_resources(
             "type": callset_data.get("type", "benchmark"),
             "version": callset_data.get("version"),
             "technology": callset_data.get("technology"),
-            "caller": callset_data.get("caller")
+            "caller": callset_data.get("caller"),
         }
 
     return callsets
@@ -233,66 +238,55 @@ def load_callsets_from_resources(
 
 def main():
     parser = argparse.ArgumentParser(
-        description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
         "--benchmark-vcf",
         type=Path,
         required=True,
-        help="Draft benchmark VCF.gz to evaluate"
+        help="Draft benchmark VCF.gz to evaluate",
     )
     parser.add_argument(
         "--benchmark-bed",
         type=Path,
         required=True,
-        help="Draft benchmark BED (high-confidence regions)"
+        help="Draft benchmark BED (high-confidence regions)",
     )
     parser.add_argument(
-        "--reference",
-        type=Path,
-        required=True,
-        help="Reference genome FASTA"
+        "--reference", type=Path, required=True, help="Reference genome FASTA"
     )
     parser.add_argument(
         "--callsets-json",
         type=Path,
-        help="JSON file with comparison callsets (alternative to --resources-yml)"
+        help="JSON file with comparison callsets (alternative to --resources-yml)",
     )
     parser.add_argument(
         "--resources-yml",
         type=Path,
-        help="DeFrABB resources.yml (auto-load comparison_callsets)"
+        help="DeFrABB resources.yml (auto-load comparison_callsets)",
     )
     parser.add_argument(
-        "--sample",
-        help="Sample ID for resources.yml lookup (e.g., HG002)"
+        "--sample", help="Sample ID for resources.yml lookup (e.g., HG002)"
     )
     parser.add_argument(
-        "--ref-id",
-        help="Reference ID for resources.yml lookup (e.g., GRCh38)"
+        "--ref-id", help="Reference ID for resources.yml lookup (e.g., GRCh38)"
     )
     parser.add_argument(
         "--callset-filter",
         nargs="+",
-        help="Only evaluate these callset IDs (default: all)"
+        help="Only evaluate these callset IDs (default: all)",
     )
     parser.add_argument(
         "--output-dir",
         type=Path,
         required=True,
-        help="Output directory for all evaluations"
+        help="Output directory for all evaluations",
     )
     parser.add_argument(
-        "--threads",
-        type=int,
-        default=4,
-        help="Threads per hap.py run (default: 4)"
+        "--threads", type=int, default=4, help="Threads per hap.py run (default: 4)"
     )
     parser.add_argument(
-        "--stratifications",
-        type=Path,
-        help="GIAB stratifications directory (optional)"
+        "--stratifications", type=Path, help="GIAB stratifications directory (optional)"
     )
 
     args = parser.parse_args()
@@ -305,10 +299,7 @@ def main():
         if not args.sample or not args.ref_id:
             parser.error("--sample and --ref-id required with --resources-yml")
         callsets = load_callsets_from_resources(
-            args.resources_yml,
-            args.sample,
-            args.ref_id,
-            args.callset_filter
+            args.resources_yml, args.sample, args.ref_id, args.callset_filter
         )
     else:
         parser.error("Either --callsets-json or --resources-yml required")
@@ -324,7 +315,7 @@ def main():
         comparison_callsets=callsets,
         output_dir=args.output_dir,
         threads=args.threads,
-        stratifications=args.stratifications
+        stratifications=args.stratifications,
     )
 
     results = evaluator.run()

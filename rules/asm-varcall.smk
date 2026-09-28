@@ -47,8 +47,7 @@ rule run_dipcall:
         make_jobs=config["_dipcall_jobs"],
         extra=lambda wildcards: (
             config["_dipcall_params"].get(
-                wildcards.vc_param_id,
-                vc_tbl.loc[wildcards.vc_id]["vc_params"]
+                wildcards.vc_param_id, vc_tbl.loc[wildcards.vc_id]["vc_params"]
             )
             if vc_tbl.loc[wildcards.vc_id]["vc_params"] != "default"
             else config["_dipcall_params"].get(wildcards.vc_param_id, "")
