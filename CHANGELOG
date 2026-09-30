@@ -20,6 +20,12 @@
     is PAV3 defaults. `_pav_cigar_threads` removed (no `call_cigar` in PAV3).
   - The FIPS `fips_enabled` bind in `run_defrabb` is still required: PAV3's
     pysam wheel bundles the same FIPS OpenSSL.
+- **PAV calls are PASS-filtered** in `standardize_vcasm_output` (new
+  `_pav_pass_only`, default true), so non-PASS records no longer reach
+  benchmarks or PAV-derived exclusions. PAV3 marks 43% of HG002 v1.2 chr21
+  records non-PASS (LCALIGN/TRIMREF/TRIMQRY/DEPTH); a PAV3 self-comparison with
+  hap.py gives SNP precision 0.53 with all records vs 0.98 PASS-only. (v1.1
+  PAV2 benchmarks included ~1.4% non-PASS TRIM/COMPOUND records.)
 
 ### HG002 Q100 v1.2 draft benchmark
 

@@ -225,9 +225,11 @@ rule standardize_vcasm_output:
         ## beds and PAV outputs include alt/random/Un/decoy contigs that the
         ## benchmark does not cover (docs/issues/truvari-refine-primary-chr-filter.md)
         chroms=get_primary_chrom_param,
+        ## PAV: PASS records only unless `_pav_pass_only: false`
+        filter=get_vcasm_filter_param,
     shell:
         """
-        bcftools view -t {params.chroms} -Oz -o {output.standardized_vcf} {input.vcf} 2> {log}
+        bcftools view {params.filter} -t {params.chroms} -Oz -o {output.standardized_vcf} {input.vcf} 2> {log}
         bcftools index -t -f -o {output.standardized_vcfidx} {output.standardized_vcf} 2>> {log}
         awk -v chroms={params.chroms} \\
             'BEGIN {{ n = split(chroms, c, ","); for (i = 1; i <= n; i++) keep[c[i]] = 1 }} $1 in keep' \\

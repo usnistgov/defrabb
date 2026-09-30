@@ -39,6 +39,18 @@ def is_pav(wildcards):
     return wildcards.vc_cmd == "pav"
 
 
+def get_vcasm_filter_param(wildcards):
+    """bcftools view FILTER option for standardize_vcasm_output.
+
+    PAV3 emits many non-PASS records (LCALIGN, TRIMREF, TRIMQRY, ...) that
+    overlap/conflict with PASS calls; `_pav_pass_only` (default true) keeps
+    PASS only. Dipcall calls are not filtered.
+    """
+    if is_pav(wildcards) and config.get("_pav_pass_only", True):
+        return "-f PASS"
+    return ""
+
+
 from varcall_lookup import resolve_asm_varcall_run
 
 

@@ -53,6 +53,13 @@ _pav_config:
 
 _pav_threads: 24
 
+## Keep only FILTER=PASS PAV calls in the standardized VCF (and so in all
+## downstream benchmarks and PAV-derived exclusions). PAV3 emits many non-PASS
+## records (LCALIGN, TRIMREF, TRIMQRY, DEPTH, ...) that overlap/conflict with PASS
+## calls (chr21 HG002 v1.2: 43% of records non-PASS). Set false to keep all
+## records for comparison.
+_pav_pass_only: true
+
 ## Container image for the PAV3 variant caller (docker:// URI or a local
 ## Apptainer SIF path). Pinned to a release tag for reproducibility. On FIPS
 ## hosts PAV3's bundled pysam OpenSSL crashes like PAV2's did; run_defrabb

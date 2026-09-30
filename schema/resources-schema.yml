@@ -316,6 +316,11 @@ properties:
     exclusiveMinimum: 0
     type: integer
 
+  _pav_pass_only:
+    description: >-
+      Keep only FILTER=PASS PAV calls in the standardized VCF (default true).
+    type: boolean
+
   _pav_container:
     description: >-
       Container image for the PAV3 variant caller (docker:// URI or a local

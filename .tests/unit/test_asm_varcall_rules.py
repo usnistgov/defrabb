@@ -146,3 +146,13 @@ def test_run_pav_converts_callable_parquet_to_bed():
     assert "pav3 maketable" in block
     assert "callable_ref" in block
     assert "callable_h1.bed.gz" in block and "callable_h2.bed.gz" in block
+
+
+def test_standardize_vcasm_output_applies_pav_filter():
+    """PAV calls are PASS-filtered in standardize_vcasm_output (parameterized
+    by `_pav_pass_only`)."""
+    block = extract_rule_block(ASM_VARCALL.read_text(), "standardize_vcasm_output")
+    assert "get_vcasm_filter_param" in block
+    assert "bcftools view {params.filter}" in block
+    cfg = yaml.safe_load(RESOURCES_YML.read_text())
+    assert cfg.get("_pav_pass_only") is True
