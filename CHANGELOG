@@ -2,6 +2,25 @@
 
 ## Unreleased (v0.023 development)
 
+### PAV3
+
+- **`run_pav` now runs PAV3** (`pav3 batch`, image
+  `docker://ghcr.io/becklaboratory/pav3:3.0.0.dev26` via `_pav_container`),
+  replacing PAV2 (`becklab/pav:latest`). The v0.023 GRCh38 PAV2 run failed in
+  `call_cigar` (faidx race: `sequence 'chr13_MATERNAL' not present`); PAV3 is
+  also the version to use going forward.
+  - Inputs: `assemblies.tsv` uses PAV3 columns (`name`, `hap_h1` = paternal,
+    `hap_h2` = maternal; GT order unchanged); config file is `pav.json`.
+  - Outputs: VCF index is now CSI (`{sample}.vcf.gz.csi`). PAV3 callable regions
+    (`call_hap/callable_ref_{hap}.parquet`) are converted to BED with
+    `pav3 maketable` (`callable/callable_{h1,h2}.bed.gz`). PAV2's 500 bp
+    callable-region filter (`callable_regions_*_500`) has no PAV3 equivalent.
+  - `_pav_config` profiles are now dicts of PAV3 parameters. PAV3 has no
+    haplotype-merge parameters, so `strict`/`lenient` were removed and `giab`
+    is PAV3 defaults. `_pav_cigar_threads` removed (no `call_cigar` in PAV3).
+  - The FIPS `fips_enabled` bind in `run_defrabb` is still required: PAV3's
+    pysam wheel bundles the same FIPS OpenSSL.
+
 ### HG002 Q100 v1.2 draft benchmark
 
 - **New assembly `HG2-T2TQ100-V1.2`** in `config/resources.yml` (same 23+23 contig

@@ -16,7 +16,6 @@ required:
   - _dipcall_params
   - _pav_config
   - _pav_threads
-  - _pav_cigar_threads
   - _pav_mem
   - _happy_threads
   - _happy_mem
@@ -303,45 +302,24 @@ properties:
 
   _pav_config:
     description: >-
-      PAV parameter profiles. Each profile defines merge parameters for
-      insertions, deletions, and inversions in PAV config.json.
+      PAV3 parameter profiles. Each profile is a dict of PAV3 config
+      parameters written to pav.json; `reference` is set by the pipeline and
+      must not be given here. An empty profile uses PAV3 defaults.
     type: object
     additionalProperties:
       type: object
-      required: [merge_ins, merge_del, merge_inv]
-      properties:
-        merge_ins:
-          type: string
-          pattern: '^nr::'
-        merge_del:
-          type: string
-          pattern: '^nr::'
-        merge_inv:
-          type: string
-          pattern: '^nr::'
-    examples:
-      - giab:
-          merge_ins: "nr::exact"
-          merge_del: "nr::exact"
-          merge_inv: "nr::exact:ro(0.5):szro(0.5,200):match"
+      not:
+        required: [reference]
 
   _pav_threads:
     description: the number of threads for pav (sub pipeline)
     exclusiveMinimum: 0
     type: integer
 
-  _pav_cigar_threads:
-    description: >-
-      Threads assigned to PAV's call_cigar rule via --set-threads to cap its
-      concurrency (floor(_pav_threads / _pav_cigar_threads) run at once) and
-      bound the per-batch pandas-Series memory that otherwise OOMs.
-    exclusiveMinimum: 0
-    type: integer
-
   _pav_container:
     description: >-
-      Container image for the PAV variant caller (docker:// URI or a local
-      Apptainer SIF path). Override to a local SIF on FIPS hosts.
+      Container image for the PAV3 variant caller (docker:// URI or a local
+      Apptainer SIF path).
     type: string
 
   _pav_mem:

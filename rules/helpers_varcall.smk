@@ -7,21 +7,11 @@ def get_pav_basename(wildcards):
     return base_name
 
 
-def get_pav_hap1_bed(wildcards):
-    base_name = get_pav_basename(wildcards.vc_id)
-    return f"{base_name}/callable_regions_h1_500.bed.gz"
-
-
-def get_pav_hap2_bed(wildcards):
-    base_name = get_pav_basename(wildcards.vc_id)
-    return f"{base_name}/callable_regions_h2_500.bed.gz"
-
-
 def get_pav_outputs(wildcards):
     base_name = get_pav_basename(wildcards)
     outdict = {
         "vcf": f"{base_name}.vcf.gz",
-        "vcfidx": f"{base_name}.vcf.gz.tbi",
+        "vcfidx": f"{base_name}.vcf.gz.csi",
         "bed": f"{base_name}.diploid_regions.bed",
     }
     return outdict

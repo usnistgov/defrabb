@@ -41,44 +41,24 @@ _dipcall_params:
 _par_bed_root: data/par_bed
 
 ## PAV parameter profiles ##############
-# Profile name referenced by vc_param_id column in analyses table
-# Each profile defines PAV config.json merge parameters for variant types
+# Profile name referenced by vc_param_id column in analyses table.
+# Each profile is a dict of PAV3 config parameters written to pav.json
+# (alongside `reference`, which is set automatically). Empty = PAV3 defaults.
+# Available parameters: pav3/params.py in the PAV3 container (e.g. aligner,
+# align_params, min_anchor_score, inv_min, inv_max). PAV3 has no configurable
+# haplotype-merge parameters, so the PAV2 merge_ins/merge_del/merge_inv
+# profiles (giab/strict/lenient) no longer apply.
 _pav_config:
-  giab:
-    merge_ins: "nr::exact"
-    merge_del: "nr::exact"
-    merge_inv: "nr::exact:ro(0.5):szro(0.5,200):match"
-  strict:
-    # Stricter matching for insertions/deletions (higher size/position thresholds)
-    merge_ins: "nr::szro(0.9,100):match"
-    merge_del: "nr::szro(0.9,100):match"
-    merge_inv: "nr::exact:ro(0.7):szro(0.7,200):match"
-  lenient:
-    # More permissive matching (lower thresholds, may merge similar variants)
-    merge_ins: "nr::szro(0.5,200):match"
-    merge_del: "nr::szro(0.5,200):match"
-    merge_inv: "nr::ro(0.3):szro(0.3,300):match"
+  giab: {}
 
 _pav_threads: 24
 
-## Concurrency cap for PAV's memory-heavy `call_cigar` rule inside the nested PAV
-## Snakemake. `call_cigar` declares no threads/resources, so PAV would otherwise
-## schedule up to `_pav_threads` of them at once; each accumulates one pandas
-## Series per called variant (see pavlib/cigarcall.py::make_insdel_snv_calls), so
-## RSS scales with a batch's variant count. Under full concurrency the
-## highest-variant batches were silently killed (likely a transient memory spike).
-## run_pav passes `--set-threads call_cigar=<this>`, capping concurrency to
-## floor(_pav_threads / _pav_cigar_threads). See
-## docs/issues/run_pav_run_dipcall_failures.md (bug F).
-_pav_cigar_threads: 8
-
-## Container image for the PAV variant caller (docker:// URI or a local
-## Apptainer SIF path). The published image works as-is; on FIPS hosts its
-## bundled pysam OpenSSL would crash, but run_defrabb auto-binds
-## /proc/sys/crypto/fips_enabled -> 0 to neutralize that (see
-## docs/issues/run_pav_fips_selftest.md). Override only to pin a different
-## image/digest or a custom local SIF.
-_pav_container: "docker://becklab/pav:latest"
+## Container image for the PAV3 variant caller (docker:// URI or a local
+## Apptainer SIF path). Pinned to a release tag for reproducibility. On FIPS
+## hosts PAV3's bundled pysam OpenSSL crashes like PAV2's did; run_defrabb
+## auto-binds /proc/sys/crypto/fips_enabled -> 0 to neutralize that (see
+## docs/issues/run_pav_fips_selftest.md).
+_pav_container: "docker://ghcr.io/becklaboratory/pav3:3.0.0.dev26"
 
 ## Peak RSS reservation (MB) for run_pav. PAV peaks at ~65 GB RSS on whole-genome
 ## HG002 (measured 2026-06-23). Reserved so the global --resources mem_mb budget

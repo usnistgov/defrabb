@@ -52,11 +52,11 @@ class StabilizationPRTests(unittest.TestCase):
         intersect_rule = intersect_rule.split("rule standardize_vcasm_output:")[0]
 
         self.assertIn(
-            'h1_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable/callable_regions_h1_500.bed.gz"',
+            'h1_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable/callable_h1.bed.gz"',
             intersect_rule,
         )
         self.assertIn(
-            'h2_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable/callable_regions_h2_500.bed.gz"',
+            'h2_bed="results/asm_varcalls/{vc_id}/results/{sample_id}/callable/callable_h2.bed.gz"',
             intersect_rule,
         )
 

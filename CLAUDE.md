@@ -46,7 +46,7 @@ CI runs all three checks on every push.
 1. `rules/common.smk` - Config loading, table parsing; includes `helpers_{ref,varcall,eval,bench}.smk` (split for AI-friendlier reads)
 2. `rules/utils.smk` - Indexing, sorting, compression utilities
 3. `rules/download_resources.smk` - Fetch assemblies, references, strats
-4. `rules/asm-varcall.smk` - Assembly variant calling (dipcall, PAV)
+4. `rules/asm-varcall.smk` - Assembly variant calling (dipcall, PAV3 via `pav3 batch`)
 5. `rules/exclusions_{download,self_discrep,pav_discrep,apply}.smk` - Exclusion region processing (split by sub-domain)
 6. `rules/report.smk` - Statistics and reporting
 7. `rules/bench_vcf_{normalize,anno,finalize}.smk` - VCF post-processing and annotation (split by sub-domain)
@@ -72,7 +72,7 @@ Two main config files drive the pipeline:
 - **Scoring:** `scripts/score_param_sweep.py --results-dir <dir> --baseline v5.0q --top-n 3` - rank param sets, regression warnings, recommendations
 - **Profiles:** Named parameter sets in `config/resources.yml`:
   - Dipcall: `z2k` (default), `z5k`, `z10k`, `z1k` (minimap2 window tuning)
-  - PAV: `giab` (default), `strict`, `lenient` (merge strategy variants)
+  - PAV: `giab` (default; PAV3 defaults). PAV3 has no merge params — profiles are dicts of PAV3 `pav.json` params
   - Exclusions: `standard` (default), `conservative`, `aggressive` (buffer distance tuning)
 - **Docs:** `docs/parameter-optimization.md` (full user guide), `docs/design/v0.023-parameter-optimization-design.md` (architecture)
 - **Example configs:** `config/sweeps/hg002_smvar_opt.yml`, `config/sweeps/validation_4genome.yml`
@@ -96,7 +96,7 @@ Two main config files drive the pipeline:
 
 ## Known Issues
 
-- **PAV pysam FIPS self-test crash:** On FIPS hosts, PAV's bundled pysam pip wheel triggers `FATAL FIPS SELFTEST FAILURE`. `run_defrabb` auto-binds `/proc/sys/crypto/fips_enabled -> 0` inside apptainer containers to neutralize this. See `docs/issues/run_pav_fips_selftest.md`.
+- **PAV pysam FIPS self-test crash:** On FIPS hosts, PAV's (PAV2 and PAV3) bundled pysam pip wheel triggers `FATAL FIPS SELFTEST FAILURE`. `run_defrabb` auto-binds `/proc/sys/crypto/fips_enabled -> 0` inside apptainer containers to neutralize this. See `docs/issues/run_pav_fips_selftest.md`.
 - **Truvari anno trf on PAV:** Large insertions (>100kb) trigger O(n²) edlib alignment causing multi-day stalls. Size-cap at 100kb routes oversized variants around TRF (kept in output, un-annotated). Config: `truvari_anno_max_ins_length` in `_vcf_processing_params`. See `docs/issues/run_pav_run_dipcall_failures.md` section E.
 - **VCF merging with pysam:** Use `vcf_out.new_record()` and copy INFO by name (not `entry.translate()`) to avoid BCF INFO tag ID corruption when headers have different field counts. pysam auto-generates END for symbolic alleles with SVLEN—must declare in header.
 - **Memory exhaustion:** Pass `--resources mem_mb=<budget>` to enforce per-rule reservations; without it, multiple heavy jobs (dipcall, PAV) can OOM concurrently. `run_defrabb` defaults to 80% of system memory.

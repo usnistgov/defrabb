@@ -1,83 +1,47 @@
-"""Unit tests for PAV parameter profile lookup.
+"""Unit tests for PAV3 parameter profile lookup.
 
 Tests that _pav_config profiles are correctly defined and accessible.
 """
 
+import jsonschema
 import pytest
 import yaml
 
 
+def load_yaml(path: str) -> dict:
+    with open(path) as f:
+        return yaml.safe_load(f)
+
+
 def test_pav_profiles_defined():
-    """Test that expected PAV profiles exist in resources.yml."""
-    with open("config/resources.yml") as f:
-        resources = yaml.safe_load(f)
-
-    assert "_pav_config" in resources
-    pav_config = resources["_pav_config"]
-
-    # Check that standard profiles exist
-    assert "giab" in pav_config, "Default giab profile must exist"
-    assert "strict" in pav_config, "Strict profile for v0.023 optimization"
-    assert "lenient" in pav_config, "Lenient profile for v0.023 optimization"
+    """The default giab profile must exist in resources.yml."""
+    resources = load_yaml("config/resources.yml")
+    assert "giab" in resources["_pav_config"], "Default giab profile must exist"
 
 
-def test_pav_profile_structure():
-    """Test that PAV profiles have required merge parameters."""
-    with open("config/resources.yml") as f:
-        resources = yaml.safe_load(f)
-
+def test_pav_profiles_are_pav3_param_dicts():
+    """Profiles are dicts of PAV3 params; PAV2 merge params are not valid."""
+    resources = load_yaml("config/resources.yml")
     for profile_name, profile in resources["_pav_config"].items():
-        assert "merge_ins" in profile, f"{profile_name} missing merge_ins"
-        assert "merge_del" in profile, f"{profile_name} missing merge_del"
-        assert "merge_inv" in profile, f"{profile_name} missing merge_inv"
-
-        # All should be nr:: format (PAV merge algorithm syntax)
-        assert profile["merge_ins"].startswith(
-            "nr::"
-        ), f"{profile_name} merge_ins should use nr:: format"
-        assert profile["merge_del"].startswith(
-            "nr::"
-        ), f"{profile_name} merge_del should use nr:: format"
-        assert profile["merge_inv"].startswith(
-            "nr::"
-        ), f"{profile_name} merge_inv should use nr:: format"
+        assert isinstance(profile, dict), f"{profile_name} must be a mapping"
+        for key in ("merge_ins", "merge_del", "merge_inv"):
+            assert key not in profile, f"{profile_name}: {key} is PAV2-only"
 
 
 def test_pav_profile_schema_validation():
-    """Test that schema validates PAV profiles."""
-    import jsonschema
-
-    with open("schema/resources-schema.yml") as f:
-        schema = yaml.safe_load(f)
-
-    with open("config/resources.yml") as f:
-        resources = yaml.safe_load(f)
-
+    """Schema accepts resources.yml profiles and rejects `reference`."""
+    schema = load_yaml("schema/resources-schema.yml")
+    resources = load_yaml("config/resources.yml")
     pav_schema = schema["properties"]["_pav_config"]
 
-    # Valid config should pass
     jsonschema.validate(resources["_pav_config"], pav_schema)
 
-    # Invalid format should fail (missing required field)
-    invalid_profile = {
-        "bad": {
-            "merge_ins": "nr::exact",
-            # missing merge_del and merge_inv
-        }
-    }
-
+    # reference is set by the pipeline (setup_pav.py), not by profiles
     with pytest.raises(jsonschema.ValidationError):
-        jsonschema.validate(invalid_profile, pav_schema)
+        jsonschema.validate({"bad": {"reference": "ref.fa"}}, pav_schema)
 
 
-def test_pav_giab_profile_unchanged():
-    """Test that giab profile maintains backward compatibility."""
-    with open("config/resources.yml") as f:
-        resources = yaml.safe_load(f)
-
-    giab = resources["_pav_config"]["giab"]
-
-    # These are the historical values - must not change
-    assert giab["merge_ins"] == "nr::exact"
-    assert giab["merge_del"] == "nr::exact"
-    assert giab["merge_inv"] == "nr::exact:ro(0.5):szro(0.5,200):match"
+def test_pav_container_is_pav3():
+    """run_pav must use a PAV3 image."""
+    resources = load_yaml("config/resources.yml")
+    assert "pav3" in resources["_pav_container"]

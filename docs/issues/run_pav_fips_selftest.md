@@ -64,3 +64,17 @@ the FIPS OpenSSL). A local build also needs `git submodule update --init
 --recursive` in the PAV clone (otherwise `dep/svpop`/`svpoplib` and the nested
 `ply`/`kanapy` deps are missing) and is typically a newer PAV than the pipeline
 targets. The bind workaround on the stock image is preferred.
+
+## Update 2026-09-30: PAV3
+
+The pipeline now runs PAV3 (`docker://ghcr.io/becklaboratory/pav3:3.0.0.dev26`,
+`pav3 batch`). PAV3's pysam wheel has the **same** bundled FIPS OpenSSL:
+`import pysam` in the stock image aborts with `FATAL FIPS SELFTEST FAILURE` on
+this host and succeeds with the `fips_enabled` bind. The `run_defrabb` bind is
+therefore still required for PAV3.
+
+Note: the 20260928_v0.023 fulltest `run_pav` failure (GRCh38) was *not* a FIPS
+crash (the bind was active; no self-test error in any log). It was PAV2
+`call_cigar` failing with `KeyError: sequence 'chr13_MATERNAL' not present`: the
+contig faidx was being (re)built concurrently by parallel `call_cigar` jobs.
+PAV3 removes the `call_cigar` rule.
