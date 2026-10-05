@@ -44,11 +44,16 @@ def get_vcasm_filter_param(wildcards):
 
     PAV3 emits many non-PASS records (LCALIGN, TRIMREF, TRIMQRY, ...) that
     overlap/conflict with PASS calls; `_pav_pass_only` (default true) keeps
-    PASS only. Dipcall calls are not filtered.
+    PASS only. PAV3 also emits malformed tandem-dup INS records with
+    ALT==REF (empty SEQ); these become ALT "." after `bcftools norm` and break
+    merge_trfanno, so they are always dropped. Dipcall calls are not filtered.
     """
-    if is_pav(wildcards) and config.get("_pav_pass_only", True):
-        return "-f PASS"
-    return ""
+    if not is_pav(wildcards):
+        return ""
+    opts = "-e 'REF==ALT'"
+    if config.get("_pav_pass_only", True):
+        opts = "-f PASS " + opts
+    return opts
 
 
 from varcall_lookup import resolve_asm_varcall_run

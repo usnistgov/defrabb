@@ -156,3 +156,11 @@ def test_standardize_vcasm_output_applies_pav_filter():
     assert "bcftools view {params.filter}" in block
     cfg = yaml.safe_load(RESOURCES_YML.read_text())
     assert cfg.get("_pav_pass_only") is True
+
+
+def test_vcasm_filter_drops_pav_ref_eq_alt():
+    """PAV3 ALT==REF tandem-dup INS records must always be excluded (they
+    become ALT "." after norm and crash merge_trfanno)."""
+    helpers = (ASM_VARCALL.parent / "helpers_varcall.smk").read_text()
+    block = helpers.split("def get_vcasm_filter_param", 1)[1].split("\ndef ", 1)[0]
+    assert "-e 'REF==ALT'" in block

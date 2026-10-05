@@ -26,6 +26,10 @@
   records non-PASS (LCALIGN/TRIMREF/TRIMQRY/DEPTH); a PAV3 self-comparison with
   hap.py gives SNP precision 0.53 with all records vs 0.98 PASS-only. (v1.1
   PAV2 benchmarks included ~1.4% non-PASS TRIM/COMPOUND records.)
+- **PAV ALT==REF records dropped** in `standardize_vcasm_output`: PAV3 emits
+  malformed tandem-dup INS records with ALT==REF and empty SEQ (3 GRCh37, 24
+  GRCh38, 84 CHM13 for HG002 v1.2); `bcftools norm` turns them into ALT "."
+  and `merge_trfanno` crashed with "Must set at least 2 alleles".
 
 ### HG002 Q100 v1.2 draft benchmark
 
