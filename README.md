@@ -1,141 +1,228 @@
-# Development Framework for Assembly-Based Benchmarks (DeFrABB)
-<!--gitlab badges-->
-[![pipeline status](https://gitlab.nist.gov/gitlab/bbd-human-genomics/defrabb/badges/master/pipeline.svg)](https://gitlab.nist.gov/gitlab/bbd-human-genomics/defrabb/-/commits/master)
-[![coverage report](https://gitlab.nist.gov/gitlab/bbd-human-genomics/defrabb/badges/master/coverage.svg)](https://gitlab.nist.gov/gitlab/bbd-human-genomics/defrabb/-/commits/master)
-[![Latest Release](https://gitlab.nist.gov/gitlab/bbd-human-genomics/defrabb/-/badges/release.svg)](https://gitlab.nist.gov/gitlab/bbd-human-genomics/defrabb/-/releases)
+# DeFrABB: Development Framework for Assembly-Based Benchmarks
 
-DeFrABB is a Snakemake workflow used by the NIST/GIAB team to develop transparent, reproducible assembly-based small- and structural-variant benchmark sets.
+[![bioRxiv](https://img.shields.io/badge/bioRxiv-10.64898%2F2026.09.23.752440-b31b1b)](https://doi.org/10.64898/2026.09.23.752440)
+[![Snakemake](https://img.shields.io/badge/snakemake-%E2%89%A58.30-brightgreen)](https://snakemake.github.io)
+[![License: NIST](https://img.shields.io/badge/license-NIST-blue)](LICENSE)
+
+DeFrABB is the [Snakemake](https://snakemake.github.io) workflow the
+[Genome in a Bottle (GIAB)](https://www.nist.gov/programs-projects/genome-bottle)
+consortium at NIST uses to build small-variant and structural-variant benchmark
+sets from accurate diploid genome assemblies. It takes a phased diploid assembly
+and a reference genome (GRCh37, GRCh38, or T2T-CHM13v2.0). From these it
+produces benchmark variants (VCF) and benchmark regions (BED), and evaluates
+the drafts against existing high-quality callsets.
+
+DeFrABB was used to generate the **GIAB HG002 v5.0q** benchmark sets from the
+T2T HG002 Q100 v1.1 assembly. These are described in:
+
+> Olson ND, Dwarshuis N, Hansen NF, _et al._ The Genome In A Bottle HG002
+> assembly-based variant benchmark set enables comprehensive benchmarking of
+> small and structural variants. _bioRxiv_ (2026).
+> <https://doi.org/10.64898/2026.09.23.752440>
 
 ## Status and intended audience
 
-This repository is maintained primarily for internal benchmark-development work and is made public for transparency and reproducibility. It is not currently packaged as a broadly supported end-user toolkit. External issues and pull requests are welcome, but support and review are best-effort.
+This repository is developed primarily for internal GIAB benchmark development.
+It is public so that benchmark generation is transparent and reproducible, not
+as a general-purpose, supported end-user tool. The documentation aims to explain
+what the pipeline does and how a given benchmark was produced. Issues are
+welcome, and support is best-effort (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 
-## Recent changes (v0.021)
+The canonical repository is NIST-internal GitLab. The public mirror at
+<https://github.com/usnistgov/defrabb> is updated at each release.
 
-- PAV (Phased Assembly Variant caller) is now supported alongside dipcall as an assembly variant caller (PAV runs in an Apptainer container).
-- Added HG002 v1.1 and HG008 Normal/Tumor analysis configurations.
-- Test data has moved from the `giab-data/giab-test-data/` prefix to a dedicated `giab-test-data` S3 bucket. Resource URLs in `config/resources.yml` have been updated; if you have local mirrors or scripts referencing the old prefix, please update them. Other resources still live under `giab-data`.
-- Stabilization fixes to the release flow in `run_defrabb`, the PAV callable-region intersection, and report source unification.
+## How it works
 
-See `CHANGELOG` for the full v0.021 notes, `docs/architecture-diagram.md` for a visual overview of the rule structure, and `docs/development-roadmap.md` for the planned next refactoring phases.
+DeFrABB has three components (Fig. 1a of the preprint):
+
+```mermaid
+flowchart LR
+    A[Diploid assembly<br/>hap1 + hap2 FASTA] --> VC
+    R[Reference<br/>GRCh37 / GRCh38 / CHM13] --> VC
+    subgraph VC[1. Assembly-based variant calling]
+        direction TB
+        V1[Align each haplotype<br/>to the reference<br/>dipcall or PAV] --> V2[Phased variant calls VCF<br/>+ diploid regions BED]
+    end
+    VC --> BG
+    subgraph BG[2. Draft benchmark generation]
+        direction TB
+        B1[VCF processing<br/>normalize, fix chrX/Y GT,<br/>Truvari annotation] --> B3
+        B2[Benchmark regions =<br/>diploid regions minus exclusions] --> B3[Benchmark VCF + BED<br/>smvar and/or stvar]
+    end
+    BG --> EV
+    subgraph EV[3. Evaluation]
+        direction TB
+        E1[Compare to existing callsets<br/>hap.py for small variants,<br/>Truvari for SVs] --> E2[Analysis report]
+    end
+```
+
+1. **Assembly-based variant calling.** Each assembly haplotype is aligned to the
+   reference. Variants are called from the alignments, and _diploid regions_ are
+   defined: regions where both haplotypes align 1:1 to the reference.
+   [dipcall](https://github.com/lh3/dipcall) and
+   [PAV](https://github.com/BeckLaboratory/pav) are supported, and caller
+   parameters are configurable.
+2. **Draft benchmark generation.** Variant calls are normalized (bcftools) and
+   annotated (Truvari `svinfo`, `trf`, `repmask`, `remap`). Genotypes in non-PAR
+   chrX/chrY are converted to haploid representation. Benchmark regions are
+   the diploid regions minus _exclusions_: genomic contexts where the assembly,
+   the variant calls, or the benchmarking tools are not reliable. Examples
+   include assembly gaps and their flanks, large repeats with alignment breaks,
+   regions with SVs (for small-variant benchmarks), known assembly errors,
+   discrepancies between callers, and a _self-discrepancy_ step that excludes
+   variants the benchmarking tools cannot compare to themselves.
+3. **Evaluation.** Each draft benchmark is compared against established callsets
+   with [hap.py](https://github.com/Illumina/hap.py) (small variants) or
+   [Truvari](https://github.com/ACEnglish/truvari) (SVs). Results are summarized
+   in an analysis report used for QC and parameter iteration.
+
+Draft benchmarks are then curated and evaluated by external groups before
+release. That curation happens outside this pipeline (see the preprint).
+
+More detail:
+
+- [docs/exclusion_system_guide.md](docs/exclusion_system_guide.md): how
+  exclusions are defined, configured, and applied
+- [docs/architecture-diagram.md](docs/architecture-diagram.md): rule-level
+  diagram of the workflow
+- [docs/README.md](docs/README.md): index of all documentation
+
+## Benchmarks produced with DeFrABB
+
+| Benchmark                  | Assembly            | References                | DeFrABB version                                                    | Run configuration                                                                                        | Files                                                                                                          |
+| -------------------------- | ------------------- | ------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| HG002 v5.0q (smvar, stvar) | HG002 T2T Q100 v1.1 | GRCh37, GRCh38, CHM13v2.0 | [v0.020](https://github.com/usnistgov/defrabb/releases/tag/v0.020) | [`config/analyses_20250117_v0.020_HG002Q100v1.1.tsv`](config/analyses_20250117_v0.020_HG002Q100v1.1.tsv) | [GIAB FTP](https://ftp.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/AshkenazimTrio/HG002_NA24385_son/v5.0q/) |
+
+Every released benchmark directory includes a `defrabb_files/` folder with the
+analyses table, resource configuration, and Snakemake report for the run that
+produced it. To inspect the exact code, check out the listed tag:
+
+```sh
+git clone https://github.com/usnistgov/defrabb.git
+cd defrabb
+git checkout v0.020
+```
+
+Versioned analyses tables (`config/analyses_YYYYMMDD_v0.###_<id>.tsv`) are kept
+for every production run, so each run's configuration stays in version control.
+
+## Quick start
+
+### Requirements
+
+- Linux
+- [Snakemake](https://snakemake.github.io) ≥ 8.30
+- conda or mamba (rule-specific software environments are created from `envs/`)
+- [Apptainer](https://apptainer.org) (PAV runs in a container)
+- `boto3` if you use the `run_defrabb` wrapper
+
+Whole-genome runs need a large-memory server: PAV peaks at about 65 GB and
+hap.py at 95–150 GB on whole-genome HG002. The bundled chr21 test
+configuration runs on a workstation.
+
+### Run the chr21 test analysis
+
+```sh
+git clone https://github.com/usnistgov/defrabb.git
+cd defrabb
+snakemake --use-conda --use-apptainer --cores 4
+```
+
+This uses `config/analyses.tsv`, a small HG002 chr21 dipcall example.
+
+### Configure your own analysis
+
+A run is defined by two files:
+
+- **`config/resources.yml`**: inputs and parameters. It holds assembly and
+  reference URLs, exclusion region definitions and named exclusion sets,
+  comparison callsets, stratifications, named parameter profiles, and compute
+  resources. Validated by
+  [`schema/resources-schema.yml`](schema/resources-schema.yml).
+- **an analyses table (TSV)**: one row per evaluation. Each row picks an
+  assembly, reference, variant caller and parameters, benchmark type (`smvar` or
+  `stvar`), VCF processing steps, exclusion set, and evaluation tool and
+  comparison callset. Validated by
+  [`schema/analyses-schema.yml`](schema/analyses-schema.yml).
+
+```sh
+snakemake --use-conda --use-apptainer --cores 32 \
+  --resources mem_mb=200000 \
+  --config analyses=config/analyses_<RUNID>.tsv
+```
+
+Pass `--resources mem_mb=<budget>` for whole-genome runs, so Snakemake does not
+schedule several memory-heavy jobs at once. See [config/README.md](config/README.md)
+for an overview of the configuration files.
+
+### Using the `run_defrabb` wrapper
+
+For production runs, `run_defrabb` wraps Snakemake and records provenance: git
+state, the conda environment, and the run log. It also provides `report`,
+`archive`, and `release` steps. Each run happens in a fresh clone named after
+its run ID (`YYYYMMDD_v#.###_<brief-id>`):
+
+```sh
+git clone https://github.com/usnistgov/defrabb.git 20260519_v0.023_HG002
+cd 20260519_v0.023_HG002
+./run_defrabb run -r 20260519_v0.023_HG002   # uses config/analyses_<RUNID>.tsv
+./run_defrabb report -r 20260519_v0.023_HG002
+```
+
+Run `./run_defrabb --help` for all subcommands. The archive and release defaults
+(NAS paths, S3 buckets) are NIST-specific. Override them with `--archive_dir`,
+`--s3_bucket`, and `--s3_path`.
+
+## Outputs
+
+| Path                                                        | Contents                                                                        |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `results/asm_varcalls/{vc_id}/`                             | Raw assembly-based variant calls, diploid-region BEDs, and haplotype alignments |
+| `results/draft_benchmarksets/{bench_id}/`                   | Draft benchmark sets (see below)                                                |
+| `results/evaluations/{happy,truvari}/{eval_id}_{bench_id}/` | Evaluation output against comparison callsets                                   |
+| `results/report/`, `analysis.html`                          | Summary statistics and the run's analysis report                                |
+| `logs/`, `benchmark/`                                       | Per-rule logs and runtime/memory benchmarks                                     |
+
+Each draft benchmark set directory contains, per `{ref}_{asm}_{smvar|stvar}_{caller}-{params}`:
+
+- `*.vcf.gz`: benchmark variants (processed and annotated assembly-based calls)
+- `*.benchmark.bed`: benchmark regions (diploid regions minus exclusions)
+- `*_bench-vars.vcf.gz`: benchmark variants restricted to benchmark regions
+- `*.exclusion_stats.txt`, `*.exclusion_provenance.yml`: how much sequence each
+  exclusion removed, and the exact exclusion inputs and parameters used
+
+When benchmarking a callset against a DeFrABB benchmark, use the VCF together
+with its `benchmark.bed`. Variants outside the BED are not assessed.
+
+## Known issues and limitations
+
+- By design, benchmarks exclude very large or complex SVs, CNVs, and regions
+  where the assembly does not align 1:1 to the reference. No standards exist
+  for representing and comparing variants in those regions.
+- Investigation write-ups for pipeline-specific workarounds (FIPS-mode hosts,
+  Truvari bugs, PAV/dipcall failure modes) are in [docs/issues/](docs/issues/).
 
 ## Repository layout
 
-- `Snakefile` - workflow entry point.
-- `rules/` - modular Snakemake rule files for resource downloads, assembly variant calling, exclusions, evaluation, and reporting.
-- `scripts/` - Python, R, and shell helpers used by rules.
-- `config/` - default analysis tables, resource configuration, and release settings.
-- `schema/` - schemas for `config/resources.yml` and analyses tables.
-- `envs/` - per-rule Conda environments.
-- `.tests/` - pytest-based rule and helper tests.
-- `report/` - Snakemake report templates.
-- `docs/` - NIST-specific operational notes and release procedures.
-
-## Requirements
-
-DeFrABB is developed for Linux environments. A local base environment should provide:
-
-- Snakemake 8.30 or newer
-- Conda or mamba
-- Apptainer for rules that rely on containers
-- Python dependencies needed by `run_defrabb` (notably `boto3`) if you use the wrapper
-
-There is no single bootstrap environment file in this repository. Instead, install Snakemake in a local base environment and let the workflow create rule-specific software environments with `--use-conda`.
-
-## Running the workflow directly
-
-`config/resources.yml` points to `config/analyses.tsv` by default. For a local smoke run:
-
-```sh
-snakemake --use-conda --use-apptainer --cores 1
-```
-
-To run a different checked-in analysis table, override the `analyses` config value:
-
-```sh
-snakemake --use-conda --use-apptainer --cores 1 \
-  --config analyses=config/analyses_20250708_v0.021_HG008TN.tsv
-```
-
-Before running new analyses, update `config/analyses.tsv` and `config/resources.yml` as needed. Field requirements are defined in `schema/analyses-schema.yml` and `schema/resources-schema.yml`.
-
-## Running with `run_defrabb`
-
-`run_defrabb` records git status, exports the active Conda environment to `environment.yml`, and can run the pipeline, generate a Snakemake report, build an archive, and release selected files.
-
-### Current Workflow (Recommended)
-
-Clone the repository into a directory named by your run ID, then run from within that directory:
-
-```sh
-# Clone into run-specific directory
-git clone <repo-url> 20250708_v0.021_HG008TN
-cd 20250708_v0.021_HG008TN
-
-# Run pipeline from within the directory
-./run_defrabb run -r 20250708_v0.021_HG008TN
-```
-
-Run IDs must follow `YYYYMMDD_v#.###_brief-id`. If `-a/--analyses` is omitted, the wrapper looks for `config/analyses_<RUNID>.tsv`.
-
-The wrapper supports subcommands:
-- `run` - Execute the Snakemake pipeline
-- `report` - Generate Snakemake HTML report
-- `archive` - Create tarball archive
-- `release` - Deploy to NAS or S3
-- `validate` - Validate configuration only
-
-### Legacy Workflow
-
-The older workflow used `--outdir` to create `OUTDIR/RUNID/` subdirectories:
-
-```sh
-./run_defrabb run -r 20250708_v0.021_HG008TN -o ../runs/
-```
-
-This is still supported but deprecated. The `--outdir` flag defaults to `.` (current directory).
-
-Release defaults in `run_defrabb` and `config/release.json` are NIST-specific. External users should expect to override `--archive_dir`, `--s3_bucket`, `--s3_path`, and `--release_type`.
-
-## Output structure
-
-When running from the current directory (recommended workflow), results are written directly into the working tree:
-
 ```txt
-<RUNID>/
-├── archive.tar.gz
-├── snakemake_report_<RUNID>.zip
-├── environment.yml
-├── run.log
-├── benchmark/
-├── config/
-├── logs/
-├── resources/
-├── results/
-├── Snakefile
-├── rules/
-└── scripts/
+Snakefile        workflow entry point
+rules/           Snakemake rule modules (variant calling, exclusions, VCF processing, evaluation, report)
+scripts/         Python, R, and shell helpers used by rules
+config/          resources.yml, analyses tables (one per production run), sweep configs
+schema/          JSON schemas for the configuration files
+envs/            per-rule conda environments
+analysis.qmd     Quarto source for the run analysis report
+run_defrabb      provenance-recording wrapper (run / report / archive / release)
+.tests/          pytest unit tests and chr21 integration resources
+docs/            method and user documentation
 ```
 
-Generated reports also include `analysis.html` and supporting report inputs under `results/analysis_params.yml` and `results/report/`.
+## Citation
 
-In the legacy workflow with `--outdir`, outputs are placed under `OUTDIR/RUNID/`.
+If you use DeFrABB or benchmarks generated with it, please cite the preprint
+above.
 
-## Testing and development
+## License
 
-For lightweight validation:
-
-```sh
-pytest .tests
-snakemake --use-conda --use-apptainer --cores 1 --forceall
-```
-
-Test references for the bundled chr21 dataset are already tracked under `.tests/integration/resources/references`.
-
-Versioned example analyses are kept in `config/analyses_*.tsv` and can be used as templates for new runs.
-
-For a concise local setup and validation checklist, see `docs/developer-quickstart.md`.
-
-## Internal-only notes
-
-Some documents in `docs/` and some release defaults in the wrapper assume NIST infrastructure (NAS paths, S3 destinations, and internal run documentation practices). Treat those as internal operational references rather than general public setup instructions.
+DeFrABB is NIST-developed software. See [LICENSE](LICENSE) for the NIST software
+licensing statement.

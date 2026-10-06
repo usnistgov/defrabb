@@ -509,16 +509,6 @@ All profiles validated by `schema/resources-schema.yml`:
 - PAV: Required `merge_ins`, `merge_del`, `merge_inv` fields
 - Exclusions: Integer values ≥ 0 for all buffer/merge params
 
-### Design Documentation
-
-Full design (448 lines) in `docs/design/v0.023-parameter-optimization-design.md`:
-- Adversarial review (over/under-engineering critique)
-- 4-component architecture
-- Multi-genome workflow
-- Implementation estimates
-
----
-
 ## Future Enhancements
 
 - **Constraint enforcement** - Filter invalid combinations in YAML
@@ -531,7 +521,7 @@ Full design (448 lines) in `docs/design/v0.023-parameter-optimization-design.md`
 
 ## References
 
-- **Design:** `docs/design/v0.023-parameter-optimization-design.md`
+- **Walkthrough:** `docs/examples/parameter-optimization-walkthrough.md`
 - **Sweep Generator:** `scripts/generate_param_sweep.py --help`
 - **Scoring Script:** `scripts/score_param_sweep.py --help`
 - **Comparison Tool:** `scripts/compare_evaluations.py --help`

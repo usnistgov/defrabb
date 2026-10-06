@@ -155,8 +155,8 @@ For each benchmark release, maintain:
   - Assembly version updates
   - Pipeline improvements
 
-### Session Notes
-- `docs/sessions/YYYY-MM-DD-v0.0XX-validation.md`:
+### Validation Report
+- `docs/validation/v0.0XX-vs-<baseline>.md`:
   - Detailed investigation notes
   - Commands run for difference analysis
   - Visualizations/screenshots if generated
@@ -234,6 +234,6 @@ done
 ## References
 
 - v5.0q release notes: [GIAB FTP](https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/)
-- Parameter optimization design: `docs/design/v0.023-parameter-optimization-design.md`
+- Parameter optimization: `docs/parameter-optimization.md`
 - Known issues: `docs/issues/`
-- Session notes: `docs/sessions/`
+- Validation reports: `docs/validation/`

@@ -60,7 +60,6 @@ benchmark/**
 analysis*
 !analysis.qmd
 archive*
-!docs/archive/
 data_manifest.tsv
 environment.yml
 run.log
@@ -71,3 +70,6 @@ results*
 .cache/**
 .claude/
 .fips_zero
+
+## Scratch notes (not versioned)
+TODO.md

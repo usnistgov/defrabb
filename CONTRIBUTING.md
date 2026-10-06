@@ -1,14 +1,31 @@
-# Contributing to the GIAB Variant Calling Benchmark Set Generation and Evaluation Framework
+# Contributing to DeFrABB
 
-This guide is a work in progress and meant to help development team formalize development process.
+DeFrABB is developed by the NIST Genome in a Bottle team, primarily for
+internal benchmark development. The code is public for transparency and
+reproducibility, and support is best-effort.
 
-## Steps for creating new milestones/ framework versions
+## Questions and issues
 
-1. Create new milestone with a brief high-level description for new functionality, improvements, bug fixes
-1. Assign relevant issues to the milestone
-1. Address issues on separate branches and merge onto the dev branch
-1. create merge request onto master branch when ready to release branch, using `milestone v#.###` as merge request title - review, address comments or create new issues when relevant
-1. Update CHANGELOG, copy change log text into milestone and merge request description
-1. Close merge request
-1. Create tag for milestone version (tag name: v#.###) including CHANGELOG text in release notes
-1. Clean-up old branches
+Please open an issue on the [GitHub repository](https://github.com/usnistgov/defrabb/issues)
+for questions about the pipeline, how a benchmark was generated, or suspected
+bugs. Include the DeFrABB version (git tag or commit), the analyses table, and
+relevant log output.
+
+Questions about the benchmark sets themselves (for example, a suspected error in
+the HG002 v5.0q benchmark) can also be sent to the GIAB team through the
+contact information in the benchmark release README.
+
+## Pull requests
+
+Pull requests are welcome but are reviewed as time allows. Development happens
+on NIST-internal GitLab, and accepted changes are applied there and appear on
+GitHub at the next release. Before submitting:
+
+```sh
+pytest .tests          # unit tests
+snakefmt --check .     # Snakemake formatting
+black --check scripts/ # Python formatting
+```
+
+Describe the change's effect on workflow outputs, and note any changes to
+`config/resources.yml` or the analyses-table schema.

@@ -74,7 +74,7 @@ Two main config files drive the pipeline:
   - Dipcall: `z2k` (default), `z5k`, `z10k`, `z1k` (minimap2 window tuning)
   - PAV: `giab` (default; PAV3 defaults). PAV3 has no merge params — profiles are dicts of PAV3 `pav.json` params
   - Exclusions: `standard` (default), `conservative`, `aggressive` (buffer distance tuning)
-- **Docs:** `docs/parameter-optimization.md` (full user guide), `docs/design/v0.023-parameter-optimization-design.md` (architecture)
+- **Docs:** `docs/parameter-optimization.md` (full user guide); design notes are in the Obsidian vault (`~/Documents/ndo-notes/projects/defrabb/dev-docs/`)
 - **Example configs:** `config/sweeps/hg002_smvar_opt.yml`, `config/sweeps/validation_4genome.yml`
 - **Multi-genome workflow:** Optimize on HG002 vs v5q → pick winners → validate on 4 genomes → cross-genome comparison
 
@@ -85,10 +85,17 @@ Two main config files drive the pipeline:
 
 ## Key Files
 
-- **`docs/TODO-pre-development.md`** - Pre-development roadmap and completed items
-- **`docs/development-roadmap.md`** - Planned refactoring phases
-- **`docs/issues/`** - Known bugs and workarounds (e.g., truvari-refine-v5.4.0-bug.md)
+- **`docs/README.md`** - Index of user/method docs (the repo docs are public-facing; see "Where internal docs live")
+- **`docs/issues/`** - Investigation write-ups referenced from code comments (e.g., truvari-refine-v5.4.0-bug.md)
 - **`CHANGELOG`** - Release notes
+
+## Where internal docs live
+
+The repo `docs/` is for external readers (GitHub mirror, linked from the v5.0q preprint). Do not add session notes, planning docs, or NIST runbooks there.
+
+- **Planning / roadmap / TODOs:** GitLab issues and milestones (project ID 6652; `glab api projects/6652/issues`). Root `TODO.md` is a gitignored scratch file.
+- **NIST runbooks, release process, CI notes:** GitLab wiki (`git@gitlab.nist.gov:bbd-human-genomics/defrabb.wiki.git`; `glab api projects/6652/wikis`).
+- **Session notes, design docs, historical roadmap:** Obsidian vault `~/Documents/ndo-notes/projects/defrabb/` (`dev-docs/` subfolder).
 
 ## NIST-Specific Defaults
 
@@ -101,4 +108,4 @@ Two main config files drive the pipeline:
 - **VCF merging with pysam:** Use `vcf_out.new_record()` and copy INFO by name (not `entry.translate()`) to avoid BCF INFO tag ID corruption when headers have different field counts. pysam auto-generates END for symbolic alleles with SVLEN—must declare in header.
 - **Memory exhaustion:** Pass `--resources mem_mb=<budget>` to enforce per-rule reservations; without it, multiple heavy jobs (dipcall, PAV) can OOM concurrently. `run_defrabb` defaults to 80% of system memory.
 - **Truvari refine v5.4.0:** Fails with 2700+ regions (samtools faidx bug). Workaround: use `truvari` (without refine) or downgrade. See `docs/issues/truvari-refine-v5.4.0-bug.md`.
-- **Truvari conda FIPS conflicts:** Some conda envs trigger FIPS conflicts. Fixed in Truvari 4.3+. See `docs/truvari-env-debugging-reference.md`.
+- **Truvari conda FIPS conflicts:** Some conda envs trigger FIPS conflicts. Fixed in Truvari 4.3+; only the truvari 4.3.0 `trf` env still needs `OPENSSL_CONF=/dev/null`. See the wiki page `operations/truvari-env-debugging-reference`.

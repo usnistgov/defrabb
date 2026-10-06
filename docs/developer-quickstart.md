@@ -101,4 +101,4 @@ Hook versions are pinned to match the CI toolchain.
 ## useful references
 
 - `README.md` for repository layout and top-level workflow usage
-- `docs/running_defrabb_at_NIST.md` for current internal operational defaults
+- NIST-internal operational runbooks (run layout, release, FTP) are on the GitLab project wiki
