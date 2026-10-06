@@ -36,6 +36,9 @@
   Previously a rerun of `normalize_vars` reused the old untracked index, region
   queries failed with BGZF errors, and all downstream PAV annotation steps got
   an empty VCF (`truvari anno repmask` then crashed on 0 sequences).
+- **`pav_discrep_truvari` / `self_discrep_truvari` set `--chunksize 5000`**:
+  truvari v5 rejects `-r 2000` with the default chunksize (1000) ("--chunksize
+  must be >= --refdist").
 
 ### HG002 Q100 v1.2 draft benchmark
 

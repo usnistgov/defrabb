@@ -160,6 +160,7 @@ rule self_discrep_intersect_slop:
 ##   -B -1         : disable BND distance matching (no BNDs in SV benchmark,
 ##                   per stvar_v5 profile reasoning in resources.yml #194)
 ##   -r 2000       : reference window (consistent with stvar_v5 / default profile)
+##   --chunksize 5000 : must be >= -r (truvari v5 errors otherwise; default 1000)
 
 
 rule self_discrep_truvari:
@@ -213,6 +214,7 @@ rule self_discrep_truvari:
             -P 0.7 \
             -B -1 \
             -r 2000 \
+            --chunksize 5000 \
         &> {log}
         mv {params.tmpdir}/* {params.dir}
         rm -r {params.tmpdir}

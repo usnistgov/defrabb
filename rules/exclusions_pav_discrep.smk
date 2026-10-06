@@ -147,6 +147,7 @@ rule pav_discrep_truvari:
             --sizemin 50 \
             -B -1 \
             -r 2000 \
+            --chunksize 5000 \
         &> {log}
         mkdir -p {params.dir}
         mv {params.tmpdir}/* {params.dir}
