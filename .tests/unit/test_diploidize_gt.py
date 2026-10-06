@@ -2,7 +2,7 @@
 
 Guards the haploid-GT diploidization that keeps vcfgeno2haplo from segfaulting
 on hemizygous chrX / chrY calls. See
-docs/issues/genome-specific-geno2haplo-haploid-segfault.md.
+wiki:investigations/genome-specific-geno2haplo-haploid-segfault.
 
 Developed with assistance from Claude (Anthropic); reviewed by the primary author.
 """

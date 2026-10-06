@@ -1,0 +1,10 @@
+# markdownlint config for public docs. Prose wraps at 80 columns; code blocks,
+# tables, and headings are exempt from the line-length rule.
+default: true
+MD013:
+  line_length: 80
+  code_blocks: false
+  tables: false
+  headings: false
+MD010:
+  code_blocks: false

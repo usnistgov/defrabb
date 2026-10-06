@@ -2,7 +2,7 @@
 
 dipcall baseline beds and PAV VCF/beds include alt/random/Un/decoy contigs;
 standardize_vcasm_output restricts both to the reference's primary chromosomes.
-See docs/issues/truvari-refine-primary-chr-filter.md.
+See wiki:investigations/truvari-refine-primary-chr-filter.
 
 Developed with assistance from Claude (Anthropic); reviewed by the primary author.
 """

@@ -64,7 +64,7 @@ _pav_pass_only: true
 ## Apptainer SIF path). Pinned to a release tag for reproducibility. On FIPS
 ## hosts PAV3's bundled pysam OpenSSL crashes like PAV2's did; run_defrabb
 ## auto-binds /proc/sys/crypto/fips_enabled -> 0 to neutralize that (see
-## docs/issues/run_pav_fips_selftest.md).
+## wiki:investigations/run_pav_fips_selftest).
 _pav_container: "docker://ghcr.io/becklaboratory/pav3:3.0.0.dev26"
 
 ## Peak RSS reservation (MB) for run_pav. PAV peaks at ~65 GB RSS on whole-genome

@@ -15,9 +15,10 @@
 ##
 ## NOTE: the SV/CNV stratum (GS rules 7-10: complement of the intermediate
 ## small-variant benchmark bed, unioned with complex variants and the GIAB
-## all-difficult regions) is documented in docs/issues/stratification-59-173-
-## design.md but not yet wired here; it needs the defrabb-specific intermediate
-## bed and the version-specific GIAB all-difficult strat path.
+## all-difficult regions) is documented in
+## wiki:investigations/stratification-59-173-design but not yet wired here; it
+## needs the defrabb-specific intermediate bed and the version-specific GIAB
+## all-difficult strat path.
 ################################################################################
 
 GENOME_SPECIFIC_STRATA = [
@@ -56,7 +57,7 @@ rule genome_specific_geno2haplo:
         # no-op on diploid records (autosomes / PAR keep their separated GT) and
         # is classification-neutral -- hemizygous == homozygous, and a compound
         # het requires GT `1/2`, which a haploid region can never have. See
-        # docs/issues/genome-specific-geno2haplo-haploid-segfault.md.
+        # wiki:investigations/genome-specific-geno2haplo-haploid-segfault.
         """
         ( tmp=$(mktemp --suffix .vcf)
           zcat {input.vcf} | python scripts/diploidize_gt.py > "$tmp"

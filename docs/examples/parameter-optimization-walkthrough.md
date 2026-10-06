@@ -1,6 +1,7 @@
 # Parameter Optimization Walkthrough
 
-This document walks through a complete parameter optimization example using the v0.023 optimization framework.
+This document walks through a complete parameter optimization example using the
+v0.023 optimization framework.
 
 ## Overview
 
@@ -47,7 +48,8 @@ sweep:
 ```
 
 Output:
-```
+
+```text
 Sweep: HG002 Dipcall Window Optimization
   Analyses: 3
   Unique variant call runs: 3
@@ -64,7 +66,7 @@ Wrote 3 analyses to: config/analyses_20260723_v0.023_hg002_dipcall_opt.tsv
 head -5 config/analyses_20260723_v0.023_hg002_dipcall_opt.tsv
 ```
 
-```
+```text
 vc_id	ref_id	asm_id	vc_cmd	vc_param_id	bench_type	exclusion_set	vcf_processing	eval_cmd	eval_comp_id	eval_params	vc_params	bench_id	eval_id
 vc001	GRCh38	HG2-T2TQ100-V1.1	dipcall	z2k	smvar	standard	trf	happy	v5.0q-smvar	default		GRCh38_HG2-T2TQ100-V1.1_smvar_dipcall-z2k_standard_trf	happy_v5.0q-smvar
 vc002	GRCh38	HG2-T2TQ100-V1.1	dipcall	z5k	smvar	standard	trf	happy	v5.0q-smvar	default		GRCh38_HG2-T2TQ100-V1.1_smvar_dipcall-z5k_standard_trf	happy_v5.0q-smvar
@@ -101,27 +103,30 @@ After the pipeline completes:
 ```
 
 Output:
+
 ```markdown
 # Parameter Sweep Scoring Summary
 
-**Baseline:** dipcall-z2k
-**Ranked by:** f1
+**Baseline:** dipcall-z2k **Ranked by:** f1
 
 ## Top-3 Parameter Sets (SNP f1)
 
 ### 1. dipcall-z5k
+
 - **F1:** 0.999870 (+0.000009)
 - **Precision:** 0.999872 (+0.000010)
 - **Recall:** 0.999868 (+0.000008)
 - **Status:** improved
 
 ### 2. dipcall-z10k
+
 - **F1:** 0.999865 (+0.000004)
 - **Precision:** 0.999866 (+0.000004)
 - **Recall:** 0.999864 (+0.000003)
 - **Status:** improved
 
 ### 3. dipcall-z2k (baseline)
+
 - **F1:** 0.999861 (baseline)
 - **Status:** baseline
 
@@ -143,7 +148,7 @@ output: config/analyses_20260723_v0.023_z5k_validation.tsv
 fixed:
   ref_id: GRCh38
   vc_cmd: dipcall
-  vc_param_id: z5k  # Winner from optimization
+  vc_param_id: z5k # Winner from optimization
   bench_type: smvar
   vcf_processing: trf
   exclusion_set: standard
@@ -183,13 +188,14 @@ sweep:
 # Estimated runtime: ~24 hours
 ```
 
-Key benefit: **6x reuse factor** - dipcall runs only 3 times, outputs reused across 6 different benchmark/eval combinations each.
+Key benefit: **6x reuse factor** - dipcall runs only 3 times, outputs reused
+across 6 different benchmark/eval combinations each.
 
 ## Cost estimation
 
 The sweep generator provides runtime and storage estimates:
 
-```
+```text
 Sweep: HG002 Multi-Parameter Optimization
   Analyses: 18
   Unique variant call runs: 3
@@ -206,16 +212,14 @@ Sweep: HG002 Multi-Parameter Optimization
 
 ### Dipcall (`vc_param_id`)
 
-- `z2k` - minimap2 `-z 2000` (default, balanced)
-- `z5k` - minimap2 `-z 5000` (wider window, more sensitive)
-- `z10k` - minimap2 `-z 10000` (widest, most sensitive, slower)
-- `z1k` - minimap2 `-z 1000` (narrower, faster, less sensitive)
+- `z2k` - `-z200000,10000` (default, GIAB production)
+- `z5k` - `-z500000,5000`
+- `z10k` - `-z1000000,10000`
+- `z1k` - `-z100000,1000`
 
 ### PAV (`vc_param_id`)
 
-- `giab` - Default GIAB merge strategy
-- `strict` - Stricter merge thresholds
-- `lenient` - More permissive merging
+- `giab` - PAV3 defaults (PAV3 has no merge parameters)
 
 ### Exclusions (`exclusion_set`)
 
@@ -243,7 +247,8 @@ This means your sweep creates non-unique analyses. Common causes:
 
 ### "Baseline is ambiguous"
 
-When using `score_param_sweep.py`, provide a specific baseline substring that uniquely identifies one analysis:
+When using `score_param_sweep.py`, provide a specific baseline substring that
+uniquely identifies one analysis:
 
 ```bash
 # Too broad
@@ -255,6 +260,8 @@ When using `score_param_sweep.py`, provide a specific baseline substring that un
 
 ### Reuse not working as expected
 
-Check `vc_id` assignments in the generated table. Same `(ref_id, asm_id, vc_cmd, vc_param_id)` → same `vc_id` → reuse.
+Check `vc_id` assignments in the generated table. Same
+`(ref_id, asm_id, vc_cmd, vc_param_id)` → same `vc_id` → reuse.
 
-Different exclusions or VCF processing profiles do NOT require re-running variant calling.
+Different exclusions or VCF processing profiles do NOT require re-running
+variant calling.

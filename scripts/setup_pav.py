@@ -16,7 +16,7 @@ crashed at import with::
 You cannot reliably run Snakemake's ``script:`` machinery inside a container
 whose Snakemake differs from the host's. Generating the config on the host and
 invoking PAV with a bare ``shell:`` avoids the injection entirely. See
-``docs/issues/run_pav_run_dipcall_failures.md``.
+``wiki:investigations/run_pav_run_dipcall_failures``.
 
 PAV3 (``pav3 batch``) input format: assembly table columns are ``name`` plus
 one ``hap_<NAME>`` column per haplotype; column order sets the VCF GT allele

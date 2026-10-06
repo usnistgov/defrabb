@@ -1,6 +1,7 @@
 # DeFrABB Pipeline Architecture Diagram
 
-_Prepared: 2026-03-24_
+Prepared 2026-03-24. This is the developer view of the workflow; see
+[method-overview.md](method-overview.md) for the scientific description.
 
 ## High-Level Pipeline Flow
 

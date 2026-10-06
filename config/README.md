@@ -1,23 +1,12 @@
-# Configuration options
+# Configuration files
 
-defrabb uses two configuration files
+- `resources.yml`: input URLs, named parameter profiles, exclusion definitions,
+  and compute resources
+- `analyses.tsv`: default chr21 test analyses table
+- `analyses_YYYYMMDD_v#.###_<id>.tsv`: analyses tables for past production runs
+  (do not edit)
+- `sweeps/`: parameter sweep configs for `scripts/generate_param_sweep.py`
+- `release.json`: NIST-specific release defaults for `run_defrabb`
 
-See `schema/analyses-schema.yml` and `schema/resources-schema.yml` for detailed descriptions and field formats requirements.
-
-## resource.yaml
-
-used to define:
-
-- parameters, threads, and memory for compute intensive steps
-- urls for remote files: diploid assemblies, genome reference files, stratifications, and callsets used to evaluate draft benchmark
-- exclusion sets and how they are applied
-
-## Analyses Tables
-
-Provides run specific configurations
-
-- input diploid assembly
-- version of reference genome
-- assembly-based variant caller and parameters
-- vcf and bed processing including what exclusions to use
-- benchmarking method and comparison callset used for initial evaluation
+See [docs/configuration.md](../docs/configuration.md) for field definitions and
+compute resource settings. The schemas are in [`schema/`](../schema/).

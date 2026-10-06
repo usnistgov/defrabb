@@ -32,7 +32,7 @@ def _copy_record(entry, vcf_out):
         new_entry.info[key] = entry.info[key]
     # Copy samples. Assigning GT resets pysam's phased flag to False, so it must
     # be copied explicitly (after GT) or every phased genotype (1|1) is written
-    # unphased (1/1) -- see docs/issues/happy-phasing-mismatch-v5q.md.
+    # unphased (1/1) -- see wiki:investigations/happy-phasing-mismatch-v5q.
     for sample in entry.samples:
         for fmt_key in entry.samples[sample]:
             new_entry.samples[sample][fmt_key] = entry.samples[sample][fmt_key]

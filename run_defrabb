@@ -185,7 +185,7 @@ def parse_arguments() -> Tuple[argparse.Namespace, List[str]]:
         description=(
             "Package pipeline results into a tarball for distribution.\n\n"
             "Note: May fail with network timeouts when downloading conda package metadata.\n"
-            "See docs/issues/snakemake-archive-network-timeout.md for workarounds."
+            "Retry the command, or point conda at an alternative channel mirror."
         ),
         formatter_class=argparse.RawTextHelpFormatter,
     )
@@ -449,7 +449,7 @@ def find_core_limit() -> int:
 # Default fraction of system memory to offer Snakemake as the mem_mb resource
 # budget. Bounds concurrency of memory-heavy rules (e.g. run_dipcall reserves
 # mem_mb) so that they serialize rather than collectively OOM. See
-# docs/issues/run_pav_run_dipcall_failures.md.
+# wiki:investigations/run_pav_run_dipcall_failures.
 DEFAULT_MEM_FRACTION = 0.8
 
 
@@ -520,7 +520,7 @@ def setup_fips_apptainer_bind(run_dir: str) -> None:
     it reads /proc, not the config. Bind a file containing "0" over that path
     inside every apptainer container (via APPTAINER_BIND, inherited by the
     snakemake subprocess) so the bundled OpenSSL skips FIPS. No-op on non-FIPS
-    hosts. See docs/issues/run_pav_fips_selftest.md.
+    hosts. See wiki:investigations/run_pav_fips_selftest.
     """
     fips_flag = "/proc/sys/crypto/fips_enabled"
     try:

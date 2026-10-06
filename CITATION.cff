@@ -1,0 +1,52 @@
+cff-version: 1.2.0
+message: >-
+  If you use DeFrABB or benchmarks generated with it, please cite the
+  preprint below.
+title: "DeFrABB: Development Framework for Assembly-Based Benchmarks"
+type: software
+authors:
+  - family-names: Olson
+    given-names: Nathan D.
+    affiliation: National Institute of Standards and Technology
+  - family-names: McDaniel
+    given-names: Jennifer H.
+    affiliation: National Institute of Standards and Technology
+  - family-names: Dwarshuis
+    given-names: Nathan
+    affiliation: National Institute of Standards and Technology
+  - family-names: Zook
+    given-names: Justin M.
+    affiliation: National Institute of Standards and Technology
+repository-code: "https://github.com/usnistgov/defrabb"
+license-url: "https://github.com/usnistgov/defrabb/blob/master/LICENSE"
+keywords:
+  - genomics
+  - variant benchmarking
+  - genome assembly
+  - Genome in a Bottle
+  - Snakemake
+preferred-citation:
+  type: article
+  title: >-
+    The Genome In A Bottle HG002 assembly-based variant benchmark set enables
+    comprehensive benchmarking of small and structural variants
+  doi: "10.64898/2026.09.23.752440"
+  url: "https://doi.org/10.64898/2026.09.23.752440"
+  journal: bioRxiv
+  year: 2026
+  authors:
+    - family-names: Olson
+      given-names: Nathan D.
+    - family-names: Dwarshuis
+      given-names: Nathan
+    - family-names: Hansen
+      given-names: Nancy F.
+    - family-names: Koren
+      given-names: Sergey
+    - family-names: Rhie
+      given-names: Arang
+    - name: "et al."
+    - family-names: Phillippy
+      given-names: Adam M.
+    - family-names: Zook
+      given-names: Justin M.

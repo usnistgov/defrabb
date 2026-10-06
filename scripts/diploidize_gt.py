@@ -12,7 +12,7 @@ pseudoautosomal regions keep their separated GT untouched) and is
 classification-neutral for the downstream genome-specific strats: hemizygous and
 homozygous are equivalent, and a compound het requires GT `1/2`, which a haploid
 region can never carry. See
-docs/issues/genome-specific-geno2haplo-haploid-segfault.md.
+wiki:investigations/genome-specific-geno2haplo-haploid-segfault.
 
 Developed with assistance from Claude (Anthropic); reviewed by the primary author.
 """

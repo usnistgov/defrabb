@@ -70,7 +70,7 @@ rule run_dipcall:
         ## -j must match the jobs knob the mem_mb reservation is based on
         ## (mem_mb = _dipcall_jobs * _dipcall_mem); driving it off the thread
         ## count over-parallelizes memory-heavy minimap2 and OOMs (see
-        ## docs/issues/run_pav_run_dipcall_failures.md).
+        ## wiki:investigations/run_pav_run_dipcall_failures).
         make -j{params.make_jobs} -f {output.make} &>>{log.rulelog}
         """
 
@@ -100,7 +100,7 @@ rule rename_dipcall_vcf_sample:
 ## ships its own Snakemake, and injecting the host-generated script preamble
 ## there crashes with a version skew
 ## (`No module named 'snakemake.io.container'`). See
-## docs/issues/run_pav_run_dipcall_failures.md.
+## wiki:investigations/run_pav_run_dipcall_failures.
 rule pav_config:
     input:
         ref=get_ref_file,
@@ -165,7 +165,7 @@ rule run_pav:
         # On FIPS hosts, run_defrabb auto-binds /proc/sys/crypto/fips_enabled -> 0
         # inside apptainer containers to prevent the PAV pysam FIPS self-test
         # crash (PAV3's pysam wheel has the same problem as PAV2).
-        # See docs/issues/run_pav_fips_selftest.md.
+        # See wiki:investigations/run_pav_fips_selftest.
         # The nested PAV output is captured to the rule log; on failure PAV's
         # own .snakemake logs are surfaced too so the cause is debuggable.
         """
@@ -223,7 +223,7 @@ rule standardize_vcasm_output:
     params:
         ## Restrict calls and baseline regions to primary chromosomes; dipcall
         ## beds and PAV outputs include alt/random/Un/decoy contigs that the
-        ## benchmark does not cover (docs/issues/truvari-refine-primary-chr-filter.md)
+        ## benchmark does not cover (wiki:investigations/truvari-refine-primary-chr-filter)
         chroms=get_primary_chrom_param,
         ## PAV: PASS records only unless `_pav_pass_only: false`
         filter=get_vcasm_filter_param,

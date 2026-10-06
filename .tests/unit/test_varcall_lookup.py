@@ -3,7 +3,7 @@
 Regression guard for the run_pav/run_dipcall duplicate-run failure: exclusions
 that need another caller's output must reuse the existing run for the same
 reference + assembly, not trigger a duplicate. See
-``docs/issues/run_pav_run_dipcall_failures.md``.
+``wiki:investigations/run_pav_run_dipcall_failures``.
 
 Developed with assistance from Claude (Anthropic); reviewed by the primary author.
 """

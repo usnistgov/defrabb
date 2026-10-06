@@ -2,7 +2,7 @@
 
 Regression guards for the run_dipcall / run_pav failures seen in the
 20260615_v0.022 full-pipeline test. See
-``docs/issues/run_pav_run_dipcall_failures.md`` for the full diagnosis.
+``wiki:investigations/run_pav_run_dipcall_failures`` for the full diagnosis.
 
 Pure-text/structural checks (no Snakemake invocation), matching the style of the
 other rule-parsing unit tests in this suite.

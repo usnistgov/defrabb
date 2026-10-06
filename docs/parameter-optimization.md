@@ -8,10 +8,14 @@
 
 ## Overview
 
-DeFrABB's parameter optimization framework enables systematic exploration of variant calling, exclusion, and VCF processing parameters across single or multiple genomes. Key capabilities:
+DeFrABB's parameter optimization framework enables systematic exploration of
+variant calling, exclusion, and VCF processing parameters across single or
+multiple genomes. Key capabilities:
 
-- **Declarative sweep generation** - YAML configs → analyses tables with cross-products
-- **Output reuse** - Share expensive variant calls (3-6 hours each) across sweeps
+- **Declarative sweep generation** - YAML configs → analyses tables with
+  cross-products
+- **Output reuse** - Share expensive variant calls (3-6 hours each) across
+  sweeps
 - **Baseline comparison** - Score against reference benchmarks (e.g., HG002 v5q)
 - **Multi-genome validation** - Test optimized parameters across cohorts
 - **Cost estimation** - Preview runtime and storage before execution
@@ -43,7 +47,8 @@ sweep:
   vcf_processing: [trf, xy_trf]
 ```
 
-This generates 3 × 3 × 2 = **18 analyses** with only **3 unique variant calls** (6x reuse).
+This generates 3 × 3 × 2 = **18 analyses** with only **3 unique variant calls**
+(6x reuse).
 
 ### 2. Generate Analyses Table
 
@@ -83,38 +88,39 @@ Output identifies top-3 parameter sets, regressions, and recommendations.
 
 ### Dipcall Parameters
 
-Minimap2 alignment window settings (format: `-z<max_chain_skip>,<max_chain_iter>`):
+minimap2 Z-drop thresholds passed through dipcall (format:
+`-z<zdrop>,<inversion_zdrop>`). Higher values let alignments extend through
+larger SVs and divergent regions before being split:
 
-| Profile | Flags | Use Case |
-|---------|-------|----------|
-| `z2k` (default) | `-z200000,10000` | Production default, balanced |
-| `z5k` | `-z500000,5000` | Wider window, better long-range phasing |
-| `z10k` | `-z1000000,10000` | Extreme sensitivity, slow |
-| `z1k` | `-z100000,20000` | Narrow window, better small variant recall |
+| Profile         | Flags             | Use Case                                   |
+| --------------- | ----------------- | ------------------------------------------ |
+| `z2k` (default) | `-z200000,10000`  | Production default, balanced               |
+| `z5k`           | `-z500000,5000`   | Wider window, better long-range phasing    |
+| `z10k`          | `-z1000000,10000` | Extreme sensitivity, slow                  |
+| `z1k`           | `-z100000,1000`   | Narrow window, better small variant recall |
 
 **Usage:** Set `vc_param_id` column in analyses table or sweep config.
 
 ### PAV Parameters
 
-PAV variant merge strategies (format: `nr::<reciprocal_overlap>`):
+DeFrABB runs PAV3. Each `_pav_config` profile is a dict of PAV3 parameters
+written to `pav.json` (the reference is set automatically). The only profile,
+`giab` (default), is empty and uses PAV3 defaults. PAV3 has no haplotype-merge
+parameters, so the PAV2-era `strict` and `lenient` merge profiles were removed.
 
-| Profile | Insertions | Deletions | Inversions | Use Case |
-|---------|-----------|-----------|------------|----------|
-| `giab` (default) | `nr::exact` | `nr::exact` | `nr::exact:ro(0.5):szro(0.5,200):match` | GIAB production |
-| `strict` | `nr::szro(0.9,100)` | `nr::szro(0.9,100)` | `nr::exact:ro(0.7):szro(0.7,200):match` | High precision |
-| `lenient` | `nr::szro(0.5,200)` | `nr::szro(0.5,200)` | `nr::ro(0.3):szro(0.3,300):match` | High recall |
-
-**Usage:** Add `_pav_config` profile name to `config/resources.yml`, reference in sweep.
+**Usage:** Add a named dict under `_pav_config` in `config/resources.yml` (e.g.
+`aligner`, `align_params`, `min_anchor_score`, `inv_min`, `inv_max`), then
+reference it in `vc_param_id`.
 
 ### Exclusion Profiles
 
 Buffer distances for exclusion region processing (basepairs):
 
-| Profile | Slop | Merge Dist | Flank Bases | Use Case |
-|---------|------|------------|-------------|----------|
-| `conservative` | 20000 | 15000 | 20000 | Maximize precision |
-| `standard` (default) | 15000 | 10000 | 15000 | Production default |
-| `aggressive` | 10000 | 5000 | 10000 | Maximize recall |
+| Profile              | Slop  | Merge Dist | Flank Bases | Use Case           |
+| -------------------- | ----- | ---------- | ----------- | ------------------ |
+| `conservative`       | 20000 | 15000      | 20000       | Maximize precision |
+| `standard` (default) | 15000 | 10000      | 15000       | Production default |
+| `aggressive`         | 10000 | 5000       | 10000       | Maximize recall    |
 
 **Usage:** Set `exclusion_set` column in analyses table or sweep config.
 
@@ -122,10 +128,10 @@ Buffer distances for exclusion region processing (basepairs):
 
 Post-calling VCF transformations (defined in `config/resources.yml:152-192`):
 
-| Profile | Steps | Use Case |
-|---------|-------|----------|
-| `trf` | TRF annotation only | Small variants, no XY |
-| `xy_trf` | Diploidize XY + TRF | Autosomes + sex chromosomes |
+| Profile              | Steps                           | Use Case                            |
+| -------------------- | ------------------------------- | ----------------------------------- |
+| `trf`                | TRF annotation only             | Small variants, no XY               |
+| `xy_trf`             | Diploidize XY + TRF             | Autosomes + sex chromosomes         |
 | `norm_xy_trf_sv_lcr` | Normalize + XY + TRF + SV + LCR | Full processing (default for stvar) |
 
 ---
@@ -164,20 +170,21 @@ sweep:
 
 # Optional constraints (future enhancement)
 constraints:
-  - if: {bench_type: stvar}
-    then: {vcf_processing: [norm_xy_trf_sv_lcr]}
+  - if: { bench_type: stvar }
+    then: { vcf_processing: [norm_xy_trf_sv_lcr] }
 ```
 
 ### Output Reuse Intelligence
 
-The generator assigns shared `vc_id` to analyses differing only in downstream parameters:
+The generator assigns shared `vc_id` to analyses differing only in downstream
+parameters:
 
-```
+```text
 Input:
   sweep:
     vc_param_id: [z2k, z5k]
     exclusion_set: [standard, aggressive]
-    
+
 Cross-product: 2 × 2 = 4 analyses
 Unique vc_ids: 2 (z2k, z5k share across exclusion sets)
 Reuse factor: 4 / 2 = 2x
@@ -191,14 +198,15 @@ Snakemake automatically reuses outputs when `vc_id` matches.
 Runtime and storage projections based on historical averages:
 
 | Operation | Runtime (hours) | Storage (GB) |
-|-----------|----------------|--------------|
-| dipcall | 5.0 | 50 |
-| PAV | 6.0 | 80 |
-| hap.py | 0.5 | 5 |
-| Truvari | 1.0 | 10 |
+| --------- | --------------- | ------------ |
+| dipcall   | 5.0             | 50           |
+| PAV       | 6.0             | 80           |
+| hap.py    | 0.5             | 5            |
+| Truvari   | 1.0             | 10           |
 
 Example output:
-```
+
+```text
 Sweep: HG002 Small Variant Optimization
   Analyses: 18
   Unique variant call runs: 3
@@ -223,6 +231,7 @@ scripts/compare_evaluations.py \
 ```
 
 Output columns:
+
 - `analysis_id`, `variant_type`, `precision`, `recall`, `f1`
 - `delta_precision`, `delta_recall`, `delta_f1`
 - `status`: `baseline` | `improved` | `regressed` | `same`
@@ -239,6 +248,7 @@ scripts/score_param_sweep.py \
 ```
 
 Generates:
+
 - Top-N parameter sets by metric
 - Delta vs baseline for each metric
 - Regression warnings
@@ -250,7 +260,8 @@ Generates:
 
 ### Scenario: 5-Genome Parameter Optimization
 
-Optimize parameters on HG002 (has v5q baseline), then validate on 4 other genomes.
+Optimize parameters on HG002 (has v5q baseline), then validate on 4 other
+genomes.
 
 #### Stage 1: HG002 Parameter Sweep
 
@@ -271,6 +282,7 @@ sweep:
 ```
 
 Generate and run:
+
 ```bash
 scripts/generate_param_sweep.py config/sweeps/hg002_optimization.yml
 ./run_defrabb run -r hg002_opt --analyses config/analyses_hg002_opt.tsv
@@ -288,6 +300,7 @@ scripts/score_param_sweep.py \
 ```
 
 Suppose top-3 are:
+
 1. `z5k` + `aggressive` + `xy_trf`
 2. `z2k` + `standard` + `trf`
 3. `z10k` + `conservative` + `xy_trf`
@@ -303,7 +316,7 @@ fixed:
   ref_id: GRCh38
   bench_type: smvar
   eval_cmd: happy
-  vcf_processing: xy_trf  # From winner
+  vcf_processing: xy_trf # From winner
 
 sweep:
   asm_id:
@@ -312,8 +325,8 @@ sweep:
     - NA12878-T2T
     - HG005-T2T
 
-  vc_param_id: [z5k, z2k, z10k]  # Top-3 from HG002
-  exclusion_set: [aggressive, standard, conservative]  # Top-3 from HG002
+  vc_param_id: [z5k, z2k, z10k] # Top-3 from HG002
+  exclusion_set: [aggressive, standard, conservative] # Top-3 from HG002
 
   eval_comp_id:
     - HG008N-comparison
@@ -322,7 +335,9 @@ sweep:
     - HG005-comparison
 ```
 
-**Note:** This cross-product generates 4×3×3×4 = 144 analyses. Post-process to match `asm_id` with corresponding `eval_comp_id` (4 genomes × 3 vc_params × 3 exclusions = 36 analyses).
+**Note:** This cross-product generates 4×3×3×4 = 144 analyses. Post-process to
+match `asm_id` with corresponding `eval_comp_id` (4 genomes × 3 vc_params × 3
+exclusions = 36 analyses).
 
 #### Stage 4: Cross-Genome Analysis
 
@@ -337,6 +352,7 @@ awk -F'\t' 'NR>1 {print $1, $4, $7}' cross_genome.tsv | sort
 ```
 
 Look for:
+
 - Parameter set with best cross-genome F1
 - Genome-specific outliers
 - Stratifications with high discrepancy rates
@@ -352,6 +368,7 @@ scripts/generate_param_sweep.py config/sweeps/my_sweep.yml --dry-run
 ```
 
 Catches:
+
 - Exploding cross-products (e.g., 1000+ analyses)
 - Missing required fields
 - Cost estimation surprises
@@ -359,18 +376,20 @@ Catches:
 ### Safety Limits
 
 Default max is 200 analyses. Override with:
+
 ```bash
 scripts/generate_param_sweep.py ... --max-analyses 500
 ```
 
 But consider splitting into phases:
+
 - Phase 1: Broad sweep (3-5 levels per dimension)
 - Phase 2: Narrow sweep around winners
 
 ### Profile Naming Conventions
 
 - Dipcall: `z<window_size>` (e.g., `z5k`, `z10k`)
-- PAV: Descriptive (`strict`, `lenient`, `giab`)
+- PAV: Descriptive (`giab`)
 - Exclusions: Descriptive (`conservative`, `standard`, `aggressive`)
 
 ### Reuse Factor Targets
@@ -383,7 +402,8 @@ But consider splitting into phases:
 
 For HG002: `--baseline v5.0q` (matches `v5.0q-smvar` and `v5.0q-stvar`)
 
-For other genomes: Use published benchmark or high-confidence comparison callset.
+For other genomes: Use published benchmark or high-confidence comparison
+callset.
 
 ### Metric Selection
 
@@ -457,6 +477,7 @@ EOF
 ### "Cross-product exceeds limit"
 
 Reduce sweep dimensions or increase `--max-analyses`:
+
 ```bash
 scripts/generate_param_sweep.py ... --max-analyses 500
 ```
@@ -464,6 +485,7 @@ scripts/generate_param_sweep.py ... --max-analyses 500
 ### "Baseline not found"
 
 Check available analysis_ids:
+
 ```bash
 ls results/evaluations/happy/*/
 # or
@@ -474,6 +496,7 @@ cut -f1 tmp.tsv | sort -u
 ### Unexpected Reuse Factor
 
 Check vc_id assignments in generated TSV:
+
 ```bash
 cut -f1 config/analyses_my_sweep.tsv | sort | uniq -c
 ```
@@ -482,7 +505,8 @@ Each vc_id should appear multiple times if reuse is working.
 
 ### Slow Sweep Generation
 
-Normal - cost estimation reads configs and does math. Typical: <2 seconds for 100 analyses.
+Normal - cost estimation reads configs and does math. Typical: <2 seconds for
+100 analyses.
 
 ---
 
@@ -491,13 +515,15 @@ Normal - cost estimation reads configs and does math. Typical: <2 seconds for 10
 ### Output Reuse Mechanism
 
 Snakemake reuses outputs when `vc_id` matches:
-```
+
+```text
 vc_id = f"{ref}_{asm}_{vc_cmd}-{vc_param_id}"
 
 Same vc_id → same outputs → no re-run
 ```
 
 The sweep generator assigns shared vc_ids to analyses differing only in:
+
 - `exclusion_set`
 - `vcf_processing`
 - `eval_cmd`, `eval_comp_id`, `eval_params`
@@ -505,8 +531,9 @@ The sweep generator assigns shared vc_ids to analyses differing only in:
 ### Schema Validation
 
 All profiles validated by `schema/resources-schema.yml`:
+
 - Dipcall: Must match `-z\d+,\d+` pattern
-- PAV: Required `merge_ins`, `merge_del`, `merge_inv` fields
+- PAV: Each profile is an object of PAV3 parameters (`reference` not allowed)
 - Exclusions: Integer values ≥ 0 for all buffer/merge params
 
 ## Future Enhancements
@@ -529,5 +556,5 @@ All profiles validated by `schema/resources-schema.yml`:
 
 ---
 
-*Document version: v0.023 (2026-07-22)*  
-*Framework status: Production-ready*
+_Document version: v0.023 (2026-07-22)_  
+_Framework status: Production-ready_
