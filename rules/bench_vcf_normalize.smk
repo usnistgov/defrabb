@@ -2,6 +2,7 @@
 rule fix_XY_genotype:
     input:
         vcf="results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz",
+        tbi="results/asm_varcalls/{vc_id}/annotations/{prefix}.vcf.gz.tbi",
         par_bed=get_par_bed,
         genome=get_genome_file,
     output:

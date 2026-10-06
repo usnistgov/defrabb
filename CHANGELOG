@@ -30,6 +30,12 @@
   malformed tandem-dup INS records with ALT==REF and empty SEQ (3 GRCh37, 24
   GRCh38, 84 CHM13 for HG002 v1.2); `bcftools norm` turns them into ALT "."
   and `merge_trfanno` crashed with "Must set at least 2 alleles".
+- **fix_XY_genotype no longer emits empty VCFs from a stale index**: the rule
+  now declares the input `.tbi`, and `fix_xy_gt.sh` runs with
+  `set -euo pipefail` and reindexes when the index is older than the VCF.
+  Previously a rerun of `normalize_vars` reused the old untracked index, region
+  queries failed with BGZF errors, and all downstream PAV annotation steps got
+  an empty VCF (`truvari anno repmask` then crashed on 0 sequences).
 
 ### HG002 Q100 v1.2 draft benchmark
 

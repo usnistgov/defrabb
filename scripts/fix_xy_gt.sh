@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 ########### Fix XY genotype ####################################################
 # Fix genotypes to match VCF specifications
@@ -100,8 +101,10 @@ bedtools complement \
 
 # Extract non-PAR XY variants
 printf "\n\nSpliting input vcf..." >&2
-if [ ! -f ${input_vcf}.tbi ]; then
-    bcftools index --tbi ${input_vcf}
+# Reindex if the index is missing or older than the VCF (a stale index from a
+# previous run silently yields empty region queries)
+if [ ! "${input_vcf}.tbi" -nt "${input_vcf}" ]; then
+    bcftools index -f --tbi "${input_vcf}"
 fi
 
 bcftools view \
@@ -121,11 +124,11 @@ bcftools index -f ${nonparxycompvcf}
 printf "\n\nSanity check..." >&2
 ## Comparing total XY input variants to variants in the vcf subsets
 echo "Input XY variants:" >&2
-bcftools index -s ${input_vcf} | grep -P "[XY]"$'\t'
+bcftools index -s ${input_vcf} | grep -P "[XY]"$'\t' || true
 echo "non-PAR XYvariants:" >&2
 bcftools index -s ${nonparxyvcf}
 echo "Others:" >&2
-bcftools index -s ${nonparxycompvcf} | grep -P "[XY]"$'\t'
+bcftools index -s ${nonparxycompvcf} | grep -P "[XY]"$'\t' || true
 
 # Fix genotypes in non-PAR XY
 printf "\n\nFixing genotypes in non-PAR XY...\n" >&2
