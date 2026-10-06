@@ -13,14 +13,17 @@ table.
     regions (from dipcall `*.dip.bed`, or from the intersection of the PAV
     haplotypes' callable regions)
   - `*.hap1.bam`, `*.hap2.bam` (dipcall): haplotype-to-reference alignments
+  - `*.dip_bcftools_stats.txt`, `*.dip_rtg_stats.txt` (dipcall): raw-call
+    statistics
   - `annotations/`: intermediate VCFs from each VCF processing step
 - `results/draft_benchmarksets/{bench_id}/`: draft benchmark sets (see below)
 - `results/evaluations/happy/{eval_id}_{bench_id}/`: hap.py output
   (`*.summary.csv`, `*.extended.csv`, annotated VCF)
 - `results/evaluations/truvari/{eval_id}_{bench_id}/`: Truvari output
   (`summary.json`, TP/FP/FN VCFs; `refine` output when enabled)
-- `results/report/`, `analysis.html`: summary statistics and the run's analysis
-  report (rendered from `analysis.qmd`)
+- `results/report/`: summary statistics
+- `analysis.html`: Quarto analysis report rendered from `analysis.qmd`; built
+  only on request (`snakemake analysis.html`)
 - `logs/`: per-rule logs
 - `benchmark/`: per-rule runtime and memory (Snakemake `benchmark:` output)
 
@@ -35,13 +38,16 @@ For each `{ref}_{asm_id}_{bench_type}_{vc_cmd}-{vc_param_id}` prefix in
 
 - `*.vcf.gz`: benchmark variants, i.e. the processed and annotated
   assembly-based calls
-- `*.benchmark.bed`: benchmark regions (diploid regions minus exclusions)
+- `*.benchmark.bed`: benchmark regions (diploid regions minus exclusions). When
+  the exclusion set is `none`, this file is named `*.bed`.
 - `*_bench-vars.vcf.gz`: benchmark variants inside the benchmark regions (for
   `stvar`, only variants of 50 bp and larger)
 - `*.exclusion_stats.txt`: bases removed by each exclusion
 - `*.exclusion_provenance.yml`: the exclusion BEDs, slop and merge parameters,
   and processing applied
-- `*_bench-vars_rtg_stats.txt`, bcftools stats: variant summary statistics
+- `*.exclusion_intersection_summary.csv`: overlap of each exclusion with the
+  diploid regions
+- `*_bench-vars_rtg_stats.txt`: variant summary statistics (rtg vcfstats)
 
 GIAB releases rename these files to `HG002_{ref}_{version}_{smvar|stvar}.vcf.gz`
 and `.benchmark.bed`.

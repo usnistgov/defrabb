@@ -11,7 +11,7 @@ The optimization workflow has three phases:
 2. **Run pipeline** - Execute the sweep
 3. **Score results** - Rank parameters and identify winners
 
-## Example: Optimizing dipcall window size for HG002
+## Example: Optimizing dipcall Z-drop parameters for HG002
 
 ### Step 1: Create sweep configuration
 
@@ -28,7 +28,7 @@ fixed:
   vc_cmd: dipcall
   bench_type: smvar
   vcf_processing: trf
-  exclusion_set: standard
+  exclusion_profile: standard
   eval_cmd: happy
   eval_comp_id: v5.0q-smvar
   eval_params: default
@@ -66,8 +66,11 @@ Wrote 3 analyses to: config/analyses_20260723_v0.023_hg002_dipcall_opt.tsv
 head -5 config/analyses_20260723_v0.023_hg002_dipcall_opt.tsv
 ```
 
+Simplified output (selected columns; the generated table has every
+analyses-table column):
+
 ```text
-vc_id	ref_id	asm_id	vc_cmd	vc_param_id	bench_type	exclusion_set	vcf_processing	eval_cmd	eval_comp_id	eval_params	vc_params	bench_id	eval_id
+vc_id	ref	asm_id	vc_cmd	vc_param_id	bench_type	exclusion_profile	bench_vcf_processing	eval_cmd	eval_comp_id	eval_params	vc_params	bench_id	eval_id
 vc001	GRCh38	HG2-T2TQ100-V1.1	dipcall	z2k	smvar	standard	trf	happy	v5.0q-smvar	default		GRCh38_HG2-T2TQ100-V1.1_smvar_dipcall-z2k_standard_trf	happy_v5.0q-smvar
 vc002	GRCh38	HG2-T2TQ100-V1.1	dipcall	z5k	smvar	standard	trf	happy	v5.0q-smvar	default		GRCh38_HG2-T2TQ100-V1.1_smvar_dipcall-z5k_standard_trf	happy_v5.0q-smvar
 vc003	GRCh38	HG2-T2TQ100-V1.1	dipcall	z10k	smvar	standard	trf	happy	v5.0q-smvar	default		GRCh38_HG2-T2TQ100-V1.1_smvar_dipcall-z10k_standard_trf	happy_v5.0q-smvar
@@ -151,7 +154,7 @@ fixed:
   vc_param_id: z5k # Winner from optimization
   bench_type: smvar
   vcf_processing: trf
-  exclusion_set: standard
+  exclusion_profile: standard
   eval_cmd: happy
   eval_comp_id: v5.0q-smvar
   eval_params: default
@@ -179,7 +182,7 @@ fixed:
 
 sweep:
   vc_param_id: [z2k, z5k, z10k]
-  exclusion_set: [conservative, standard, aggressive]
+  exclusion_profile: [conservative, standard, aggressive]
   vcf_processing: [trf, xy_trf]
 
 # Cross-product: 3 × 3 × 2 = 18 analyses
@@ -221,7 +224,7 @@ Sweep: HG002 Multi-Parameter Optimization
 
 - `giab` - PAV3 defaults (PAV3 has no merge parameters)
 
-### Exclusions (`exclusion_set`)
+### Exclusion profiles (`exclusion_profile`)
 
 - `standard` - Default buffer distances
 - `conservative` - Larger buffers (more exclusions)

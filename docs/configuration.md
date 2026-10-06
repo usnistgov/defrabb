@@ -25,7 +25,8 @@ same variant calls. Rows that share a `bench_id` reuse the same draft benchmark.
   `CHM13v2.0`, `GRCh38_chr21`)
 - `vc_cmd`: `dipcall` or `pav`
 - `vc_param_id`: named caller profile (`_dipcall_params` or `_pav_config`)
-- `vc_params`: extra caller arguments, or `default`
+- `vc_params`: dipcall arguments used when `vc_param_id` does not match a
+  profile (a matching profile takes precedence); ignored for PAV
 
 **Draft benchmark** (identified by `bench_id`):
 
@@ -86,8 +87,8 @@ Main sections:
 
 - `references`: per reference, the FASTA URL, PAR BED, TR annotation database,
   exclusion BED URLs, and the GIAB stratifications tarball
-- `assemblies`: per assembly, the maternal and paternal FASTA URLs, sex, and
-  sample ID
+- `assemblies`: per assembly, the maternal and paternal FASTA URLs, `is_male`,
+  and sample ID
 - `comparisons`: per reference, comparison callset VCF, BED, and index URLs
 - `exclusion_set`: named lists of exclusion IDs
 - `exclusion_slop_regions`, `exclusion_slopmerge_regions`,
@@ -127,13 +128,16 @@ with the default settings below.
   - Settings: `_happy_threads` (default 12).
   - Memory: reserved as `_happy_mem` (160 GB). hap.py processes genome chunks in
     parallel, one per thread, so peak memory scales with threads.
-  - Measured peak: 95–151 GB at 12 threads. Reduce `_happy_threads` on smaller
-    machines.
+  - Measured peak: 95–151 GB at 12 threads (earlier whole-genome HG002 and HG008
+    runs). Reduce `_happy_threads` on smaller machines.
 - **Truvari**
-  - Settings: `_truvari_refine_threads` (24) and `_truvari_anno_threads` (8).
-  - Memory: reserved as `_truvari_mem` (32 GB) and `_truvari_anno_mem` (16 GB).
-    `truvari bench` itself is light; `refine` (MAFFT) and the annotation passes
-    are heavier.
+  - Settings: `_truvari_refine_threads` (24) sets threads for both
+    `truvari bench` and `refine`. `_truvari_anno_threads` (8) applies to
+    `truvari anno trf`; `anno repmask` uses a fixed 5 threads.
+  - Memory: `_truvari_mem` (32 GB) is reserved for `truvari bench`, and
+    `_truvari_anno_mem` (16 GB) for the `trf`, `svinfo`, and `lcr` annotations.
+    `refine` (MAFFT) has no reservation, so leave headroom in the global budget
+    when it runs.
 
 If you change a thread or job setting, scale the matching memory reservation by
 roughly the same factor. Always pass `--resources mem_mb=<budget>` for

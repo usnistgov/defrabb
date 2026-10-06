@@ -3,7 +3,8 @@
 This page describes what DeFrABB does at each stage and why. It is aimed at
 readers who want to understand how a DeFrABB benchmark (for example GIAB HG002
 v5.0q) was built. For the scientific context and evaluation of the HG002
-benchmark, see the preprint: <https://doi.org/10.64898/2026.09.23.752440>.
+benchmark, see the preprint:
+<https://www.biorxiv.org/content/10.64898/2026.09.23.752440v1>.
 
 DeFrABB has three components:
 
@@ -19,13 +20,13 @@ processing, exclusion set, and evaluation (see
 ## Inputs
 
 - **Diploid assembly:** maternal and paternal haplotype FASTAs (for HG002 v5.0q,
-  the T2T HG002 Q100 v1.1 assembly). The assembly's sex determines how chrX and
-  chrY are handled.
+  the T2T HG002 Q100 v1.1 assembly). The `is_male` setting determines how chrX
+  and chrY are handled.
 - **Reference genome:** GRCh37, GRCh38, or T2T-CHM13v2.0, with a
   pseudoautosomal-region (PAR) BED.
 - **Exclusion region BEDs:** mostly GIAB genome stratifications (segmental
-  duplications, tandem repeats, satellites, gaps, VDJ), plus genome-specific
-  BEDs such as known assembly errors.
+  duplications, tandem repeats, satellites, VDJ), plus genome-specific BEDs such
+  as known assembly errors.
 - **Comparison callsets:** existing benchmarks or high-quality callsets used to
   evaluate the drafts.
 
@@ -48,7 +49,7 @@ Supported callers:
   minimap2 `-z` (Z-drop) parameter is configurable through named profiles. The
   production profile `z2k` (`-z200000,10000`) improves alignment through SVs and
   the MHC.
-- **[PAV](https://github.com/BeckLaboratory/pav)** (PAV3): run in a container.
+- **[PAV](https://github.com/BeckLaboratory/pav3)** (PAV3): run in a container.
   Only `FILTER=PASS` calls are kept. PAV calls are also used to derive
   exclusions (see below).
 
@@ -92,8 +93,9 @@ reliable. That happens when the assembly, the assembly-based variant calls, the
 reference, the VCF representation, or the benchmarking tools are likely to
 produce incorrect comparisons. Exclusion types:
 
-- **Assembly gaps and flanks:** gaps in the reference or assembly, and a buffer
-  (15 kb by default) around breaks in the assembly-to-reference alignment.
+- **Gaps and flanks:** reference gaps (N-stretches detected in the reference
+  FASTA), and a buffer (15 kb by default) around breaks in the
+  assembly-to-reference alignment.
 - **Large repeats with alignment breaks:** segmental duplications, satellites,
   and large tandem repeats are excluded only where an alignment break falls
   inside them. Nearby segmental duplications and satellites are merged first, so
@@ -104,8 +106,10 @@ produce incorrect comparisons. Exclusion types:
 - **Consecutive SVs:** adjacent deletions and insertions that typically reflect
   alignment artifacts.
 - **Caller discrepancies:** regions where dipcall and PAV disagree. Small
-  variants are compared with vcfeval and SVs with `truvari refine`. This also
-  covers inversions called by PAV, which dipcall represents inconsistently.
+  variants are compared with hap.py/vcfeval and SVs with `truvari bench`. (The
+  HG002 v5.0q exclusion BEDs were generated with `truvari bench` followed by
+  MAFFT-based `refine`.) This also covers inversions called by PAV, which
+  dipcall represents inconsistently.
 - **Self-discrepancies:** the draft benchmark is compared against itself with
   the benchmarking tool. Any false positives or negatives come from
   representations the tool cannot match, and those regions are excluded.
@@ -135,9 +139,10 @@ Each draft benchmark is compared against one or more comparison callsets:
   profiles.
 
 Either the draft or the comparison callset can be the truth set. Truth and
-target regions are configurable per evaluation. Results go into an analysis
-report, along with assembly, variant, and region statistics. The report serves
-as an initial QC step for iterating on parameters and exclusions.
+target regions are configurable per evaluation. Results are summarized along
+with assembly, variant, and region statistics, and can be rendered as an
+analysis report (`snakemake analysis.html`). This serves as an initial QC step
+for iterating on parameters and exclusions.
 
 ## From draft to release
 

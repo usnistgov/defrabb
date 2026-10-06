@@ -45,8 +45,8 @@ preferred-citation:
       given-names: Sergey
     - family-names: Rhie
       given-names: Arang
-    - name: "et al."
     - family-names: Phillippy
       given-names: Adam M.
     - family-names: Zook
       given-names: Justin M.
+    - name: "et al."

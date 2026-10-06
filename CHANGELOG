@@ -105,6 +105,20 @@
   `prefer_vc_param_id` uniquely selects a run.
 - CI restored to green: stale sweep-generator tests, black/snakefmt formatting.
 
+### Documentation
+
+- README rewritten for external readers: method overview and workflow diagram,
+  preprint citation, v5.0q provenance (DeFrABB v0.020), quick start,
+  thread-dependent resource requirements, outputs, and AI use disclosure.
+- New `docs/method-overview.md`, `docs/configuration.md` (analyses-table
+  columns, `resources.yml` sections, compute resources), `docs/outputs.md`
+  (layout and glossary), `docs/README.md` index, and `CITATION.cff`.
+- Internal docs moved out of the repository. NIST runbooks, release and CI
+  notes, investigations (`docs/issues/`), and validation reports now live in
+  the GitLab wiki; planning docs are tracked as GitLab issues (#204-#207).
+  Code comments cite wiki pages as `wiki:investigations/<page>`.
+- `AGENTS.md` is the single contributor/agent guide; `CLAUDE.md` imports it.
+
 ### Removed
 
 - `scripts/extract_discrepancies.py` and untracked curation work (moved to the

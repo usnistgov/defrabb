@@ -1,6 +1,6 @@
 # DeFrABB: Development Framework for Assembly-Based Benchmarks
 
-[![bioRxiv](https://img.shields.io/badge/bioRxiv-10.64898%2F2026.09.23.752440-b31b1b)](https://doi.org/10.64898/2026.09.23.752440)
+[![bioRxiv](https://img.shields.io/badge/bioRxiv-10.64898%2F2026.09.23.752440-b31b1b)](https://www.biorxiv.org/content/10.64898/2026.09.23.752440v1)
 [![Snakemake](https://img.shields.io/badge/snakemake-%E2%89%A58.30-brightgreen)](https://snakemake.github.io)
 [![License: NIST](https://img.shields.io/badge/license-NIST-blue)](LICENSE)
 
@@ -18,7 +18,7 @@ T2T HG002 Q100 v1.1 assembly. These are described in:
 > Olson ND, Dwarshuis N, Hansen NF, _et al._ The Genome In A Bottle HG002
 > assembly-based variant benchmark set enables comprehensive benchmarking of
 > small and structural variants. _bioRxiv_ (2026).
-> <https://doi.org/10.64898/2026.09.23.752440>
+> <https://www.biorxiv.org/content/10.64898/2026.09.23.752440v1>
 
 ## Status and intended audience
 
@@ -39,20 +39,20 @@ DeFrABB has three components (Fig. 1a of the preprint):
 flowchart LR
     A[Diploid assembly<br/>hap1 + hap2 FASTA] --> VC
     R[Reference<br/>GRCh37 / GRCh38 / CHM13] --> VC
-    subgraph VC[1. Assembly-based variant calling]
+    subgraph VC["Step 1: Assembly-based variant calling"]
         direction TB
         V1[Align each haplotype<br/>to the reference<br/>dipcall or PAV] --> V2[Phased variant calls VCF<br/>+ diploid regions BED]
     end
     VC --> BG
-    subgraph BG[2. Draft benchmark generation]
+    subgraph BG["Step 2: Draft benchmark generation"]
         direction TB
-        B1[VCF processing<br/>normalize, fix chrX/Y GT,<br/>Truvari annotation] --> B3
+        B1[VCF processing<br/>optional normalize, fix chrX/Y GT,<br/>Truvari annotation] --> B3
         B2[Benchmark regions =<br/>diploid regions minus exclusions] --> B3[Benchmark VCF + BED<br/>smvar and/or stvar]
     end
     BG --> EV
-    subgraph EV[3. Evaluation]
+    subgraph EV["Step 3: Evaluation"]
         direction TB
-        E1[Compare to existing callsets<br/>hap.py for small variants,<br/>Truvari for SVs] --> E2[Analysis report]
+        E1[Compare to existing callsets<br/>hap.py for small variants,<br/>Truvari for SVs] --> E2[Summary statistics<br/>+ optional analysis report]
     end
 ```
 
@@ -60,21 +60,23 @@ flowchart LR
    reference. Variants are called from the alignments, and _diploid regions_ are
    defined: regions where both haplotypes align 1:1 to the reference.
    [dipcall](https://github.com/lh3/dipcall) and
-   [PAV](https://github.com/BeckLaboratory/pav) are supported, and caller
+   [PAV](https://github.com/BeckLaboratory/pav3) are supported, and caller
    parameters are configurable.
-2. **Draft benchmark generation.** Variant calls are normalized (bcftools) and
-   annotated (Truvari `svinfo`, `trf`, `repmask`, `remap`). Genotypes in non-PAR
-   chrX/chrY are converted to haploid representation. Benchmark regions are the
+2. **Draft benchmark generation.** Variant calls go through a configurable
+   series of processing steps: optional normalization (bcftools), conversion of
+   non-PAR chrX/chrY genotypes to haploid representation, and Truvari annotation
+   (`trf`, `svinfo`, `repmask`, `lcr`, `remap`). Benchmark regions are the
    diploid regions minus _exclusions_: genomic contexts where the assembly, the
    variant calls, or the benchmarking tools are not reliable. Examples include
-   assembly gaps and their flanks, large repeats with alignment breaks, regions
-   with SVs (for small-variant benchmarks), known assembly errors, discrepancies
-   between callers, and a _self-discrepancy_ step that excludes variants the
-   benchmarking tools cannot compare to themselves.
+   reference gaps, flanks of alignment breaks, large repeats with alignment
+   breaks, regions with SVs (for small-variant benchmarks), known assembly
+   errors, discrepancies between callers, and a _self-discrepancy_ step that
+   excludes variants the benchmarking tools cannot compare to themselves.
 3. **Evaluation.** Each draft benchmark is compared against established callsets
    with [hap.py](https://github.com/Illumina/hap.py) (small variants) or
    [Truvari](https://github.com/ACEnglish/truvari) (SVs). Results are summarized
-   in an analysis report used for QC and parameter iteration.
+   in summary statistics and an optional analysis report used for QC and
+   parameter iteration.
 
 Draft benchmarks are then curated and evaluated by external groups before
 release. That curation happens outside this pipeline (see the preprint).
@@ -122,7 +124,7 @@ Analyses tables for past production runs are kept in `config/` as
 - [Snakemake](https://snakemake.github.io) ≥ 8.30
 - conda or mamba (rule-specific environments are created from `envs/`)
 - [Apptainer](https://apptainer.org) (PAV runs in a container)
-- `boto3` if you use the `run_defrabb` wrapper
+- `boto3` if you release results to S3 with `run_defrabb release`
 
 Whole-genome runs need a large-memory server. Peak memory for dipcall, PAV, and
 hap.py depends on their thread and job settings. With the defaults, whole-genome
@@ -130,7 +132,7 @@ HG002 peaked at:
 
 - dipcall: 102–116 GB (4 parallel jobs × 5 threads)
 - PAV: about 65 GB (24 threads)
-- hap.py: 95–151 GB (12 threads)
+- hap.py: 95–151 GB (12 threads; measured on earlier HG002 and HG008 runs)
 
 Lowering the threads lowers peak memory (see
 [Compute resources](docs/configuration.md#compute-resources)). The bundled chr21
@@ -144,7 +146,8 @@ cd defrabb
 snakemake --use-conda --use-apptainer --cores 4
 ```
 
-This uses `config/analyses.tsv`, a small HG002 chr21 dipcall example.
+This uses `config/analyses.tsv`: HG002 chr21 dipcall calls with small-variant
+(hap.py) and SV (Truvari) evaluations.
 
 ### Configure your own analysis
 
@@ -186,9 +189,10 @@ cd 20260519_v0.023_HG002
 ./run_defrabb report -r 20260519_v0.023_HG002
 ```
 
-Run `./run_defrabb --help` for all subcommands. The archive and release defaults
-(NAS paths, S3 buckets) are NIST-specific. Override them with `--archive_dir`,
-`--s3_bucket`, and `--s3_path`.
+Run `./run_defrabb --help` for all subcommands. By default, archives go to
+`./defrabb_archive/`, and S3 release settings come from `config/release.json` (a
+template). Override them with `--archive_dir`, `--s3_bucket`, and `--s3_path`.
+NIST-internal defaults load only with `--profile nist`.
 
 ## Outputs
 
@@ -196,13 +200,15 @@ Run `./run_defrabb --help` for all subcommands. The archive and release defaults
   regions, and haplotype alignments
 - `results/draft_benchmarksets/{bench_id}/`: draft benchmark sets
   - `*.vcf.gz`: benchmark variants (processed and annotated calls)
-  - `*.benchmark.bed`: benchmark regions (diploid regions minus exclusions)
+  - `*.benchmark.bed`: benchmark regions (diploid regions minus exclusions;
+    named `*.bed` when the exclusion set is `none`)
   - `*_bench-vars.vcf.gz`: benchmark variants inside the benchmark regions
   - `*.exclusion_stats.txt`, `*.exclusion_provenance.yml`: sequence removed by
     each exclusion, and the exact exclusion inputs and parameters
 - `results/evaluations/{happy,truvari}/{eval_id}_{bench_id}/`: evaluations
   against comparison callsets
-- `results/report/`, `analysis.html`: summary statistics and analysis report
+- `results/report/`: summary statistics. The Quarto analysis report
+  (`analysis.html`) is built on request with `snakemake analysis.html`.
 - `logs/`, `benchmark/`: per-rule logs and runtime/memory measurements
 
 Use a benchmark VCF together with its `benchmark.bed`. Variants outside the BED
@@ -246,3 +252,10 @@ above. Citation metadata is in [CITATION.cff](CITATION.cff).
 
 DeFrABB is NIST-developed software. See [LICENSE](LICENSE) for the NIST software
 licensing statement.
+
+## AI use disclosure
+
+Since 2026, parts of DeFrABB's code, tests, and documentation were developed
+with assistance from Claude (Anthropic) via Claude Code. All AI-assisted changes
+were reviewed and tested by the authors, who are responsible for the pipeline
+and its results. No restricted data was shared with the AI service.

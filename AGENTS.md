@@ -11,7 +11,7 @@ small-variant and structural-variant benchmark sets. It orchestrates diploid
 assembly variant calling, exclusion region processing, benchmark VCF/BED
 generation, and evaluation against comparison callsets. It produced the GIAB
 HG002 v5.0q benchmarks (DeFrABB v0.020; preprint
-<https://doi.org/10.64898/2026.09.23.752440>).
+<https://www.biorxiv.org/content/10.64898/2026.09.23.752440v1>).
 
 ## Build and Run
 
@@ -136,9 +136,10 @@ reports, or NIST runbooks there.
 
 ## NIST-Specific Defaults
 
-`run_defrabb` and `config/release.json` contain NIST-specific paths and S3
-settings. External users should override `--archive_dir`, `--s3_bucket`, and
-`--s3_path` instead of editing defaults.
+`run_defrabb` uses generic defaults (`./defrabb_archive/`, template
+`config/release.json`). NIST paths and S3 settings live in `profiles/nist/` and
+load with `--profile nist` (or `DEFRABB_PROFILE=nist`). Others should override
+`--archive_dir`, `--s3_bucket`, and `--s3_path` instead of editing defaults.
 
 ## Known Issues
 

@@ -43,7 +43,7 @@ fixed:
 
 sweep:
   vc_param_id: [z2k, z5k, z10k]
-  exclusion_set: [conservative, standard, aggressive]
+  exclusion_profile: [conservative, standard, aggressive]
   vcf_processing: [trf, xy_trf]
 ```
 
@@ -92,12 +92,12 @@ minimap2 Z-drop thresholds passed through dipcall (format:
 `-z<zdrop>,<inversion_zdrop>`). Higher values let alignments extend through
 larger SVs and divergent regions before being split:
 
-| Profile         | Flags             | Use Case                                   |
-| --------------- | ----------------- | ------------------------------------------ |
-| `z2k` (default) | `-z200000,10000`  | Production default, balanced               |
-| `z5k`           | `-z500000,5000`   | Wider window, better long-range phasing    |
-| `z10k`          | `-z1000000,10000` | Extreme sensitivity, slow                  |
-| `z1k`           | `-z100000,1000`   | Narrow window, better small variant recall |
+| Profile         | Flags             | Use Case                              |
+| --------------- | ----------------- | ------------------------------------- |
+| `z2k` (default) | `-z200000,10000`  | Production default (HG002 v5.0q)      |
+| `z5k`           | `-z500000,5000`   | Higher Z-drop; fewer alignment splits |
+| `z10k`          | `-z1000000,10000` | Highest Z-drop; for testing           |
+| `z1k`           | `-z100000,1000`   | Lower Z-drop; more alignment splits   |
 
 **Usage:** Set `vc_param_id` column in analyses table or sweep config.
 
@@ -122,11 +122,13 @@ Buffer distances for exclusion region processing (basepairs):
 | `standard` (default) | 15000 | 10000      | 15000       | Production default |
 | `aggressive`         | 10000 | 5000       | 10000       | Maximize recall    |
 
-**Usage:** Set `exclusion_set` column in analyses table or sweep config.
+**Usage:** Set the `exclusion_profile` column in the analyses table or sweep
+config.
 
 ### VCF Processing Profiles
 
-Post-calling VCF transformations (defined in `config/resources.yml:152-192`):
+Post-calling VCF transformations (defined in `vcf_processing_profiles` in
+`config/resources.yml`):
 
 | Profile              | Steps                           | Use Case                            |
 | -------------------- | ------------------------------- | ----------------------------------- |
@@ -165,7 +167,7 @@ fixed:
 sweep:
   # Fields to cross-product
   vc_param_id: [z2k, z5k, z10k]
-  exclusion_set: [standard, aggressive]
+  exclusion_profile: [standard, aggressive]
   # ... any analyses.tsv column
 
 # Optional constraints (future enhancement)
@@ -183,7 +185,7 @@ parameters:
 Input:
   sweep:
     vc_param_id: [z2k, z5k]
-    exclusion_set: [standard, aggressive]
+    exclusion_profile: [standard, aggressive]
 
 Cross-product: 2 × 2 = 4 analyses
 Unique vc_ids: 2 (z2k, z5k share across exclusion sets)
@@ -200,7 +202,7 @@ Runtime and storage projections based on historical averages:
 | Operation | Runtime (hours) | Storage (GB) |
 | --------- | --------------- | ------------ |
 | dipcall   | 5.0             | 50           |
-| PAV       | 6.0             | 80           |
+| PAV       | 11.5            | 80           |
 | hap.py    | 0.5             | 5            |
 | Truvari   | 1.0             | 10           |
 
@@ -277,7 +279,7 @@ fixed:
 
 sweep:
   vc_param_id: [z2k, z5k, z10k]
-  exclusion_set: [conservative, standard, aggressive]
+  exclusion_profile: [conservative, standard, aggressive]
   vcf_processing: [trf, xy_trf]
 ```
 
@@ -326,7 +328,7 @@ sweep:
     - HG005-T2T
 
   vc_param_id: [z5k, z2k, z10k] # Top-3 from HG002
-  exclusion_set: [aggressive, standard, conservative] # Top-3 from HG002
+  exclusion_profile: [aggressive, standard, conservative] # Top-3 from HG002
 
   eval_comp_id:
     - HG008N-comparison
@@ -388,7 +390,7 @@ But consider splitting into phases:
 
 ### Profile Naming Conventions
 
-- Dipcall: `z<window_size>` (e.g., `z5k`, `z10k`)
+- Dipcall: short `z` names (`z2k`, `z5k`, ...); see the table above for flags
 - PAV: Descriptive (`giab`)
 - Exclusions: Descriptive (`conservative`, `standard`, `aggressive`)
 
@@ -450,7 +452,7 @@ fixed:
   vc_cmd: dipcall
   vc_param_id: z2k
 sweep:
-  exclusion_set: [conservative, standard, aggressive]
+  exclusion_profile: [conservative, standard, aggressive]
   vcf_processing: [trf, xy_trf]
 EOF
 ```
@@ -465,7 +467,7 @@ output: config/analyses_full_sweep.tsv
 fixed: {ref_id: GRCh38, asm_id: HG002}
 sweep:
   vc_param_id: [z2k, z5k, z10k]
-  exclusion_set: [conservative, standard, aggressive]
+  exclusion_profile: [conservative, standard, aggressive]
   vcf_processing: [trf, xy_trf]
 EOF
 ```

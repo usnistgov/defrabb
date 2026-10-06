@@ -1,4 +1,5 @@
 <!-- markdownlint-disable-file MD041 -->
+
 @AGENTS.md
 
 ## Claude Code notes (maintainer workstation)

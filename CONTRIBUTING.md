@@ -25,7 +25,7 @@ GitHub at the next release. Before submitting:
 ```sh
 pytest .tests          # unit tests
 snakefmt --check .     # Snakemake formatting
-black --check scripts/ # Python formatting
+black --check scripts/ .tests/  # Python formatting
 ```
 
 Describe the change's effect on workflow outputs, and note any changes to
